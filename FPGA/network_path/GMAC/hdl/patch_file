@@ -1,0 +1,335 @@
+diff -u hdl/oc_mac_crc_func.h new_hdl/oc_mac_crc_func.h
+--- hdl/oc_mac_crc_func.h	2012-12-01 01:12:47.000000000 +0100
++++ new_hdl/oc_mac_crc_func.h	2016-03-22 23:36:15.878822718 +0100
+@@ -39,50 +39,10 @@
+ //////////////////////////////////////////////////////////////////////
+ 
+ 
+-`ifndef OC_MAC_CRC_FUNC
+-`define OC_MAC_CRC_FUNC
++//`ifndef OC_MAC_CRC_FUNC
++//`define OC_MAC_CRC_FUNC
+ 
+ 
+-function [31:0] next_crc32_data64_be;
+-	
+-	input [63:0] inp;
+-	input [31:0] crc;	
+-	input [2:0] be; // 0 for all valid, 1 for data[31:8]
+-	// (3 valid bytes).
+-	case (be)
+-		3'b000: begin
+-				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
+-			end
+-		3'b001: begin
+-				next_crc32_data64_be =	nextCRC32_D8(inp[63:56], crc);
+-			end
+-		3'b010: begin
+-				next_crc32_data64_be =	nextCRC32_D16(inp[63:48], crc);
+-			end
+-		3'b011: begin
+-				next_crc32_data64_be =	nextCRC32_D24(inp[63:40], crc);
+-			end
+-		3'b100: begin
+-				next_crc32_data64_be =	nextCRC32_D32(inp[63:32], crc);
+-			end
+-		3'b101: begin
+-				next_crc32_data64_be =	nextCRC32_D40(inp[63:24], crc);
+-			end
+-		3'b110: begin
+-				next_crc32_data64_be =	nextCRC32_D48(inp[63:16], crc);
+-			end
+-		3'b111: begin
+-				next_crc32_data64_be =	nextCRC32_D56(inp[63:8], crc);
+-			end
+-		default: begin
+-				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
+-			end			
+-	endcase
+-
+-
+-	
+-endfunction
+-
+ function [31:0] nextCRC32_D8;
+ 
+ 	input [7:0] Data;
+@@ -474,4 +434,44 @@
+     end
+ endfunction
+ 
+-`endif //OC_MAC_CRC_FUNC
+\ No newline at end of file
++function [31:0] next_crc32_data64_be;
++	
++	input [63:0] inp;
++	input [31:0] crc;	
++	input [2:0] be; // 0 for all valid, 1 for data[31:8]
++	// (3 valid bytes).
++	case (be)
++		3'b000: begin
++				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
++			end
++		3'b001: begin
++				next_crc32_data64_be =	nextCRC32_D8(inp[63:56], crc);
++			end
++		3'b010: begin
++				next_crc32_data64_be =	nextCRC32_D16(inp[63:48], crc);
++			end
++		3'b011: begin
++				next_crc32_data64_be =	nextCRC32_D24(inp[63:40], crc);
++			end
++		3'b100: begin
++				next_crc32_data64_be =	nextCRC32_D32(inp[63:32], crc);
++			end
++		3'b101: begin
++				next_crc32_data64_be =	nextCRC32_D40(inp[63:24], crc);
++			end
++		3'b110: begin
++				next_crc32_data64_be =	nextCRC32_D48(inp[63:16], crc);
++			end
++		3'b111: begin
++				next_crc32_data64_be =	nextCRC32_D56(inp[63:8], crc);
++			end
++		default: begin
++				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
++			end			
++	endcase
++
++
++	
++endfunction
++
++//`endif //OC_MAC_CRC_FUNC
+diff -u hdl/oc_mac.h new_hdl/oc_mac.h
+--- hdl/oc_mac.h	2012-12-01 01:12:47.000000000 +0100
++++ new_hdl/oc_mac.h	2016-03-22 23:36:15.878822718 +0100
+@@ -90,3 +90,6 @@
+ `define RXSTATUS_VALID      3'd4
+ 
+ //`define SIMULATION
++
++`define ASYNC_RES 1
++
+diff -u hdl/oc_mac.v new_hdl/oc_mac.v
+--- hdl/oc_mac.v	2012-12-01 01:12:47.000000000 +0100
++++ new_hdl/oc_mac.v	2016-03-22 23:24:46.493500704 +0100
+@@ -43,7 +43,8 @@
+ `default_nettype none
+ module oc_mac (
+ 		input wire		res_n,
+-		input wire 		clk,
++
++		input wire 		tx_clk,
+ 		input wire		tx_start,
+ 		input wire [63:0]	tx_data,
+ 		input wire [7:0]	tx_data_valid,
+@@ -51,12 +52,15 @@
+ 		input wire [7:0]	xgmii_rxc,
+ 
+ 		output wire		tx_ack,
++
++		input wire 		rx_clk,
++
+ 		output wire		rx_bad_frame,
+ 		output wire		rx_good_frame,
+ 		output wire [63:0]	rx_data,
+ 		output wire [7:0]	rx_data_valid,
+ 		output wire [7:0]	xgmii_txc,
+-		output wire[63:0]	xgmii_txd
++		output wire [63:0]	xgmii_txd
+ 	);
+ 
+ wire [1:0]	local_fault_msg_det;
+@@ -81,7 +85,7 @@
+ 		.status_fragment_error_tog(status_fragment_error_tog),
+ 		.status_pause_frame_rx_tog(status_pause_frame_rx_tog),
+ 		// Inputs
+-		.clk         		(clk),
++		.clk         		(rx_clk),
+ 		.res_n    		(res_n),
+ 		.xgmii_rxd		(xgmii_rxd),
+ 		.xgmii_rxc		(xgmii_rxc));
+@@ -95,7 +99,7 @@
+ 		.rx_bad_frame		(rx_bad_frame),
+ 		//.status_rxdfifo_udflow_tog(status_rxdfifo_udflow_tog),
+ 		// Inputs
+-		.clk	 		(clk),
++		.clk	 		(rx_clk),
+ 		.res_n			(res_n),
+ 		.rx_inc_data		(xgmii_data_in),
+ 		.rx_inc_status		(xgmii_data_status));
+@@ -106,7 +110,7 @@
+ 		.xgmii_txd            	(xgmii_txd),
+ 		.xgmii_txc            	(xgmii_txc),
+ 		// Inputs
+-		.clk	         	(clk),
++		.clk	         	(tx_clk),
+ 		.res_n		     	(res_n),
+ 		.txdfifo_rdata        	(txdfifo_wdata),
+ 		.txdfifo_rstatus      	(txdfifo_wstatus));
+@@ -118,7 +122,7 @@
+ 		.txdfifo_wstatus	(txdfifo_wstatus),
+ 		.tx_ack			(tx_ack),
+ 
+-		.clk			(clk),
++		.clk			(tx_clk),
+ 		.res_n			(res_n),
+ 		.tx_start		(tx_start),
+ 		.tx_data		(tx_data),
+diff -u hdl/rx_enqueue.v new_hdl/rx_enqueue.v
+--- hdl/rx_enqueue.v	2012-12-01 01:12:47.000000000 +0100
++++ new_hdl/rx_enqueue.v	2016-03-22 23:24:46.493500704 +0100
+@@ -39,7 +39,6 @@
+ //////////////////////////////////////////////////////////////////////
+ 
+ `include "oc_mac.h"
+-`include "oc_mac_crc_func.h"
+ 
+ module rx_enqueue(
+ 		input wire		clk,
+@@ -61,12 +60,17 @@
+ 		output reg		status_pause_frame_rx_tog);
+ 
+ 
++`include "oc_mac_crc_func.h"
++
+ reg [63:32]	xgmii_rxd_d1;
+ reg [7:4]	xgmii_rxc_d1;
+ 
+ reg [63:0]	xgxs_rxd_barrel;
+ reg [7:0]	xgxs_rxc_barrel;
+ 
++reg [63:0]	xgxs_rxd_barrel_x;
++reg [7:0]	xgxs_rxc_barrel_x;
++
+ reg [63:0]	xgxs_rxd_barrel_d1;
+ reg [7:0]	xgxs_rxc_barrel_d1;
+ 
+@@ -129,6 +133,9 @@
+ 		xgxs_rxd_barrel <= 64'b0;
+ 		xgxs_rxc_barrel <= 8'b0;
+ 
++		xgxs_rxd_barrel_x <= 64'b0;
++		xgxs_rxc_barrel_x <= 8'b0;
++
+ 		xgxs_rxd_barrel_d1 <= 64'b0;
+ 		xgxs_rxc_barrel_d1 <= 8'b0;
+ 
+@@ -232,6 +239,18 @@
+ 		xgxs_rxc_barrel_d1 <= xgxs_rxc_barrel;
+ 
+ 
++                if (barrel_shift) begin
++
++			xgxs_rxd_barrel_x <= {xgmii_rxd[31:0], xgmii_rxd_d1[63:32]};
++			xgxs_rxc_barrel_x <= {xgmii_rxc[3:0], xgmii_rxc_d1[7:4]};
++
++		end
++		else begin
++
++			xgxs_rxd_barrel_x <= xgmii_rxd;
++			xgxs_rxc_barrel_x <= xgmii_rxc;
++
++		end
+ 		crc_rx <= next_crc_rx;
+ 
+ 		if (crc_clear) begin
+@@ -272,7 +291,7 @@
+ 
+ always @(/*AS*/crc_rx or curr_byte_cnt or curr_state
+ 	or pause_frame or xgxs_rxc_barrel or xgxs_rxc_barrel_d1
+-	or xgxs_rxd_barrel or xgxs_rxd_barrel_d1) 
++	or xgxs_rxd_barrel_x or xgxs_rxd_barrel_d1) 
+ begin
+ 
+ 	next_state = curr_state;
+@@ -412,12 +431,12 @@
+ 					
+ 					
+ 				end
+-				else if (xgxs_rxd_barrel[`LANE4] == `TERMINATE && xgxs_rxc_barrel[4]) begin
++				else if (xgxs_rxd_barrel_x[`LANE4] == `TERMINATE && xgxs_rxc_barrel[4]) begin
+ 		
+ 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
+ 					rx_inc_status[2:0] = 3'd0;
+ 
+-					if (  xgxs_rxd_barrel[31:0] !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b000))) begin
++					if (  xgxs_rxd_barrel_x[31:0] !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b000))) begin
+ 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
+ 						`ifdef SIMULATION
+ 						crc_good = 1'b0;
+@@ -432,12 +451,12 @@
+ 
+ 				end
+ 
+-				else if (xgxs_rxd_barrel[`LANE3] == `TERMINATE && xgxs_rxc_barrel[3]) begin
++				else if (xgxs_rxd_barrel_x[`LANE3] == `TERMINATE && xgxs_rxc_barrel[3]) begin
+ 
+ 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
+ 					rx_inc_status[2:0] = 3'd7;
+ 
+-					if (  {xgxs_rxd_barrel[23:0], xgxs_rxd_barrel_d1[63:56]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b111))) begin
++					if (  {xgxs_rxd_barrel_x[23:0], xgxs_rxd_barrel_d1[63:56]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b111))) begin
+ 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;						
+ 						`ifdef SIMULATION
+ 						crc_good = 1'b0;
+@@ -452,12 +471,12 @@
+ 
+ 				end
+ 			
+-				else if (xgxs_rxd_barrel[`LANE2] == `TERMINATE && xgxs_rxc_barrel[2]) begin
++				else if (xgxs_rxd_barrel_x[`LANE2] == `TERMINATE && xgxs_rxc_barrel[2]) begin
+ 
+ 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
+ 					rx_inc_status[2:0] = 3'd6;
+ 
+-					if (  {xgxs_rxd_barrel[15:0], xgxs_rxd_barrel_d1[63:48]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b110))) begin
++					if (  {xgxs_rxd_barrel_x[15:0], xgxs_rxd_barrel_d1[63:48]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b110))) begin
+ 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
+ 						`ifdef SIMULATION
+ 						crc_good = 1'b0;
+@@ -472,12 +491,12 @@
+ 
+ 				end
+ 
+-				else if (xgxs_rxd_barrel[`LANE1] == `TERMINATE && xgxs_rxc_barrel[1]) begin
++				else if (xgxs_rxd_barrel_x[`LANE1] == `TERMINATE && xgxs_rxc_barrel[1]) begin
+ 
+ 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
+ 					rx_inc_status[2:0] = 3'd5;
+ 
+-					if ( {xgxs_rxd_barrel[7:0], xgxs_rxd_barrel_d1[63:40]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b101))) begin
++					if ( {xgxs_rxd_barrel_x[7:0], xgxs_rxd_barrel_d1[63:40]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b101))) begin
+ 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
+ 						`ifdef SIMULATION
+ 						crc_good = 1'b0;
+@@ -492,7 +511,7 @@
+ 
+ 				end
+ 			
+-				else if (xgxs_rxd_barrel[`LANE0] == `TERMINATE && xgxs_rxc_barrel[0]) begin
++				else if (xgxs_rxd_barrel_x[`LANE0] == `TERMINATE && xgxs_rxc_barrel[0]) begin
+ 
+ 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
+ 					rx_inc_status[2:0] = 3'd4;
+diff -u hdl/tx_dequeue.v new_hdl/tx_dequeue.v
+--- hdl/tx_dequeue.v	2012-12-01 01:12:47.000000000 +0100
++++ new_hdl/tx_dequeue.v	2016-03-22 23:24:46.493500704 +0100
+@@ -39,7 +39,6 @@
+ //////////////////////////////////////////////////////////////////////
+ 
+ `include "oc_mac.h"
+-`include "oc_mac_crc_func.h"
+ 
+ module tx_dequeue(
+   // Outputs
+@@ -53,6 +52,8 @@
+ 
+ 
+ 
++`include "oc_mac_crc_func.h"
++
+ reg [63:0]	xgxs_txd;
+ reg [7:0]	xgxs_txc;
+ 

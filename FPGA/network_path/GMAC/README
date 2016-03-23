@@ -1,0 +1,8 @@
+Get the 10GE Low Latency MAC (rev 2) from OpenCores.
+
+http://opencores.com/project,xge_ll_mac
+
+Put the rtl files in this hdl subdirectory and apply the patch file.
+
+
+

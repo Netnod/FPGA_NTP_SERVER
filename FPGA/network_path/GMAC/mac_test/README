@@ -1,0 +1,22 @@
+This directory contains a simple testbench for debugging the OpenCore LLGMAC.
+
+Save vcd from Vivado hw_manager (chipscope)
+write_hw_ila_data -vcd_file <file>
+
+Convert Vivado VCD to mentor compatible file by:
+
+changing "var reg" to "var wire".
+clean up signal names by removing path and brackets etc.
+
+patch <file>.vcd patch_file
+
+Split busses by converting to wlf and back to vcd
+vcd2wlf <file>.vcd <file>.wlf
+wlf2vd <file>.wlf -o <new_file>.vcd
+
+vsim -novopt mac_test -vcdstim <new_file>.vcd
+
+Easy ehh?
+
+Rolf
+
