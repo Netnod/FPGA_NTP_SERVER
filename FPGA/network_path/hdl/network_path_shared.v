@@ -38,7 +38,7 @@
 module network_path_shared #(
   parameter [4:0]   PRTAD              = 5'd0,   // For MDIO addressing
   parameter integer C_S_AXI_DATA_WIDTH = 32,
-  parameter integer C_S_AXI_ADDR_WIDTH = 8
+  parameter integer C_S_AXI_ADDR_WIDTH = 9
  )(
   /// AXI Lite register interface
   input wire         s_axi_clk,
@@ -66,6 +66,10 @@ module network_path_shared #(
   input wire         ntp_time_upd_a,
   input wire [63:0]  ntp_time_b,
   input wire         ntp_time_upd_b,
+
+  // NTP SYNC status
+  input wire 	     ntp_sync_ok_a,
+  input wire 	     ntp_sync_ok_b,
 
   // Key Memory
   output wire        key_req,
@@ -136,6 +140,9 @@ module network_path_shared #(
   wire [1:0]   xphy_config;
   wire [7:0]   xphy_status;
 
+  wire   ntp_sync_ok;
+  assign ntp_sync_ok = (ntp_sync_ok_a & ~gen_config[24] ) | (ntp_sync_ok_b & gen_config[24]);
+
   // Instantiation of Axi Bus Interface S00_AXI
   network_path_axi_slave #( 
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
@@ -164,6 +171,7 @@ module network_path_shared #(
     .ntp_tx_ofs    (ntp_tx_ofs),
     .pp_status     (pp_status),
     .xphy_status   (xphy_status),
+    .ntp_sync_ok   (ntp_sync_ok),
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
     .S_AXI_AWADDR  (s_axi_awaddr),
@@ -191,7 +199,7 @@ module network_path_shared #(
   time_sel_sync tss(
     .areset         (sys_reset),
     .clk            (clk156),
-    .sel            (gen_config[14]),
+    .sel            (gen_config[24]),
     .ntp_time_a     (ntp_time_a),
     .ntp_time_upd_a (ntp_time_upd_a),
     .ntp_time_b     (ntp_time_b),
@@ -205,7 +213,7 @@ module network_path_shared #(
   wire [7:0]   xgmii_rxc;
 
   // Packet processing including MAC
-  pp_top pp(
+  pp_mac_top pp(
     .areset         (sys_reset),
     .clk            (clk156),
     .my_mac_addr0   (pp_mac_addr0), 
@@ -220,7 +228,7 @@ module network_path_shared #(
     .my_ipv6_addr1  (pp_ipv6_addr1),
     .my_ipv6_addr2  (pp_ipv6_addr2),
     .my_ipv6_addr3  (pp_ipv6_addr3),
-    .gen_config     (gen_config),
+    .gen_config     (gen_config[23:0]),
     .ntp_config     (ntp_config),
     .ntp_root_delay (ntp_root_delay),
     .ntp_root_disp  (ntp_root_disp),
@@ -273,10 +281,9 @@ module network_path_shared #(
   assign signal_detect = ~signal_lost;
     
   wire   tx_disable_if;
-  assign tx_disable = tx_disable_if | ~gen_config[15];   // Laser must be enabled
 
   // Map xphy configuration 
-  assign xphy_config = gen_config[16+:2]; // Pick out bits
+  assign xphy_config = gen_config[30+:2]; // Pick out bits
   wire [2:0]   pma_pmd_type;
   assign pma_pmd_type = xphy_config == 2'b00 ? 3'b101 : // 10GBASE-ER
                         xphy_config == 2'b01 ? 3'b110 : // 10GBASE-LR
@@ -336,6 +343,8 @@ module network_path_shared #(
     .tx_disable             (tx_disable_if),
     .sim_speedup_control    (sim_speedup_control)
   );
+
+  assign tx_disable = tx_disable_if | ~gen_config[29];   // Laser must be enabled
 
   assign xphy_status[0]   = qplllock;
   assign xphy_status[1]   = module_detect;

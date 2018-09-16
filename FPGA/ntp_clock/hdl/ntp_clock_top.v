@@ -74,6 +74,7 @@ module ntp_clock_top (
   output wire        LED6,
   output wire        LED7,
   output wire        LED8,
+  output wire        SYNC_OK,
   output wire        test
 );
   
@@ -146,7 +147,8 @@ module ntp_clock_top (
     .LED5	     (LED5),
     .LED6	     (LED6),
     .LED7	     (LED7),
-    .LED8	     (LED8)
+    .LED8	     (LED8),
+    .SYNC_OK         (SYNC_OK)
   );
 
   assign test = PPS_IN;

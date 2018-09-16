@@ -57,20 +57,20 @@ module tb_md5_pipe();
   wire [31:0]  a_out, b_out, c_out, d_out;
 
    md5_pipe pipe (
-    .clk       (clk),
-    .areset    (areset),
-    .in_ready  (in_ready),
-    .start     (start), 
-    .chunk     (chunk),
-    .a_in      (A0),
-    .b_in      (B0),
-    .c_in      (C0),
-    .d_in      (D0),
-    .out_ready (ready),
-    .a_out     (a_out),
-    .b_out     (b_out),
-    .c_out     (c_out),
-    .d_out     (d_out)
+    .clk         (clk),
+    .areset      (areset),
+    .in_ready    (in_ready),
+    .start       (start), 
+    .chunk       (chunk),
+    .a_in        (A0),
+    .b_in        (B0),
+    .c_in        (C0),
+    .d_in        (D0),
+    .out_ready   (ready),
+    .a_out       (a_out),
+    .b_out       (b_out),
+    .c_out       (c_out),
+    .d_out       (d_out)
   );
 
   wire [31:0]  a_sum, b_sum, c_sum, d_sum;
@@ -106,65 +106,75 @@ module tb_md5_pipe();
   localparam [511:0] chunk3 = 512'h41800000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000_08000000_00000000;
   localparam [127:0] phash3 = 128'h7fc56270_e7a70fa8_1a5935b7_2eacbe29;
   
+
   initial begin
     @(negedge areset);
     @(posedge clk);
     @(posedge clk);
 
-    chunk   = chunk0;
-
+  //  @(posedge in_ready);
     start   = 1'b1;
+    chunk   = chunk0;
     @(posedge clk);
     start   = 1'b0;
+    chunk   = 'bX;
 
     @(posedge in_ready);
+    start   = 1'b1;
+    chunk   = chunk1;
     @(posedge clk);
+    start   = 1'b0;
+    chunk   = 'bX;
+
+    @(posedge in_ready);
+    start   = 1'b1;
+    chunk   = chunk2;
     @(posedge clk);
-    chunk   = 512'b0;
-    
+    start   = 1'b0;
+    chunk   = 'bX;
+
+    @(posedge in_ready);
+    start   = 1'b1;
+    chunk   = chunk3;
+    @(posedge clk);
+    start   = 1'b0;
+    chunk   = 'bX;
+
+    @(posedge in_ready);
+    start   = 1'b1;
+    chunk   = chunk1;
+    @(posedge clk);
+    start   = 1'b0;
+    chunk   = 'bX;
+
     @(posedge ready);
+    @(posedge clk);
     @(negedge clk);
     assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash0);
     
+    @(posedge ready);
     @(posedge clk);
-    @(posedge clk);
-
-    chunk   = chunk1;
-
-    start   = 1'b1;
-    @(posedge clk);
-    start   = 1'b0;
+    @(negedge clk); 
+    assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash1);
 
     @(posedge ready);
+    @(posedge clk);
+    @(negedge clk);
+    assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash2);
+
+    @(posedge ready);
+    @(posedge clk);
+    @(negedge clk);
+    assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash3);
+
+    @(posedge ready);
+    @(posedge clk);
     @(negedge clk);
     assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash1);
 
     @(posedge clk);
     @(posedge clk);
-
-    chunk   = chunk2;
-
-    start   = 1'b1;
     @(posedge clk);
-    start   = 1'b0;
-
-    @(posedge ready);
-    @(negedge clk);
-    assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash2);
-
-    @(posedge clk);
-    @(posedge clk);
-    
-    chunk   = chunk3;
-
-    start   = 1'b1;
-    @(posedge clk);
-    start   = 1'b0;
-
-    @(posedge ready);
-    @(negedge clk);
-    assert({a_sum_r, b_sum_r, c_sum_r, d_sum_r} == phash3);
-
     @(posedge clk);
     @(posedge clk);
     $stop;

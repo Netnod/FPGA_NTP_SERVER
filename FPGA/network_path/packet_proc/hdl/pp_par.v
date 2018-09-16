@@ -43,6 +43,14 @@ localparam REQ          = 16'h0001;           // packet is ARP request
 localparam REPLY        = 16'h0002;           // packet is ARP reply
 localparam PROT_UDP     = 8'd17;              // protocol is UDP
 localparam PORT_UDP     = 16'd123;            // UDP port
+localparam PROT_ICMPV4  = 8'd01;              // protocol is ICMPv4
+localparam ICMPV4_EREQ  = 8'd08;              // Message is Echo request (ping)
+localparam ICMPV4_RPLY  = 8'd00;              // Message is Echo reply (ping)
+localparam PROT_ICMPV6  = 8'd58;              // protocol is ICMPv6
+localparam ICMPV6_NS    = 8'd135;             // Message is Neighbor Solicitation
+localparam ICMPV6_NA    = 8'd136;             // Message is Neighbor Advertisment
+localparam ICMPV6_EREQ  = 8'd128;             // Message is Echo request (ping)
+localparam ICMPV6_RPLY  = 8'd129;             // Message is Echo reply (ping)
 
 // IPv4 specific lengths in bytes
 localparam NTP_IP_LEN       = 16'd76;         // NTP IP length
@@ -62,9 +70,13 @@ localparam ND_TOT_LEN   = ETHH_LEN + IP6H_LEN + ND_LEN;      // ND packet total 
 localparam UDPH_LEN     =  8;                                // UDP header length
 localparam IP4PSH_LEN   = 12;                                // IPv4 pseudo header length
 localparam NTP_LEN      = 48;                                // NTP Payload length
-localparam NTP4_TOT_LEN = ETHH_LEN + IP4H_LEN + UDPH_LEN + NTP_LEN; // IPv4 NTP packet total length
-localparam UDP_CS_LEN   = 4 + 4 + 2 + 2 + UDPH_LEN + NTP_LEN;       // Length of UDP pseduo header for csum calcs
-localparam NTP6_TOT_LEN = ETHH_LEN + IP6H_LEN + UDPH_LEN + NTP_LEN; // IPv6 NTP packet total length
+localparam NTP4_TOT_LEN   = ETHH_LEN + IP4H_LEN + UDPH_LEN + NTP_LEN; // IPv4 NTP packet total length
+localparam PING4_MAX_LEN  = ETHH_LEN + IP4H_LEN + 94;                 // IPv4 Ping max total length
+localparam TRCRT4_TOT_LEN = ETHH_LEN + IP4H_LEN + 8 + IP4H_LEN + UDPH_LEN; // IPv4 traceroute max total length
+localparam UDP_CS_LEN   = 4 + 4 + 2 + 2 + UDPH_LEN + NTP_LEN;         // Length of UDP pseduo header for csum calcs
+localparam NTP6_TOT_LEN = ETHH_LEN + IP6H_LEN + UDPH_LEN + NTP_LEN;   // IPv6 NTP packet total length
+localparam PING6_MAX_LEN = ETHH_LEN + IP6H_LEN + 94;                  // IPv6 Ping max total length
+localparam TRCRT6_MAX_LEN = ETHH_LEN + IP6H_LEN + 8 + 86;             // IPv6 traceroute max total length
 
 localparam MD5_LEN           = 20;                           // MD5 keyid + signature length
 localparam SHA1_LEN          = 24;                           // SHA1 keyid + signature length
@@ -72,6 +84,11 @@ localparam NTP4_MD5_TOT_LEN  = NTP4_TOT_LEN + MD5_LEN;
 localparam NTP4_SHA1_TOT_LEN = NTP4_TOT_LEN + SHA1_LEN;
 localparam NTP6_MD5_TOT_LEN  = NTP6_TOT_LEN + MD5_LEN;
 localparam NTP6_SHA1_TOT_LEN = NTP6_TOT_LEN + SHA1_LEN;
+
+localparam KEY_VALID   = 255;
+localparam KEY_TYPE    = 254;
+localparam SHA1_KEY_TYPE = 1;
+localparam MD5_KEY_TYPE  = 0;
 
 // HW latencies to adjust for in time stamping
 localparam real SCALE              = 6400/232.8;     // 6400ps/232.8ps

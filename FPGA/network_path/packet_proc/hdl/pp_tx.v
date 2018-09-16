@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without 
@@ -54,7 +54,7 @@ module pp_tx (
   // From TX FIFO 
   input wire         start,
   output wire        ready,
-  input wire [775:0] data,
+  input wire [939:0] data,
 
   // To MAC 
   output reg         tx_start, 
@@ -75,11 +75,18 @@ module pp_tx (
   wire [383:0] ntp_payload;
   wire [31:0]  keyid;
   wire [159:0] digest;
+
+  wire [7:0]   payl_len;     // Payload length
+  wire [719:0] icmp_payload; // Ping/Traceroute payload
   
   wire         tx_arp;       // Xmit IPv4 ARP response
   wire         tx_ntp4;      // Xmit IPv4 NTP respose
+  wire         tx_ping4;     // Xmit IPv4 Ping respose
+  wire         tx_trcrt4;    // Xmit IPv4 Traceroute respose
   wire         tx_nd;        // Xmit IPv6 ND response
   wire         tx_ntp6;      // Xmit IPv6 NTP response
+  wire         tx_ping6;     // Xmit IPv6 Ping respose
+  wire         tx_trcrt6;    // Xmit IPv6 Traceroute respose
   wire         tx_md5;       // MD5  Signed NTP
   wire         tx_sha1;      // SHA1 Signed NTP
 
@@ -88,9 +95,11 @@ module pp_tx (
 
   // Note unused bits in keyid and digest must be 0 in order to get correct padding and checksumming
   
-  assign {my_addr_sel, tx_arp, tx_nd, tx_ntp4, tx_ntp6, tx_md5, tx_sha1,
-          clnt_mac, clnt_ip, clnt_port, ntp_payload, keyid, digest} = data;
+  assign {my_addr_sel, tx_arp, tx_nd, tx_ntp4, tx_ping4, tx_trcrt4, tx_ntp6, tx_ping6, tx_trcrt6, tx_md5, tx_sha1,
+          clnt_mac, clnt_ip, clnt_port, ntp_payload, keyid, digest} = data[939:160];
 
+  assign payl_len     = data[727:720];
+  assign icmp_payload = data[719:0];
   
   wire [47:0]  my_mac_addr;
   wire [31:0]  my_ipv4_addr;
@@ -178,7 +187,7 @@ module pp_tx (
   //-------------------------------------------------------------------------------------------------
   // Format IPv4 NTP packet
   
-  reg [15:0] ipv4h_csum;
+  reg [15:0] ntp_ipv4h_csum;
   reg [15:0] ntp4_udp_csum;
  
   wire [0:14*8-1] tx_ntp4_eth_head;
@@ -196,7 +205,7 @@ module pp_tx (
   assign tx_ntp4_ip_head[51:63]   = 13'b0;                // Fragment offset
   assign tx_ntp4_ip_head[64:71]   = ip_ttl;               // TTL
   assign tx_ntp4_ip_head[72:79]   = PROT_UDP;             // Protocol
-  assign tx_ntp4_ip_head[80:95]   = ipv4h_csum;
+  assign tx_ntp4_ip_head[80:95]   = ntp_ipv4h_csum;
   assign tx_ntp4_ip_head[96:127]  = my_ipv4_addr;
   assign tx_ntp4_ip_head[128:159] = clnt_ip[31:0];
 
@@ -212,6 +221,71 @@ module pp_tx (
   assign tx_ntp4_pseudo_head[64:71]  = 8'b0;
   assign tx_ntp4_pseudo_head[72:79]  = PROT_UDP;
   assign tx_ntp4_pseudo_head[80:95]  = ntp_udp_len;
+
+  //-------------------------------------------------------------------------------------------------
+  // Format IPv4 Ping packet
+  
+  reg [15:0] ping_ipv4h_csum;
+  reg [15:0] ping4_csum ;
+  
+  wire [0:14*8-1] tx_ping4_eth_head;
+  assign tx_ping4_eth_head[0:47]   = clnt_mac;
+  assign tx_ping4_eth_head[48:95]  = my_mac_addr;
+  assign tx_ping4_eth_head[96:111] = ETYPE_V4;
+
+  wire [0:20*8-1] tx_ping4_ip_head;
+  assign tx_ping4_ip_head[0:3]     =  4'd4;                // Set IPv4;
+  assign tx_ping4_ip_head[4:7]     =  4'd5;                // IP header len
+  assign tx_ping4_ip_head[8:15]    =  8'h00;               // DSCP = 0x04 max throughput
+  assign tx_ping4_ip_head[16:31]   = payl_len + IP4H_LEN;  // IP datagram length for ICMP reply
+  assign tx_ping4_ip_head[32:47]   = 16'd0;                // Identification
+  assign tx_ping4_ip_head[48:50]   =  3'b010;              // don't fragment
+  assign tx_ping4_ip_head[51:63]   = 13'b0;                // Fragment offset
+  assign tx_ping4_ip_head[64:71]   = ip_ttl;               // TTL
+  assign tx_ping4_ip_head[72:79]   = PROT_ICMPV4;          // Protocol
+  assign tx_ping4_ip_head[80:95]   = ping_ipv4h_csum;
+  assign tx_ping4_ip_head[96:127]  = my_ipv4_addr;
+  assign tx_ping4_ip_head[128:159] = clnt_ip[31:0];
+
+  wire [0:94*8-1] tx_ping4_payload;
+  assign tx_ping4_payload[0:7]     = 8'd0;                   // Mtype = Echo Reply
+  assign tx_ping4_payload[8:15]    = 8'd0;                   // Code
+  assign tx_ping4_payload[16:31]   = ping4_csum;             // Check Sum
+  assign tx_ping4_payload[32:751]  = icmp_payload;           // Ping payload
+
+
+  //-------------------------------------------------------------------------------------------------
+  // Format IPv4 Traceroute packet
+  
+  reg [15:0] trcrt_ipv4h_csum;
+  reg [15:0] trcrt4_csum ;
+  
+  wire [0:14*8-1] tx_trcrt4_eth_head;
+  assign tx_trcrt4_eth_head[0:47]   = clnt_mac;
+  assign tx_trcrt4_eth_head[48:95]  = my_mac_addr;
+  assign tx_trcrt4_eth_head[96:111] = ETYPE_V4;
+
+  wire [0:20*8-1] tx_trcrt4_ip_head;
+  assign tx_trcrt4_ip_head[0:3]     =  4'd4;                   // Set IPv4;
+  assign tx_trcrt4_ip_head[4:7]     =  4'd5;                   // IP header len
+  assign tx_trcrt4_ip_head[8:15]    =  8'hC0;                  // DSCP = 0x30 InterNetwork Control
+  assign tx_trcrt4_ip_head[16:31]   = IP4H_LEN + 8 + IP4H_LEN + UDPH_LEN; // IP datagram length
+  assign tx_trcrt4_ip_head[32:47]   = 16'd0;                   // Identification
+  assign tx_trcrt4_ip_head[48:50]   =  3'b010;                 // don't fragment
+  assign tx_trcrt4_ip_head[51:63]   = 13'b0;                   // Fragment offset
+  assign tx_trcrt4_ip_head[64:71]   = ip_ttl;                  // TTL
+  assign tx_trcrt4_ip_head[72:79]   = PROT_ICMPV4;             // Protocol
+  assign tx_trcrt4_ip_head[80:95]   = trcrt_ipv4h_csum;
+  assign tx_trcrt4_ip_head[96:127]  = my_ipv4_addr;
+  assign tx_trcrt4_ip_head[128:159] = clnt_ip[31:0];
+
+  wire [0:36*8-1] tx_trcrt4_payload;
+  assign tx_trcrt4_payload[0:7]     = 8'd3;                    // Mtype = Destination unreachable
+  assign tx_trcrt4_payload[8:15]    = 8'd3;                    // Code  = port unreachable
+  assign tx_trcrt4_payload[16:31]   = trcrt4_csum;             // Check Sum
+  assign tx_trcrt4_payload[32:63]   = 32'd0;                   // Padding
+  assign tx_trcrt4_payload[64:287]  = icmp_payload[687:464];   // Original IPH + UDPH
+
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv6 NTP packet
@@ -247,16 +321,88 @@ module pp_tx (
   assign tx_ntp6_pseudo_head[312:319] = PROT_UDP;      // next hopp
 
   //-------------------------------------------------------------------------------------------------
+  // Format IPv6 Ping packet
+  
+  reg  [15:0] ping6_csum ;
 
-  localparam TX_PACKET_SZ = ((NTP6_SHA1_TOT_LEN+7)/8) * 8; // Round up to even 8 bytes 
+  wire [0:14*8-1] tx_ping6_eth_head;
+  assign tx_ping6_eth_head[0:47]    = clnt_mac;
+  assign tx_ping6_eth_head[48:95]   = my_mac_addr;
+  assign tx_ping6_eth_head[96:111]  = ETYPE_V6;
+
+  wire [0:40*8-1] tx_ping6_ip_head;
+  assign tx_ping6_ip_head[0:3]      =  4'd6;                 // Set IPv6;
+  assign tx_ping6_ip_head[4:11]     =  8'd0;                 // Traffic Class
+  assign tx_ping6_ip_head[12:31]    = 20'd0;                 // Flow Label
+  assign tx_ping6_ip_head[32:47]    = payl_len;              // Payload length
+  assign tx_ping6_ip_head[48:55]    = PROT_ICMPV6;           // Next Head
+  assign tx_ping6_ip_head[56:63]    =  8'd255;               // Hopp Limit
+  assign tx_ping6_ip_head[64:191]   = my_ipv6_addr;          // Source address
+  assign tx_ping6_ip_head[192:319]  = clnt_ip;               // Dest address
+  
+  wire [0:40*8-1] tx_ping6_pseudo_head;                      // Only used for checksum calc
+  assign tx_ping6_pseudo_head[0:127]   = my_ipv6_addr;       // source ipv6 address
+  assign tx_ping6_pseudo_head[128:255] = clnt_ip;            // dest ipv6 address
+  assign tx_ping6_pseudo_head[256:287] = payl_len;           // Payload len
+  assign tx_ping6_pseudo_head[288:311] = 24'd0;              // padding
+  assign tx_ping6_pseudo_head[312:319] = 8'd58;              // next hopp
+  
+  wire [0:94*8-1] tx_ping6_payload;
+  assign tx_ping6_payload[0:7]     = 8'd129;                 // Mtype = Echo Reply
+  assign tx_ping6_payload[8:15]    = 8'd0;                   // Code
+  assign tx_ping6_payload[16:31]   = ping6_csum;             // Check Sum
+  assign tx_ping6_payload[32:751]  = icmp_payload;           // Ping payload
+
+  //-------------------------------------------------------------------------------------------------
+  // Format IPv6 Traceroute packet
+  
+  reg [15:0] trcrt6_csum ;
+  
+  wire [0:14*8-1] tx_trcrt6_eth_head;
+  assign tx_trcrt6_eth_head[0:47]   = clnt_mac;
+  assign tx_trcrt6_eth_head[48:95]  = my_mac_addr;
+  assign tx_trcrt6_eth_head[96:111] = ETYPE_V6;
+
+  wire [0:40*8-1] tx_trcrt6_ip_head;
+  assign tx_trcrt6_ip_head[0:3]     =  4'd6;                 // Set IPv6;
+  assign tx_trcrt6_ip_head[4:11]    =  8'd0;                 // Traffic Class
+  assign tx_trcrt6_ip_head[12:31]   = 20'd0;                 // Flow Label
+  assign tx_trcrt6_ip_head[32:47]   = payl_len;              // IP datagram length
+  assign tx_trcrt6_ip_head[48:55]   = PROT_ICMPV6;           // Next Head
+  assign tx_trcrt6_ip_head[56:63]   =  8'd255;               // Hopp Limit
+  assign tx_trcrt6_ip_head[64:191]  = my_ipv6_addr;          // Source address
+  assign tx_trcrt6_ip_head[192:319] = clnt_ip;               // Dest address
+
+  wire [0:40*8-1] tx_trcrt6_pseudo_head;                     // Only used for checksum calc
+  assign tx_trcrt6_pseudo_head[0:127]   = my_ipv6_addr;      // source ipv6 address
+  assign tx_trcrt6_pseudo_head[128:255] = clnt_ip;           // dest ipv6 address
+  assign tx_trcrt6_pseudo_head[256:287] = payl_len;          // IP datagram length
+  assign tx_trcrt6_pseudo_head[288:311] = 24'd0;             // padding
+  assign tx_trcrt6_pseudo_head[312:319] = PROT_ICMPV6;       // next hopp
+
+  wire [0:94*8-1] tx_trcrt6_payload;
+  assign tx_trcrt6_payload[0:7]     = 8'd1;                  // Mtype = Destination unreachable
+  assign tx_trcrt6_payload[8:15]    = 8'd4;                  // Code  = port unreachable
+  assign tx_trcrt6_payload[16:31]   = trcrt6_csum;           // Check Sum
+  assign tx_trcrt6_payload[32:63]   = 32'd0;                 // Padding
+  assign tx_trcrt6_payload[64:751]  = icmp_payload[687:0];   // includes Original "IPH + UDPH + payload"
+
+
+  //-------------------------------------------------------------------------------------------------
+
+  localparam TX_PACKET_SZ = ((TRCRT6_MAX_LEN+7)/8) * 8; // Round up to even 8 bytes 
   
   wire [0:TX_PACKET_SZ*8-1] tx_packet;
 
-  assign tx_packet = tx_arp  == 1'b1 ? {tx_arp_eth_head, tx_arp_payload, {(TX_PACKET_SZ-ARP_TOT_LEN){8'b0}}} :
-                     tx_nd   == 1'b1 ? {tx_nd_eth_head, tx_nd_ip_head, tx_nd_payload, {(TX_PACKET_SZ-ND_TOT_LEN){8'b0}}} :
-                     tx_ntp4 == 1'b1 ? {tx_ntp4_eth_head, tx_ntp4_ip_head, tx_ntp4_udp_head, ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP4_SHA1_TOT_LEN){8'b0}}} :
-                     tx_ntp6 == 1'b1 ? {tx_ntp6_eth_head, tx_ntp6_ip_head, tx_ntp6_udp_head, ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP6_SHA1_TOT_LEN){8'b0}}} : 
-                                       {TX_PACKET_SZ{8'b0}};
+  assign tx_packet = tx_arp   == 1'b1 ? {tx_arp_eth_head,    tx_arp_payload,    {(TX_PACKET_SZ-ARP_TOT_LEN){8'b0}}} :
+                     tx_nd    == 1'b1 ? {tx_nd_eth_head,     tx_nd_ip_head,     tx_nd_payload,     {(TX_PACKET_SZ-ND_TOT_LEN){8'b0}}} :
+                     tx_ntp4  == 1'b1 ? {tx_ntp4_eth_head,   tx_ntp4_ip_head,   tx_ntp4_udp_head,  ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP4_SHA1_TOT_LEN){8'b0}}} :
+                     tx_ping4 == 1'b1 ? {tx_ping4_eth_head,  tx_ping4_ip_head,  tx_ping4_payload,  {(TX_PACKET_SZ-PING4_MAX_LEN){8'b0}}} :
+                     tx_trcrt4== 1'b1 ? {tx_trcrt4_eth_head, tx_trcrt4_ip_head, tx_trcrt4_payload, {(TX_PACKET_SZ-TRCRT4_TOT_LEN){8'b0}}} :
+                     tx_ntp6  == 1'b1 ? {tx_ntp6_eth_head,   tx_ntp6_ip_head,   tx_ntp6_udp_head,  ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP6_SHA1_TOT_LEN){8'b0}}} : 
+                     tx_ping6 == 1'b1 ? {tx_ping6_eth_head,  tx_ping6_ip_head,  tx_ping6_payload,  {(TX_PACKET_SZ-PING6_MAX_LEN){8'b0}}} :
+                     tx_trcrt6== 1'b1 ? {tx_trcrt6_eth_head, tx_trcrt6_ip_head, tx_trcrt6_payload, {(TX_PACKET_SZ-TRCRT6_MAX_LEN){8'b0}}} :
+                                        {TX_PACKET_SZ{8'b0}};
 
   wire [7:0] tx_bytes;  // Size of tx packet
   assign tx_bytes = tx_arp       == 1'b1 ? ARP_TOT_LEN :
@@ -264,9 +410,13 @@ module pp_tx (
                     tx_ntp4_md5  == 1'b1 ? NTP4_MD5_TOT_LEN :
                     tx_ntp4_sha1 == 1'b1 ? NTP4_SHA1_TOT_LEN :
                     tx_ntp4      == 1'b1 ? NTP4_TOT_LEN :
+                    tx_ping4     == 1'b1 ? ETHH_LEN+IP4H_LEN+payl_len :
+                    tx_trcrt4    == 1'b1 ? TRCRT4_TOT_LEN :
                     tx_ntp6_md5  == 1'b1 ? NTP6_MD5_TOT_LEN :
                     tx_ntp6_sha1 == 1'b1 ? NTP6_SHA1_TOT_LEN :
                     tx_ntp6      == 1'b1 ? NTP6_TOT_LEN :
+                    tx_ping6     == 1'b1 ? ETHH_LEN+IP6H_LEN+payl_len :
+                    tx_trcrt6    == 1'b1 ? ETHH_LEN+IP6H_LEN+payl_len :
                                            8'b0;
   
   localparam S_IDLE    = 3'd0;
@@ -277,35 +427,14 @@ module pp_tx (
   reg [3:0]  tx_state;
   reg [4:0]  tx_count;
 
-  //-------------------------------------------------------------------------------------------------
-  // do the checksum calculations pipelined in parallel with transmission of eth and ip headers 
-
-  function [15:0] calc_csum;
-    input [0:100*8-1] packet;
-    input integer     len;
-    integer           i;
-    reg [16:0]        tmp_sum;
-    begin
-      tmp_sum = 0;
-      for (i = (100-len)/2; i < 50; i = i+1) begin
-        tmp_sum = packet[i*16+:16] + tmp_sum[15:0] + tmp_sum[16];  // Add carry bits
-      end
-      calc_csum = tmp_sum[15:0] + tmp_sum[16];
-    end
-  endfunction // calc_csum
+`include "pp_csum.v"
   
-  function [15:0] wrap_csum;
-    input [15:0] csum;
-    begin
-      wrap_csum = csum == 16'hffff ? csum : ~csum; // invert bits if result > 0
-    end
-  endfunction // calc_csum
-
   //-------------------------------------------------------------------------------------------------
 
-  // Split csum calculation to improve timing.
-  reg [15:0] ipv4h_csum0;
-  reg [15:0] ipv4h_csum1;
+  // Split csum calculation to improve timing.  (maybe this is going out of hand now?)
+
+  reg [15:0] ntp_ipv4h_csum0;
+  reg [15:0] ntp_ipv4h_csum1;
   reg [15:0] nd_csum0;
   reg [15:0] nd_csum1;
   reg [15:0] nd_csum2;
@@ -318,12 +447,63 @@ module pp_tx (
   reg [15:0] ntp4_udp_csum0;
   reg [15:0] ntp4_udp_csum1;
   reg [15:0] ntp4_udp_csum2;
+  reg [15:0] ping_ipv4h_csum0;
+  reg [15:0] ping_ipv4h_csum1;
+  reg [15:0] ping4_csum0;
+  reg [15:0] ping4_csum1;
+  reg [15:0] ping4_csum2;
+  reg [15:0] ping4_csum3;
+  reg [15:0] ping4_csum4;
+  reg [15:0] ping4_csum5;
+  reg [15:0] ping4_csum6;
+  reg [15:0] ping4_csum7;
+  reg [15:0] ping4_csum8;
+  reg [15:0] ping4_csum9;
+  reg [15:0] ping4_csum10;
+  reg [15:0] trcrt_ipv4h_csum0;
+  reg [15:0] trcrt_ipv4h_csum1;
+  reg [15:0] trcrt4_csum0;
+  reg [15:0] trcrt4_csum1;
+  reg [15:0] trcrt4_csum2;
+  reg [15:0] trcrt4_csum3;
   reg [15:0] ntp6_udp_csum0;
   reg [15:0] ntp6_udp_csum1;
   reg [15:0] ntp6_udp_csum2;
   reg [15:0] ntp6_udp_csum3;
   reg [15:0] ntp6_udp_csum4;
   reg [15:0] ntp6_udp_csum5;
+  reg [15:0] ping6_csum0;
+  reg [15:0] ping6_csum1;
+  reg [15:0] ping6_csum2;
+  reg [15:0] ping6_csum3;
+  reg [15:0] ping6_csum4;
+  reg [15:0] ping6_csum5;
+  reg [15:0] ping6_csum6;
+  reg [15:0] ping6_csum7;
+  reg [15:0] ping6_csum8;
+  reg [15:0] ping6_csum9;
+  reg [15:0] ping6_csum10;
+  reg [15:0] ping6_csum11;
+  reg [15:0] ping6_csum12;
+  reg [15:0] ping6_csum13;
+  reg [15:0] ping6_csum14;
+  reg [15:0] ping6_csum15;
+  reg [15:0] trcrt6_csum0;
+  reg [15:0] trcrt6_csum1;
+  reg [15:0] trcrt6_csum2;
+  reg [15:0] trcrt6_csum3;
+  reg [15:0] trcrt6_csum4;
+  reg [15:0] trcrt6_csum5;
+  reg [15:0] trcrt6_csum6;
+  reg [15:0] trcrt6_csum7;
+  reg [15:0] trcrt6_csum8;
+  reg [15:0] trcrt6_csum9;
+  reg [15:0] trcrt6_csum10;
+  reg [15:0] trcrt6_csum11;
+  reg [15:0] trcrt6_csum12;
+  reg [15:0] trcrt6_csum13;
+  reg [15:0] trcrt6_csum14;
+  reg [15:0] trcrt6_csum15;
   reg [15:0] ntp_pl_csum;
   reg [15:0] ntp_pl_csum0;
   reg [15:0] ntp_pl_csum1;
@@ -336,9 +516,9 @@ module pp_tx (
   
   always @(posedge clk) begin
 
-    ipv4h_csum0    <= calc_csum(tx_ntp4_ip_head[0:79],  10);
-    ipv4h_csum1    <= calc_csum(tx_ntp4_ip_head[96:159], 8);  // exclude CSum in calc !
-    ipv4h_csum     <= wrap_csum(calc_csum({ipv4h_csum0, ipv4h_csum1}, 4));
+    ntp_ipv4h_csum0 <= calc_csum(tx_ntp4_ip_head[0:79],  10);
+    ntp_ipv4h_csum1 <= calc_csum(tx_ntp4_ip_head[96:159], 8);  // exclude CSum in calc !
+    ntp_ipv4h_csum  <= wrap_csum(calc_csum({ntp_ipv4h_csum0, ntp_ipv4h_csum1}, 4));
     
     nd_csum0       <= calc_csum(tx_nd_pseudo_head[  0: 79], 10);
     nd_csum1       <= calc_csum(tx_nd_pseudo_head[ 80:159], 10);
@@ -367,6 +547,33 @@ module pp_tx (
     ntp4_udp_csum2 <= calc_csum({tx_ntp4_udp_head[32:47], ntp_sign_csum0, ntp_sign_csum1, ntp_sign_csum2}, 8); 
     ntp4_udp_csum  <= wrap_csum(calc_csum({ntp4_udp_csum0, ntp4_udp_csum1, ntp4_udp_csum2, ntp_pl_csum}, 8));
 
+    ping_ipv4h_csum0 <= calc_csum(tx_ping4_ip_head[0:79],  10);
+    ping_ipv4h_csum1 <= calc_csum(tx_ping4_ip_head[96:159], 8);  // exclude CSum in calc !
+    ping_ipv4h_csum  <= wrap_csum(calc_csum({ping_ipv4h_csum0, ping_ipv4h_csum1}, 4));
+    
+    ping4_csum0    <= calc_csum({tx_ping4_payload[0:15], tx_ping4_payload[32:95]}, 10);  // exclude CSum in calc !
+    ping4_csum1    <= calc_csum(tx_ping4_payload[ 96:175], 10);
+    ping4_csum2    <= calc_csum(tx_ping4_payload[176:255], 10);
+    ping4_csum3    <= calc_csum(tx_ping4_payload[256:335], 10);
+    ping4_csum4    <= calc_csum(tx_ping4_payload[336:415], 10);
+    ping4_csum5    <= calc_csum(tx_ping4_payload[416:495], 10);
+    ping4_csum6    <= calc_csum(tx_ping4_payload[496:575], 10);
+    ping4_csum7    <= calc_csum(tx_ping4_payload[576:655], 10);
+    ping4_csum8    <= calc_csum(tx_ping4_payload[656:735], 10);
+    ping4_csum9    <= calc_csum({tx_ping4_payload[736:751], ping4_csum0, ping4_csum1, ping4_csum2, ping4_csum3}, 10);
+    ping4_csum10   <= calc_csum({ping4_csum4, ping4_csum5, ping4_csum6, ping4_csum7, ping4_csum8}, 10);
+    ping4_csum     <= wrap_csum(calc_csum({ping4_csum9, ping4_csum10}, 4));
+
+    trcrt_ipv4h_csum0 <= calc_csum(tx_trcrt4_ip_head[0:79],  10);
+    trcrt_ipv4h_csum1 <= calc_csum(tx_trcrt4_ip_head[96:159], 8);  // exclude CSum in calc !
+    trcrt_ipv4h_csum  <= wrap_csum(calc_csum({trcrt_ipv4h_csum0, trcrt_ipv4h_csum1}, 4));
+    
+    trcrt4_csum0   <= calc_csum({tx_trcrt4_payload[0:15], tx_trcrt4_payload[32:95]}, 10);  // exclude CSum in calc !
+    trcrt4_csum1   <= calc_csum(tx_trcrt4_payload[ 96:175], 10);
+    trcrt4_csum2   <= calc_csum(tx_trcrt4_payload[176:255], 10);
+    trcrt4_csum3   <= calc_csum({tx_trcrt4_payload[256:287], trcrt4_csum0, trcrt4_csum1, trcrt4_csum2}, 10);
+    trcrt4_csum    <= wrap_csum(calc_csum({trcrt4_csum3}, 2));
+
     ntp6_udp_csum0 <= calc_csum(tx_ntp6_pseudo_head[  0: 79], 10);
     ntp6_udp_csum1 <= calc_csum(tx_ntp6_pseudo_head[ 80:159], 10);
     ntp6_udp_csum2 <= calc_csum(tx_ntp6_pseudo_head[160:239], 10);
@@ -376,8 +583,44 @@ module pp_tx (
     ntp6_udp_csum5 <= calc_csum({ntp6_udp_csum0, ntp6_udp_csum1, ntp6_udp_csum2, ntp6_udp_csum3, ntp6_udp_csum4}, 10);
     ntp6_udp_csum  <= wrap_csum(calc_csum({ntp_sign_csum0, ntp_sign_csum1, ntp_sign_csum2, ntp6_udp_csum5}, 8));
 
+    ping6_csum0    <= calc_csum(tx_ping6_pseudo_head[  0: 79], 10);
+    ping6_csum1    <= calc_csum(tx_ping6_pseudo_head[ 80:159], 10);
+    ping6_csum2    <= calc_csum(tx_ping6_pseudo_head[160:239], 10);
+    ping6_csum3    <= calc_csum(tx_ping6_pseudo_head[240:319], 10);
+    ping6_csum4    <= calc_csum({tx_ping6_payload[0:15], tx_ping6_payload[32:95]}, 10);  // exclude CSum in calc !
+    ping6_csum5    <= calc_csum(tx_ping6_payload[ 96:175], 10);
+    ping6_csum6    <= calc_csum(tx_ping6_payload[176:255], 10);
+    ping6_csum7    <= calc_csum(tx_ping6_payload[256:335], 10);
+    ping6_csum8    <= calc_csum(tx_ping6_payload[336:415], 10);
+    ping6_csum9    <= calc_csum(tx_ping6_payload[416:495], 10);
+    ping6_csum10   <= calc_csum(tx_ping6_payload[496:575], 10);
+    ping6_csum11   <= calc_csum(tx_ping6_payload[576:655], 10);
+    ping6_csum12   <= calc_csum(tx_ping6_payload[656:735], 10);
+    ping6_csum13   <= calc_csum({tx_ping6_payload[736:751], ping6_csum0, ping6_csum1, ping6_csum2, ping6_csum3}, 10);
+    ping6_csum14   <= calc_csum({ping6_csum4, ping6_csum5, ping6_csum6, ping6_csum7, ping6_csum8}, 10);
+    ping6_csum15   <= calc_csum({ping6_csum9, ping6_csum10, ping6_csum11, ping6_csum12}, 8);
+    ping6_csum     <= wrap_csum(calc_csum({ping6_csum13, ping6_csum14, ping6_csum15}, 6));
+
+    trcrt6_csum0   <= calc_csum(tx_trcrt6_pseudo_head[  0: 79], 10);
+    trcrt6_csum1   <= calc_csum(tx_trcrt6_pseudo_head[ 80:159], 10);
+    trcrt6_csum2   <= calc_csum(tx_trcrt6_pseudo_head[160:239], 10);
+    trcrt6_csum3   <= calc_csum(tx_trcrt6_pseudo_head[240:319], 10);
+    trcrt6_csum4   <= calc_csum({tx_trcrt6_payload[0:15], tx_trcrt6_payload[32:95]}, 10);  // exclude CSum in calc !
+    trcrt6_csum5   <= calc_csum(tx_trcrt6_payload[ 96:175], 10);
+    trcrt6_csum6   <= calc_csum(tx_trcrt6_payload[176:255], 10);
+    trcrt6_csum7   <= calc_csum(tx_trcrt6_payload[256:335], 10);
+    trcrt6_csum8   <= calc_csum(tx_trcrt6_payload[336:415], 10);
+    trcrt6_csum9   <= calc_csum(tx_trcrt6_payload[416:495], 10);
+    trcrt6_csum10  <= calc_csum(tx_trcrt6_payload[496:575], 10);
+    trcrt6_csum11  <= calc_csum(tx_trcrt6_payload[576:655], 10);
+    trcrt6_csum12  <= calc_csum(tx_trcrt6_payload[656:735], 10);
+    trcrt6_csum13  <= calc_csum({tx_trcrt6_payload[736:751], trcrt6_csum0, trcrt6_csum1, trcrt6_csum2, trcrt6_csum3}, 10);
+    trcrt6_csum14  <= calc_csum({trcrt6_csum4, trcrt6_csum5, trcrt6_csum6, trcrt6_csum7, trcrt6_csum8}, 10);
+    trcrt6_csum15  <= calc_csum({trcrt6_csum9, trcrt6_csum10, trcrt6_csum11, trcrt6_csum12}, 8);
+    trcrt6_csum    <= wrap_csum(calc_csum({ trcrt6_csum13, trcrt6_csum14, trcrt6_csum15}, 6));
+
   end // always @ (posedge clk, posedge areset)
-  
+
 
   //-------------------------------------------------------------------------------------------------
   // Transmit packet

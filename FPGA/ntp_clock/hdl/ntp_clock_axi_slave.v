@@ -44,8 +44,9 @@
   )(
 
     input  wire  [63:0] ntp_time,          
-    input  wire         pll_locked,     // PLL is locked with 10MHz input
+    input  wire         pll_locked,      // PLL is locked with 10MHz input
     input  wire  [9:0]  pll_sync_status,
+    input  wire         pll_sync_ok,     // PPS IN and OUT aligned
 
     output wire [31:0]  new_second,      // New time at next PPS
     output wire         second_set,      // Set time at next PPS
@@ -63,7 +64,6 @@
     output wire         LED6,
     output wire         LED7,
     output wire         LED8,
-
 
     // Global Clock Signal
     input wire  S_AXI_ACLK,
@@ -335,7 +335,7 @@
                   // Respective byte enables are asserted as per write strobes 
                   // Slave register 7
                   slv_reg7[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                end  
+                end   
             default : begin
                         slv_reg0 <= slv_reg0;
                         slv_reg1 <= slv_reg1;
@@ -343,6 +343,7 @@
                         slv_reg3 <= slv_reg3;
                         slv_reg4 <= slv_reg4;
                         slv_reg5 <= slv_reg5;
+
                         slv_reg6 <= slv_reg6;
                         slv_reg7 <= slv_reg7;
                       end
@@ -357,9 +358,12 @@
             slv_reg5[0] <= 1'b0;
           end
 
-        end
-    end
-  end    
+	end // else: !if(slv_reg_wren)
+      
+     end // else: !if( S_AXI_ARESETN == 1'b0 )
+    
+  end // always @ ( posedge S_AXI_ACLK )
+    
 
   // Implement write response logic generation
   // The write response and response valid signals are asserted by the slave 
@@ -469,7 +473,7 @@
           3'h3   : reg_data_out <= slv_reg3;                   // second set
           3'h4   : reg_data_out <= slv_reg4;                   // leap second
           3'h5   : reg_data_out <= slv_reg5;                   // leap control
-          3'h6   : reg_data_out <= {pll_locked, 21'b0, pll_sync_status};
+          3'h6   : reg_data_out <= {pll_sync_ok, pll_locked, 20'b0, pll_sync_status};
           3'h7   : reg_data_out <= slv_reg7;
           default : reg_data_out <= 0;
         endcase

@@ -239,6 +239,7 @@ module ntps_top (
   wire         NTP_TIME_A_UPD;
   wire         ntp_clock_topA_LED1;
   wire         ntp_clock_topA_LED2;
+  wire         SYNC_OK_A;
 
   ntp_clock_top ntp_clock_topA (
     .reset            (reset),
@@ -273,7 +274,8 @@ module ntps_top (
     .NTP_TIME         (NTP_TIME_A),
     .NTP_TIME_UPD     (NTP_TIME_A_UPD),
     .LED1             (ntp_clock_topA_LED1),
-    .LED2             (ntp_clock_topA_LED2)
+    .LED2             (ntp_clock_topA_LED2),
+    .SYNC_OK          (SYNC_OK_A)
   );
 
   wire         PLL_locked_B;
@@ -281,7 +283,8 @@ module ntps_top (
   wire         NTP_TIME_B_UPD;
   wire         ntp_clock_topB_LED1;
   wire         ntp_clock_topB_LED2;
-
+  wire         SYNC_OK_B;
+   
   ntp_clock_top ntp_clock_topB (
     .reset            (reset),
     .axi_aclk         (axi_aclk),
@@ -315,7 +318,8 @@ module ntps_top (
     .NTP_TIME         (NTP_TIME_B),
     .NTP_TIME_UPD     (NTP_TIME_B_UPD),
     .LED1             (ntp_clock_topB_LED1),
-    .LED2             (ntp_clock_topB_LED2)
+    .LED2             (ntp_clock_topB_LED2),
+    .SYNC_OK          (SYNC_OK_B)
   );
 
   //-----------------------------------------------------------------------------------------------------------//
@@ -364,6 +368,8 @@ module ntps_top (
     .ntp_time_b         (NTP_TIME_B),
     .ntp_time_upd_a     (NTP_TIME_A_UPD),
     .ntp_time_upd_b     (NTP_TIME_B_UPD),
+    .ntp_sync_ok_a      (SYNC_OK_A),							  
+    .ntp_sync_ok_b      (SYNC_OK_B),							  
     .qplllock           (qplllock),
     .qplloutclk         (qplloutclk),
     .qplloutrefclk      (qplloutrefclk),
@@ -457,6 +463,8 @@ module ntps_top (
     .ntp_time_b         (NTP_TIME_B),
     .ntp_time_upd_a     (NTP_TIME_A_UPD),
     .ntp_time_upd_b     (NTP_TIME_B_UPD),
+    .ntp_sync_ok_a      (SYNC_OK_A),							  
+    .ntp_sync_ok_b      (SYNC_OK_B),							  
     .qplllock           (qplllock),
     .qplloutclk         (qplloutclk),
     .qplloutrefclk      (qplloutrefclk),
@@ -548,6 +556,8 @@ module ntps_top (
     .ntp_time_b          (NTP_TIME_B),
     .ntp_time_upd_a      (NTP_TIME_A_UPD),
     .ntp_time_upd_b      (NTP_TIME_B_UPD),
+    .ntp_sync_ok_a       (SYNC_OK_A),							  
+    .ntp_sync_ok_b       (SYNC_OK_B),							  
     .qplllock            (qplllock),
     .qplloutclk          (qplloutclk),
     .qplloutrefclk       (qplloutrefclk),
@@ -640,6 +650,8 @@ module ntps_top (
     .ntp_time_b          (NTP_TIME_B),
     .ntp_time_upd_a      (NTP_TIME_A_UPD),
     .ntp_time_upd_b      (NTP_TIME_B_UPD),
+    .ntp_sync_ok_a       (SYNC_OK_A),							  
+    .ntp_sync_ok_b       (SYNC_OK_B),							  
     .qplllock            (qplllock),
     .qplloutclk          (qplloutclk),
     .qplloutrefclk       (qplloutrefclk),

@@ -50,12 +50,12 @@ module time_sel_sync (
 
   always @(posedge clk) time_a_sync_reg[0] <= ntp_time_upd_a;
   always @(negedge clk) time_a_sync_reg[1] <= time_a_sync_reg[0];
-  always @(negedge clk) time_a_sync_reg[2] <= time_a_sync_reg[1];
+  always @(posedge clk) time_a_sync_reg[2] <= time_a_sync_reg[1];
 
   reg [63:0] ntp_time_a_sync;
   wire       load_a_sync;
   assign load_a_sync = time_a_sync_reg[1] != time_a_sync_reg[2];
-  always @(negedge clk) begin
+  always @(posedge clk) begin
     if (load_a_sync) begin
       ntp_time_a_sync <= ntp_time_a;
     end
@@ -63,12 +63,12 @@ module time_sel_sync (
   
   always @(posedge clk) time_b_sync_reg[0] <= ntp_time_upd_b;
   always @(negedge clk) time_b_sync_reg[1] <= time_b_sync_reg[0];
-  always @(negedge clk) time_b_sync_reg[2] <= time_b_sync_reg[1];
+  always @(posedge clk) time_b_sync_reg[2] <= time_b_sync_reg[1];
 
   reg [63:0] ntp_time_b_sync;
   wire       load_b_sync;
   assign load_b_sync = time_b_sync_reg[1] != time_b_sync_reg[2];
-  always @(negedge clk) begin
+  always @(posedge clk) begin
     if (load_b_sync) begin
       ntp_time_b_sync <= ntp_time_b;
     end
@@ -83,6 +83,13 @@ module time_sel_sync (
   
   assign ntp_time = sel_sync_reg[1] == 1'b0 ? ntp_time_a_sync : ntp_time_b_sync;
 
+  specify
+    $setup(ntp_time_a, negedge load_a_sync, 5000);
+    $setup(ntp_time_b, negedge load_b_sync, 5000);
+    $hold(negedge load_a_sync, ntp_time_a, 2500);
+    $hold(negedge load_a_sync, ntp_time_b, 2500);
+  endspecify
+  
 endmodule // time_sel_sync
 
 `default_nettype wire

@@ -39,7 +39,7 @@ module network_path_axi_slave #(
   // Width of S_AXI data bus
   parameter integer C_S_AXI_DATA_WIDTH = 32,
   // Width of S_AXI address bus
-  parameter integer C_S_AXI_ADDR_WIDTH = 8
+  parameter integer C_S_AXI_ADDR_WIDTH = 9 // max 128 32 bit slaves
 )(
   // Network stuff
   input wire                              pp_clk,
@@ -65,6 +65,7 @@ module network_path_axi_slave #(
   output wire [31:0]                      ntp_tx_ofs,
   input wire [31:0]                       pp_status,
   input wire [7:0]                        xphy_status,
+  input wire                              ntp_sync_ok,
 
   // AXI lite
   input wire                              S_AXI_ACLK,
@@ -91,7 +92,8 @@ module network_path_axi_slave #(
   // Inputs
   wire [31:0]  pp_status_axi;
   wire [7:0]   xphy_status_axi;
-
+  wire         ntp_sync_ok_axi;
+   
   // AXI4LITE signals
   reg [C_S_AXI_ADDR_WIDTH-1:0]  axi_awaddr;
   reg                           axi_awready;
@@ -115,7 +117,7 @@ module network_path_axi_slave #(
   localparam integer            NUM_SLAVES = (1<<C_S_AXI_ADDR_WIDTH)/4;
  
   localparam                    CNT_OFS = 37;              // Start address of status counters
-  localparam                    NCNT    = 24;              // Number of status counters
+  localparam                    NCNT    = 32;              // Number of status counters
   localparam                    XOFS    = CNT_OFS + NCNT;  // Xphy status
               
   //----------------------------------------------
@@ -218,11 +220,17 @@ module network_path_axi_slave #(
           end
         end
       end else begin
-        for (sts_index=0; sts_index < 24; sts_index=sts_index+1) begin
+        for (sts_index=0; sts_index < NCNT; sts_index=sts_index+1) begin
           slv_reg[CNT_OFS+sts_index] = new_status_cnt[sts_index];
         end
         slv_reg[XOFS] = xphy_status_axi;
       end // else: !if(slv_reg_wren)
+
+      // Clear laser enable if sync is lost
+      if (ntp_sync_ok_axi == 1'b0) begin
+	slv_reg[0][29] = 1'b0;
+      end
+      
     end // else: !if( S_AXI_ARESETN == 1'b0 )
   end // always @ ( posedge S_AXI_ACLK )
   
@@ -388,6 +396,7 @@ module network_path_axi_slave #(
 
   synchronizer_simple #(.DATA_WIDTH(32)) sync_pp_status   (.data_in(pp_status),   .new_clk(S_AXI_ACLK), .data_out(pp_status_axi));
   synchronizer_simple #(.DATA_WIDTH(8))  sync_xphy_status (.data_in(xphy_status), .new_clk(S_AXI_ACLK), .data_out(xphy_status_axi));
+  synchronizer_simple #(.DATA_WIDTH(1))  sync_ntp_sync_ok (.data_in(ntp_sync_ok), .new_clk(S_AXI_ACLK), .data_out(ntp_sync_ok_axi));
 
   // remember old value of status pulses
   reg [31:0]  pp_status_axi_old;
@@ -402,7 +411,7 @@ module network_path_axi_slave #(
   // Update status counters
   integer status_index;
   always @(*) begin
-    for (status_index=0; status_index < 24; status_index=status_index+1 ) begin
+    for (status_index=0; status_index < NCNT; status_index=status_index+1 ) begin
       new_status_cnt[status_index] = slv_reg[status_index+CNT_OFS];
       if ((slv_reg[status_index+CNT_OFS] < 32'hffffffff) && pp_status_axi[status_index] == 1'b1 && pp_status_axi_old[status_index] == 1'b0) begin
         new_status_cnt[status_index] = slv_reg[status_index+CNT_OFS] + 1;

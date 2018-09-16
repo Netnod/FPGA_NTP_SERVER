@@ -41,20 +41,20 @@
 module md5_stage #(
   parameter integer ROUND_NO = 0
 )(
-  input wire         clk,
-  input wire         areset,
-  input wire         start, 
-  input wire [3:0]   icnt, 
-  input wire [511:0] m_in,
-  input wire [31:0]  a_in,
-  input wire [31:0]  b_in,
-  input wire [31:0]  c_in,
-  input wire [31:0]  d_in,
-  output reg [511:0] m_out,
-  output wire [31:0] a_out,
-  output wire [31:0] b_out,
-  output wire [31:0] c_out,
-  output wire [31:0] d_out
+  input wire          clk,
+  input wire          areset,
+  input wire          start, 
+  input wire [3:0]    icnt, 
+  input wire [511:0]  m_in,
+  input wire [31:0]   a_in,
+  input wire [31:0]   b_in,
+  input wire [31:0]   c_in,
+  input wire [31:0]   d_in,
+  output wire [511:0] m_out,
+  output wire [31:0]  a_out,
+  output wire [31:0]  b_out,
+  output wire [31:0]  c_out,
+  output wire [31:0]  d_out
 );
 
 
@@ -131,6 +131,16 @@ module md5_stage #(
   endfunction // for
 
   // --------------------------------------------
+  // Input register
+  reg [511:0] 	 m_in_reg;
+  
+  always @(posedge clk) begin
+    if (icnt[2:0] == 3'd7) begin
+      m_in_reg <= m_in;
+    end
+  end
+
+  // --------------------------------------------
   // unpack input data and reorder from little endian
   
   integer i,j;
@@ -139,7 +149,7 @@ module md5_stage #(
   always @(*) begin
     for (i = 0; i < 16; i = i+1) begin
       for (j = 0; j < 4; j = j + 1) begin
-        Mi[i][(3-j)*8+:8] = m_in[((15-i)*32+j*8)+:8];
+        Mi[i][(3-j)*8+:8] = m_in_reg[((15-i)*32+j*8)+:8];
       end
     end
   end
@@ -154,7 +164,7 @@ module md5_stage #(
   reg [31:0]  Freg;
 
   always @(posedge clk) begin
-    if (start == 1'b1) begin
+    if (icnt[2:0] == 3'd0) begin
 
       // Initialize stuff
      
@@ -200,14 +210,8 @@ module md5_stage #(
   assign c_out = C;
   assign d_out = D;
 
-  // --------------------------------------------
-  // Send m_in to next stage.
-  always @(posedge clk) begin
-    if (start == 1'b1) begin
-      m_out <= m_in;
-    end
-  end
-
+  assign m_out = m_in_reg;
+   
 endmodule // md5_stage
 
 `default_nettype wire

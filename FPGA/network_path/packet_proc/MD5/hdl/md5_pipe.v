@@ -45,7 +45,7 @@ module md5_pipe(
   input wire [31:0]  b_in,
   input wire [31:0]  c_in,
   input wire [31:0]  d_in,
-  output wire        out_ready,  // new output available
+  output reg         out_ready,  // output stage ready a-d out availabe 1 cycle later
   output wire [31:0] a_out,
   output wire [31:0] b_out,
   output wire [31:0] c_out,
@@ -70,29 +70,31 @@ module md5_pipe(
         pipe_state[0]   <= start;
       end
     end
-  end
+  end // always @ (posedge clk, posedge areset)
 
   
   //-------------------------------------------------------------------------
-  // Each stage takes 8 clock cycles
+  // Each stage takes 1+8 (overlapped) clock cycles
   
-  reg [2:0]  icnt;   // iteration count 0..15
-  // Count cycles for every state
+  reg [2:0]  icnt;   // iteration count 7,0,1-6
+  // Count cycles for every state control muxes etc 
   always @(posedge clk, posedge areset) begin
     if (areset == 1'b1) begin
-      icnt <= 'b0;
+      icnt <= 3'd7;
     end else begin
       if (start == 1'b1) begin
-        icnt <= 3'd1;
-      end else if ((icnt > 0 && icnt < 3'd7) || pipe_state[6:0] != 'b0) begin
+        icnt <= 'b0;
+      end else if (pipe_state[7:0] == 8'h0) begin
+	icnt <= 3'd7;
+      end else if (icnt < 3'd7) begin
         icnt <= icnt + 1;
       end else begin
         icnt <= 'b0;
       end
-    end
-  end
+    end // else: !if(areset == 1'b1)
+  end // always @ (posedge clk, posedge areset)
 
-  assign stage_ready = icnt == 'b0 ? 1'b1 : 1'b0;
+  assign stage_ready = icnt == 3'd7 ? 1'b1 : 1'b0;
   
   //------------------------------------------------------------------------- 
 
@@ -101,7 +103,7 @@ module md5_pipe(
   assign start_stage[7:1] = pipe_state[6:0] & {7{stage_ready}};
 
   //-------------------------------------------------------------------------
-  // The pipe stages use 2 stages for every round
+  // The pipe use 2 stages for every round
   wire [511:0] m [0:8];
   wire [31:0]  a [0:8], b [0:8], c [0:8], d [0:8];
 
@@ -133,14 +135,14 @@ module md5_pipe(
     end
   endgenerate
 
-  assign out_ready = pipe_state[7] & stage_ready;
-  
   assign in_ready = stage_ready;
   
   assign a_out = a[8];
   assign b_out = b[8];
   assign c_out = c[8];
   assign d_out = d[8];
+
+  assign out_ready = pipe_state[7] & stage_ready;
     
 endmodule // md5_stage
 

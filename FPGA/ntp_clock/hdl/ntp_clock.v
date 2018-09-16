@@ -45,8 +45,8 @@ module ntp_clock # (
    input wire           PPS_IN,
    output wire          PPS_OUT,
 
-   output wire [63:0]   NTP_TIME,
-   output wire          NTP_TIME_UPD,
+   output reg [63:0]    NTP_TIME,
+   output reg           NTP_TIME_UPD,
 
    output wire [9:0]    PLL_SYNC_STATUS,
 
@@ -64,6 +64,8 @@ module ntp_clock # (
    output wire          LED6,
    output wire          LED7,
    output wire          LED8,
+   
+   output wire          SYNC_OK,
 
    // Ports of Axi Slave Bus Interface
    input wire                            axi_aclk,
@@ -90,6 +92,7 @@ module ntp_clock # (
  );
 
   wire               pps_reset;
+  wire               pll_sync_ok;
   wire [9:0]         pll_sync_status;
   wire [31:0]        new_second;
   wire               second_set;
@@ -134,6 +137,7 @@ module ntp_clock # (
     .ntp_time        (NTP_TIME_sync),
     .pll_locked      (pll_locked),
     .pll_sync_status (pll_sync_status),
+    .pll_sync_ok     (pll_sync_ok),
     .new_second      (new_second),
     .second_set_done (second_set_done),
     .second_set      (second_set),
@@ -150,7 +154,6 @@ module ntp_clock # (
     .LED6            (LED6),
     .LED7            (LED7),
     .LED8            (LED8)
-
   );
 
   wire pps_pre;
@@ -160,15 +163,19 @@ module ntp_clock # (
     .clk128          (clk128),
     .PPS_IN          (PPS_IN),                              
     .PPS_PRE         (pps_pre),                            
-    .PPS_OUT         (PPS_OUT),                            
+    .PPS_OUT         (PPS_OUT),
     .PPS_RESET       (pps_reset),
-    .pll_locked      (pll_locked),                          
-    .pll_psclk       (pll_psclk),                                
-    .pll_psen        (pll_psen),                          
+    .pll_locked      (pll_locked),
+    .pll_psclk       (pll_psclk),
+    .pll_psen        (pll_psen),
     .pll_psincdec    (pll_psincdec),
-    .pll_psdone      (pll_psdone),                              
-    .SYNC_STATUS     (pll_sync_status)                     
+    .pll_psdone      (pll_psdone),
+    .SYNC_OK         (pll_sync_ok),
+    .SYNC_STATUS     (pll_sync_status)
   );
+
+  wire [63:0] ntp_time;
+  wire        ntp_time_upd;
   
   ntp_counters ntp_counters_inst0 (
     .areset          (areset),
@@ -181,13 +188,24 @@ module ntp_clock # (
     .leap_set        (leap_set),
     .leap_set_done   (leap_set_done),
     .leap_inc        (leap_inc),
-    .ntp_time        (NTP_TIME),
-    .ntp_time_upd    (NTP_TIME_UPD),
+    .ntp_time        (ntp_time),
+    .ntp_time_upd    (ntp_time_upd),
     .pps_pre         (pps_pre)
   );
 
-  assign PLL_SYNC_STATUS = pll_sync_status;
+  // Throttle down data rate so network paths can catch them
+  always @(posedge clk128, posedge areset) begin
+    if (areset == 1'b1) begin
+      NTP_TIME_UPD <= 1'b0;
+    end else if (ntp_time_upd) begin
+      NTP_TIME     <=  ntp_time;
+      NTP_TIME_UPD <= ~NTP_TIME_UPD;
+    end
+  end
   
+  assign PLL_SYNC_STATUS = pll_sync_status;
+  assign SYNC_OK = pll_sync_ok;
+   
 endmodule
 `default_nettype wire
 

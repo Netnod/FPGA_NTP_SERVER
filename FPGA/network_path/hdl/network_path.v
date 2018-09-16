@@ -37,74 +37,78 @@
 module network_path #(
   parameter [4:0]   PRTAD              = 5'd1,   // For MDIO addressing
   parameter integer C_S_AXI_DATA_WIDTH = 32,
-  parameter integer C_S_AXI_ADDR_WIDTH = 8
+  parameter integer C_S_AXI_ADDR_WIDTH = 9
 )(
   /// AXI Lite register interface
-  input wire         s_axi_clk,
-  input wire         s_axi_aresetn, 
-  output wire        s_axi_awready,
+  input wire 	     s_axi_clk,
+  input wire 	     s_axi_aresetn, 
+  output wire 	     s_axi_awready,
   input wire [31:0]  s_axi_awaddr,
-  input wire         s_axi_awvalid,
-  output wire        s_axi_wready,
+  input wire 	     s_axi_awvalid,
+  output wire 	     s_axi_wready,
   input wire [31:0]  s_axi_wdata,
   input wire [3:0]   s_axi_wstrb,
-  input wire         s_axi_wvalid,
-  output wire        s_axi_bvalid,
+  input wire 	     s_axi_wvalid,
+  output wire 	     s_axi_bvalid,
   output wire [1:0]  s_axi_bresp,
-  input wire         s_axi_bready,
-  output wire        s_axi_arready,
-  input wire         s_axi_arvalid,
+  input wire 	     s_axi_bready,
+  output wire 	     s_axi_arready,
+  input wire 	     s_axi_arvalid,
   input wire [31:0]  s_axi_araddr,
   output wire [31:0] s_axi_rdata,
   output wire [1:0]  s_axi_rresp,
-  output wire        s_axi_rvalid,
-  input wire         s_axi_rready, 
+  output wire 	     s_axi_rvalid,
+  input wire 	     s_axi_rready, 
 
   // NTP times
   input wire [63:0]  ntp_time_a,
-  input wire         ntp_time_upd_a,
+  input wire 	     ntp_time_upd_a,
   input wire [63:0]  ntp_time_b,
-  input wire         ntp_time_upd_b,
+  input wire 	     ntp_time_upd_b,
+
+  // NTP SYNC status
+  input wire 	     ntp_sync_ok_a,
+  input wire 	     ntp_sync_ok_b,
 
   // Key Memory
-  output wire        key_req,
+  output wire 	     key_req,
   output wire [31:0] key_id,
-  input wire         key_ack,
+  input wire 	     key_ack,
   input wire [255:0] key,
 
   // sfp+
-  output wire        xphy_txp, 
-  output wire        xphy_txn, 
-  input wire         xphy_rxp, 
-  input wire         xphy_rxn, 
-  input wire         signal_lost, 
-  input wire         module_detect_n, 
-  input wire         tx_fault,
-  output wire        tx_disable,
+  output wire 	     xphy_txp, 
+  output wire 	     xphy_txn, 
+  input wire 	     xphy_rxp, 
+  input wire 	     xphy_rxn, 
+  input wire 	     signal_lost, 
+  input wire 	     module_detect_n, 
+  input wire 	     tx_fault,
+  output wire 	     tx_disable,
 
   // MDIO controller
-  input wire         mdc, 
-  input wire         mdio_in,
-  output wire        mdio_out,
-  output wire        mdio_tri,
+  input wire 	     mdc, 
+  input wire 	     mdio_in,
+  output wire 	     mdio_out,
+  output wire 	     mdio_tri,
 
   // shared control signals from phy0 to phy1-3
-  input wire         clk156,
-  input wire         txusrclk,
-  input wire         txusrclk2,
-  input wire         areset_clk156,
-  input wire         gttxreset,
-  input wire         gtrxreset,
-  input wire         txuserrdy,
-  input wire         qplllock,
-  input wire         qplloutclk,
-  input wire         qplloutrefclk,
-  input wire         reset_counter_done,
+  input wire 	     clk156,
+  input wire 	     txusrclk,
+  input wire 	     txusrclk2,
+  input wire 	     areset_clk156,
+  input wire 	     gttxreset,
+  input wire 	     gtrxreset,
+  input wire 	     txuserrdy,
+  input wire 	     qplllock,
+  input wire 	     qplloutclk,
+  input wire 	     qplloutrefclk,
+  input wire 	     reset_counter_done,
                                      
-  output wire        tx_resetdone, 
+  output wire 	     tx_resetdone, 
 
-  input wire         sys_reset,
-  input wire         sim_speedup_control
+  input wire 	     sys_reset,
+  input wire 	     sim_speedup_control
 );
 
   wire [31:0]  gen_config;
@@ -132,6 +136,9 @@ module network_path #(
   wire [7:0]   xphy_status;
 
   
+  wire   ntp_sync_ok;
+  assign ntp_sync_ok = (ntp_sync_ok_a & ~gen_config[24] ) | (ntp_sync_ok_b & gen_config[24]);
+
   // Instantiation of Axi Bus Interface S00_AXI
   network_path_axi_slave #( 
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
@@ -160,6 +167,7 @@ module network_path #(
     .ntp_tx_ofs    (ntp_tx_ofs),
     .pp_status     (pp_status),
     .xphy_status   (xphy_status),
+    .ntp_sync_ok   (ntp_sync_ok),
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
     .S_AXI_AWADDR  (s_axi_awaddr),
@@ -187,7 +195,7 @@ module network_path #(
   time_sel_sync tss(
     .areset         (sys_reset),
     .clk            (clk156),
-    .sel            (gen_config[14]),
+    .sel            (gen_config[24]),
     .ntp_time_a     (ntp_time_a),
     .ntp_time_upd_a (ntp_time_upd_a),
     .ntp_time_b     (ntp_time_b),
@@ -201,7 +209,7 @@ module network_path #(
   wire [7:0]   xgmii_rxc;
 
   // Packet processing including MAC
-  pp_top pp(
+  pp_mac_top pp(
     .areset         (sys_reset),
     .clk            (clk156),
     .my_mac_addr0   (pp_mac_addr0), 
@@ -216,7 +224,7 @@ module network_path #(
     .my_ipv6_addr1  (pp_ipv6_addr1),
     .my_ipv6_addr2  (pp_ipv6_addr2),
     .my_ipv6_addr3  (pp_ipv6_addr3),
-    .gen_config     (gen_config),
+    .gen_config     (gen_config[23:0]),
     .ntp_config     (ntp_config),
     .ntp_root_delay (ntp_root_delay),
     .ntp_root_disp  (ntp_root_disp),
@@ -270,9 +278,9 @@ module network_path #(
   assign signal_detect = ~signal_lost;
 
   wire   tx_disable_if;
-  assign tx_disable = tx_disable_if | ~gen_config[15];   // Laser must be enabled 
+
   // Map xphy configuration 
-  assign xphy_config = gen_config[16+:2]; // Pick out bits
+  assign xphy_config = gen_config[30+:2]; // Pick out bits
   wire [2:0]   pma_pmd_type;
   assign pma_pmd_type = xphy_config == 2'b00 ? 3'b101 : // 10GBASE-ER
                         xphy_config == 2'b01 ? 3'b110 : // 10GBASE-LR
@@ -331,6 +339,8 @@ module network_path #(
     .tx_disable             (tx_disable_if),
     .sim_speedup_control    (sim_speedup_control)
   );
+
+  assign tx_disable = tx_disable_if | ~gen_config[29];   // Laser must be enabled
 
   assign xphy_status[0]   = qplllock;
   assign xphy_status[1]   = module_detect;

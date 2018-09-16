@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without 
@@ -50,11 +50,13 @@ module pp_sha1 (
 
   output wire         in_ready,        // ready for new packet
   input wire          start, 
-  input wire [839:0]  rx_stuff,        // Received message stuff
-  input wire [159:0]  key,             // Key for checking and generating signature
+  input wire [843:0]  rx_stuff,        // Received message stuff
+
+  input wire          key_ack,
+  input wire [255:0]  key,             // Key for checking and generating signature
 
   output wire         done,
-  output wire [775:0] tx_stuff,
+  output wire [779:0] tx_stuff,
 
   // Status
   output reg          sts_ipv4_ntp_pass,
@@ -64,12 +66,24 @@ module pp_sha1 (
 
 `include "pp_par.v"
 
+  // Store valid key until needed
+  reg [159:0] key_buf;
+  always @(posedge clk) begin
+    if (key_ack == 1'b1 && key[KEY_VALID] == 1'b1 && key[KEY_TYPE] == SHA1_KEY_TYPE) begin
+      key_buf <= key[159:0];
+    end
+  end
+
   wire [63:0]  rx_ntp_time0; // our rx time stamp
   wire [1:0]   addr_sel0;
   wire         arp_0;
   wire         nd_0;
   wire         ntp4_0;
+  wire         ping4_0;
+  wire         trcrt4_0;
   wire         ntp6_0;
+  wire         ping6_0;
+  wire         trcrt6_0;
   wire         md5_0;
   wire         sha1_0;
   wire [47:0]  cl_mac0;      // physical address of sender
@@ -79,7 +93,8 @@ module pp_sha1 (
   wire [31:0]  keyid0;       // Key id 
   wire [159:0] cl_dgst0;     // Received message digest
 
-  assign {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ntp6_0, md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0} = rx_stuff;
+  assign {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
+          md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0} = rx_stuff;
   
   //---------------------------------------------------------------------------------------------
   // Store packets in FIFO and start checking
@@ -92,15 +107,16 @@ module pp_sha1 (
     .areset    (areset),
     .in_ready  (in_ready),
     .start     (start), 
-    .key       (key),
+    .key       (key_buf),
     .payload   (cl_payload0),
     .hash_done (check_done),
     .hash      (check_hash)
   );
 
-  wire [999:0] cfifo_wdata, cfifo_rdata;
+  wire [1003:0] cfifo_wdata, cfifo_rdata;
 
-  assign cfifo_wdata = {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ntp6_0, md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0, key};
+  assign cfifo_wdata = {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
+                        md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0, key_buf};
 
   wire   check_fifo_full, check_fifo_empty;
   
@@ -120,7 +136,11 @@ module pp_sha1 (
   wire         arp_1;
   wire         nd_1;
   wire         ntp4_1;
+  wire         ping4_1;
+  wire         trcrt4_1;
   wire         ntp6_1;
+  wire         ping6_1;
+  wire         trcrt6_1;
   wire         md5_1;
   wire         sha1_1;
   wire [47:0]  cl_mac1;
@@ -131,7 +151,8 @@ module pp_sha1 (
   wire [159:0] cl_dgst1;
   wire [159:0] key1;
 
-  assign {rx_ntp_time1, addr_sel1, arp_1, nd_1, ntp4_1, ntp6_1, md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, cl_payload1, keyid1, cl_dgst1, key1} = cfifo_rdata;
+  assign {rx_ntp_time1, addr_sel1, arp_1, nd_1, ntp4_1, ping4_1, trcrt4_1, ntp6_1, ping6_1, trcrt6_1,
+          md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, cl_payload1, keyid1, cl_dgst1, key1} = cfifo_rdata;
 
   wire check_ok;
   assign check_ok = check_hash == cl_dgst1;
@@ -179,8 +200,9 @@ module pp_sha1 (
   );
 
 
-  wire [615:0]  sfifo_wdata, sfifo_rdata;
-  assign sfifo_wdata = {addr_sel1, arp_1, nd_1, ntp4_1, ntp6_1, md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, tx_payload, keyid1};
+  wire [619:0]  sfifo_wdata, sfifo_rdata;
+  assign sfifo_wdata = {addr_sel1, arp_1, nd_1, ntp4_1, ping4_1, trcrt4_1, ntp6_1, ping6_1, trcrt6_1,
+                        md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, tx_payload, keyid1};
 
   wire sign_fifo_full, sign_fifo_empty;
   

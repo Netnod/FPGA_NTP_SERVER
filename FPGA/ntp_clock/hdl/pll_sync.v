@@ -36,40 +36,43 @@
 
 module pll_sync(
   input wire 	    clk128,
-  input wire 	    areset,      // active high reset
-  input wire 	    PPS_IN,      // Async PPS input
-  input wire 	    PPS_PRE,     // Calculated PPS out on next clock edge
-  output wire 	    PPS_OUT,     // PPS out
-  output wire 	    PPS_RESET,    // Synch pulse to counters
+  input wire 	    areset, // active high reset
+  input wire 	    PPS_IN, // Async PPS input
+  input wire 	    PPS_PRE, // Calculated PPS out on next clock edge
+  output wire 	    PPS_OUT, // PPS out
+  output wire 	    PPS_RESET, // Synch pulse to counters
   input wire 	    pll_locked,
   output wire 	    pll_psclk,
   output wire 	    pll_psen,
   output wire 	    pll_psincdec,
   input wire 	    pll_psdone,
+  output wire       SYNC_OK,
   output wire [9:0] SYNC_STATUS
   );
 
-  reg [4:0] 	   pps_in_sync; // Sync ffs for PPS_IN
+  reg [5:0] 	   pps_in_sync; // Sync ffs for PPS_IN
   reg [5:0] 	   pps_ref_del; // Del PPS_OUT to match PPS_IN
 
   // Synchronize PPS_IN and delay PPS_REF to match
   always @(posedge clk128, posedge areset) begin
     if (areset == 1'b1) begin
-      pps_in_sync <= 5'b0;
+      pps_in_sync <= 6'b0;
       pps_ref_del <= 6'b0;
     end else begin
-      pps_in_sync[4:1] <= pps_in_sync[3:0];
+      pps_in_sync[5:1] <= pps_in_sync[4:0];
       pps_in_sync[0]   <= PPS_IN;
       pps_ref_del[5:1] <= pps_ref_del[4:0];
       pps_ref_del[0]   <= PPS_PRE;
     end 
   end
 
-  wire   pps_edge;
+  wire   pps_edge0;
+  wire   pps_edge1;
   wire   ref_edge0;
   wire   ref_edge1;
   
-  assign pps_edge   = pps_in_sync[3] & ~pps_in_sync[4]; 
+  assign pps_edge0  = pps_in_sync[3] & ~pps_in_sync[4]; 
+  assign pps_edge1  = pps_in_sync[4] & ~pps_in_sync[5]; 
   assign ref_edge0  = pps_ref_del[3] & ~pps_ref_del[4]; 
   assign ref_edge1  = pps_ref_del[4] & ~pps_ref_del[5]; 
   
@@ -83,20 +86,19 @@ module pll_sync(
   wire early;
   wire late;
 
-
-  assign early = pps_edge & ref_edge1; // Our PPS is earlier then PPS_IN
-  assign late  = pps_edge & ref_edge0; // Our PPS is later then PPS_IN
+  assign early = pps_edge0 & ref_edge1; // Our PPS is earlier then PPS_IN
+  assign late  = pps_edge0 & ref_edge0; // Our PPS is later then PPS_IN
                 
   reg [1:0] State;
   reg [9:0] Meter;   // XXXXXXX keep track of number of incs decs and use it as a metric of sync. ????
 
-  always @(posedge clk128, posedge areset) begin
-    if (areset == 1'b1) begin
+  always @(posedge clk128, posedge areset, negedge pll_locked) begin
+    if (areset == 1'b1 || pll_locked == 1'b0) begin
       State <= S_Idle;
       Meter <= 10'h200;
     end else begin
       case (State)
-        S_Idle : if (pll_locked == 1'b1) begin
+        S_Idle : 
           if (early == 1'b1) begin
             State <= S_Inc;  // Let go
             if (Meter != 10'h3FF) Meter <= Meter + 1;
@@ -105,7 +107,6 @@ module pll_sync(
             State <= S_Dec;  // Pull in
             if (Meter != 10'h000) Meter <= Meter - 1;
           end
-        end
         S_Inc,S_Dec:
           State <= S_Wait;
         S_Wait :
@@ -120,17 +121,29 @@ module pll_sync(
 
   // pipeline the sync pulse since the counters will probably be somewhere close to PCIe if.
   reg pps_reset_reg;
-  always @(posedge clk128, posedge areset) begin
-    if (areset == 1'b1) begin
+  always @(posedge clk128, posedge areset, negedge pll_locked) begin
+    if (areset == 1'b1 || pll_locked == 1'b0) begin
       pps_reset_reg <= 1'b0;
     end else begin
-      pps_reset_reg <= pps_edge & ~ref_edge0 & ~ref_edge1 & pll_locked;
+      pps_reset_reg <= pps_edge0 & ~ref_edge0 & ~ref_edge1;
     end 
+  end
+
+  reg sync_ok;
+  always @(posedge clk128, posedge areset, negedge pll_locked) begin
+    if (areset == 1'b1 || pll_locked == 1'b0) begin
+      sync_ok <= 1'b0;
+    end else begin
+      if (ref_edge1 == 1'b1) begin
+	sync_ok <= pps_edge0 | pps_edge1;
+      end
+    end
   end
 
   assign PPS_OUT     = pps_ref_del[0];
   assign PPS_RESET   = pps_reset_reg;
+  assign SYNC_OK     = sync_ok;
   assign SYNC_STATUS = Meter;
- 
+  
 endmodule
 `default_nettype wire

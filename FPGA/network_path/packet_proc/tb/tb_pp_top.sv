@@ -22,15 +22,29 @@ module tb_pp_top;
   localparam   [7:0] H_TYPE_ETH_LEN  =   8'h06;
   localparam   [7:0] P_TYPE_IPV4_LEN =   8'h04;
   localparam  [15:0] NTP_IP_PKT_LEN  =  16'd76;  // NTP packet total length
+  localparam  [15:0] ICMP_PROTV4     =  16'd1;   // ICMP Protocol for IPv4
   localparam  [15:0] UDP_PROT        =  16'd17;  // UDP Protocol
   localparam  [15:0] NTP_PORT        =  16'd123; // NTP destination port
   localparam  [15:0] CLNT_PORT       =  16'habc; // NTP source
   localparam  [15:0] NTP_UDP_PKT_LEN =  16'd56;  // NTP UDP packet length
 
-  localparam  [31:0] MD5_KEY_ID      =  32'd11;
-  localparam  [31:0] SHA1_KEY_ID     =  32'd317;
-  localparam [159:0] MD5_KEY         = 160'hA001234125BCEF0AAACCDD432212541515125125;
-  localparam [159:0] SHA1_KEY        = 160'hE55555555551515555555555555555151515151A;
+  logic [31:0] MD5_KEY_ID [0:1];
+  assign MD5_KEY_ID[0] = 32'h5A;
+  assign MD5_KEY_ID[1] = 32'h5B;
+
+  logic [31:0] SHA1_KEY_ID [0:1];
+  assign SHA1_KEY_ID[0] = 32'd317;
+  assign SHA1_KEY_ID[1] = 32'd320;
+
+  logic [159:0] MD5_KEY [0:1];
+  assign MD5_KEY[0] = 160'hA001234125BCEF0AAACCDD432212541515125125; 
+  assign MD5_KEY[1] = 160'h000FFFFEEEAAA000111133452FACD68900111001; 
+
+  logic [159:0] SHA1_KEY [0:1];
+  assign SHA1_KEY[0] = 160'hE55555555551515555555555555555151515151A;
+  assign SHA1_KEY[1] = 160'hF00000000000000001000000000000000011111F;
+
+  logic [159:0] MD5_KEY_JOHN  = 160'h3944323f526346666b2a7b5f40535a594f567164;   // FAKE KEY
   
   logic         areset  = 1'b1;
   logic         aresetn;
@@ -161,9 +175,21 @@ module tb_pp_top;
     logic [159:0] digest;
   } ntp_sha1_digest_t;
 
+  //------------------------------------------------------------------------------------------
+
+  typedef struct packed{
+    logic [7:0]   mtype;
+    logic [7:0]   code;
+    logic [15:0]  csum;
+    logic [15:0]  id;
+    logic [15:0]  seq_no;
+    logic [687:0] data;   // Max 86 bytes to fit data path
+  } ping_payload_t;
+
+  //------------------------------------------------------------------------------------------
+
 `include "tb_pp_ipv4.v"
 `include "tb_pp_ipv6.v"
-  
   
   //------------------------------------------------------------------------------------------
 
@@ -186,9 +212,8 @@ module tb_pp_top;
   logic [31:0] ntp_ref_id     = '0;
   logic [63:0] ntp_ref_ts     = '0;
 
-  
   // MAC 
-  pp_top dut(
+  pp_mac_top dut(
     .areset         (areset),
     .clk            (clk),
     .my_mac_addr0   (my_mac_addr0), 
@@ -203,7 +228,7 @@ module tb_pp_top;
     .my_ipv6_addr1  (my_ipv6_addr1),
     .my_ipv6_addr2  (my_ipv6_addr2),
     .my_ipv6_addr3  (my_ipv6_addr3),
-    .gen_config     ({26'd64,6'b111111}),
+    .gen_config     ({8'd64,6'b0,10'b1111111111}),
     .ntp_config     (ntp_config),
     .ntp_root_delay (ntp_root_delay),
     .ntp_root_disp  (ntp_root_disp),
@@ -226,7 +251,7 @@ module tb_pp_top;
 
   //------------------------------------------------------------------------------------------
 
-  // Swap bytes withon long word
+  // Swap bytes within long word
   function [63:0] swap_bytes;
     input [63:0] data;
     begin
@@ -240,10 +265,10 @@ module tb_pp_top;
       swap_bytes[56+:8] = data[ 0+:8];
     end
   endfunction //
-  
+
   //------------------------------------------------------------------------------------------
 
-  localparam MAX_PACKET_SIZE = $bits(ntp6_pkt_t); // biggest packet
+  localparam MAX_PACKET_SIZE = $bits(trcrt6_req_pkt_t); // biggest packet
   
                               
   task automatic send_packet;
@@ -309,13 +334,47 @@ module tb_pp_top;
 
   integer i,j;
 
-  arp_pkt_t  arp_packet;
-  nd_pkt_t   ns_packet;
-  nd_pkt_t   na_packet;
-  ntp4_pkt_t ntp4_req_packet;
-  ntp4_pkt_t ntp4_resp_packet;
-  ntp6_pkt_t ntp6_req_packet;
-  ntp6_pkt_t ntp6_resp_packet;
+  arp_pkt_t   arp_packet;
+  nd_pkt_t    ns_packet;
+  nd_pkt_t    na_packet;
+  ntp4_pkt_t  ntp4_req_packet;
+  ntp4_pkt_t  ntp4_resp_packet;
+  ntp6_pkt_t  ntp6_req_packet;
+  ntp6_pkt_t  ntp6_resp_packet;
+  ntp4_pkt_t  ntp4_req_packet_md5;
+  ntp4_pkt_t  ntp4_req_packet_md5_x;
+  ntp4_pkt_t  ntp4_req_packet_md5_y;
+  ntp4_pkt_t  ntp4_req_packet_md5_xx;
+  ntp4_pkt_t  ntp4_resp_packet_md5;
+  ntp4_pkt_t  ntp4_resp_packet_md5_x;
+  ntp4_pkt_t  ntp4_resp_packet_md5_y;
+  ntp4_pkt_t  ntp4_resp_packet_md5_xx;
+  ntp6_pkt_t  ntp6_req_packet_md5;
+  ntp6_pkt_t  ntp6_req_packet_md5_x;
+  ntp6_pkt_t  ntp6_req_packet_md5_y;
+  ntp6_pkt_t  ntp6_resp_packet_md5;
+  ntp6_pkt_t  ntp6_resp_packet_md5_x;
+  ntp6_pkt_t  ntp6_resp_packet_md5_y;
+  ntp4_pkt_t  ntp4_req_packet_sha1;
+  ntp6_pkt_t  ntp4_req_packet_sha1_x;
+  ntp6_pkt_t  ntp4_req_packet_sha1_y;
+  ntp4_pkt_t  ntp4_resp_packet_sha1;
+  ntp4_pkt_t  ntp4_resp_packet_sha1_x;
+  ntp4_pkt_t  ntp4_resp_packet_sha1_y;
+  ntp6_pkt_t  ntp6_req_packet_sha1;
+  ntp6_pkt_t  ntp6_req_packet_sha1_x;
+  ntp6_pkt_t  ntp6_req_packet_sha1_y;
+  ntp6_pkt_t  ntp6_resp_packet_sha1;
+  ntp6_pkt_t  ntp6_resp_packet_sha1_x;
+  ntp6_pkt_t  ntp6_resp_packet_sha1_y;
+  ping4_pkt_t ping4_req_packet;
+  ping4_pkt_t ping4_resp_packet;
+  ping6_pkt_t ping6_req_packet;
+  ping6_pkt_t ping6_resp_packet;
+  trcrt4_req_pkt_t trcrt4_req_packet;
+  trcrt4_resp_pkt_t trcrt4_resp_packet;
+  trcrt6_req_pkt_t trcrt6_req_packet;
+  trcrt6_resp_pkt_t trcrt6_resp_packet;
 
   reg [255:0] keyy;
   reg [255:0] keyx;
@@ -326,90 +385,48 @@ module tb_pp_top;
     @(negedge areset);
     repeat (10) @(posedge clk);
 
-    keyy = MD5_KEY;
+    keyy = MD5_KEY[0];
     keyy[255] = 1'b1;  // Key valid
     keyy[254] = 1'b0;  // MD5
+    for (i = 0; i < 8; i++) axi_bus.write(MD5_KEY_ID[0]*32+4*i, keyy[i*32+:32], error);
 
-    for (i = 0; i < 8; i++) axi_bus.write(MD5_KEY_ID*32+4*i, keyy[i*32+:32], error);
+    keyy = MD5_KEY[1];
+    keyy[255] = 1'b1;  // Key valid
+    keyy[254] = 1'b0;  // MD5
+    for (i = 0; i < 8; i++) axi_bus.write(MD5_KEY_ID[1]*32+4*i, keyy[i*32+:32], error);
 
-    keyy = SHA1_KEY;
+    keyy = SHA1_KEY[0];
     keyy[255] = 1'b1;  // Key valid
     keyy[254] = 1'b1;  // SHA1
-    for (i = 0; i < 8; i++) axi_bus.write(SHA1_KEY_ID*32+4*i, keyy[i*32+:32], error);
+    for (i = 0; i < 8; i++) axi_bus.write(SHA1_KEY_ID[0]*32+4*i, keyy[i*32+:32], error);
+
+    keyy = SHA1_KEY[1];
+    keyy[255] = 1'b1;  // Key valid
+    keyy[254] = 1'b1;  // SHA1
+    for (i = 0; i < 8; i++) axi_bus.write(SHA1_KEY_ID[1]*32+4*i, keyy[i*32+:32], error);
     
-    for (i = 0; i < 8; i++) axi_bus.read(MD5_KEY_ID*32+4*i, keyx[i*32+:32], error);
-    assert (keyx[159:0] == MD5_KEY);
+    for (i = 0; i < 8; i++) axi_bus.read(MD5_KEY_ID[1]*32+4*i, keyx[i*32+:32], error);
+    assert (keyx[159:0] == MD5_KEY[1]);
+    for (i = 0; i < 8; i++) axi_bus.read(MD5_KEY_ID[0]*32+4*i, keyx[i*32+:32], error);
+    assert (keyx[159:0] == MD5_KEY[0]);
 
-    for (i = 0; i < 8; i++) axi_bus.read(SHA1_KEY_ID*32+4*i, keyx[i*32+:32], error);
-    assert (keyx[159:0] == SHA1_KEY);
+    for (i = 0; i < 8; i++) axi_bus.read(SHA1_KEY_ID[0]*32+4*i, keyx[i*32+:32], error);
+    assert (keyx[159:0] == SHA1_KEY[0]);
 
-    //---------------------------------------------------
-
-    @(posedge clk);
-
-    /*
-    create_ntp6_req(ntp6_req_packet, 0, 0);
-    create_ntp6_resp(ntp6_resp_packet, 0, 0);
-    my_mac_addr0   = ntp6_resp_packet.eth_head.src_mac;
-    my_ipv6_addr0  = ntp6_resp_packet.ip_head.src_addr;
+    for (i = 0; i < 8; i++) axi_bus.read(SHA1_KEY_ID[1]*32+4*i, keyx[i*32+:32], error);
+    assert (keyx[159:0] == SHA1_KEY[1]);
     
-    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
-    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
-    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
-    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
-    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
-
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-192);
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
-
-    create_ntp6_req(ntp6_req_packet, 1, 0);
-    create_ntp6_resp(ntp6_resp_packet, 1, 0);
-    my_mac_addr0   = 0;
-    my_ipv6_addr0  = 0;
-    my_mac_addr1   = ntp6_resp_packet.eth_head.src_mac;
-    my_ipv6_addr1  = ntp6_resp_packet.ip_head.src_addr;
-    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
-    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
-    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
-    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
-    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
-
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-32);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-32);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-32);
-
-    create_ntp6_req(ntp6_req_packet, 1, 1);
-    create_ntp6_resp(ntp6_resp_packet, 1, 1);
-    my_mac_addr0   = 0;
-    my_ipv6_addr0  = 0;
-    my_mac_addr1   = 0;
-    my_ipv6_addr1  = 0;
-    my_mac_addr2   = ntp6_resp_packet.eth_head.src_mac;
-    my_ipv6_addr2  = ntp6_resp_packet.ip_head.src_addr;
-    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
-    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
-    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
-    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
-    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
-
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t));
-
-    //--------------------------------------------------
-    
-    create_ntp4_req(ntp4_req_packet, 1, 0);
-    create_ntp4_resp(ntp4_resp_packet, 1, 0);
+    create_ntp4_req( ntp4_req_packet, 0, 0, 0);
+    create_ntp4_resp(ntp4_resp_packet, 0, 0, 0);
     my_mac_addr0   = 0;
     my_ipv4_addr0  = 0;
     my_mac_addr1   = 0;
     my_ipv4_addr1  = 0;
     my_mac_addr2   = 0;
     my_ipv4_addr2  = 0;
+    my_mac_addr3   = 0;
+    my_ipv4_addr3  = 0;
+
     my_mac_addr3   = ntp4_resp_packet.eth_head.src_mac;
     my_ipv4_addr3  = ntp4_resp_packet.ip_head.src_addr;
     ntp_config     = {ntp4_resp_packet.payload.li, 3'd0, 3'd0, ntp4_resp_packet.payload.stratum, 8'd0, ntp4_resp_packet.payload.precision};
@@ -417,65 +434,82 @@ module tb_pp_top;
     ntp_root_disp  = ntp4_resp_packet.payload.root_disp;
     ntp_ref_id     = ntp4_resp_packet.payload.ref_id;
     ntp_ref_ts     = ntp4_resp_packet.payload.ref_ts;
-    @(posedge clk);
-    send_packet(ntp4_req_packet <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
-    check_packet(ntp4_resp_packet << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
 
-    create_ntp4_req(ntp4_req_packet, 1, 1);
-    create_ntp4_resp(ntp4_resp_packet, 1, 1);
-    my_mac_addr0   = ntp4_resp_packet.eth_head.src_mac;
-    my_ipv4_addr0  = ntp4_resp_packet.ip_head.src_addr;
-    ntp_config     = {ntp4_resp_packet.payload.li, 3'd0, 3'd0, ntp4_resp_packet.payload.stratum, 8'd0, ntp4_resp_packet.payload.precision};
-    ntp_root_delay = ntp4_resp_packet.payload.root_delay;
-    ntp_root_disp  = ntp4_resp_packet.payload.root_disp;
-    ntp_ref_id     = ntp4_resp_packet.payload.ref_id;
-    ntp_ref_ts     = ntp4_resp_packet.payload.ref_ts;
-    @(posedge clk);
-    send_packet(ntp4_req_packet <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
-    check_packet(ntp4_resp_packet << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    create_arp_req(arp_packet);
+    send_packet(arp_packet << (MAX_PACKET_SIZE - $bits(arp_pkt_t)), $bits(arp_pkt_t));
+    create_arp_resp(arp_packet);
+    check_packet(arp_packet << (MAX_PACKET_SIZE - $bits(arp_pkt_t)), $bits(arp_pkt_t));
 
-    //---------------------------------------------------
-    create_ntp6_req(ntp6_req_packet, 0, 0);
-    create_ntp6_resp(ntp6_resp_packet, 0, 0);
-    my_mac_addr0   = 0;
-    my_ipv6_addr0  = 0;
-    my_mac_addr1   = 0;
-    my_ipv6_addr1  = 0;
-    my_mac_addr2   = 0;
-    my_ipv6_addr2  = 0;
-    my_mac_addr3   = 0;
-    my_ipv6_addr3  = 0;
-    my_mac_addr3   = ntp6_resp_packet.eth_head.src_mac;
-    my_ipv6_addr3  = ntp6_resp_packet.ip_head.src_addr;
-    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
-    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
-    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
-    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
-    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
+    create_trcrt4_req(trcrt4_req_packet, 10);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-10));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
 
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-192);
-    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
-    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
+    create_trcrt4_req(trcrt4_req_packet, 1);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-1));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
 
-    create_ns_req2(ns_packet);
-    create_na_resp2(na_packet);
-    my_mac_addr0   = 0;
-    my_ipv6_addr0  = 0;
-    my_mac_addr1   = 0;
-    my_ipv6_addr1  = 0;
-    my_mac_addr2   = 0;
-    my_ipv6_addr2  = 0;
-    my_mac_addr3   = 0;
-    my_ipv6_addr3  = 0;
-    my_mac_addr1   = na_packet.eth_head.src_mac;
-    my_ipv6_addr1  = na_packet.payload.targ_addr;
+    create_trcrt4_req(trcrt4_req_packet, 13);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-13));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
 
-    send_packet(ns_packet  << (MAX_PACKET_SIZE - $bits(nd_pkt_t)), $bits(nd_pkt_t));
-    check_packet(na_packet << (MAX_PACKET_SIZE - $bits(nd_pkt_t)), $bits(nd_pkt_t));
-*/
-    create_ntp4_req(ntp4_req_packet, 0, 0);
-    create_ntp4_resp(ntp4_resp_packet, 0, 0);
+    create_trcrt4_req(trcrt4_req_packet, 30);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-30));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
+
+    create_trcrt4_req(trcrt4_req_packet, 32);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-32));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
+
+    create_trcrt4_req(trcrt4_req_packet, 0);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-0));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
+
+    create_trcrt4_req(trcrt4_req_packet, 72);
+    create_trcrt4_resp(trcrt4_resp_packet, trcrt4_req_packet);
+    send_packet(trcrt4_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt4_req_pkt_t)), $bits(trcrt4_req_pkt_t)-8*(72-72));
+    check_packet(trcrt4_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt4_resp_pkt_t)), $bits(trcrt4_resp_pkt_t));
+
+    $stop;
+    
+    create_ping4_req(ping4_req_packet, 10);
+    create_ping4_resp(ping4_resp_packet, 10);
+
+    my_mac_addr1   = ping4_resp_packet.eth_head.src_mac;
+    my_ipv4_addr1  = ping4_resp_packet.ip_head.src_addr;
+
+    send_packet(ping4_req_packet   << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-10));
+    check_packet(ping4_resp_packet << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-10));
+
+    create_ping4_req(ping4_req_packet, 0);
+    create_ping4_resp(ping4_resp_packet, 0);
+    send_packet(ping4_req_packet   << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-0));
+    check_packet(ping4_resp_packet << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-0));
+
+    create_ping4_req(ping4_req_packet, 2);
+    create_ping4_resp(ping4_resp_packet, 2);
+    send_packet(ping4_req_packet   << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-2));
+    check_packet(ping4_resp_packet << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-2));
+
+    create_ping4_req(ping4_req_packet, 86);
+    create_ping4_resp(ping4_resp_packet, 86);
+    send_packet(ping4_req_packet   << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-86));
+    check_packet(ping4_resp_packet << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-86));
+
+    create_ping4_req(ping4_req_packet, 63);
+    create_ping4_resp(ping4_resp_packet, 63);
+    send_packet(ping4_req_packet   << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-63));
+    check_packet(ping4_resp_packet << (MAX_PACKET_SIZE - $bits(ping4_pkt_t)), $bits(ping4_pkt_t)-8*(86-63));
+
+    $stop;
+
+    create_ntp4_req( ntp4_req_packet, 0, 0, 0);
+    create_ntp4_resp(ntp4_resp_packet, 0, 0, 0);
     my_mac_addr0   = 0;
     my_ipv4_addr0  = 0;
     my_mac_addr1   = 0;
@@ -495,10 +529,6 @@ module tb_pp_top;
 
     @(posedge clk);
     send_packet(ntp4_req_packet <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
-    send_packet(ntp4_req_packet <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
-    send_packet(ntp4_req_packet <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
-    check_packet(ntp4_resp_packet << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
-    check_packet(ntp4_resp_packet << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
     check_packet(ntp4_resp_packet << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
 
     @(posedge clk);
@@ -509,6 +539,456 @@ module tb_pp_top;
     create_arp_resp(arp_packet);
     check_packet(arp_packet << (MAX_PACKET_SIZE - $bits(arp_pkt_t)), $bits(arp_pkt_t));
 
+    //---------------------------------------------------
+
+    create_ntp6_req(ntp6_req_packet, 0, 0, 0);
+    create_ntp6_resp(ntp6_resp_packet, 0, 0, 0);
+    my_mac_addr0   = 0;
+    my_ipv6_addr0  = 0;
+    my_mac_addr1   = 0;
+    my_ipv6_addr1  = 0;
+    my_mac_addr2   = 0;
+    my_ipv6_addr2  = 0;
+    my_mac_addr3   = 0;
+    my_ipv6_addr3  = 0;
+    my_mac_addr3   = ntp6_resp_packet.eth_head.src_mac;
+    my_ipv6_addr3  = ntp6_resp_packet.ip_head.src_addr;
+    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
+    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
+    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
+    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
+    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
+
+    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-192);
+    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
+
+    create_ns_req2(ns_packet);
+    create_na_resp2(na_packet);
+    my_mac_addr0   = 0;
+    my_ipv6_addr0  = 0;
+    my_mac_addr1   = 0;
+    my_ipv6_addr1  = 0;
+    my_mac_addr2   = 0;
+    my_ipv6_addr2  = 0;
+    my_mac_addr3   = 0;
+    my_ipv6_addr3  = 0;
+    my_mac_addr1   = na_packet.eth_head.src_mac;
+    my_ipv6_addr1  = na_packet.payload.targ_addr;
+
+    send_packet(ns_packet  << (MAX_PACKET_SIZE - $bits(nd_pkt_t)), $bits(nd_pkt_t));
+    check_packet(na_packet << (MAX_PACKET_SIZE - $bits(nd_pkt_t)), $bits(nd_pkt_t));
+
+    create_trcrt6_req(trcrt6_req_packet, 10);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+
+    my_mac_addr2   = trcrt6_resp_packet.eth_head.src_mac;
+    my_ipv6_addr2  = trcrt6_resp_packet.ip_head.src_addr;
+
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-10));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(46-10));
+
+    create_trcrt6_req(trcrt6_req_packet, 1);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-1));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(46-1));
+
+    create_trcrt6_req(trcrt6_req_packet, 13);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-13));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(46-13));
+
+    create_trcrt6_req(trcrt6_req_packet, 30);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-30));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(46-30));
+
+    create_trcrt6_req(trcrt6_req_packet, 38);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-38));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(38-38));
+
+    create_trcrt6_req(trcrt6_req_packet, 39);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-39));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(38-38));
+
+    create_trcrt6_req(trcrt6_req_packet, 100);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-100));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(38-38));
+
+    create_trcrt6_req(trcrt6_req_packet, 0);
+    create_trcrt6_resp(trcrt6_resp_packet, trcrt6_req_packet);
+    send_packet(trcrt6_req_packet   << (MAX_PACKET_SIZE - $bits(trcrt6_req_pkt_t)), $bits(trcrt6_req_pkt_t)-8*(100-0));
+    check_packet(trcrt6_resp_packet << (MAX_PACKET_SIZE - $bits(trcrt6_resp_pkt_t)), $bits(trcrt6_resp_pkt_t)-8*(38-0));
+
+    $stop;
+
+    create_ping6_req(ping6_req_packet, 10);
+    create_ping6_resp(ping6_resp_packet, 10);
+
+    my_mac_addr1   = ping6_resp_packet.eth_head.src_mac;
+    my_ipv6_addr1  = ping6_resp_packet.ip_head.src_addr;
+
+    send_packet(ping6_req_packet   << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-10));
+    check_packet(ping6_resp_packet << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-10));
+
+    create_ping6_req(ping6_req_packet, 86);
+    create_ping6_resp(ping6_resp_packet, 86);
+
+    send_packet(ping6_req_packet   << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-86));
+    check_packet(ping6_resp_packet << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-86));
+
+    create_ping6_req(ping6_req_packet, 1);
+    create_ping6_resp(ping6_resp_packet, 1);
+
+    send_packet(ping6_req_packet   << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-1));
+    check_packet(ping6_resp_packet << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-1));
+
+    create_ping6_req(ping6_req_packet, 0);
+    create_ping6_resp(ping6_resp_packet, 0);
+
+    send_packet(ping6_req_packet   << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-0));
+    check_packet(ping6_resp_packet << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-0));
+
+    create_ping6_req(ping6_req_packet, 65);
+    create_ping6_resp(ping6_resp_packet, 65);
+
+    send_packet(ping6_req_packet   << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-65));
+    check_packet(ping6_resp_packet << (MAX_PACKET_SIZE - $bits(ping6_pkt_t)), $bits(ping6_pkt_t)-8*(86-65));
+
+//    $stop;
+
+    $stop;
+ 
+    @(posedge clk);
+
+    create_ntp6_req(ntp6_req_packet, 0, 0, 0);
+    create_ntp6_resp(ntp6_resp_packet, 0, 0, 0);
+    my_mac_addr0   = ntp6_resp_packet.eth_head.src_mac;
+    my_ipv6_addr0  = ntp6_resp_packet.ip_head.src_addr;
+    
+    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
+    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
+    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
+    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
+    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
+
+    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-192);
+    //send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
+    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
+    //check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-192);
+    create_ntp6_req(ntp6_req_packet, 1, 0, 0);
+    create_ntp6_resp(ntp6_resp_packet, 1, 0, 0);
+    my_mac_addr0   = 0;
+    my_ipv6_addr0  = 0;
+    my_mac_addr1   = ntp6_resp_packet.eth_head.src_mac;
+    my_ipv6_addr1  = ntp6_resp_packet.ip_head.src_addr;
+    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
+    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
+    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
+    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
+    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
+
+    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    //send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    //send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-32);
+    //check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-32);
+    //check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t)-32);
+
+    create_ntp6_req(ntp6_req_packet, 1, 1, 0);
+    create_ntp6_resp(ntp6_resp_packet, 1, 1, 0);
+    my_mac_addr0   = 0;
+    my_ipv6_addr0  = 0;
+    my_mac_addr1   = 0;
+    my_ipv6_addr1  = 0;
+    my_mac_addr2   = ntp6_resp_packet.eth_head.src_mac;
+    my_ipv6_addr2  = ntp6_resp_packet.ip_head.src_addr;
+    ntp_config     = {ntp6_resp_packet.payload.li, 3'd0, 3'd0, ntp6_resp_packet.payload.stratum, 8'd0, ntp6_resp_packet.payload.precision};
+    ntp_root_delay = ntp6_resp_packet.payload.root_delay;
+    ntp_root_disp  = ntp6_resp_packet.payload.root_disp;
+    ntp_ref_id     = ntp6_resp_packet.payload.ref_id;
+    ntp_ref_ts     = ntp6_resp_packet.payload.ref_ts;
+
+    send_packet(ntp6_req_packet   << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    check_packet(ntp6_resp_packet << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)) , $bits(ntp6_pkt_t));
+    /*
+     */
+
+    $stop;
+    
+    //--------------------------------------------------
+    
+    create_ntp4_req( ntp4_req_packet_md5, 1, 0, 0);
+    create_ntp4_resp(ntp4_resp_packet_md5, 1, 0, 0);
+    my_mac_addr0   = 0;
+    my_ipv4_addr0  = 0;
+    my_mac_addr1   = 0;
+    my_ipv4_addr1  = 0;
+    my_mac_addr2   = 0;
+    my_ipv4_addr2  = 0;
+    my_mac_addr3   = ntp4_resp_packet_md5.eth_head.src_mac;
+    my_ipv4_addr3  = ntp4_resp_packet_md5.ip_head.src_addr;
+    ntp_config     = {ntp4_resp_packet_md5.payload.li, 3'd0, 3'd0, ntp4_resp_packet_md5.payload.stratum, 8'd0, ntp4_resp_packet_md5.payload.precision};
+    ntp_root_delay = ntp4_resp_packet_md5.payload.root_delay;
+    ntp_root_disp  = ntp4_resp_packet_md5.payload.root_disp;
+    ntp_ref_id     = ntp4_resp_packet_md5.payload.ref_id;
+    ntp_ref_ts     = ntp4_resp_packet_md5.payload.ref_ts;
+    @(posedge clk);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+
+    create_ntp4_req( ntp4_req_packet, 0, 0, 0);
+    create_ntp4_req( ntp4_req_packet_sha1, 1, 1, 0);
+    create_ntp4_resp(ntp4_resp_packet_sha1, 1, 1, 0);
+    my_mac_addr0   = ntp4_resp_packet_sha1.eth_head.src_mac;
+    my_ipv4_addr0  = ntp4_resp_packet_sha1.ip_head.src_addr;
+    ntp_config     = {ntp4_resp_packet_sha1.payload.li, 3'd0, 3'd0, ntp4_resp_packet_sha1.payload.stratum, 8'd0, ntp4_resp_packet_sha1.payload.precision};
+    ntp_root_delay = ntp4_resp_packet_sha1.payload.root_delay;
+    ntp_root_disp  = ntp4_resp_packet_sha1.payload.root_disp;
+    ntp_ref_id     = ntp4_resp_packet_sha1.payload.ref_id;
+    ntp_ref_ts     = ntp4_resp_packet_sha1.payload.ref_ts;
+    @(posedge clk);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    check_packet(ntp4_resp_packet_sha1 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    $stop;
+    
+    create_ntp6_req(ntp6_req_packet_md5, 1, 0, 0);
+    create_ntp6_resp(ntp6_resp_packet_md5, 1, 0, 0);
+    create_ntp6_req(ntp6_req_packet_sha1, 1, 1, 0);
+    create_ntp6_resp(ntp6_resp_packet_sha1, 1, 1, 0);
+    my_mac_addr1   = ntp6_resp_packet_md5.eth_head.src_mac;
+    my_ipv6_addr1  = ntp6_resp_packet_md5.ip_head.src_addr;
+    ntp_config     = {ntp6_resp_packet_sha1.payload.li, 3'd0, 3'd0, ntp6_resp_packet_sha1.payload.stratum, 8'd0, ntp6_resp_packet_sha1.payload.precision};
+    ntp_root_delay = ntp6_resp_packet_sha1.payload.root_delay;
+    ntp_root_disp  = ntp6_resp_packet_sha1.payload.root_disp;
+    ntp_ref_id     = ntp6_resp_packet_sha1.payload.ref_id;
+    ntp_ref_ts     = ntp6_resp_packet_sha1.payload.ref_ts;
+
+    send_packet(ntp6_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    check_packet(ntp6_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    send_packet(ntp6_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    check_packet(ntp6_resp_packet_sha1 << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    $stop;
+
+    @(posedge clk);
+
+    my_mac_addr0   = ntp4_resp_packet_sha1.eth_head.src_mac;
+    my_ipv4_addr0  = ntp4_resp_packet_sha1.ip_head.src_addr;
+    ntp_config     = {ntp4_resp_packet_sha1.payload.li, 3'd0, 3'd0, ntp4_resp_packet_sha1.payload.stratum, 8'd0, ntp4_resp_packet_sha1.payload.precision};
+    ntp_root_delay = ntp4_resp_packet_sha1.payload.root_delay;
+    ntp_root_disp  = ntp4_resp_packet_sha1.payload.root_disp;
+    ntp_ref_id     = ntp4_resp_packet_sha1.payload.ref_id;
+    ntp_ref_ts     = ntp4_resp_packet_sha1.payload.ref_ts;
+
+    create_ntp4_req( ntp4_req_packet_md5_x, 1, 0, 0);
+    create_ntp4_resp(ntp4_resp_packet_md5_x, 1, 0, 0);
+    create_ntp4_req( ntp4_req_packet_md5_y, 1, 0, 1);
+    create_ntp4_resp(ntp4_resp_packet_md5_y, 1, 0, 1);
+   
+    send_packet(ntp4_req_packet_md5_x <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5_y <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5_x <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5_x  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5_y  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5_x  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    $stop;
+    
+    create_ntp4_req_john(ntp4_req_packet_md5_xx); 
+    create_ntp4_req( ntp4_req_packet_md5, 1, 0, 0);
+    create_ntp4_resp(ntp4_resp_packet_md5, 1, 0, 0);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5_xx <<(MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    $stop;
+
+
+    
+    create_ntp4_req( ntp4_req_packet_sha1_x, 1, 1, 1);
+    create_ntp4_resp(ntp4_resp_packet_sha1_x, 1, 1, 1);
+    create_ntp4_req( ntp4_req_packet_sha1_y, 1, 1, 0);
+    create_ntp4_resp(ntp4_resp_packet_sha1_y, 1, 1, 0);
+    send_packet(ntp4_req_packet_sha1_x <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_sha1_y <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_sha1_x <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    check_packet(ntp4_resp_packet_sha1_x << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    check_packet(ntp4_resp_packet_sha1_y << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    check_packet(ntp4_resp_packet_sha1_x << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    $stop;
+
+
+    create_ntp6_req(ntp6_req_packet_md5, 1, 0, 0);
+    create_ntp6_resp(ntp6_resp_packet_md5, 1, 0, 0);
+    create_ntp6_req(ntp6_req_packet_sha1, 1, 1, 0);
+    create_ntp6_resp(ntp6_resp_packet_sha1, 1, 1, 0);
+    my_mac_addr1   = ntp6_resp_packet_md5.eth_head.src_mac;
+    my_ipv6_addr1  = ntp6_resp_packet_md5.ip_head.src_addr;
+    ntp_config     = {ntp6_resp_packet_sha1.payload.li, 3'd0, 3'd0, ntp6_resp_packet_sha1.payload.stratum, 8'd0, ntp6_resp_packet_sha1.payload.precision};
+    ntp_root_delay = ntp6_resp_packet_sha1.payload.root_delay;
+    ntp_root_disp  = ntp6_resp_packet_sha1.payload.root_disp;
+    ntp_ref_id     = ntp6_resp_packet_sha1.payload.ref_id;
+    ntp_ref_ts     = ntp6_resp_packet_sha1.payload.ref_ts;
+
+    create_ntp6_req( ntp6_req_packet_sha1_x, 1, 1, 1);
+    create_ntp6_resp(ntp6_resp_packet_sha1_x, 1, 1, 1);
+    create_ntp6_req( ntp6_req_packet_sha1_y, 1, 1, 0);
+    create_ntp6_resp(ntp6_resp_packet_sha1_y, 1, 1, 0);
+
+    send_packet(ntp6_req_packet_sha1_x <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    send_packet(ntp6_req_packet_sha1_y <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    send_packet(ntp6_req_packet_sha1_x <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    check_packet(ntp6_resp_packet_sha1_x << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    check_packet(ntp6_resp_packet_sha1_y << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+    check_packet(ntp6_resp_packet_sha1_x << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+
+    $stop;
+    create_ntp6_req( ntp6_req_packet_md5_x, 1, 0, 0);
+    create_ntp6_resp(ntp6_resp_packet_md5_x, 1, 0, 0);
+    create_ntp6_req( ntp6_req_packet_md5_y, 1, 0, 1);
+    create_ntp6_resp(ntp6_resp_packet_md5_y, 1, 0, 1);
+   
+    send_packet(ntp6_req_packet_md5_x <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    send_packet(ntp6_req_packet_md5_y <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    send_packet(ntp6_req_packet_md5_x <<   (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    check_packet(ntp6_resp_packet_md5_x  << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    check_packet(ntp6_resp_packet_md5_y  << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    check_packet(ntp6_resp_packet_md5_x  << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+    $stop;
+
+    $stop;
+    $stop;
+    $stop;
+      
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    $stop;
+    check_packet(ntp4_resp_packet_md5_xx << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5_xx << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+
+    for (i = 0; i < 10000; i++) begin
+      send_packet(ntp4_req_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+      case ($random % 4 ) 
+        0 : send_packet(ntp6_req_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t)-32);
+        1 : send_packet(ntp6_req_packet_sha1 << (MAX_PACKET_SIZE - $bits(ntp6_pkt_t)), $bits(ntp6_pkt_t));
+        2 : send_packet(ntp4_req_packet_sha1 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+        3 : send_packet(ntp4_req_packet_md5  << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+        //4 : send_packet(ntp4_req_packet      << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
+      endcase // case ($random % 3 )
+
+//      if ($random % 2) @(posedge clk);
+    end
+    
+    $stop;
+
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5  <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5  <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5  <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5  <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5  <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5  <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    send_packet(ntp4_req_packet_md5 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    send_packet(ntp4_req_packet_sha1 <<   (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_md5 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-32);
+    check_packet(ntp4_resp_packet_sha1 << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t));
+    check_packet(ntp4_resp_packet << (MAX_PACKET_SIZE - $bits(ntp4_pkt_t)), $bits(ntp4_pkt_t)-192);
+    test_rx_data_valid = 8'h0;
+    @(posedge clk);
+    
     $stop;
 
   end // initial begin

@@ -86,10 +86,12 @@ module tb_md5();
     start   = 1'b1;
     @(posedge clk);
     start   = 1'b0;
+    key     = 'bX;
+    payload = 'bX;
 
 
 //  @(posedge done);
-    @(posedge input_ready);
+//   @(posedge input_ready);
 //  @(negedge clk);
     @(posedge input_ready);
 
@@ -98,6 +100,8 @@ module tb_md5();
     start   = 1'b1;
     @(posedge clk);
     start   = 1'b0;
+    key     = 'bX;
+    payload = 'bX;
 
   end
 

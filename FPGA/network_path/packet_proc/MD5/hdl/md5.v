@@ -106,9 +106,9 @@ module md5(
 
   //---------------------------------------
 
-  // Delay varying pars of 2nd chunk
+  // Delay varying parts of 2nd chunk to match pipe0 latency
   wire [31:0] del_msg;
-  
+  // Note cdel is a shiftegister not FIFO 
   chunk_del_md5 cdel (
     .CLK  (clk),
     .CE   (in_ready0),
@@ -141,10 +141,14 @@ module md5(
     .d_out     (d_out1)
   );
 
+  // Delay sums to match pipe1 latency
   wire [31:0]   a_reg0, b_reg0, c_reg0, d_reg0;
+  // Note sdel is a shiftegister not FIFO 
+  reg in_ready1_d;
+  always @(posedge clk) in_ready1_d <= in_ready1;
   sum_del_md5 sdel (
     .CLK  (clk),
-    .CE   (in_ready1),
+    .CE   (in_ready1_d),
     .D    ({a_sum0, b_sum0, c_sum0, d_sum0}),
     .Q    ({a_reg0, b_reg0, c_reg0, d_reg0})
   );
@@ -161,8 +165,10 @@ module md5(
   end
 
   reg [31:0]  a_reg1, b_reg1, c_reg1, d_reg1;
+  reg ready1_d;
   always @(posedge clk) begin
-    if (ready1 == 1'b1) begin
+    ready1_d <= ready1;
+    if (ready1_d == 1'b1) begin
       a_reg1 <= a_sum1;
       b_reg1 <= b_sum1;
       c_reg1 <= c_sum1; 
@@ -176,7 +182,7 @@ module md5(
     if (areset == 1'b1) begin
       hash_done <= 1'b0;
     end else begin
-      hash_done <= ready1;
+      hash_done <= ready1_d;
     end
   end
 
