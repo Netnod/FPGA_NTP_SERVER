@@ -45,7 +45,7 @@ module md5_pipe(
   input wire [31:0]  b_in,
   input wire [31:0]  c_in,
   input wire [31:0]  d_in,
-  output reg         out_ready,  // output stage ready a-d out availabe 1 cycle later
+  output wire        out_ready,  // output stage ready a-d out availabe 1 cycle later
   output wire [31:0] a_out,
   output wire [31:0] b_out,
   output wire [31:0] c_out,
