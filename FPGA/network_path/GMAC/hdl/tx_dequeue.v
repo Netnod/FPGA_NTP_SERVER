@@ -39,7 +39,6 @@
 //////////////////////////////////////////////////////////////////////
 
 `include "oc_mac.h"
-`include "oc_mac_crc_func.h"
 
 module tx_dequeue(
   // Outputs
@@ -52,6 +51,8 @@ module tx_dequeue(
 	output reg [7:0]	xgmii_txc);
 
 
+
+`include "oc_mac_crc_func.h"
 
 reg [63:0]	xgxs_txd;
 reg [7:0]	xgxs_txc;

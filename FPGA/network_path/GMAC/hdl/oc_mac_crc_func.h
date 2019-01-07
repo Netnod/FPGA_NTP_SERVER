@@ -39,49 +39,9 @@
 //////////////////////////////////////////////////////////////////////
 
 
-`ifndef OC_MAC_CRC_FUNC
-`define OC_MAC_CRC_FUNC
+//`ifndef OC_MAC_CRC_FUNC
+//`define OC_MAC_CRC_FUNC
 
-
-function [31:0] next_crc32_data64_be;
-	
-	input [63:0] inp;
-	input [31:0] crc;	
-	input [2:0] be; // 0 for all valid, 1 for data[31:8]
-	// (3 valid bytes).
-	case (be)
-		3'b000: begin
-				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
-			end
-		3'b001: begin
-				next_crc32_data64_be =	nextCRC32_D8(inp[63:56], crc);
-			end
-		3'b010: begin
-				next_crc32_data64_be =	nextCRC32_D16(inp[63:48], crc);
-			end
-		3'b011: begin
-				next_crc32_data64_be =	nextCRC32_D24(inp[63:40], crc);
-			end
-		3'b100: begin
-				next_crc32_data64_be =	nextCRC32_D32(inp[63:32], crc);
-			end
-		3'b101: begin
-				next_crc32_data64_be =	nextCRC32_D40(inp[63:24], crc);
-			end
-		3'b110: begin
-				next_crc32_data64_be =	nextCRC32_D48(inp[63:16], crc);
-			end
-		3'b111: begin
-				next_crc32_data64_be =	nextCRC32_D56(inp[63:8], crc);
-			end
-		default: begin
-				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
-			end			
-	endcase
-
-
-	
-endfunction
 
 function [31:0] nextCRC32_D8;
 
@@ -474,4 +434,44 @@ function [7:0] reverse_8b;
     end
 endfunction
 
-`endif //OC_MAC_CRC_FUNC
+function [31:0] next_crc32_data64_be;
+	
+	input [63:0] inp;
+	input [31:0] crc;	
+	input [2:0] be; // 0 for all valid, 1 for data[31:8]
+	// (3 valid bytes).
+	case (be)
+		3'b000: begin
+				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
+			end
+		3'b001: begin
+				next_crc32_data64_be =	nextCRC32_D8(inp[63:56], crc);
+			end
+		3'b010: begin
+				next_crc32_data64_be =	nextCRC32_D16(inp[63:48], crc);
+			end
+		3'b011: begin
+				next_crc32_data64_be =	nextCRC32_D24(inp[63:40], crc);
+			end
+		3'b100: begin
+				next_crc32_data64_be =	nextCRC32_D32(inp[63:32], crc);
+			end
+		3'b101: begin
+				next_crc32_data64_be =	nextCRC32_D40(inp[63:24], crc);
+			end
+		3'b110: begin
+				next_crc32_data64_be =	nextCRC32_D48(inp[63:16], crc);
+			end
+		3'b111: begin
+				next_crc32_data64_be =	nextCRC32_D56(inp[63:8], crc);
+			end
+		default: begin
+				next_crc32_data64_be =	nextCRC32_D64(inp, crc);
+			end			
+	endcase
+
+
+	
+endfunction
+
+//`endif //OC_MAC_CRC_FUNC

@@ -90,3 +90,6 @@
 `define RXSTATUS_VALID      3'd4
 
 //`define SIMULATION
+
+`define ASYNC_RES 1
+

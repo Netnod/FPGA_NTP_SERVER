@@ -39,7 +39,6 @@
 //////////////////////////////////////////////////////////////////////
 
 `include "oc_mac.h"
-`include "oc_mac_crc_func.h"
 
 module rx_enqueue(
 		input wire		clk,
@@ -61,11 +60,16 @@ module rx_enqueue(
 		output reg		status_pause_frame_rx_tog);
 
 
+`include "oc_mac_crc_func.h"
+
 reg [63:32]	xgmii_rxd_d1;
 reg [7:4]	xgmii_rxc_d1;
 
 reg [63:0]	xgxs_rxd_barrel;
 reg [7:0]	xgxs_rxc_barrel;
+
+reg [63:0]	xgxs_rxd_barrel_x;
+reg [7:0]	xgxs_rxc_barrel_x;
 
 reg [63:0]	xgxs_rxd_barrel_d1;
 reg [7:0]	xgxs_rxc_barrel_d1;
@@ -128,6 +132,9 @@ begin
 
 		xgxs_rxd_barrel <= 64'b0;
 		xgxs_rxc_barrel <= 8'b0;
+
+		xgxs_rxd_barrel_x <= 64'b0;
+		xgxs_rxc_barrel_x <= 8'b0;
 
 		xgxs_rxd_barrel_d1 <= 64'b0;
 		xgxs_rxc_barrel_d1 <= 8'b0;
@@ -232,6 +239,18 @@ begin
 		xgxs_rxc_barrel_d1 <= xgxs_rxc_barrel;
 
 
+                if (barrel_shift) begin
+
+			xgxs_rxd_barrel_x <= {xgmii_rxd[31:0], xgmii_rxd_d1[63:32]};
+			xgxs_rxc_barrel_x <= {xgmii_rxc[3:0], xgmii_rxc_d1[7:4]};
+
+		end
+		else begin
+
+			xgxs_rxd_barrel_x <= xgmii_rxd;
+			xgxs_rxc_barrel_x <= xgmii_rxc;
+
+		end
 		crc_rx <= next_crc_rx;
 
 		if (crc_clear) begin
@@ -272,7 +291,7 @@ begin
 
 always @(/*AS*/crc_rx or curr_byte_cnt or curr_state
 	or pause_frame or xgxs_rxc_barrel or xgxs_rxc_barrel_d1
-	or xgxs_rxd_barrel or xgxs_rxd_barrel_d1) 
+	or xgxs_rxd_barrel_x or xgxs_rxd_barrel_d1) 
 begin
 
 	next_state = curr_state;
@@ -412,12 +431,12 @@ begin
 					
 					
 				end
-				else if (xgxs_rxd_barrel[`LANE4] == `TERMINATE && xgxs_rxc_barrel[4]) begin
+				else if (xgxs_rxd_barrel_x[`LANE4] == `TERMINATE && xgxs_rxc_barrel[4]) begin
 		
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					rx_inc_status[2:0] = 3'd0;
 
-					if (  xgxs_rxd_barrel[31:0] !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b000))) begin
+					if (  xgxs_rxd_barrel_x[31:0] !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b000))) begin
 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 						`ifdef SIMULATION
 						crc_good = 1'b0;
@@ -432,12 +451,12 @@ begin
 
 				end
 
-				else if (xgxs_rxd_barrel[`LANE3] == `TERMINATE && xgxs_rxc_barrel[3]) begin
+				else if (xgxs_rxd_barrel_x[`LANE3] == `TERMINATE && xgxs_rxc_barrel[3]) begin
 
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					rx_inc_status[2:0] = 3'd7;
 
-					if (  {xgxs_rxd_barrel[23:0], xgxs_rxd_barrel_d1[63:56]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b111))) begin
+					if (  {xgxs_rxd_barrel_x[23:0], xgxs_rxd_barrel_d1[63:56]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b111))) begin
 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;						
 						`ifdef SIMULATION
 						crc_good = 1'b0;
@@ -452,12 +471,12 @@ begin
 
 				end
 			
-				else if (xgxs_rxd_barrel[`LANE2] == `TERMINATE && xgxs_rxc_barrel[2]) begin
+				else if (xgxs_rxd_barrel_x[`LANE2] == `TERMINATE && xgxs_rxc_barrel[2]) begin
 
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					rx_inc_status[2:0] = 3'd6;
 
-					if (  {xgxs_rxd_barrel[15:0], xgxs_rxd_barrel_d1[63:48]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b110))) begin
+					if (  {xgxs_rxd_barrel_x[15:0], xgxs_rxd_barrel_d1[63:48]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b110))) begin
 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 						`ifdef SIMULATION
 						crc_good = 1'b0;
@@ -472,12 +491,12 @@ begin
 
 				end
 
-				else if (xgxs_rxd_barrel[`LANE1] == `TERMINATE && xgxs_rxc_barrel[1]) begin
+				else if (xgxs_rxd_barrel_x[`LANE1] == `TERMINATE && xgxs_rxc_barrel[1]) begin
 
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					rx_inc_status[2:0] = 3'd5;
 
-					if ( {xgxs_rxd_barrel[7:0], xgxs_rxd_barrel_d1[63:40]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b101))) begin
+					if ( {xgxs_rxd_barrel_x[7:0], xgxs_rxd_barrel_d1[63:40]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b101))) begin
 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 						`ifdef SIMULATION
 						crc_good = 1'b0;
@@ -492,7 +511,7 @@ begin
 
 				end
 			
-				else if (xgxs_rxd_barrel[`LANE0] == `TERMINATE && xgxs_rxc_barrel[0]) begin
+				else if (xgxs_rxd_barrel_x[`LANE0] == `TERMINATE && xgxs_rxc_barrel[0]) begin
 
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					rx_inc_status[2:0] = 3'd4;

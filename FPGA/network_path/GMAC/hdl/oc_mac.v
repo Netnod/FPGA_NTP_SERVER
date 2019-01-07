@@ -43,7 +43,8 @@
 `default_nettype none
 module oc_mac (
 		input wire		res_n,
-		input wire 		clk,
+
+		input wire 		tx_clk,
 		input wire		tx_start,
 		input wire [63:0]	tx_data,
 		input wire [7:0]	tx_data_valid,
@@ -51,12 +52,15 @@ module oc_mac (
 		input wire [7:0]	xgmii_rxc,
 
 		output wire		tx_ack,
+
+		input wire 		rx_clk,
+
 		output wire		rx_bad_frame,
 		output wire		rx_good_frame,
 		output wire [63:0]	rx_data,
 		output wire [7:0]	rx_data_valid,
 		output wire [7:0]	xgmii_txc,
-		output wire[63:0]	xgmii_txd
+		output wire [63:0]	xgmii_txd
 	);
 
 wire [1:0]	local_fault_msg_det;
@@ -81,7 +85,7 @@ rx_enqueue rx_eq0(
 		.status_fragment_error_tog(status_fragment_error_tog),
 		.status_pause_frame_rx_tog(status_pause_frame_rx_tog),
 		// Inputs
-		.clk         		(clk),
+		.clk         		(rx_clk),
 		.res_n    		(res_n),
 		.xgmii_rxd		(xgmii_rxd),
 		.xgmii_rxc		(xgmii_rxc));
@@ -95,7 +99,7 @@ rx_control rx_ctrl(
 		.rx_bad_frame		(rx_bad_frame),
 		//.status_rxdfifo_udflow_tog(status_rxdfifo_udflow_tog),
 		// Inputs
-		.clk	 		(clk),
+		.clk	 		(rx_clk),
 		.res_n			(res_n),
 		.rx_inc_data		(xgmii_data_in),
 		.rx_inc_status		(xgmii_data_status));
@@ -106,7 +110,7 @@ tx_dequeue tx_dq0(
 		.xgmii_txd            	(xgmii_txd),
 		.xgmii_txc            	(xgmii_txc),
 		// Inputs
-		.clk	         	(clk),
+		.clk	         	(tx_clk),
 		.res_n		     	(res_n),
 		.txdfifo_rdata        	(txdfifo_wdata),
 		.txdfifo_rstatus      	(txdfifo_wstatus));
@@ -118,7 +122,7 @@ tx_control tx_ctrl(
 		.txdfifo_wstatus	(txdfifo_wstatus),
 		.tx_ack			(tx_ack),
 
-		.clk			(clk),
+		.clk			(tx_clk),
 		.res_n			(res_n),
 		.tx_start		(tx_start),
 		.tx_data		(tx_data),
