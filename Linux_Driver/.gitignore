@@ -2,6 +2,8 @@
 *.ko
 *.cmd
 *.mod.c
+*.pyc
+*.pyo
 Module.symvers
 modules.order
 .tmp_versions/
