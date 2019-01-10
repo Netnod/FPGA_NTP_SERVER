@@ -19,15 +19,15 @@
 //--------------------------------------------------------------------------------
 //-- Filename: xpcie.c
 //--
-//-- Description: XPCIE device driver.
-//--
+//-- Description: XPCIE device driver. 
+//--              
 //-- XPCIE is an example Red Hat device driver for the PCI Express Memory
-//-- Endpoint Reference design. Device driver has been tested on fedora
-//-- 2.6.18.
-//--
-//--
+//-- Endpoint Reference design. Device driver has been tested on fedora 
+//-- 2.6.18.          
+//--              
+//--              
 //-- Cleaned up and modified for the FPGA NTP server project and tested on Centos 7
-//-- Mechanical Men Sweden AB / RA
+//-- Mechanical Men Sweden AB / RA            
 //--
 //--------------------------------------------------------------------------------
 */
@@ -37,7 +37,7 @@
 #include <linux/pci.h>
 #include <linux/interrupt.h>
 #include <linux/fs.h>
-#include <asm/uaccess.h>   /* copy_to_user */
+#include <linux/uaccess.h>   /* copy_to_user */
 
 #include "xpcie.h"
 
@@ -47,7 +47,7 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define HAVE_IRQ    0x02               // Interupt
 #define HAVE_KREG   0x04               // Kernel registration
 
-int             gDrvrMajor = 240;      // Major number not dynamic.
+int             gDrvrMajor = 0;      // Major number not dynamic.
 unsigned int    gStatFlags = 0x00;     // Status flags used for cleanup.
 unsigned long   gBaseHdwr;             // Base register address (Hardware address)
 unsigned long   gBaseLen;              // Base register address Length
@@ -58,8 +58,7 @@ int             gIrq;                  // IRQ assigned by PCI system.
 char           *gBufferUnaligned = NULL;   // Pointer to Unaligned DMA buffer.
 char           *gReadBuffer      = NULL;   // Pointer to dword aligned DMA buffer.
 char           *gWriteBuffer     = NULL;   // Pointer to dword aligned DMA buffer.
-
-
+void           *pRegion;
 
 // Struct Used for Writing Register.  Holds value and register to be written
 typedef struct regwrite {
@@ -87,7 +86,7 @@ u32  XPCIe_WriteCfgReg (u32 byte, u32 value);
 /*****************************************************************************
  * Name:        XPCIe_Open
  *
- * Description: Book keeping routine invoked each time the device is opened.
+ * Description: Book keeping routine invoked each time the device is opened.             
  *
  * Arguments: inode :
  *            filp  :
@@ -109,7 +108,7 @@ int XPCIe_Open(struct inode *inode, struct file *filp)
 /*****************************************************************************
  * Name:        XPCIe_Release
  *
- * Description: Book keeping routine invoked each time the device is closed.
+ * Description: Book keeping routine invoked each time the device is closed.             
  *
  * Arguments: inode :
  *            filp  :
@@ -132,7 +131,7 @@ int XPCIe_Release(struct inode *inode, struct file *filp)
  * Name:        XPCIe_Write
  *
  * Description: This routine is invoked from user space to write data to
- *              the 3GIO device.
+ *              the 3GIO device. 
  *
  * Arguments: filp  : file pointer to opened device.
  *            buf   : pointer to location in users space, where data is to
@@ -154,7 +153,8 @@ ssize_t XPCIe_Write(struct file *filp, const char *buf, size_t count,
 {
 	int ret = SUCCESS;
 	memcpy((char *)gBaseVirt, buf, count);
-	printk("%s: XPCIe_Write: %d bytes have been written...\n", gDrvrName, count);
+	printk("%s: XPCIe_Write: %d bytes have been written...\n",
+	       gDrvrName, (int)count);
 	return (ret);
 }
 
@@ -185,17 +185,18 @@ ssize_t XPCIe_Write(struct file *filp, const char *buf, size_t count,
 ssize_t XPCIe_Read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
 	memcpy(buf, (char *)gBaseVirt, count);
-	printk("%s: XPCIe_Read: %d bytes have been read...\n", gDrvrName, count);
+	printk("%s: XPCIe_Read: %d bytes have been read...\n",
+	       gDrvrName, (int)count);
 	return (0);
 }
 
 /***************************************************************************
  * Name:        XPCIe_Ioctl
  *
- * Description: This routine is invoked from user space to configure the
- *              running driver.
+ * Description: This routine is invoked from user space to configure the 
+ *              running driver. 
  *
- * Arguments: inode :
+ * Arguments: inode : 
  *            filp  : File pointer to opened device.
  *            cmd   : Ioctl command to execute.
  *            arg   : Argument to Ioctl command.
@@ -211,12 +212,11 @@ long XPCIe_Ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
     u32 regx;
     int ret = SUCCESS;
-
+    int wr = cmd & PIOW;
+    int offs = cmd & (BUF_SIZE-1);
+    
     if ((cmd & 0xff000000) != MAGIX)    return -EINVAL;
     if ((cmd & 0x003fffff) >= BUF_SIZE) return -EINVAL;
-    int wr = cmd & PIOW;
-
-    int offs = cmd & (BUF_SIZE-1);
 
     if (wr) {
       // Write Port
@@ -224,17 +224,17 @@ long XPCIe_Ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       XPCIe_WriteReg(offs, arg);
     } else {
       // Read Port
-      regx = XPCIe_ReadReg(offs);
+      regx = XPCIe_ReadReg(offs);  
       if (copy_to_user((void *)arg, &regx, sizeof(regx))) return -EFAULT ;
     }
 
-      /*    // Note dangerous stuff below
+      /*    // Note dangerous stuff below 
     } else if (cmd == RDREG) {                 // Read: Any FPGA Reg.  Added generic functionality so all register can be read
-      regx = XPCIe_ReadReg(*(u32 *)arg);
-      *((u32 *)arg) = regx;
+      regx = XPCIe_ReadReg(*(u32 *)arg);  
+      *((u32 *)arg) = regx; 
     } else if (cmd == RDCFGREG) {              // Read: Any CFG Reg.  Added generic functionality so all register can be read
-      regx = XPCIe_ReadCfgReg(*(u32 *)arg);
-      *((u32 *)arg) = regx;
+      regx = XPCIe_ReadCfgReg(*(u32 *)arg);  
+      *((u32 *)arg) = regx; 
     } else if (cmd == WRREG) {                 // Write: Any FPGA Reg.  Added generic functionality so all register can be read
       	XPCIe_WriteReg((*(regwr *)arg).reg,(*(regwr *)arg).value);
 	printk(KERN_WARNING"%d: Write Register.\n", (*(regwr *)arg).reg);
@@ -255,116 +255,6 @@ struct file_operations XPCIe_Intf = {
     release:        XPCIe_Release,
 };
 
-static int XPCIe_init(void)
-{
-    gDev = pci_get_device (PCI_VENDOR_ID_XILINX, PCI_DEVICE_ID_XILINX_PCIE, gDev);
-    if (NULL == gDev) {
-        printk(/*KERN_WARNING*/"%s: Init: Hardware not found.\n", gDrvrName);
-        //return (CRIT_ERR);
-        return (-1);
-    }
-
-    if (0 > pci_enable_device(gDev)) {
-        printk(/*KERN_WARNING*/"%s: Init: Device not enabled.\n", gDrvrName);
-        //return (CRIT_ERR);
-        return (-1);
-    }
-
-    // Get Base Address of registers from pci structure. Should come from pci_dev
-    // structure, but that element seems to be missing on the development system.
-    gBaseHdwr = pci_resource_start (gDev, 0);
-    if (0 > gBaseHdwr) {
-        printk(/*KERN_WARNING*/"%s: Init: Base Address not set.\n", gDrvrName);
-        //return (CRIT_ERR);
-        return (-1);
-    }
-    printk(/*KERN_WARNING*/"Base hw val %X\n", (unsigned int)gBaseHdwr);
-
-    gBaseLen = pci_resource_len (gDev, 0);
-    printk(/*KERN_WARNING*/"Base hw len %d\n", (unsigned int)gBaseLen);
-
-    // Remap the I/O register block so that it can be safely accessed.
-    // I/O register block starts at gBaseHdwr and is 32 bytes long.
-    // It is cast to char because that is the way Linus does it.
-    // Reference "/usr/src/Linux-2.4/Documentation/IO-mapping.txt".
-
-    gBaseVirt = ioremap(gBaseHdwr, gBaseLen);
-    if (!gBaseVirt) {
-        printk(/*KERN_WARNING*/"%s: Init: Could not remap memory.\n", gDrvrName);
-        //return (CRIT_ERR);
-        return (-1);
-    }
-
-    printk(/*KERN_WARNING*/"Virt hw val %X\n", (unsigned int)gBaseVirt);
-
-    // Get IRQ from pci_dev structure. It may have been remapped by the kernel,
-    // and this value will be the correct one.
-
-    gIrq = gDev->irq;
-    printk("irq: %d\n",gIrq);
-
-    //--- START: Initialize Hardware
-
-    // Try to gain exclusive control of memory for demo hardware.
-    //if (0 > check_mem_region(gBaseHdwr, FPGA_REGISTER_SIZE)) {
-    if (0 > check_mem_region(gBaseHdwr, gBaseLen)) {
-        printk(/*KERN_WARNING*/"%s: Init: Memory in use.\n", gDrvrName);
-        //return (CRIT_ERR);
-        return (-1);
-    }
-
-    //request_mem_region(gBaseHdwr, FPGA_REGISTER_SIZE, "XPCIe");
-    request_mem_region(gBaseHdwr, gBaseLen, "XPCIe");
-    gStatFlags = gStatFlags | HAVE_REGION;
-
-    printk(/*KERN_WARNING*/"%s: Init:  Initialize Hardware Done..\n",gDrvrName);
-
-    // Request IRQ from OS.
-#if 0
-    if (0 > request_irq(gIrq, &XPCIe_IRQHandler,/* SA_INTERRUPT |*/ SA_SHIRQ, gDrvrName, gDev)) {
-        printk(/*KERN_WARNING*/"%s: Init: Unable to allocate IRQ",gDrvrName);
-        return (-1);
-    }
-    gStatFlags = gStatFlags | HAVE_IRQ;
-#endif
-
-    initcode();
-
-    //--- END: Initialize Hardware
-
-    //--- START: Allocate Buffers
-
-    gBufferUnaligned = kmalloc(BUF_SIZE, GFP_KERNEL);
-
-    gReadBuffer = gBufferUnaligned;
-    if (NULL == gBufferUnaligned) {
-        printk(KERN_CRIT"%s: Init: Unable to allocate gBuffer.\n",gDrvrName);
-        return (-1);
-    }
-
-    gWriteBuffer = kmalloc(BUF_SIZE, GFP_KERNEL);
-    if (NULL == gWriteBuffer) {
-        printk(KERN_CRIT"%s: Init: Unable to allocate gBuffer.\n",gDrvrName);
-        return (-1);
-    }
-
-    //--- END: Allocate Buffers
-
-    //--- START: Register Driver
-    // Register with the kernel as a character device.
-    // Abort if it fails.
-    if (0 > register_chrdev(gDrvrMajor, gDrvrName, &XPCIe_Intf)) {
-        printk(KERN_WARNING"%s: Init: will not register\n", gDrvrName);
-        return (CRIT_ERR);
-    }
-    printk(KERN_INFO"%s: Init: module registered\n", gDrvrName);
-    gStatFlags = gStatFlags | HAVE_KREG;
-
-    printk("%s driver is loaded\n", gDrvrName);
-
-  return 0;
-}
-
 static void XPCIe_exit(void)
 {
 
@@ -377,6 +267,8 @@ static void XPCIe_exit(void)
         (void) free_irq(gIrq, gDev);
     }
 
+    if (pRegion)
+      release_mem_region(gBaseHdwr, gBaseLen);
 
     // Free buffer
     if (NULL != gReadBuffer)
@@ -391,7 +283,7 @@ static void XPCIe_exit(void)
     if (gBaseVirt != NULL) {
         iounmap(gBaseVirt);
      }
-
+    
     gBaseVirt = NULL;
 
 
@@ -407,6 +299,121 @@ static void XPCIe_exit(void)
     gStatFlags = 0;
 
   printk(/*KERN_ALERT*/ "%s driver is unloaded\n", gDrvrName);
+}
+
+static int XPCIe_init(void)
+{
+    int ret = -EIO;
+
+    gDev = pci_get_device (PCI_VENDOR_ID_XILINX, PCI_DEVICE_ID_XILINX_PCIE, gDev);
+    if (NULL == gDev) {
+        printk(/*KERN_WARNING*/"%s: Init: Hardware not found.\n", gDrvrName);
+	ret = -EIO;
+	goto out;
+    }
+
+    if ((ret = pci_enable_device(gDev)) < 0) {
+      printk(/*KERN_WARNING*/"%s: Init: Device not enabled (%d).\n", gDrvrName, ret);
+	goto out;
+    }
+
+    // Get Base Address of registers from pci structure. Should come from pci_dev
+    // structure, but that element seems to be missing on the development system.
+    gBaseHdwr = pci_resource_start (gDev, 0);
+    if (0 > gBaseHdwr) {
+        printk(/*KERN_WARNING*/"%s: Init: Base Address not set.\n", gDrvrName);
+        return (-1);
+    } 
+    printk(/*KERN_WARNING*/"Base hw val %X\n", (unsigned int)gBaseHdwr);
+
+    gBaseLen = pci_resource_len (gDev, 0);
+    printk(/*KERN_WARNING*/"Base hw len %d\n", (unsigned int)gBaseLen);
+
+    // Remap the I/O register block so that it can be safely accessed.
+    // I/O register block starts at gBaseHdwr and is 32 bytes long.
+    // It is cast to char because that is the way Linus does it.
+    // Reference "/usr/src/Linux-2.4/Documentation/IO-mapping.txt".
+
+    gBaseVirt = ioremap(gBaseHdwr, gBaseLen);
+    if (!gBaseVirt) {
+        printk(/*KERN_WARNING*/"%s: Init: Could not remap memory.\n", gDrvrName);
+	ret = -EIO;
+	goto out;
+    } 
+
+    printk(/*KERN_WARNING*/"Virt hw val 0x%llX\n", (unsigned long long)gBaseVirt);
+
+    // Get IRQ from pci_dev structure. It may have been remapped by the kernel,
+    // and this value will be the correct one.
+
+    gIrq = gDev->irq;
+    printk("irq: %d\n",gIrq);
+
+    //--- START: Initialize Hardware
+
+    //request_mem_region(gBaseHdwr, FPGA_REGISTER_SIZE, "XPCIe");
+    if (!(pRegion = request_mem_region(gBaseHdwr, gBaseLen, "XPCIe"))) {
+      printk(/*KERN_WARNING*/"%s: Init: Memory in use (%d).\n", gDrvrName, ret);
+      ret = -EIO;
+      goto out;
+    }
+    gStatFlags = gStatFlags | HAVE_REGION;
+
+    printk(/*KERN_WARNING*/"%s: Init:  Initialize Hardware Done..\n",gDrvrName);
+
+    // Request IRQ from OS.
+#if 0
+    if (0 > request_irq(gIrq, &XPCIe_IRQHandler,/* SA_INTERRUPT |*/ SA_SHIRQ, gDrvrName, gDev)) {
+        printk(/*KERN_WARNING*/"%s: Init: Unable to allocate IRQ",gDrvrName);
+      ret = -EIO;
+      goto out;
+    }
+    gStatFlags = gStatFlags | HAVE_IRQ;
+#endif
+
+    initcode();
+
+    //--- END: Initialize Hardware
+
+    //--- START: Allocate Buffers
+
+    gBufferUnaligned = kmalloc(BUF_SIZE, GFP_KERNEL);
+                                                                                
+    gReadBuffer = gBufferUnaligned;
+    if (NULL == gBufferUnaligned) {
+        printk(KERN_CRIT"%s: Init: Unable to allocate gBuffer.\n",gDrvrName);
+      ret = -EIO;
+      goto out;
+    }
+                                                                                
+    gWriteBuffer = kmalloc(BUF_SIZE, GFP_KERNEL);
+    if (NULL == gWriteBuffer) {
+        printk(KERN_CRIT"%s: Init: Unable to allocate gBuffer.\n",gDrvrName);
+      ret = -EIO;
+      goto out;
+    }
+
+    //--- END: Allocate Buffers
+
+    //--- START: Register Driver
+    // Register with the kernel as a character device.
+    // Abort if it fails.
+    if ((ret = register_chrdev(gDrvrMajor, gDrvrName, &XPCIe_Intf)) < 0) {
+        printk(KERN_WARNING"%s: Init: will not register (%d)\n", gDrvrName, ret);
+      ret = -EIO;
+      goto out;
+    }
+    gDrvrMajor = ret;
+    printk(KERN_INFO"%s: Init: module registered\n", gDrvrName);
+    gStatFlags = gStatFlags | HAVE_KREG;
+
+    printk("%s driver is loaded\n", gDrvrName);
+
+  return 0;
+
+ out:
+  XPCIe_exit();
+  return ret;
 }
 
 module_init(XPCIe_init);
@@ -425,7 +432,7 @@ u32 XPCIe_ReadReg (u32 dw_offset)
     u32 ret = 0;
     ret = readl(gBaseVirt + (dw_offset));
     printk(KERN_INFO"%s: XPCIe_RedReg: reg %d have been read with %08x ...\n", gDrvrName, dw_offset, ret);
-    return ret;
+    return ret; 
 }
 
 void XPCIe_WriteReg (u32 dw_offset, u32 val)

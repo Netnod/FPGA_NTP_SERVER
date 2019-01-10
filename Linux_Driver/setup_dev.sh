@@ -1,7 +1,9 @@
 #!/bin/bash
-lsmod |grep xpcie && sudo rmmod xpcie.ko
-sudo rm -rf /dev/xpcie
-sudo mknod /dev/xpcie c 240 1
+rmmod xpcie.ko
+rm -f /dev/xpcie
+insmod xpcie.ko
+major=`grep xpcie </proc/devices | head -1 | awk '{print $1}'`
+echo "xpcie at major $major"
+mknod /dev/xpcie c $major 1
 sudo chmod 0666 /dev/xpcie
-sudo insmod xpcie.ko
 ls -al /dev/xpcie
