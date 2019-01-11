@@ -256,11 +256,6 @@ FPGA_NTP_SERVER/FPGA/vivado directory:
     ntps_top.mcs
     ntps_top.prm
 
-Source the Vivado settings script to set up PATH and other environment
-variables:
-
-    . /opt/Xilinx/Vivado/2015.2/settings64.sh
-
 Programming the flash on the VC709 board
 ----------------------------------------
 
@@ -268,6 +263,8 @@ If you want to program the flash on the VC709 board so that the FPGA
 will load the bitstream from flash the next time the VC709 board is
 powered on, use the following command:
 
+    . /opt/Xilinx/Vivado/2015.2/settings64.sh
+    cd FPGA_NTP_SERVER/FPGA/vivado
     ./program_flash.sh
 
 Power off and on the machine to load the FPGA bitstream from flash.
@@ -278,6 +275,8 @@ Programming the FPGA only
 If you want to program the FPGA with the contents of ntps_top.bit, use
 the following command:
 
+    . /opt/Xilinx/Vivado/2015.2/settings64.sh
+    cd FPGA_NTP_SERVER/FPGA/vivado
     ./program_fpga.sh
 
 Reboot the PC.  Do not power off and on the machine.  The step above
@@ -285,12 +284,39 @@ only programs the FPGA itself, not the flash memory on the VC709, so
 if you power off and on the machine the FPGA will reload the default
 application from flash.
 
+Programming the FPGA using hotplug
+----------------------------------
+
+If you feel adventurous you can try to use the hotplug support in the
+Linux kernel instead of rebooting the machine.  It does not work on
+all machines, but if it works it's a bit more convenient than having
+to reboot after programming the FPGA.
+
+Run the following commands as root with SLOT changed to match PCI
+slot your VC709 boards is installed in:
+
+    . /opt/Xilinx/Vivado/2015.2/settings64.sh
+    cd FPGA_NTP_SERVER/FPGA/vivado
+    SLOT="0000:01:00.0"
+    lspci -nn -s $SLOT
+    echo 1 >/sys/bus/pci/devices/$SLOT/remove
+    lspci -nn -s $SLOT
+    ./program_fpga.sh
+    echo 1 >/sys/bus/pci/rescan
+    lspci -nn -s $SLOT
+
+The "echo 1 >../remove" tells the kernel forget about the PCI device
+in the specified slot.  The FPGA is then reprogrammed and the kernel
+is told to rescan the PCI bus looking for new devices.
+
 When Linux boots it will probe the PCIe slot and see the new FPGA
 image that has been loaded from the bitstream.
 
-When Linux has booted on the PC, run "lspci -nn" and verify that the
-VC709 board shows up as expected in the list of PCI devices.  You
-should see a line such as this:
+Verify that the FPGA_NTP_SERVER bitstream has been loaded
+---------------------------------------------------------
+
+Run "lspci -nn" and verify that the VC709 board shows up as expected
+in the list of PCI devices.  You should see a line such as this:
 
     01:00.0 Memory controller [0580]: Xilinx Corporation Device [10ee:7028]
 
@@ -408,19 +434,16 @@ Download and unpack some files from Xilinx that the build needs:
 
     cd FPGA_NTP_SERVER/FPGA/xilinx/
     ./download-and-unpack.sh
-    cd ../../..
 
 Recreate the ntps vivado project using a TCL file:
 
     cd FPGA_NTP_SERVER/FPGA/vivado/
     vivado -mode batch -source ntps.tcl
-    cd ../../..
 
 Build the bitstream:
 
     cd FPGA_NTP_SERVER/FPGA/vivado/
     vivado -mode batch -source build.tcl
-    cd ../../..
 
 On a decent PC (Ryzen 2400G) the build will take about 2 hours.
 
