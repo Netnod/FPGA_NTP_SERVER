@@ -19,11 +19,12 @@ Requirements
 - a PC running Linux to install the VC709 in which is used to power
      and control the VC709 board.
 
-- a 10MHz clock and PPS source.  Note that the 10MHz clock and PPS
-     must be very clean with low jitter for the FPGA image to be able to
-     lock onto the signals.  Many GPS receivers output a 10MHz clock
-     and/or PPS pulse which has too much jitter to be usable with the
-     FPGA image.
+- a 10MHz clock and PPS source
+
+- An interface board which converts 10MHz and PPS via SMA connectors
+  to signals suitable for the FMC connector on the VC709 board.  The
+  schematics for this interface board are available on request.  Send
+  an e-mail to <info@netnod.se> to get in touch with us.
 
 - You will need a PC running Xilinx Vivado to program the VC709 board.
 
@@ -41,6 +42,25 @@ The instructions below assume that you have a Linux machine running
 CentOS 7.0 and will show how to install such a machine from scratch.
 It is possible to run Xilinx Vivado and the NTP server software on
 other Linux distributions, but if you do that you are on your own.
+
+Limitations
+===========
+
+- The 10MHz clock and PPS must be very clean with low jitter for the
+  FPGA image to be able to lock onto the signals.  Many GPS receivers
+  output a 10MHz clock and/or PPS pulse which has too much jitter to
+  be usable with the FPGA image.
+
+- The optical ethernet ports only support 10Gbit speed with a
+  10GBASE-SR, 10GBASE-LR or 10GBASE-ER transceiver.  1Gbit or 100MBit
+  speed are not supported.
+
+- There is no external gateway setting in the configuration for the
+  FPGA_NTP_SERVER.  All replies are sent to the MAC address found in
+  the response.  Normally this is not a problem, but if you have a
+  network with asymmetric routing where packets are received from one
+  router and should be sent out through a different router, this will
+  not work.
 
 Setting up a CentOS 7.0 Linux machine
 =====================================
