@@ -62,7 +62,7 @@ Limitations
   router and should be sent out through a different router, this will
   not work.
 
-Setting up a CentOS 7.0 Linux machine
+Setting up a CentOS 7.x Linux machine
 =====================================
 
 Download a CentOS ISO from:
@@ -129,7 +129,7 @@ need the X Window System:
 
     yum -y groupinstall "X Window System"
 
-You should now have a CentOS 7.0 system which is ready to use.
+You should now have a CentOS 7.x system which is ready to use.
 
 Installing Xilinx Vivado 2015.2
 ===============================
@@ -151,8 +151,8 @@ If need the disk space, you can now delete the installer archive:
 
     rm -f Xilinx_Vivado_SDK_Lin_2015.2_0626_1.tar.gz
 
-Create a directory /opt/Xilinx and make yourself the owner of it so
-that you can write to the directory:
+If you do not have write permissions to /opt, become root and create a
+directory /opt/Xilinx with you as the yourself the owner of it:
 
     sudo mkdir -p /opt/Xilinx
     sudo chown $USER /opt/Xilinx
@@ -163,14 +163,25 @@ Start the installer with:
     cd Xilinx_Vivado_SDK_Lin_2015.2_0626_1
     ./xsetup
 
+Accept the license agreements.  Press "Next".
+
 Select "Vivado Design Edition".  Press "Next".
 
-Use the default options.  If you want to save on disk space you can
-uncheck support for all devices except for "Virtex-7".
+The default options will work just fine.  If you want to save on disk
+space you can uncheck support for all devices except for "Virtex-7".
+Press "Next".
 
 Use the default install directory of "/opt/Xilinx".  Press "Next".
 
 Press "Install".  Wait until the installation finishes.
+
+Close the license manager.
+
+Become root and change the owner of the Xilinx directory to root.root
+so that users can't mess it up:
+
+    chown -R root.root /opt/Xilinx
+    chmod -R go-w /opt/Xilinx
 
 If need the disk space, you can now delete the installer directory:
 
@@ -187,12 +198,27 @@ will need a Vivado license.  Note that the free WebPACK license will
 not allow you to create a bitstream for the Virtex 7 device.  If you
 do not have a Vivado license, request a 30 day trial license.
 
-If you have a license file "Xilinx.lic", you can install it later by
-starting Vivado and then start the license manager with the menu
-Help->Manage License.  In the license manager select "Load License",
-press "Copy License" and then select your "Xilinx.lic" file.
+When you have a license file "Xilinx.lic" you need to install it.
+
+Start Xilinx Vivado:
+
+    . /opt/Xilinx/Vivado/2015.2/settings64.sh
+    vivado
+
+Start the License Manager with the menu "Help -> Manage License".
+
+Press "Load License".  Then press "Copy License" and point the file
+selector at your "Xilinx.lic".
+
+Press "View License Status" and verify that the license looks good.
 
 Close the license manager.
+
+You can actually do this in an even simpler way, create a .Xilinx
+directory in your home direcory and copy the license file there:
+
+    mkdir -p $HOME/.Xilinx
+    cp Xilinx.lic $HOME/.Xilinx
 
 Setting up the VC709 hardware
 =============================
