@@ -19,7 +19,7 @@ Requirements
 - a PC running Linux to install the VC709 in which is used to power
      and control the VC709 board.
 
-- a 10MHz clock and PPS source
+- a 10MHz clock and PPS source.
 
 - An interface board which converts 10MHz and PPS via SMA connectors
   to signals suitable for the FMC connector on the VC709 board.  The
@@ -50,6 +50,18 @@ Limitations
   FPGA image to be able to lock onto the signals.  Many GPS receivers
   output a 10MHz clock and/or PPS pulse which has too much jitter to
   be usable with the FPGA image.
+
+- The 10MHz signal should be a 1V RMS sine when driven into a 50Ohm
+  load (the interface board has an internal 50Ohm termination) .  The
+  input on the interface board should be able to handle any symmetric
+  signal at any offset (sine, 50% duty cycle square wave) as long as
+  the peaks arne within +/-1V, but we have only tested with 1V RMS
+  centered around 0.  If your source has a DC offset you might want to
+  add a DC block, and optionally an attenuator if the signal has too
+  high voltage.
+
+- The PPS signal should be 1.5V to 5V into a 50Ohm load.  The trigger
+  level is set to 1V so anything above 1.2V ought to work.
 
 - The optical ethernet ports only support 10Gbit speed with a
   10GBASE-SR, 10GBASE-LR or 10GBASE-ER transceiver.  1Gbit or 100MBit
