@@ -134,12 +134,13 @@ On the PC that will power and control the VC709 board you will also
 need to install the following packages:
 
     yum -y install kernel-devel gcc binutils python-netaddr
-    yum -y install net-tools ntpdate
+    yum -y install net-tools ntpdate pciutils usbutils
 
 On the PCs where you want to be able to run Xilinx Vivado you will
 need the X Window System:
 
     yum -y groupinstall "X Window System"
+    yum -y install xauth
 
 You should now have a CentOS 7.x system which is ready to use.
 
@@ -305,6 +306,14 @@ and follow the instructions in "Installing Linux Driver".
 
 Connect a USB cable from the Micro USB programming connector on the
 VC709 to a USB port on the PC you want to use for programming.
+
+Verify that the programming adapter on the VC709 board is visible to
+the Linux PC.  The programming adapter uses a FT2232C chip:
+
+    lsusb
+    ...
+    Bus 006 Device 002: ID 0403:6010 Future Technology Devices International, Ltd FT2232C Dual USB-UART/FIFO IC
+    ...
 
 If you used a different machine to build the FPGA than the VC709 board
 is installed in, copy the following files from the
