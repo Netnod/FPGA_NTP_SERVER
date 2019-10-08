@@ -6,9 +6,11 @@ module user_registers_axi_slave #(
   // Width of S_AXI data bus
   parameter integer C_S_AXI_DATA_WIDTH = 32,
   // Width of S_AXI address bus
-  parameter integer C_S_AXI_ADDR_WIDTH = 6,
+  parameter integer C_S_AXI_ADDR_WIDTH = 7,
   parameter integer NUM_POWER_REG      = 13,
-  parameter integer BTIME              = 0
+  parameter integer BTIME              = 0,
+  parameter integer BINFO              = 0,
+  parameter integer GIT_HASH           = 0
 )(
 
   input wire [NUM_POWER_REG*32-1:0]       power_status,
@@ -244,6 +246,10 @@ module user_registers_axi_slave #(
       reg_data_out    <= BTIME;  // Build Time
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+1) begin
       reg_data_out[0] <= pcie_link_up;  // Is it possible to read this
+    end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+2) begin
+      reg_data_out    <= BINFO;
+    end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+3) begin
+      reg_data_out    <= GIT_HASH;
     end
   end // always @ (*)
   

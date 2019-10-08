@@ -34,7 +34,10 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module ntps_top (
+module ntps_top #(
+  parameter BUILD_INFO = 0,
+  parameter GIT_HASH = 0
+) (
   input wire        reset,
 
   input wire        SYS_CLK_N,
@@ -769,7 +772,10 @@ module ntps_top (
   //-----------------------------------------------------------------------------------------------------------//
   // Status registers for Power and Temp
   
-  pvtmon_top pvtmon_top_0 (
+  pvtmon_top #(
+    .BUILD_INFO(BUILD_INFO),
+    .GIT_HASH(GIT_HASH)
+  ) pvtmon_top_0 (
     .clk50          (clk50),
     .rst            (reset),
     .pcie_link_up   (user_link_up),

@@ -295,8 +295,10 @@ class user_regs(xpcie_class):
     die_temp          = 12
     build_time        = 13
     pcie_link         = 14
+    build_info        = 15
+    git_hash          = 16
 
-    no_regs =  15
+    no_regs =  17
 
     def __init__(self):
         self.p_ofs = self.axi_base

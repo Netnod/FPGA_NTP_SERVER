@@ -52,8 +52,10 @@
 
 module pvtmon_top #(
   parameter integer C_S_AXI_DATA_WIDTH  = 32,
-  parameter integer C_S_AXI_ADDR_WIDTH  = 6,
-  parameter integer NUM_POWER_REG       = 13
+  parameter integer C_S_AXI_ADDR_WIDTH  = 7,
+  parameter integer NUM_POWER_REG       = 13,
+  parameter BUILD_INFO = 0,
+  parameter GIT_HASH = 0
 )(
   // AXI lite
   input wire         s_axi_clk,
@@ -104,7 +106,9 @@ module pvtmon_top #(
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
     .C_S_AXI_ADDR_WIDTH (C_S_AXI_ADDR_WIDTH),
     .NUM_POWER_REG      (NUM_POWER_REG),
-    .BTIME              (BTIME)
+    .BTIME              (BTIME),
+    .BINFO              (BUILD_INFO),
+    .GIT_HASH           (GIT_HASH)
   ) user_registers_axi_slave_inst (
     .power_status  (power_status_reg_sync_s_axi_clk),
     .pcie_link_up  (pcie_link_up),

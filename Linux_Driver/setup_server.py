@@ -6,7 +6,14 @@ import datetime
 
 ur = user_regs()
 build_time = datetime.datetime.fromtimestamp(ur.read(ur.build_time)).strftime('%Y-%m-%d %H:%M:%S')
-print "FPGA build at " + build_time
+print "FPGA build at " + build_time + " (%u)" % ur.read(ur.build_time)
+
+build_info = ur.read(ur.build_info)
+vivado = "%u.%u" % (((build_info >> 8) & 0xffff), (build_info & 0xff))
+git_hash = "%08x" % ur.read(ur.git_hash)
+if build_info & (1<<24):
+    git_hash += '-dirty'
+print "FPGA built with Vivado %s from git hash %s" % (vivado, git_hash)
 
 die_temp = round((ur.read(ur.die_temp) * 504.0 / 1024.0) - 273.0, 1)
 print "FPGA Die temperature is " + str(die_temp) + "C."
