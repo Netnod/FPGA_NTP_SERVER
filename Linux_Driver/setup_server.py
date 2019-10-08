@@ -60,7 +60,7 @@ for i in range(4):
               path.mac_check |
               path.ip_check |
               path.tx_en |
-              path.s10GB_SR)
+              path.s10GB_LR)
     path.write(path.gen_config, config)
     print "PATH %d: gen_config 0x%08x" % (i, config)
     path.write(path.ntp_config, (-18 & 0xff)*path.precision)
