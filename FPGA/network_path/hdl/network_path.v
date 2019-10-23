@@ -168,6 +168,15 @@ module network_path #(
     .pp_status     (pp_status),
     .xphy_status   (xphy_status),
     .ntp_sync_ok   (ntp_sync_ok),
+
+    // Ports for NTS API extension.
+    // Only used in network_path_shared. Tied off here.
+    .nts_api_command(),
+    .nts_api_address(),
+    .nts_api_write_data(),
+    .nts_api_status(2'h1),
+    .nts_api_read_data(32'hdeadbeef), 
+
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
     .S_AXI_AWADDR  (s_axi_awaddr),

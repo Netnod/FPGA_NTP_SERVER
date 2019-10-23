@@ -42,51 +42,58 @@ module network_path_axi_slave #(
   parameter integer C_S_AXI_ADDR_WIDTH = 9 // max 128 32 bit slaves
 )(
   // Network stuff
-  input wire                              pp_clk,
-  output wire [31:0]                      gen_config,
-  output wire [47:0]                      pp_mac_addr0,
-  output wire [47:0]                      pp_mac_addr1,
-  output wire [47:0]                      pp_mac_addr2,
-  output wire [47:0]                      pp_mac_addr3,
-  output wire [31:0]                      pp_ipv4_addr0,
-  output wire [31:0]                      pp_ipv4_addr1,
-  output wire [31:0]                      pp_ipv4_addr2,
-  output wire [31:0]                      pp_ipv4_addr3,
-  output wire [127:0]                     pp_ipv6_addr0,
-  output wire [127:0]                     pp_ipv6_addr1,
-  output wire [127:0]                     pp_ipv6_addr2,
-  output wire [127:0]                     pp_ipv6_addr3,
-  output wire [31:0]                      ntp_config,
-  output wire [31:0]                      ntp_root_delay,
-  output wire [31:0]                      ntp_root_disp,
-  output wire [31:0]                      ntp_ref_id,
-  output wire [63:0]                      ntp_ref_ts,
-  output wire [31:0]                      ntp_rx_ofs,
-  output wire [31:0]                      ntp_tx_ofs,
-  input wire [31:0]                       pp_status,
-  input wire [7:0]                        xphy_status,
-  input wire                              ntp_sync_ok,
+  input wire 				  pp_clk,
+  output wire [31:0] 			  gen_config,
+  output wire [47:0] 			  pp_mac_addr0,
+  output wire [47:0] 			  pp_mac_addr1,
+  output wire [47:0] 			  pp_mac_addr2,
+  output wire [47:0] 			  pp_mac_addr3,
+  output wire [31:0] 			  pp_ipv4_addr0,
+  output wire [31:0] 			  pp_ipv4_addr1,
+  output wire [31:0] 			  pp_ipv4_addr2,
+  output wire [31:0] 			  pp_ipv4_addr3,
+  output wire [127:0] 			  pp_ipv6_addr0,
+  output wire [127:0] 			  pp_ipv6_addr1,
+  output wire [127:0] 			  pp_ipv6_addr2,
+  output wire [127:0] 			  pp_ipv6_addr3,
+  output wire [31:0] 			  ntp_config,
+  output wire [31:0] 			  ntp_root_delay,
+  output wire [31:0] 			  ntp_root_disp,
+  output wire [31:0] 			  ntp_ref_id,
+  output wire [63:0] 			  ntp_ref_ts,
+  output wire [31:0] 			  ntp_rx_ofs,
+  output wire [31:0] 			  ntp_tx_ofs,
+  input wire [31:0] 			  pp_status,
+  input wire [7:0] 			  xphy_status,
+  input wire 				  ntp_sync_ok,
 
+  // NTS API Extension port.
+  output wire [1 : 0] 			  nts_api_command,
+  output wire [31 : 0] 			  nts_api_address,
+  output wire [31 : 0] 			  nts_api_write_data,
+  input wire [1 : 0] 			  nts_api_status,
+  input wire [31 : 0] 			  nts_api_read_data, 
+  
   // AXI lite
-  input wire                              S_AXI_ACLK,
-  input wire                              S_AXI_ARESETN,
-  input wire [C_S_AXI_ADDR_WIDTH-1:0]     S_AXI_AWADDR,
-  input wire                              S_AXI_AWVALID,
-  output wire                             S_AXI_AWREADY,
-  input wire [C_S_AXI_DATA_WIDTH-1:0]     S_AXI_WDATA,
+  input wire 				  S_AXI_ACLK,
+  input wire 				  S_AXI_ARESETN,
+  input wire [C_S_AXI_ADDR_WIDTH-1:0] 	  S_AXI_AWADDR,
+  input wire 				  S_AXI_AWVALID,
+  output wire 				  S_AXI_AWREADY,
+  input wire [C_S_AXI_DATA_WIDTH-1:0] 	  S_AXI_WDATA,
   input wire [(C_S_AXI_DATA_WIDTH/8)-1:0] S_AXI_WSTRB,
-  input wire                              S_AXI_WVALID,
-  output wire                             S_AXI_WREADY,
-  output wire [1 : 0]                     S_AXI_BRESP,
-  output wire                             S_AXI_BVALID,
-  input wire                              S_AXI_BREADY,
-  input wire [C_S_AXI_ADDR_WIDTH-1:0]     S_AXI_ARADDR,
-  input wire                              S_AXI_ARVALID,
-  output wire                             S_AXI_ARREADY,
-  output wire [C_S_AXI_DATA_WIDTH-1:0]    S_AXI_RDATA,
-  output wire [1:0]                       S_AXI_RRESP,
-  output wire                             S_AXI_RVALID,
-  input wire                              S_AXI_RREADY
+  input wire 				  S_AXI_WVALID,
+  output wire 				  S_AXI_WREADY,
+  output wire [1 : 0] 			  S_AXI_BRESP,
+  output wire 				  S_AXI_BVALID,
+  input wire 				  S_AXI_BREADY,
+  input wire [C_S_AXI_ADDR_WIDTH-1:0] 	  S_AXI_ARADDR,
+  input wire 				  S_AXI_ARVALID,
+  output wire 				  S_AXI_ARREADY,
+  output wire [C_S_AXI_DATA_WIDTH-1:0] 	  S_AXI_RDATA,
+  output wire [1:0] 			  S_AXI_RRESP,
+  output wire 				  S_AXI_RVALID,
+  input wire 				  S_AXI_RREADY
 );
   
   // Inputs
@@ -130,6 +137,14 @@ module network_path_axi_slave #(
   reg [C_S_AXI_DATA_WIDTH-1:0]  reg_data_out;
   integer                       byte_index;
 
+  // Internal wires for NTS API Extension.
+  wire [1 : 0] 		nts_api_command_axi;
+  wire [31 : 0]   	nts_api_address_axi;
+  wire [31 : 0] 	nts_api_write_data_axi;
+  wire [1 : 0] 		nts_api_status_axi;
+  wire [31 : 0] 	nts_api_read_data_axi;
+   
+     
   // I/O Connections assignments
   
   assign S_AXI_AWREADY  = axi_awready;
@@ -211,6 +226,10 @@ module network_path_axi_slave #(
         slv_reg[sts_index] <= 'h0;
       end
     end else begin
+       // NTS API Extension read registers
+       slv_reg[71] <= {30'h0, nts_api_status_axi};
+       slv_reg[74] <= nts_api_read_data_axi;
+       
       if (slv_reg_wren) begin
         for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 ) begin
           if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -373,6 +392,20 @@ module network_path_axi_slave #(
   assign ntp_rx_ofs_axi     =  slv_reg[35];
   assign ntp_tx_ofs_axi     =  slv_reg[36];
 
+   
+  //---------------------------------------
+  // NTS API connectivity.
+  //---------------------------------------
+  assign nts_api_command_axi    = slv_reg[70][1 : 0];
+  assign nts_api_address_axi    = slv_reg[72];
+  assign nts_api_write_data_axi = slv_reg[73];
+   
+  synchronizer_vector #(.DATA_WIDTH(2))  sync_nts_api_command (.data_in(nts_api_command_axi), .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(nts_api_command));
+  synchronizer_vector #(.DATA_WIDTH(32)) sync_nts_api_address (.data_in(nts_api_address_axi), .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(nts_api_address));
+  synchronizer_vector #(.DATA_WIDTH(32)) sync_nts_api_write_data (.data_in(nts_api_write_data_axi), .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(nts_api_write_data));
+  synchronizer_simple #(.DATA_WIDTH(2))  sync_nts_api_status (.data_in(nts_api_status), .new_clk(S_AXI_ACLK), .data_out(nts_api_status_axi));
+  synchronizer_simple #(.DATA_WIDTH(32)) sync_nts_api_read_data (.data_in(nts_api_read_data), .new_clk(S_AXI_ACLK), .data_out(nts_api_read_data_axi));
+     
   synchronizer_vector #(.DATA_WIDTH(32))  sync_gen_config    (.data_in(gen_config_axi),     .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(gen_config));
   synchronizer_vector #(.DATA_WIDTH(48))  sync_pp_mac_addr0  (.data_in(pp_mac_addr0_axi),   .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_mac_addr0));
   synchronizer_vector #(.DATA_WIDTH(48))  sync_pp_mac_addr1  (.data_in(pp_mac_addr1_axi),   .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_mac_addr1));

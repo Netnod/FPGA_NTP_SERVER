@@ -43,6 +43,9 @@ set_property PACKAGE_PIN AV38 [get_ports pmbus_alert]
 set_property IOSTANDARD LVCMOS18 [get_ports pmbus_alert]
 
 
+# We really want combinational loops for the rosc oscillators.
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets rosc/core/oscillators[*].rosc_array/dout_new]
+set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets rosc/core/oscillators[*].rosc_array/dout_reg*]
 
 
 

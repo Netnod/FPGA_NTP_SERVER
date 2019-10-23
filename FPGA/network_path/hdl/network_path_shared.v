@@ -90,6 +90,13 @@ module network_path_shared #(
   input wire         module_detect_n, 
   input wire         tx_fault,
   output wire        tx_disable,
+
+  // NTS API Extension port.
+  output wire [1 : 0]  nts_api_command,
+  output wire [31 : 0] nts_api_address,
+  output wire [31 : 0] nts_api_write_data,
+  input wire [1 : 0]   nts_api_status,
+  input wire [31 : 0]  nts_api_read_data, 
   
   // MDIO controller
   input wire         mdc, 
@@ -172,6 +179,15 @@ module network_path_shared #(
     .pp_status     (pp_status),
     .xphy_status   (xphy_status),
     .ntp_sync_ok   (ntp_sync_ok),
+
+    // Ports for NTS API extension.
+    // Routed straight through the module.
+    .nts_api_command(nts_api_command),
+    .nts_api_address(nts_api_address),
+    .nts_api_write_data(nts_api_write_data),
+    .nts_api_status(nts_api_status),
+    .nts_api_read_data(nts_api_read_data), 
+
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
     .S_AXI_AWADDR  (s_axi_awaddr),
