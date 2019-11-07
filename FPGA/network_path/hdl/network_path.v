@@ -170,12 +170,11 @@ module network_path #(
     .ntp_sync_ok   (ntp_sync_ok),
 
     // Ports for NTS API extension.
-    // Only used in network_path_shared. Tied off here.
-    .nts_api_command(),
-    .nts_api_address(),
-    .nts_api_write_data(),
-    .nts_api_status(2'h1),
-    .nts_api_read_data(32'hdeadbeef), 
+    .nts_api_command(nts_api_command),
+    .nts_api_address(nts_api_address),
+    .nts_api_write_data(nts_api_write_data),
+    .nts_api_status(nts_api_status),
+    .nts_api_read_data(nts_api_read_data), 
 
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
@@ -357,6 +356,48 @@ module network_path #(
   assign xphy_status[3]   = tx_fault;
   assign xphy_status[4]   = core_status[0]; // PCS Block Lock
   assign xphy_status[7:5] = 3'b0;
-    
+
+  // Wires for connecting the api_extension to the AXI slave.
+  // Wires for connecting modules to the api_extension.   
+  wire [1 : 0]  nts_api_command;
+  wire [31 : 0] nts_api_address;
+  wire [31 : 0] nts_api_write_data;
+  wire [1 : 0]  nts_api_status;
+  wire [31 : 0] nts_api_read_data;
+  
+   api_extension nts_api_extension (
+    .clk(clk156),
+    .reset(areset_clk156),
+
+    // I/O port.
+    .command(nts_api_command),
+    .status(nts_api_status),
+    .address(nts_api_address),
+    .write_data(nts_api_write_data),
+    .read_data(nts_api_read_data),
+
+    // Access ports to extensions.
+    .nts_cs(),
+    .nts_we(),
+    .nts_address(),
+    .nts_write_data(),
+    .nts_read_data(32'haaaa5555),
+    .nts_ready(1'h1),
+				    
+    .dp_cs(),
+    .dp_we(),
+    .dp_address(),
+    .dp_write_data(),
+    .dp_read_data(32'hbeefbeef),
+    .dp_ready(1'h1),
+
+    .rosc_cs(),
+    .rosc_we(),
+    .rosc_address(),
+    .rosc_write_data(),
+    .rosc_read_data(32'hdeadbeef),
+    .rosc_ready(1'h1)
+  );
+  
 endmodule
 `default_nettype wire

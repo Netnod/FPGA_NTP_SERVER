@@ -328,12 +328,6 @@ module ntps_top #(
   //-----------------------------------------------------------------------------------------------------------//
   // Network paths
 
-   wire [1 : 0] nts_api_command;
-   wire [1 : 0] nts_api_status;
-   wire [31 : 0] nts_api_address;
-   wire [31 : 0] nts_api_write_data;
-   wire [31 : 0] nts_api_read_data;
-
    
   // Shared MDIO signals
   wire         phy_mdc;
@@ -403,13 +397,6 @@ module ntps_top #(
     .s_axi_wready       (m_axi_wready [3*1 +: 1]),
     .s_axi_wstrb        (m_axi_wstrb  [3*32/8 +: 32/8]),
     .s_axi_wvalid       (m_axi_wvalid [3*1 +: 1]),
-
-    // NTS API Extension port.
-    .nts_api_command(nts_api_command),
-    .nts_api_status(nts_api_status),
-    .nts_api_address(nts_api_address),
-    .nts_api_write_data(nts_api_write_data),
-    .nts_api_read_data(nts_api_read_data), 
  
     .signal_lost        (sfp_signal_lost0),
     .sim_speedup_control(1'b0),
@@ -426,53 +413,7 @@ module ntps_top #(
     .xphy_txn           (xphy0_txn),
     .xphy_txp           (xphy0_txp)
   );
-
-   // api_extension and modules connected to it.
-   // Wires needded for the api_extension connectivity.
-   wire          rosc_cs;
-   wire          rosc_we;
-   wire [23 : 0] rosc_address;
-   wire [31 : 0] rosc_write_data;
-   wire [31 : 0] rosc_read_data;
-
-   api_extension nts_api_extension (
-    .clk(clk156),
-    .reset(areset_clk156),
-
-    // I/O port.
-    .command(nts_api_command),
-    .status(nts_api_status),
-    .address(nts_api_address),
-    .write_data(nts_api_write_data),
-    .read_data(nts_api_read_data),
-
-    // Access ports to extensions.
-    .nts0_cs(),
-    .nts0_we(),
-    .nts0_address(),
-    .nts0_write_data(),
-    .nts0_read_data(32'haaaa5555),
-    .nts0_ready(1'h1),
-
-    .rosc_cs(rosc_cs),
-    .rosc_we(rosc_we),
-    .rosc_address(rosc_address),
-    .rosc_write_data(rosc_write_data),
-    .rosc_read_data(rosc_read_data),
-    .rosc_ready(1'h1)
-  );
-
-   rosc_entropy rosc(
-                     .clk(clk156),
-                     .reset(areset_clk156),
-                     .cs(rosc_cs),
-                     .we(rosc_we),
-                     .address(rosc_address[7 : 0]),
-                     .write_data(rosc_write_data),
-                     .read_data(rosc_read_data)
-                   );
-   
-   
+      
   keymem_top keymem_top_0 (
     .key           (keymem_top_0_key),
     .key_ack       (keymem_top_0_key_ack),

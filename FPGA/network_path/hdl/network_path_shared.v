@@ -90,13 +90,6 @@ module network_path_shared #(
   input wire         module_detect_n, 
   input wire         tx_fault,
   output wire        tx_disable,
-
-  // NTS API Extension port.
-  output wire [1 : 0]  nts_api_command,
-  output wire [31 : 0] nts_api_address,
-  output wire [31 : 0] nts_api_write_data,
-  input wire [1 : 0]   nts_api_status,
-  input wire [31 : 0]  nts_api_read_data, 
   
   // MDIO controller
   input wire         mdc, 
@@ -150,6 +143,7 @@ module network_path_shared #(
   wire   ntp_sync_ok;
   assign ntp_sync_ok = (ntp_sync_ok_a & ~gen_config[24] ) | (ntp_sync_ok_b & gen_config[24]);
 
+		
   // Instantiation of Axi Bus Interface S00_AXI
   network_path_axi_slave #( 
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
@@ -181,7 +175,6 @@ module network_path_shared #(
     .ntp_sync_ok   (ntp_sync_ok),
 
     // Ports for NTS API extension.
-    // Routed straight through the module.
     .nts_api_command(nts_api_command),
     .nts_api_address(nts_api_address),
     .nts_api_write_data(nts_api_write_data),
@@ -368,6 +361,63 @@ module network_path_shared #(
   assign xphy_status[3]   = tx_fault;
   assign xphy_status[4]   = core_status[0]; // PCS Block Lock
   assign xphy_status[7:5] = 3'b0;
+
+   // Wires for connecting the api_extension to the AXI slave.
+   // Wires for connecting modules to the api_extension.   
+   wire [1 : 0]  nts_api_command;
+   wire [31 : 0] nts_api_address;
+   wire [31 : 0] nts_api_write_data;
+   wire [1 : 0]  nts_api_status;
+   wire [31 : 0] nts_api_read_data;
+   wire          rosc_cs;
+   wire          rosc_we;
+   wire [23 : 0] rosc_address;
+   wire [31 : 0] rosc_write_data;
+   wire [31 : 0] rosc_read_data;
+
+   api_extension nts_api_extension (
+    .clk(clk156),
+    .reset(areset_clk156),
+
+    // I/O port.
+    .command(nts_api_command),
+    .status(nts_api_status),
+    .address(nts_api_address),
+    .write_data(nts_api_write_data),
+    .read_data(nts_api_read_data),
+
+    // Access ports to extensions.
+    .nts_cs(),
+    .nts_we(),
+    .nts_address(),
+    .nts_write_data(),
+    .nts_read_data(32'haaaa5555),
+    .nts_ready(1'h1),
+				    
+    .dp_cs(),
+    .dp_we(),
+    .dp_address(),
+    .dp_write_data(),
+    .dp_read_data(32'hbeefbeef),
+    .dp_ready(1'h1),
+
+    .rosc_cs(rosc_cs),
+    .rosc_we(rosc_we),
+    .rosc_address(rosc_address),
+    .rosc_write_data(rosc_write_data),
+    .rosc_read_data(rosc_read_data),
+    .rosc_ready(1'h1)
+  );
+
+   rosc_entropy rosc(
+                     .clk(clk156),
+                     .reset(areset_clk156),
+                     .cs(rosc_cs),
+                     .we(rosc_we),
+                     .address(rosc_address[7 : 0]),
+                     .write_data(rosc_write_data),
+                     .read_data(rosc_read_data)
+                   );
 
 endmodule // network_path_shared
 
