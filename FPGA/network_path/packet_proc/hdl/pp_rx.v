@@ -193,7 +193,6 @@ module pp_rx (
         end
       else
         begin
-          ip_ttl_reg        <= ip_ttl;
           my_mac_addr0_reg  <= my_mac_addr0;
           my_mac_addr1_reg  <= my_mac_addr1;
           my_mac_addr2_reg  <= my_mac_addr2;
