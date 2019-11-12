@@ -1,19 +1,19 @@
 //
-// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
+//
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -29,7 +29,7 @@
 // Design Name: FPGA NTP Server
 // Module Name: pp_rx
 // Description: Packet processing rx part. Parse received packets
-// 
+//
 
 `timescale 1ns / 1ps
 `default_nettype none
@@ -63,21 +63,21 @@ module pp_rx (
   input  wire [31:0]  ntp_ofs,            // RX time stamp offset
   // From clock
   input  wire [63:0]  ntp_time,           // NTP time
-  // MAC 
+  // MAC
   input  wire [7:0]   rx_data_valid,
   input  wire [63:0]  rx_data,
   input  wire         rx_bad_frame,
-  input  wire         rx_good_frame, 
-  // Key mem                     
+  input  wire         rx_good_frame,
+  // Key mem
   output reg          key_req,
   output wire [31:0]  key_id,
   input wire          key_ack,
   input wire          key_valid,
   input wire          key_type,
-   
-  // tx FIFO 
+
+  // tx FIFO
   input  wire         tx_fifo_full,       // Room in FIFO
-  output reg          tx_fifo_wr,         
+  output reg          tx_fifo_wr,
   output wire [1003:0]tx_fifo_data,
   // Status bits
   output reg          sts_ipv4_arp_pass,  // ipv4 arp accepted
@@ -123,13 +123,13 @@ module pp_rx (
   reg [15:0]   PING_SEQNO_rx_buf;   // Buffer for ping seq_no
   reg [0:687]  PAYLOAD_rx_buf;      // Buffer for ping/traceroute payload max 86 bytes
   reg [4:0]    PAYL_IDX;            // Index in Payload data
-  
-  // Received NTP Payload for signing etc  
+
+  // Received NTP Payload for signing etc
   reg [1:0]    SRC_LI_rx_buf;       // Sender Leap Indicator
   reg [2:0]    SRC_VN_rx_buf;       // Sender NTP Version Number
   reg [2:0]    SRC_MODE_rx_buf;     // Sender Mode
   reg [7:0]    SRC_STRAT_rx_buf;    // Sender Stratum
-  reg [7:0]    SRC_POLL_rx_buf;     // Sender POLL 
+  reg [7:0]    SRC_POLL_rx_buf;     // Sender POLL
   reg [7:0]    SRC_PREC_rx_buf;     // Sender Precision
   reg [31:0]   SRC_RDEL_rx_buf;     // Sender Root Delay
   reg [31:0]   SRC_RDISP_rx_buf;    // Sender Root Dispersion
@@ -158,63 +158,115 @@ module pp_rx (
   reg          tx_md5;               // Xmit MD5 Signed ntp
   reg          tx_sha1;              // Xmit SHA1 signed ntp
 
+
+  //-------------------------------------------------------------------------------------------------
+  // Sample all inputs. Esp the long, wide address buses.
+  reg [47:0]  my_mac_addr0_reg;
+  reg [47:0]  my_mac_addr1_reg;
+  reg [47:0]  my_mac_addr2_reg;
+  reg [47:0]  my_mac_addr3_reg;
+  reg [31:0]  my_ipv4_addr0_reg;
+  reg [31:0]  my_ipv4_addr1_reg;
+  reg [31:0]  my_ipv4_addr2_reg;
+  reg [31:0]  my_ipv4_addr3_reg;
+  reg [127:0] my_ipv6_addr0_reg;
+  reg [127:0] my_ipv6_addr1_reg;
+  reg [127:0] my_ipv6_addr2_reg;
+  reg [127:0] my_ipv6_addr3_reg;
+
+  always @(posedge clk, posedge areset)
+    begin : sample_inputs
+      if (areset == 1'b1)
+        begin
+          my_mac_addr0_reg  <= 48'h0;
+          my_mac_addr1_reg  <= 48'h0;
+          my_mac_addr2_reg  <= 48'h0;
+          my_mac_addr3_reg  <= 48'h0;
+          my_ipv4_addr0_reg <= 32'h0;
+          my_ipv4_addr1_reg <= 32'h0;
+          my_ipv4_addr2_reg <= 32'h0;
+          my_ipv4_addr3_reg <= 32'h0;
+          my_ipv6_addr0_reg <= 128'h0;
+          my_ipv6_addr1_reg <= 128'h0;
+          my_ipv6_addr2_reg <= 128'h0;
+          my_ipv6_addr3_reg <= 128'h0;
+        end
+      else
+        begin
+          ip_ttl_reg        <= ip_ttl;
+          my_mac_addr0_reg  <= my_mac_addr0;
+          my_mac_addr1_reg  <= my_mac_addr1;
+          my_mac_addr2_reg  <= my_mac_addr2;
+          my_mac_addr3_reg  <= my_mac_addr3;
+          my_ipv4_addr0_reg <= my_ipv4_addr0;
+          my_ipv4_addr1_reg <= my_ipv4_addr1;
+          my_ipv4_addr2_reg <= my_ipv4_addr2;
+          my_ipv4_addr3_reg <= my_ipv4_addr3;
+          my_ipv6_addr0_reg <= my_ipv6_addr0;
+          my_ipv6_addr1_reg <= my_ipv6_addr1;
+          my_ipv6_addr2_reg <= my_ipv6_addr2;
+          my_ipv6_addr3_reg <= my_ipv6_addr3;
+        end
+    end
+
+
   //-------------------------------------------------------------------------------------------------
   // Address selection and decoding
-  //   
+  //
 
   wire   mac_match;
-  assign mac_match = rx_data[63:16] == my_mac_addr0 || rx_data[63:16] == my_mac_addr1 || rx_data[63:16] == my_mac_addr2 || rx_data[63:16] == my_mac_addr3;
-  
+  assign mac_match = rx_data[63:16] == my_mac_addr0_reg || rx_data[63:16] == my_mac_addr1_reg || rx_data[63:16] == my_mac_addr2_reg || rx_data[63:16] == my_mac_addr3_reg;
+
   wire   ipv4_match;
-  assign ipv4_match = DST_IP_rx_buf[31:0] == my_ipv4_addr0 || DST_IP_rx_buf[31:0] == my_ipv4_addr1 || DST_IP_rx_buf[31:0] == my_ipv4_addr2 || DST_IP_rx_buf[31:0] == my_ipv4_addr3;
+  assign ipv4_match = DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg || DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg || DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg || DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg;
 
   wire   ipv6_match;
-  assign ipv6_match = DST_IP_rx_buf == my_ipv6_addr0 || DST_IP_rx_buf == my_ipv6_addr1 || DST_IP_rx_buf == my_ipv6_addr2 || DST_IP_rx_buf == my_ipv6_addr3;
+  assign ipv6_match = DST_IP_rx_buf == my_ipv6_addr0_reg || DST_IP_rx_buf == my_ipv6_addr1_reg || DST_IP_rx_buf == my_ipv6_addr2_reg || DST_IP_rx_buf == my_ipv6_addr3_reg;
 
   wire   ipv4_addr_ok;
-  assign ipv4_addr_ok = DST_MAC_rx_buf == my_mac_addr0 && DST_IP_rx_buf[31:0] == my_ipv4_addr0 ||
-                        DST_MAC_rx_buf == my_mac_addr1 && DST_IP_rx_buf[31:0] == my_ipv4_addr1 || 
-                        DST_MAC_rx_buf == my_mac_addr2 && DST_IP_rx_buf[31:0] == my_ipv4_addr2 || 
-                        DST_MAC_rx_buf == my_mac_addr3 && DST_IP_rx_buf[31:0] == my_ipv4_addr3;
+  assign ipv4_addr_ok = DST_MAC_rx_buf == my_mac_addr0_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg ||
+                        DST_MAC_rx_buf == my_mac_addr1_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg ||
+                        DST_MAC_rx_buf == my_mac_addr2_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg ||
+                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg;
   wire   ipv6_addr_ok;
-  assign ipv6_addr_ok = DST_MAC_rx_buf == my_mac_addr0 && DST_IP_rx_buf == my_ipv6_addr0 ||
-                        DST_MAC_rx_buf == my_mac_addr1 && DST_IP_rx_buf == my_ipv6_addr1 || 
-                        DST_MAC_rx_buf == my_mac_addr2 && DST_IP_rx_buf == my_ipv6_addr2 || 
-                        DST_MAC_rx_buf == my_mac_addr3 && DST_IP_rx_buf == my_ipv6_addr3;
+  assign ipv6_addr_ok = DST_MAC_rx_buf == my_mac_addr0_reg && DST_IP_rx_buf == my_ipv6_addr0_reg ||
+                        DST_MAC_rx_buf == my_mac_addr1_reg && DST_IP_rx_buf == my_ipv6_addr1_reg ||
+                        DST_MAC_rx_buf == my_mac_addr2_reg && DST_IP_rx_buf == my_ipv6_addr2_reg ||
+                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf == my_ipv6_addr3_reg;
 
   reg [1:0] mac_addr_sel;
   always @(*) begin
-    if (DST_MAC_rx_buf == my_mac_addr0) begin
+    if (DST_MAC_rx_buf == my_mac_addr0_reg) begin
       mac_addr_sel = 2'b00;
-    end else if (DST_MAC_rx_buf == my_mac_addr1) begin
+    end else if (DST_MAC_rx_buf == my_mac_addr1_reg) begin
       mac_addr_sel = 2'b01;
-    end else if (DST_MAC_rx_buf == my_mac_addr2) begin
+    end else if (DST_MAC_rx_buf == my_mac_addr2_reg) begin
       mac_addr_sel = 2'b10;
     end else /*if (DST_MAC_rx_buf == my_mac_addr3)*/ begin
       mac_addr_sel = 2'b11;
     end
   end // always @ reg
-  
+
   reg [1:0] ipv4_addr_sel;
   always @(*) begin
-    if (DST_IP_rx_buf[31:0] == my_ipv4_addr0) begin
+    if (DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg) begin
       ipv4_addr_sel = 2'b00;
-    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr1) begin
+    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg) begin
       ipv4_addr_sel = 2'b01;
-    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr2) begin
+    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg) begin
       ipv4_addr_sel = 2'b10;
     end else /*if (DST_IP_rx_buf[31:0] == my_ipv4_addr3)*/ begin
       ipv4_addr_sel = 2'b11;
     end
   end // always @ reg
-  
+
   reg [1:0] ipv6_addr_sel;
   always @(*) begin
-    if (DST_IP_rx_buf == my_ipv6_addr0) begin
+    if (DST_IP_rx_buf == my_ipv6_addr0_reg) begin
       ipv6_addr_sel = 2'b00;
-    end else if (DST_IP_rx_buf == my_ipv6_addr1) begin
+    end else if (DST_IP_rx_buf == my_ipv6_addr1_reg) begin
       ipv6_addr_sel = 2'b01;
-    end else if (DST_IP_rx_buf == my_ipv6_addr2) begin
+    end else if (DST_IP_rx_buf == my_ipv6_addr2_reg) begin
       ipv6_addr_sel = 2'b10;
     end else /*if (DST_IP_rx_buf == my_ipv6_addr3)*/ begin
       ipv6_addr_sel = 2'b11;
@@ -231,7 +283,7 @@ module pp_rx (
       prev_rx_data_valid <= rx_data_valid;
     end
   end
-  
+
   assign rx_start = (rx_data_valid == 8'hff && prev_rx_data_valid == 8'h0);
 
   //-------------------------------------------------------------------------------------------------
@@ -251,7 +303,7 @@ module pp_rx (
       tx_trcrt6          <= 'b0;
       tx_md5             <= 'b0;
       tx_sha1            <= 'b0;
-      key_req            <= 'b0;    
+      key_req            <= 'b0;
       sts_ipv4_arp_pass  <= 'b0;
       sts_ipv4_ntp_pass  <= 'b0;
       sts_ipv4_ping_pass <= 'b0;
@@ -278,7 +330,7 @@ module pp_rx (
       sts_tx_blocked     <= 'b0;
       sts_bad_md5_key    <= 'b0;
       sts_bad_sha1_key   <= 'b0;
-      
+
     end else begin
 
       // Defaults
@@ -326,7 +378,7 @@ module pp_rx (
           PING_ID_rx_buf    <= 'b0;
           PING_SEQNO_rx_buf <= 'b0;
           PAYLOAD_rx_buf    <= 'b0;
-          
+
           tx_arp    <= 1'b0;
           tx_ntp4   <= 1'b0;
           tx_ping4  <= 1'b0;
@@ -337,7 +389,7 @@ module pp_rx (
           tx_trcrt6 <= 1'b0;
           tx_md5    <= 1'b0;
           tx_sha1   <= 1'b0;
-  
+
           if (rx_start == 1'b1) begin
 
             // Stamp our rx time
@@ -383,7 +435,7 @@ module pp_rx (
         // ARP starts here
         8'h02 :
           // check PTYPE, HLEN, PLEN, OPER and that SHA field is same as sender
-          if (rx_data_valid == 8'hff && rx_data[63:48] == PTYPE_V4 && rx_data[47:40] == HLEN && rx_data[39:32] == PLEN && 
+          if (rx_data_valid == 8'hff && rx_data[63:48] == PTYPE_V4 && rx_data[47:40] == HLEN && rx_data[39:32] == PLEN &&
               rx_data[31:16] == REQ && rx_data[15:0] == SRC_MAC_rx_buf[47:32]) begin
             rx_state <= rx_state + 1;
           end else begin
@@ -404,7 +456,7 @@ module pp_rx (
           // ignore THA and save dst IP
           DST_IP_rx_buf[31:16] <= rx_data[15:0];
           if (rx_data_valid == 8'hff ) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             rx_state <= 0;
             sts_ipv4_arp_drop <= 1'b1;
@@ -414,7 +466,7 @@ module pp_rx (
           // Save rest of my IP
           DST_IP_rx_buf[15:0] <= rx_data[63:48];
           if (rx_data_valid == 8'hff && rx_data[47:0] == 48'h0) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv4_arp_drop <= 1'b1;
             rx_state <= 8'h00;
@@ -427,7 +479,7 @@ module pp_rx (
             rx_state          <= 8'h00;
           end else if (rx_data_valid == 8'hff && rx_data[63:0] == 64'b0) begin
             // Check padding and dst IP
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             rx_state          <= 8'h00;
             sts_ipv4_arp_drop <= 1'b1;
@@ -498,8 +550,8 @@ module pp_rx (
           SRC_IP_rx_buf[47:0] <= rx_data[63:16];   // Save rest of src addr
           DST_IP_rx_buf[127:112] <= rx_data[15:0]; // Save part of dest IP
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
-          end else begin 
+            rx_state <= rx_state + 1;
+          end else begin
             rx_state         <= 8'h00;
             sts_ipv6_gen_drop <= 1'b1;
           end
@@ -507,7 +559,7 @@ module pp_rx (
         8'h35 : begin
           DST_IP_rx_buf[111:48] <= rx_data[63:0]; // Save part of dest IP
           if (rx_data_valid == 8'hff ) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             rx_state         <= 8'h00;
             sts_ipv6_gen_drop <= 1'b1;
@@ -535,15 +587,15 @@ module pp_rx (
             rx_state         <= 8'h00;
           end
         end // case: 8'h36
-        
+
         //--------------------------------
-        // Neighbour Solicitation            
+        // Neighbour Solicitation
         8'h37 : begin
           // save part of dst IP (ignore previous if any)
           DST_IP_rx_buf[127:112] <= rx_data[15:0];
           // Ignore CSUM (TBD) and "reserved".
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_nd_drop <= 1'b1;
             rx_state         <= 8'h00;
@@ -553,7 +605,7 @@ module pp_rx (
           // save part of DST IP
           DST_IP_rx_buf[111:48] <= rx_data[63:0];
           if (rx_data_valid == 8'hff ) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_nd_drop <= 1'b1;
             rx_state         <= 8'h00;
@@ -563,11 +615,11 @@ module pp_rx (
           // save rest of dst IP
           DST_IP_rx_buf[47:0] <= rx_data[63:16];
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_nd_drop <= 1'b1;
             rx_state         <= 8'h00;
-          end 
+          end
         end
         8'h3a : begin
           // Ignore opt part ( src eth mac)
@@ -591,7 +643,7 @@ module pp_rx (
         end // case: 8'h3a
 
         //----------------------------------------
-        // IPv6 Ping        
+        // IPv6 Ping
         8'h3b : begin
           // Ignore CSUM (TBD) save beginning of ping packet
           PING_ID_rx_buf          <= rx_data[47:32];
@@ -661,7 +713,7 @@ module pp_rx (
         8'h11 : begin
           SRC_MAC_rx_buf[31:0]  <= rx_data[63:32]; // Save rest of sender mac address
           PAYLOAD_rx_buf[0:15]  <= rx_data[15:0];  // Save beginning of IP header in case of traceroute
-            // check ETYPE and IP Version and header length. Ignore DSCP & ECN 
+            // check ETYPE and IP Version and header length. Ignore DSCP & ECN
           if (rx_data_valid == 8'hff && rx_data[31:16] == ETYPE_V4 && rx_data[15:12] == 4'd4 && rx_data[11:8] == 4'd5) begin
             rx_state <= 8'h12;  // goto IPv4
           end else if (rx_data_valid == 8'hff && rx_data[31:16] == ETYPE_V6 && rx_data[15:12] == 4'd6) begin
@@ -682,7 +734,7 @@ module pp_rx (
         //------------------------------------------------------//
         // IPv4
         8'h12 : begin
-          PAYLOAD_rx_buf[16:79] <= rx_data[63:0];       // Save part of IP header in case of traceroute          
+          PAYLOAD_rx_buf[16:79] <= rx_data[63:0];       // Save part of IP header in case of traceroute
           PAYL_LEN_rx_buf <= rx_data[63:48] - IP4H_LEN; // Save IPv4 datagram length for ICMP
           // check Total length  Ignore ID, check no fragmentation, protocol = UDP
           if (rx_data_valid == 8'hff && rx_data[29] == 1'b0 && rx_data[7:0] == PROT_UDP) begin
@@ -695,7 +747,7 @@ module pp_rx (
           end
         end // case: 8'h12
         8'h13 : begin // UDP
-          PAYLOAD_rx_buf[80:143] <= rx_data[63:0];   // Save part of IP header in case of traceroute          
+          PAYLOAD_rx_buf[80:143] <= rx_data[63:0];   // Save part of IP header in case of traceroute
           // Ignore header CSUM, save source IP, save dst IP
           SRC_IP_rx_buf[31:0]  <= rx_data[47:16];
           DST_IP_rx_buf[31:16] <= rx_data[15:0];
@@ -707,9 +759,9 @@ module pp_rx (
           end
 	end
         8'h14 : begin
-          PAYLOAD_rx_buf[144:207] <= rx_data[63:0];  // Save rest of IP header and beginning of UPD header in case of traceroute          
+          PAYLOAD_rx_buf[144:207] <= rx_data[63:0];  // Save rest of IP header and beginning of UPD header in case of traceroute
           DST_IP_rx_buf[15:0]     <= rx_data[63:48]; // Save rest of dst address
-          SRC_PORT_rx_buf         <= rx_data[47:32]; // Save source port 
+          SRC_PORT_rx_buf         <= rx_data[47:32]; // Save source port
           // Check dest port = 123, udp length
           if (rx_data_valid == 8'hff && rx_data[31:16] == 16'd123 &&
               (rx_data[15:0] == NTP_UDP_LEN || rx_data[15:0] == NTP_UDP_MD5_LEN || rx_data[15:0] == NTP_UDP_SHA1_LEN) &&
@@ -723,7 +775,7 @@ module pp_rx (
               tx_sha1 <= 1'b1;
             end
           end else if (rx_data_valid == 8'hff && rx_data[31:16] >= 16'd33434 && rx_data[31:16] < 16'd33656) begin
-            // Traceroute 
+            // Traceroute
             if (ipv4_trcrt_en == 1'b1) begin
               rx_state <= 8'h24;
             end else begin
@@ -736,7 +788,7 @@ module pp_rx (
           end
         end // case: 8'h14
         8'h15 : begin
-          // Ignore UDP CSUM, save LI, VN, mode, poll, stratum, precision [23:16] and half root delay [15:0] 
+          // Ignore UDP CSUM, save LI, VN, mode, poll, stratum, precision [23:16] and half root delay [15:0]
           SRC_LI_rx_buf          <= rx_data[47:46];
           SRC_VN_rx_buf          <= rx_data[45:43];
           SRC_MODE_rx_buf        <= rx_data[42:40];
@@ -805,7 +857,7 @@ module pp_rx (
         8'h1a : begin
           SRC_RXTS_rx_buf[15:0]  <= rx_data[63:48];
           SRC_TXTS_rx_buf[63:16] <= rx_data[47:0];
-          // Save rest of receive timestamp [63:48] and save part of tx timestamp 
+          // Save rest of receive timestamp [63:48] and save part of tx timestamp
           if (rx_data_valid == 8'hff) begin
             rx_state <= 8'h1b;
           end else begin
@@ -820,7 +872,7 @@ module pp_rx (
           if (rx_data_valid == 8'hff && (tx_md5 == 1'b1 || tx_sha1 == 1'b1)) begin
             // Save keyid and part of hash
             SRC_KEYID_rx_buf         <= rx_data[47:16];
-            SRC_DGST_rx_buf[159:144] <= rx_data[15:0];  
+            SRC_DGST_rx_buf[159:144] <= rx_data[15:0];
             rx_state                 <= 8'h1d;
             key_req <= 1'b1;
           end else if ((rx_data_valid == 8'h03 && rx_state == 8'h1b) || (rx_data_valid == 8'h00 && rx_state == 8'h1c)) begin
@@ -844,7 +896,7 @@ module pp_rx (
           end else begin // if ((rx_data_valid == 8'h03 && rx_state == 8'h1b) || (rx_data_valid == 8'h00 && rx_state == 8'h1c))
             // Malformed packet
             sts_ipv4_ntp_drop <= 1'b1;
-            rx_state <= 8'h00;  
+            rx_state <= 8'h00;
           end // else: !if((rx_data_valid == 8'h03 && rx_state == 8'h1b) || (rx_data_valid == 8'h00 && rx_state == 8'h1c))
         end // case: 8'h1b, 8'h1c
         8'h1d : begin
@@ -868,7 +920,7 @@ module pp_rx (
             end
             if (tx_md5 & (~key_valid | key_type) == 1'b1) begin
               sts_bad_md5_key   <= 1'b1;
-              sts_ipv4_ntp_drop <= 1'b1;             
+              sts_ipv4_ntp_drop <= 1'b1;
               rx_state <= 8'h00;
             end else if (rx_good_frame == 1'b1) begin
               if (tx_fifo_full == 1'b0) begin
@@ -918,7 +970,7 @@ module pp_rx (
             end
           end else begin // if ((rx_data_valid == 8'h03 && rx_state == 8'h20) || (rx_data_valid == 8'h00 && rx_state == 8'h21))
             sts_ipv4_ntp_drop <= 1'b1;
-            rx_state <= 8'h00;            
+            rx_state <= 8'h00;
           end // else: !if((rx_data_valid == 8'h03 && rx_state == 8'h20) || (rx_data_valid == 8'h00 && rx_state == 8'h21))
         end // case: 8'h20, 8'h21
 
@@ -1076,7 +1128,7 @@ module pp_rx (
           end
           // check next head
           if (rx_data_valid == 8'hff && rx_data[31:24] == PROT_UDP) begin
-            PAYLOAD_rx_buf[16:79] <= rx_data[63:0];   // Save part of IP header in case of traceroute          
+            PAYLOAD_rx_buf[16:79] <= rx_data[63:0];   // Save part of IP header in case of traceroute
             rx_state <= 8'h53;  // UDP
           end else if (rx_data_valid == 8'hff && rx_data[31:24] == PROT_ICMPV6) begin
             rx_state <= 8'h33;  // ICMP
@@ -1086,7 +1138,7 @@ module pp_rx (
           end
         end
         8'h53 : begin
-          PAYLOAD_rx_buf[80:143] <= rx_data[63:0];   // Save part of IP header in case of traceroute 
+          PAYLOAD_rx_buf[80:143] <= rx_data[63:0];   // Save part of IP header in case of traceroute
           SRC_IP_rx_buf[111:48]  <= rx_data[63:0];   // Save part of src addr
           if (rx_data_valid == 8'hff) begin
             rx_state <= rx_state + 1;
@@ -1101,8 +1153,8 @@ module pp_rx (
           SRC_IP_rx_buf[47:0]     <= rx_data[63:16]; // Save rest of src addr
           DST_IP_rx_buf[127:112]  <= rx_data[15:0];  // Save part of dest IP
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
-          end else begin 
+            rx_state <= rx_state + 1;
+          end else begin
             rx_state          <= 8'h00;
             sts_ipv6_gen_drop <= 1'b1;
           end
@@ -1111,7 +1163,7 @@ module pp_rx (
           PAYLOAD_rx_buf[208:271] <= rx_data[63:0];  // Save part of IP header
           DST_IP_rx_buf[111:48]   <= rx_data[63:0];  // Save part of dest IP
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             rx_state          <= 8'h00;
             sts_ipv6_gen_drop <= 1'b1;
@@ -1122,7 +1174,7 @@ module pp_rx (
           DST_IP_rx_buf[47:0]     <= rx_data[63:16]; // Save rest of dest IP
           SRC_PORT_rx_buf         <= rx_data[15:0];  // save source port
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_gen_drop <= 1'b1;
             rx_state          <= 8'h00;
@@ -1187,7 +1239,7 @@ module pp_rx (
           SRC_RDEL_rx_buf         <= rx_data[47:16];
           SRC_RDISP_rx_buf[31:16] <= rx_data[15:0];
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_ntp_drop <= 1'b1;
             rx_state          <= 8'h00;
@@ -1199,7 +1251,7 @@ module pp_rx (
           SRC_REFID_rx_buf        <= rx_data[47:16];
           SRC_REFTS_rx_buf[63:48] <= rx_data[15:0];
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_ntp_drop <= 1'b1;
             rx_state          <= 8'h00;
@@ -1210,7 +1262,7 @@ module pp_rx (
           SRC_REFTS_rx_buf[47:0]  <= rx_data[63:16];
           SRC_ORGTS_rx_buf[63:48] <= rx_data[15:0];
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_ntp_drop <= 1'b1;
             rx_state          <= 8'h00;
@@ -1221,7 +1273,7 @@ module pp_rx (
           SRC_ORGTS_rx_buf[47:0] <= rx_data[63:16];
           SRC_RXTS_rx_buf[63:48] <= rx_data[15:0];
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_ntp_drop <= 1'b1;
             rx_state          <= 8'h00;
@@ -1232,7 +1284,7 @@ module pp_rx (
           SRC_RXTS_rx_buf[47:0]  <= rx_data[63:16];
           SRC_TXTS_rx_buf[63:48] <= rx_data[15:0];
           if (rx_data_valid == 8'hff) begin
-            rx_state <= rx_state + 1; 
+            rx_state <= rx_state + 1;
           end else begin
             sts_ipv6_ntp_drop <= 1'b1;
             rx_state          <= 8'h00;
@@ -1272,7 +1324,7 @@ module pp_rx (
         8'h5f : begin
           // Save rest of keyid and part of hash
           SRC_KEYID_rx_buf[15:0]   <= rx_data[63:48];
-          SRC_DGST_rx_buf[159:112] <= rx_data[47:0]; 
+          SRC_DGST_rx_buf[159:112] <= rx_data[47:0];
           if (rx_data_valid == 8'hff) begin
             key_req  <= 1'b1;
             rx_state <= rx_state + 1;
@@ -1283,7 +1335,7 @@ module pp_rx (
         end
         8'h60 : begin
           // Save  part of hash
-          SRC_DGST_rx_buf[111:48] <= rx_data[63:0]; 
+          SRC_DGST_rx_buf[111:48] <= rx_data[63:0];
           if (rx_data_valid == 8'hff) begin
             rx_state <= rx_state + 1;
           end else begin
@@ -1330,10 +1382,10 @@ module pp_rx (
             rx_state <= 8'h00;
           end // else: !if((((rx_data_valid == 8'h3f && tx_sha1 == 1'b1) || (rx_data_valid == 8'h03 && tx_md5 == 1'b1)) && rx_state == 8'h61) || (rx_data_valid == 8'h00 && rx_state == 8'h62))
         end // case: 8'h61, 8'h62
-        
+
         8'h45 : begin
           // IPv6 Traceroute ends here
-          // Receive rest of payload and assume everything is ok 
+          // Receive rest of payload and assume everything is ok
           // Only save first 86 bytes
           if (PAYL_IDX < 4'd4) begin
             PAYLOAD_rx_buf[400+PAYL_IDX*64+:64] <= rx_data[63:0];
@@ -1363,19 +1415,19 @@ module pp_rx (
             rx_state            <= 8'h00;
           end
         end // case: 8'h45
-        
+
         default : begin
            tx_fifo_wr <= 1'b0;
            rx_state   <= 8'h00;
         end
       endcase // case (rx_counter)
-       
+
     end // else: !if(areset == 1'b1)
-    
+
   end // always @ (posedge clk, posedge areset)
 
   //----------------------------------------------------------------------------------------------------------------------
-				     
+
   assign key_id = SRC_KEYID_rx_buf;
 
   // Save some bits by coding address bits into selector
@@ -1383,7 +1435,7 @@ module pp_rx (
   assign my_addr_sel = ((tx_arp | tx_ntp4 | tx_ping4 | tx_trcrt4) == 1'b1) ? ipv4_addr_sel : ipv6_addr_sel;
 
   wire [735:0] my_tx_stuff;
-  
+
   assign my_tx_stuff = ((tx_ping4 | tx_ping6 | tx_trcrt4 | tx_trcrt6) == 1'b1) ?
                         {8'h0,
                          PAYL_LEN_rx_buf < 16'd94 ? PAYL_LEN_rx_buf[7:0] : 8'd94, // Payload will be truncated
@@ -1420,7 +1472,7 @@ module pp_rx (
                          tx_md5,
                          tx_sha1,
                          SRC_MAC_rx_buf,
-                         SRC_IP_rx_buf, 
+                         SRC_IP_rx_buf,
                          SRC_PORT_rx_buf,
                          my_tx_stuff
                         };

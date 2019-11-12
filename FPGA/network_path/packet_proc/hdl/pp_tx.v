@@ -1,19 +1,19 @@
 //
-// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
+//
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -29,7 +29,7 @@
 // Design Name: FPGA NTP Server
 // Module Name: pp_tx
 // Description: Packet processing tx part. Assemble and transmit packets
-// 
+//
 
 `timescale 1ns / 1ps
 `default_nettype none
@@ -51,14 +51,14 @@ module pp_tx (
   input wire [127:0] my_ipv6_addr2,
   input wire [127:0] my_ipv6_addr3,
 
-  // From TX FIFO 
+  // From TX FIFO
   input wire         start,
   output wire        ready,
   input wire [939:0] data,
 
-  // To MAC 
-  output reg         tx_start, 
-  input wire         tx_ack, 
+  // To MAC
+  output reg         tx_start,
+  input wire         tx_ack,
   output reg [7:0]   tx_data_valid,
   output reg [63:0]  tx_data
 );
@@ -67,8 +67,8 @@ module pp_tx (
 
 `include "pp_par.v"
 
-  wire [1:0]   my_addr_sel;  // Which Mac IP pair 
-  
+  wire [1:0]   my_addr_sel;  // Which Mac IP pair
+
   wire [47:0]  clnt_mac;     // Sender HW address  (MAC)
   wire [127:0] clnt_ip;      // Sender Protocol address (IPv4/IPv6)
   wire [15:0]  clnt_port;    // Source port for reply
@@ -78,7 +78,7 @@ module pp_tx (
 
   wire [7:0]   payl_len;     // Payload length
   wire [719:0] icmp_payload; // Ping/Traceroute payload
-  
+
   wire         tx_arp;       // Xmit IPv4 ARP response
   wire         tx_ntp4;      // Xmit IPv4 NTP respose
   wire         tx_ping4;     // Xmit IPv4 Ping respose
@@ -90,31 +90,85 @@ module pp_tx (
   wire         tx_md5;       // MD5  Signed NTP
   wire         tx_sha1;      // SHA1 Signed NTP
 
+
+
+  //-------------------------------------------------------------------------------------------------
+  // Sample all inputs. Esp the long, wide address buses.
+  reg [7:0]   ip_ttl_reg;
+  reg [47:0]  my_mac_addr0_reg;
+  reg [47:0]  my_mac_addr1_reg;
+  reg [47:0]  my_mac_addr2_reg;
+  reg [47:0]  my_mac_addr3_reg;
+  reg [31:0]  my_ipv4_addr0_reg;
+  reg [31:0]  my_ipv4_addr1_reg;
+  reg [31:0]  my_ipv4_addr2_reg;
+  reg [31:0]  my_ipv4_addr3_reg;
+  reg [127:0] my_ipv6_addr0_reg;
+  reg [127:0] my_ipv6_addr1_reg;
+  reg [127:0] my_ipv6_addr2_reg;
+  reg [127:0] my_ipv6_addr3_reg;
+
+  always @(posedge clk, posedge areset)
+    begin : sample_inputs
+      if (areset == 1'b1)
+        begin
+          ip_ttl_reg        <= 8'h0;
+          my_mac_addr0_reg  <= 48'h0;
+          my_mac_addr1_reg  <= 48'h0;
+          my_mac_addr2_reg  <= 48'h0;
+          my_mac_addr3_reg  <= 48'h0;
+          my_ipv4_addr0_reg <= 32'h0;
+          my_ipv4_addr1_reg <= 32'h0;
+          my_ipv4_addr2_reg <= 32'h0;
+          my_ipv4_addr3_reg <= 32'h0;
+          my_ipv6_addr0_reg <= 128'h0;
+          my_ipv6_addr1_reg <= 128'h0;
+          my_ipv6_addr2_reg <= 128'h0;
+          my_ipv6_addr3_reg <= 128'h0;
+        end
+      else
+        begin
+          ip_ttl_reg        <= ip_ttl;
+          my_mac_addr0_reg  <= my_mac_addr0;
+          my_mac_addr1_reg  <= my_mac_addr1;
+          my_mac_addr2_reg  <= my_mac_addr2;
+          my_mac_addr3_reg  <= my_mac_addr3;
+          my_ipv4_addr0_reg <= my_ipv4_addr0;
+          my_ipv4_addr1_reg <= my_ipv4_addr1;
+          my_ipv4_addr2_reg <= my_ipv4_addr2;
+          my_ipv4_addr3_reg <= my_ipv4_addr3;
+          my_ipv6_addr0_reg <= my_ipv6_addr0;
+          my_ipv6_addr1_reg <= my_ipv6_addr1;
+          my_ipv6_addr2_reg <= my_ipv6_addr2;
+          my_ipv6_addr3_reg <= my_ipv6_addr3;
+        end
+    end
+
   //-------------------------------------------------------------------------------------------------
   // Unpack data from FIFO
 
   // Note unused bits in keyid and digest must be 0 in order to get correct padding and checksumming
-  
+
   assign {my_addr_sel, tx_arp, tx_nd, tx_ntp4, tx_ping4, tx_trcrt4, tx_ntp6, tx_ping6, tx_trcrt6, tx_md5, tx_sha1,
           clnt_mac, clnt_ip, clnt_port, ntp_payload, keyid, digest} = data[939:160];
 
   assign payl_len     = data[727:720];
   assign icmp_payload = data[719:0];
-  
+
   wire [47:0]  my_mac_addr;
   wire [31:0]  my_ipv4_addr;
   wire [127:0] my_ipv6_addr;
-  
-  assign my_mac_addr  = my_addr_sel == 2'b00 ? my_mac_addr0  : my_addr_sel == 2'b01 ? my_mac_addr1  : my_addr_sel == 2'b10 ? my_mac_addr2  : my_mac_addr3;
-  assign my_ipv4_addr = my_addr_sel == 2'b00 ? my_ipv4_addr0 : my_addr_sel == 2'b01 ? my_ipv4_addr1 : my_addr_sel == 2'b10 ? my_ipv4_addr2 : my_ipv4_addr3;
-  assign my_ipv6_addr = my_addr_sel == 2'b00 ? my_ipv6_addr0 : my_addr_sel == 2'b01 ? my_ipv6_addr1 : my_addr_sel == 2'b10 ? my_ipv6_addr2 : my_ipv6_addr3;
-  
+
+  assign my_mac_addr  = my_addr_sel == 2'b00 ? my_mac_addr0_reg  : my_addr_sel == 2'b01 ? my_mac_addr1_reg  : my_addr_sel == 2'b10 ? my_mac_addr2_reg  : my_mac_addr3_reg;
+  assign my_ipv4_addr = my_addr_sel == 2'b00 ? my_ipv4_addr0_reg : my_addr_sel == 2'b01 ? my_ipv4_addr1_reg : my_addr_sel == 2'b10 ? my_ipv4_addr2_reg : my_ipv4_addr3_reg;
+  assign my_ipv6_addr = my_addr_sel == 2'b00 ? my_ipv6_addr0_reg : my_addr_sel == 2'b01 ? my_ipv6_addr1_reg : my_addr_sel == 2'b10 ? my_ipv6_addr2_reg : my_ipv6_addr3_reg;
+
   wire [15:0] ntp_ip_len;
   assign ntp_ip_len  = tx_md5  == 1'b1 ? NTP_IP_MD5_LEN  :
                        tx_sha1 == 1'b1 ? NTP_IP_SHA1_LEN :
                                          NTP_IP_LEN;
   wire [15:0] ntp_udp_len;
-  assign ntp_udp_len = tx_md5  == 1'b1 ? NTP_UDP_MD5_LEN  : 
+  assign ntp_udp_len = tx_md5  == 1'b1 ? NTP_UDP_MD5_LEN  :
                        tx_sha1 == 1'b1 ? NTP_UDP_SHA1_LEN :
                                          NTP_UDP_LEN;
 
@@ -122,15 +176,15 @@ module pp_tx (
   wire   tx_ntp4_sha1; // Xmit IPv4 NTP respose with SHA1 signing
   wire   tx_ntp6_md5;  // Xmit IPv6 NTP respose with MD5 signing
   wire   tx_ntp6_sha1; // Xmit IPv6 NTP respose with SHA1 signing
-  
+
   assign tx_ntp4_md5  = tx_ntp4 & tx_md5;
   assign tx_ntp4_sha1 = tx_ntp4 & tx_sha1;
   assign tx_ntp6_md5  = tx_ntp6 & tx_md5;
   assign tx_ntp6_sha1 = tx_ntp6 & tx_sha1;
-  
+
   //-------------------------------------------------------------------------------------------------
   // Format ARP packet
-  
+
   wire [0:14*8-1] tx_arp_eth_head;
   assign tx_arp_eth_head[0:47]   = clnt_mac;
   assign tx_arp_eth_head[48:95]  = my_mac_addr;
@@ -149,7 +203,7 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv6 ND packet
-  
+
   wire [0:14*8-1] tx_nd_eth_head;
   assign tx_nd_eth_head[0:47]    = clnt_mac;
   assign tx_nd_eth_head[48:95]   = my_mac_addr;
@@ -164,7 +218,7 @@ module pp_tx (
   assign tx_nd_ip_head[56:63]    =  8'd255;               // Hopp Limit
   assign tx_nd_ip_head[64:191]   = my_ipv6_addr;          // Source address
   assign tx_nd_ip_head[192:319]  = clnt_ip;               // Dest address
-  
+
   reg  [15:0] nd_csum ;
 
   wire [0:40*8-1] tx_nd_pseudo_head;                      // Only used for checksum calc
@@ -173,7 +227,7 @@ module pp_tx (
   assign tx_nd_pseudo_head[256:287] = ND_LEN;             // Payload len
   assign tx_nd_pseudo_head[288:311] = 24'd0;              // padding
   assign tx_nd_pseudo_head[312:319] = 8'd58;              // next hopp
-  
+
   wire [0:32*8-1] tx_nd_payload;
   assign tx_nd_payload[0:7]     = 8'd136;                 // Mtype = Neighbour advertisment
   assign tx_nd_payload[8:15]    = 8'd0;                   // Code
@@ -182,14 +236,14 @@ module pp_tx (
   assign tx_nd_payload[64:191]  = my_ipv6_addr;           // Target address
   assign tx_nd_payload[192:199] = 8'd2;                   // option type = target link addess
   assign tx_nd_payload[200:207] = 8'd1;                   // option length = 8 bytes
-  assign tx_nd_payload[208:255] = my_mac_addr;            // Source link (mac) addess 
+  assign tx_nd_payload[208:255] = my_mac_addr;            // Source link (mac) addess
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv4 NTP packet
-  
+
   reg [15:0] ntp_ipv4h_csum;
   reg [15:0] ntp4_udp_csum;
- 
+
   wire [0:14*8-1] tx_ntp4_eth_head;
   assign tx_ntp4_eth_head[0:47]   = clnt_mac;
   assign tx_ntp4_eth_head[48:95]  = my_mac_addr;
@@ -203,7 +257,7 @@ module pp_tx (
   assign tx_ntp4_ip_head[32:47]   = 16'd0;                // Identification
   assign tx_ntp4_ip_head[48:50]   =  3'b010;              // don't fragment
   assign tx_ntp4_ip_head[51:63]   = 13'b0;                // Fragment offset
-  assign tx_ntp4_ip_head[64:71]   = ip_ttl;               // TTL
+  assign tx_ntp4_ip_head[64:71]   = ip_ttl_reg            // TTL
   assign tx_ntp4_ip_head[72:79]   = PROT_UDP;             // Protocol
   assign tx_ntp4_ip_head[80:95]   = ntp_ipv4h_csum;
   assign tx_ntp4_ip_head[96:127]  = my_ipv4_addr;
@@ -211,11 +265,11 @@ module pp_tx (
 
   wire [0:8*8-1] tx_ntp4_udp_head;
   assign tx_ntp4_udp_head[0:15]   = PORT_UDP;             // source port
-  assign tx_ntp4_udp_head[16:31]  = clnt_port;            // dest port 
-  assign tx_ntp4_udp_head[32:47]  = ntp_udp_len;          // NTP Datagram Length 
+  assign tx_ntp4_udp_head[16:31]  = clnt_port;            // dest port
+  assign tx_ntp4_udp_head[32:47]  = ntp_udp_len;          // NTP Datagram Length
   assign tx_ntp4_udp_head[48:63]  = ntp4_udp_csum;
-   
-  wire [0:12*8-1] tx_ntp4_pseudo_head;                    // Only used for checksum calc 
+
+  wire [0:12*8-1] tx_ntp4_pseudo_head;                    // Only used for checksum calc
   assign tx_ntp4_pseudo_head[0:31]   = my_ipv4_addr;      // source ipv4 address
   assign tx_ntp4_pseudo_head[32:63]  = clnt_ip[31:0];     // dest ip4 address
   assign tx_ntp4_pseudo_head[64:71]  = 8'b0;
@@ -224,10 +278,10 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv4 Ping packet
-  
+
   reg [15:0] ping_ipv4h_csum;
   reg [15:0] ping4_csum ;
-  
+
   wire [0:14*8-1] tx_ping4_eth_head;
   assign tx_ping4_eth_head[0:47]   = clnt_mac;
   assign tx_ping4_eth_head[48:95]  = my_mac_addr;
@@ -241,7 +295,7 @@ module pp_tx (
   assign tx_ping4_ip_head[32:47]   = 16'd0;                // Identification
   assign tx_ping4_ip_head[48:50]   =  3'b010;              // don't fragment
   assign tx_ping4_ip_head[51:63]   = 13'b0;                // Fragment offset
-  assign tx_ping4_ip_head[64:71]   = ip_ttl;               // TTL
+  assign tx_ping4_ip_head[64:71]   = ip_ttl_reg;           // TTL
   assign tx_ping4_ip_head[72:79]   = PROT_ICMPV4;          // Protocol
   assign tx_ping4_ip_head[80:95]   = ping_ipv4h_csum;
   assign tx_ping4_ip_head[96:127]  = my_ipv4_addr;
@@ -256,10 +310,10 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv4 Traceroute packet
-  
+
   reg [15:0] trcrt_ipv4h_csum;
   reg [15:0] trcrt4_csum ;
-  
+
   wire [0:14*8-1] tx_trcrt4_eth_head;
   assign tx_trcrt4_eth_head[0:47]   = clnt_mac;
   assign tx_trcrt4_eth_head[48:95]  = my_mac_addr;
@@ -273,7 +327,7 @@ module pp_tx (
   assign tx_trcrt4_ip_head[32:47]   = 16'd0;                   // Identification
   assign tx_trcrt4_ip_head[48:50]   =  3'b010;                 // don't fragment
   assign tx_trcrt4_ip_head[51:63]   = 13'b0;                   // Fragment offset
-  assign tx_trcrt4_ip_head[64:71]   = ip_ttl;                  // TTL
+  assign tx_trcrt4_ip_head[64:71]   = ip_ttl_reg;              // TTL
   assign tx_trcrt4_ip_head[72:79]   = PROT_ICMPV4;             // Protocol
   assign tx_trcrt4_ip_head[80:95]   = trcrt_ipv4h_csum;
   assign tx_trcrt4_ip_head[96:127]  = my_ipv4_addr;
@@ -289,7 +343,7 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv6 NTP packet
-  
+
   reg [15:0]      ntp6_udp_csum;
 
   wire [0:14*8-1] tx_ntp6_eth_head;
@@ -309,8 +363,8 @@ module pp_tx (
 
   wire [0:8*8-1] tx_ntp6_udp_head;
   assign tx_ntp6_udp_head[0:15]   = PORT_UDP;          // source port
-  assign tx_ntp6_udp_head[16:31]  = clnt_port;         // dest port 
-  assign tx_ntp6_udp_head[32:47]  = ntp_udp_len;       // NTP Datagram Length 
+  assign tx_ntp6_udp_head[16:31]  = clnt_port;         // dest port
+  assign tx_ntp6_udp_head[32:47]  = ntp_udp_len;       // NTP Datagram Length
   assign tx_ntp6_udp_head[48:63]  = ntp6_udp_csum;
 
   wire [0:40*8-1] tx_ntp6_pseudo_head;                 // Only used for checksum calc
@@ -322,7 +376,7 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv6 Ping packet
-  
+
   reg  [15:0] ping6_csum ;
 
   wire [0:14*8-1] tx_ping6_eth_head;
@@ -339,14 +393,14 @@ module pp_tx (
   assign tx_ping6_ip_head[56:63]    =  8'd255;               // Hopp Limit
   assign tx_ping6_ip_head[64:191]   = my_ipv6_addr;          // Source address
   assign tx_ping6_ip_head[192:319]  = clnt_ip;               // Dest address
-  
+
   wire [0:40*8-1] tx_ping6_pseudo_head;                      // Only used for checksum calc
   assign tx_ping6_pseudo_head[0:127]   = my_ipv6_addr;       // source ipv6 address
   assign tx_ping6_pseudo_head[128:255] = clnt_ip;            // dest ipv6 address
   assign tx_ping6_pseudo_head[256:287] = payl_len;           // Payload len
   assign tx_ping6_pseudo_head[288:311] = 24'd0;              // padding
   assign tx_ping6_pseudo_head[312:319] = 8'd58;              // next hopp
-  
+
   wire [0:94*8-1] tx_ping6_payload;
   assign tx_ping6_payload[0:7]     = 8'd129;                 // Mtype = Echo Reply
   assign tx_ping6_payload[8:15]    = 8'd0;                   // Code
@@ -355,9 +409,9 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
   // Format IPv6 Traceroute packet
-  
+
   reg [15:0] trcrt6_csum ;
-  
+
   wire [0:14*8-1] tx_trcrt6_eth_head;
   assign tx_trcrt6_eth_head[0:47]   = clnt_mac;
   assign tx_trcrt6_eth_head[48:95]  = my_mac_addr;
@@ -390,8 +444,8 @@ module pp_tx (
 
   //-------------------------------------------------------------------------------------------------
 
-  localparam TX_PACKET_SZ = ((TRCRT6_MAX_LEN+7)/8) * 8; // Round up to even 8 bytes 
-  
+  localparam TX_PACKET_SZ = ((TRCRT6_MAX_LEN+7)/8) * 8; // Round up to even 8 bytes
+
   wire [0:TX_PACKET_SZ*8-1] tx_packet;
 
   assign tx_packet = tx_arp   == 1'b1 ? {tx_arp_eth_head,    tx_arp_payload,    {(TX_PACKET_SZ-ARP_TOT_LEN){8'b0}}} :
@@ -399,7 +453,7 @@ module pp_tx (
                      tx_ntp4  == 1'b1 ? {tx_ntp4_eth_head,   tx_ntp4_ip_head,   tx_ntp4_udp_head,  ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP4_SHA1_TOT_LEN){8'b0}}} :
                      tx_ping4 == 1'b1 ? {tx_ping4_eth_head,  tx_ping4_ip_head,  tx_ping4_payload,  {(TX_PACKET_SZ-PING4_MAX_LEN){8'b0}}} :
                      tx_trcrt4== 1'b1 ? {tx_trcrt4_eth_head, tx_trcrt4_ip_head, tx_trcrt4_payload, {(TX_PACKET_SZ-TRCRT4_TOT_LEN){8'b0}}} :
-                     tx_ntp6  == 1'b1 ? {tx_ntp6_eth_head,   tx_ntp6_ip_head,   tx_ntp6_udp_head,  ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP6_SHA1_TOT_LEN){8'b0}}} : 
+                     tx_ntp6  == 1'b1 ? {tx_ntp6_eth_head,   tx_ntp6_ip_head,   tx_ntp6_udp_head,  ntp_payload, keyid, digest, {(TX_PACKET_SZ-NTP6_SHA1_TOT_LEN){8'b0}}} :
                      tx_ping6 == 1'b1 ? {tx_ping6_eth_head,  tx_ping6_ip_head,  tx_ping6_payload,  {(TX_PACKET_SZ-PING6_MAX_LEN){8'b0}}} :
                      tx_trcrt6== 1'b1 ? {tx_trcrt6_eth_head, tx_trcrt6_ip_head, tx_trcrt6_payload, {(TX_PACKET_SZ-TRCRT6_MAX_LEN){8'b0}}} :
                                         {TX_PACKET_SZ{8'b0}};
@@ -418,17 +472,17 @@ module pp_tx (
                     tx_ping6     == 1'b1 ? ETHH_LEN+IP6H_LEN+payl_len :
                     tx_trcrt6    == 1'b1 ? ETHH_LEN+IP6H_LEN+payl_len :
                                            8'b0;
-  
+
   localparam S_IDLE    = 3'd0;
   localparam S_WACK    = 3'd1;
   localparam S_WR      = 3'd2;
   localparam S_LAST    = 3'd3;
-  
+
   reg [3:0]  tx_state;
   reg [4:0]  tx_count;
 
 `include "pp_csum.v"
-  
+
   //-------------------------------------------------------------------------------------------------
 
   // Split csum calculation to improve timing.  (maybe this is going out of hand now?)
@@ -513,13 +567,13 @@ module pp_tx (
   reg [15:0] ntp_sign_csum0;
   reg [15:0] ntp_sign_csum1;
   reg [15:0] ntp_sign_csum2;
-  
+
   always @(posedge clk) begin
 
     ntp_ipv4h_csum0 <= calc_csum(tx_ntp4_ip_head[0:79],  10);
     ntp_ipv4h_csum1 <= calc_csum(tx_ntp4_ip_head[96:159], 8);  // exclude CSum in calc !
     ntp_ipv4h_csum  <= wrap_csum(calc_csum({ntp_ipv4h_csum0, ntp_ipv4h_csum1}, 4));
-    
+
     nd_csum0       <= calc_csum(tx_nd_pseudo_head[  0: 79], 10);
     nd_csum1       <= calc_csum(tx_nd_pseudo_head[ 80:159], 10);
     nd_csum2       <= calc_csum(tx_nd_pseudo_head[160:239], 10);
@@ -537,20 +591,20 @@ module pp_tx (
     ntp_pl_csum3   <= calc_csum(ntp_payload[159: 80], 10);
     ntp_pl_csum4   <= calc_csum(ntp_payload[ 79:  0], 10);
     ntp_pl_csum    <= calc_csum({ntp_pl_csum0, ntp_pl_csum1, ntp_pl_csum2, ntp_pl_csum3, ntp_pl_csum4}, 10);
-    
+
     ntp_sign_csum0 <= calc_csum({keyid, digest[159:128]}, 8);
     ntp_sign_csum1 <= calc_csum(digest[127:64], 8);
     ntp_sign_csum2 <= calc_csum(digest[ 63: 0], 8);
 
     ntp4_udp_csum0 <= calc_csum( tx_ntp4_pseudo_head[ 0:63], 8);
     ntp4_udp_csum1 <= calc_csum({tx_ntp4_pseudo_head[64:95], tx_ntp4_udp_head[0:31]}, 8);  // exclude csum in calc !
-    ntp4_udp_csum2 <= calc_csum({tx_ntp4_udp_head[32:47], ntp_sign_csum0, ntp_sign_csum1, ntp_sign_csum2}, 8); 
+    ntp4_udp_csum2 <= calc_csum({tx_ntp4_udp_head[32:47], ntp_sign_csum0, ntp_sign_csum1, ntp_sign_csum2}, 8);
     ntp4_udp_csum  <= wrap_csum(calc_csum({ntp4_udp_csum0, ntp4_udp_csum1, ntp4_udp_csum2, ntp_pl_csum}, 8));
 
     ping_ipv4h_csum0 <= calc_csum(tx_ping4_ip_head[0:79],  10);
     ping_ipv4h_csum1 <= calc_csum(tx_ping4_ip_head[96:159], 8);  // exclude CSum in calc !
     ping_ipv4h_csum  <= wrap_csum(calc_csum({ping_ipv4h_csum0, ping_ipv4h_csum1}, 4));
-    
+
     ping4_csum0    <= calc_csum({tx_ping4_payload[0:15], tx_ping4_payload[32:95]}, 10);  // exclude CSum in calc !
     ping4_csum1    <= calc_csum(tx_ping4_payload[ 96:175], 10);
     ping4_csum2    <= calc_csum(tx_ping4_payload[176:255], 10);
@@ -567,7 +621,7 @@ module pp_tx (
     trcrt_ipv4h_csum0 <= calc_csum(tx_trcrt4_ip_head[0:79],  10);
     trcrt_ipv4h_csum1 <= calc_csum(tx_trcrt4_ip_head[96:159], 8);  // exclude CSum in calc !
     trcrt_ipv4h_csum  <= wrap_csum(calc_csum({trcrt_ipv4h_csum0, trcrt_ipv4h_csum1}, 4));
-    
+
     trcrt4_csum0   <= calc_csum({tx_trcrt4_payload[0:15], tx_trcrt4_payload[32:95]}, 10);  // exclude CSum in calc !
     trcrt4_csum1   <= calc_csum(tx_trcrt4_payload[ 96:175], 10);
     trcrt4_csum2   <= calc_csum(tx_trcrt4_payload[176:255], 10);
@@ -579,7 +633,7 @@ module pp_tx (
     ntp6_udp_csum2 <= calc_csum(tx_ntp6_pseudo_head[160:239], 10);
     ntp6_udp_csum3 <= calc_csum(tx_ntp6_pseudo_head[240:319], 10);
     ntp6_udp_csum4 <= calc_csum({tx_ntp6_udp_head[0:47], ntp_pl_csum}, 8 );  // exclude CSum in calc !
-    
+
     ntp6_udp_csum5 <= calc_csum({ntp6_udp_csum0, ntp6_udp_csum1, ntp6_udp_csum2, ntp6_udp_csum3, ntp6_udp_csum4}, 10);
     ntp6_udp_csum  <= wrap_csum(calc_csum({ntp_sign_csum0, ntp_sign_csum1, ntp_sign_csum2, ntp6_udp_csum5}, 8));
 
@@ -639,7 +693,7 @@ module pp_tx (
       tx_start      <= 1'b0;
 
       case (tx_state)
-        S_IDLE : 
+        S_IDLE :
           if (start == 1'b1) begin
             tx_start <= 1'b1;
             tx_state <= S_WACK;
@@ -649,7 +703,7 @@ module pp_tx (
           tx_data_valid <= 8'hff;
           tx_count      <= 5'd1;
           if (tx_ack == 1'b1) begin
-            tx_data       <= tx_packet[tx_count*64+:64]; 
+            tx_data       <= tx_packet[tx_count*64+:64];
             tx_data_valid <= 8'hff;
             tx_count      <= 5'd2;
             tx_state      <= S_WR;
@@ -680,8 +734,6 @@ module pp_tx (
   end // always @ (posedge clk, posedge areset)
 
   assign ready = (tx_state == S_LAST ||  tx_state == S_IDLE);
-  
+
 endmodule // pp_tx
 `default_nettype wire
-
-
