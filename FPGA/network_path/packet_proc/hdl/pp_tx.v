@@ -257,7 +257,7 @@ module pp_tx (
   assign tx_ntp4_ip_head[32:47]   = 16'd0;                // Identification
   assign tx_ntp4_ip_head[48:50]   =  3'b010;              // don't fragment
   assign tx_ntp4_ip_head[51:63]   = 13'b0;                // Fragment offset
-  assign tx_ntp4_ip_head[64:71]   = ip_ttl_reg            // TTL
+  assign tx_ntp4_ip_head[64:71]   = ip_ttl_reg;           // TTL
   assign tx_ntp4_ip_head[72:79]   = PROT_UDP;             // Protocol
   assign tx_ntp4_ip_head[80:95]   = ntp_ipv4h_csum;
   assign tx_ntp4_ip_head[96:127]  = my_ipv4_addr;
