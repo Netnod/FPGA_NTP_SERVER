@@ -1,10 +1,10 @@
--- Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
+-- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
--- Tool Version: Vivado v.2015.2 (lin64) Build 1266856 Fri Jun 26 16:35:25 MDT 2015
--- Date        : Thu Sep 26 15:28:52 2019
+-- Tool Version: Vivado v.2019.1 (lin64) Build 2552052 Fri May 24 14:47:09 MDT 2019
+-- Date        : Wed Nov 20 14:05:50 2019
 -- Host        : fpga01-fg.sth.netnod.se running 64-bit CentOS Linux release 7.7.1908 (Core)
 -- Command     : write_vhdl -force -mode synth_stub
---               /home/wingel/work/FPGA_NTP_INTERNAL/FPGA_NTP_SERVER/FPGA/network_path/packet_proc/ip/pp_fifo/pp_fifo_stub.vhdl
+--               /home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/network_path/packet_proc/ip/pp_fifo/pp_fifo_stub.vhdl
 -- Design      : pp_fifo
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7vx690tffg1761-2
@@ -32,6 +32,6 @@ attribute black_box_pad_pin : string;
 attribute syn_black_box of stub : architecture is true;
 attribute black_box_pad_pin of stub : architecture is "clk,rst,din[843:0],wr_en,rd_en,dout[843:0],full,empty";
 attribute x_core_info : string;
-attribute x_core_info of stub : architecture is "fifo_generator_v12_0,Vivado 2015.2";
+attribute x_core_info of stub : architecture is "fifo_generator_v13_2_4,Vivado 2019.1";
 begin
 end;
