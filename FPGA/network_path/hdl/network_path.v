@@ -1,19 +1,19 @@
 //
-// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
+//
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -29,11 +29,11 @@
 // Design Name: FPGA NTP Server
 // Module Name: network_path
 // Description: Wrap complete network path from including actual NTP server
-// 
+//
 
 `timescale 1ps / 1ps
 `default_nettype none
-  
+
 module network_path #(
   parameter [4:0]   PRTAD              = 5'd1,   // For MDIO addressing
   parameter integer C_S_AXI_DATA_WIDTH = 32,
@@ -41,7 +41,7 @@ module network_path #(
 )(
   /// AXI Lite register interface
   input wire 	     s_axi_clk,
-  input wire 	     s_axi_aresetn, 
+  input wire 	     s_axi_aresetn,
   output wire 	     s_axi_awready,
   input wire [31:0]  s_axi_awaddr,
   input wire 	     s_axi_awvalid,
@@ -58,7 +58,7 @@ module network_path #(
   output wire [31:0] s_axi_rdata,
   output wire [1:0]  s_axi_rresp,
   output wire 	     s_axi_rvalid,
-  input wire 	     s_axi_rready, 
+  input wire 	     s_axi_rready,
 
   // NTP times
   input wire [63:0]  ntp_time_a,
@@ -77,17 +77,17 @@ module network_path #(
   input wire [255:0] key,
 
   // sfp+
-  output wire 	     xphy_txp, 
-  output wire 	     xphy_txn, 
-  input wire 	     xphy_rxp, 
-  input wire 	     xphy_rxn, 
-  input wire 	     signal_lost, 
-  input wire 	     module_detect_n, 
+  output wire 	     xphy_txp,
+  output wire 	     xphy_txn,
+  input wire 	     xphy_rxp,
+  input wire 	     xphy_rxn,
+  input wire 	     signal_lost,
+  input wire 	     module_detect_n,
   input wire 	     tx_fault,
   output wire 	     tx_disable,
 
   // MDIO controller
-  input wire 	     mdc, 
+  input wire 	     mdc,
   input wire 	     mdio_in,
   output wire 	     mdio_out,
   output wire 	     mdio_tri,
@@ -104,8 +104,8 @@ module network_path #(
   input wire 	     qplloutclk,
   input wire 	     qplloutrefclk,
   input wire 	     reset_counter_done,
-                                     
-  output wire 	     tx_resetdone, 
+
+  output wire 	     tx_resetdone,
 
   input wire 	     sys_reset,
   input wire 	     sim_speedup_control
@@ -135,12 +135,12 @@ module network_path #(
   wire [1:0]   xphy_config;
   wire [7:0]   xphy_status;
 
-  
+
   wire   ntp_sync_ok;
   assign ntp_sync_ok = (ntp_sync_ok_a & ~gen_config[24] ) | (ntp_sync_ok_b & gen_config[24]);
 
   // Instantiation of Axi Bus Interface S00_AXI
-  network_path_axi_slave #( 
+  network_path_axi_slave #(
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
     .C_S_AXI_ADDR_WIDTH (C_S_AXI_ADDR_WIDTH)
   ) network_path_axi_slave_inst (
@@ -170,11 +170,11 @@ module network_path #(
     .ntp_sync_ok   (ntp_sync_ok),
 
     // Ports for NTS API extension.
-    .nts_api_command(nts_api_command),
-    .nts_api_address(nts_api_address),
-    .nts_api_write_data(nts_api_write_data),
-    .nts_api_status(nts_api_status),
-    .nts_api_read_data(nts_api_read_data), 
+    .api_ext_command(api_ext_command),
+    .api_ext_address(api_ext_address),
+    .api_ext_write_data(api_ext_write_data),
+    .api_ext_status(api_ext_status),
+    .api_ext_read_data(api_ext_read_data),
 
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
@@ -198,7 +198,7 @@ module network_path #(
   );
 
   wire [63:0]  ntp_time;
-  
+
   // Time select and clock domain crossing
   time_sel_sync tss(
     .areset         (sys_reset),
@@ -210,7 +210,7 @@ module network_path #(
     .ntp_time_upd_b (ntp_time_upd_b),
     .ntp_time       (ntp_time)
   );
-  
+
   wire [63:0]  xgmii_txd;
   wire [7:0]   xgmii_txc;
   wire [63:0]  xgmii_rxd;
@@ -220,10 +220,18 @@ module network_path #(
   pp_mac_top pp(
     .areset         (sys_reset),
     .clk            (clk156),
-    .my_mac_addr0   (pp_mac_addr0), 
-    .my_mac_addr1   (pp_mac_addr1), 
-    .my_mac_addr2   (pp_mac_addr2), 
-    .my_mac_addr3   (pp_mac_addr3), 
+
+    .api_cs         (pp_api_cs),
+    .api_we         (pp_api_we),
+    .api_address    (pp_api_address),
+    .api_write_data (pp_api_write_data),
+    .api_read_data  (pp_api_read_data),
+    .api_ready      (pp_api_ready),
+
+    .my_mac_addr0   (pp_mac_addr0),
+    .my_mac_addr1   (pp_mac_addr1),
+    .my_mac_addr2   (pp_mac_addr2),
+    .my_mac_addr3   (pp_mac_addr3),
     .my_ipv4_addr0  (pp_ipv4_addr0),
     .my_ipv4_addr1  (pp_ipv4_addr1),
     .my_ipv4_addr2  (pp_ipv4_addr2),
@@ -258,28 +266,28 @@ module network_path #(
 
   wire        drp_gnt;
   wire        drp_req;
-  wire        drp_den_o;                                   
+  wire        drp_den_o;
   wire        drp_dwe_o;
-  wire [15:0] drp_daddr_o;                   
-  wire [15:0] drp_di_o; 
-  wire        drp_drdy_o;                
+  wire [15:0] drp_daddr_o;
+  wire [15:0] drp_di_o;
+  wire        drp_drdy_o;
   wire [15:0] drp_drpdo_o;
-  wire        drp_den_i;                                   
+  wire        drp_den_i;
   wire        drp_dwe_i;
-  wire [15:0] drp_daddr_i;                   
-  wire [15:0] drp_di_i; 
-  wire        drp_drdy_i;                
+  wire [15:0] drp_daddr_i;
+  wire [15:0] drp_di_i;
+  wire        drp_drdy_i;
   wire [15:0] drp_drpdo_i;
 
   assign drp_gnt     = drp_req;
   assign drp_den_i   = drp_den_o;
   assign drp_dwe_i   = drp_dwe_o;
-  assign drp_daddr_i = drp_daddr_o;                   
+  assign drp_daddr_i = drp_daddr_o;
   assign drp_di_i    = drp_di_o;
   assign drp_drdy_i  = drp_drdy_o;
   assign drp_drpdo_i = drp_drpdo_o;
 
-  
+
   wire   module_detect;
   wire   signal_detect;
   assign module_detect = ~module_detect_n;
@@ -287,16 +295,16 @@ module network_path #(
 
   wire   tx_disable_if;
 
-  // Map xphy configuration 
+  // Map xphy configuration
   assign xphy_config = gen_config[30+:2]; // Pick out bits
   wire [2:0]   pma_pmd_type;
   assign pma_pmd_type = xphy_config == 2'b00 ? 3'b101 : // 10GBASE-ER
                         xphy_config == 2'b01 ? 3'b110 : // 10GBASE-LR
                                                3'b111;  // 10GBASE-SR
   wire [7:0]   core_status;
-  
+
   ten_gig_eth_pcs_pma_ip ten_gig_eth_pcs_pma_inst (
-    .coreclk                (clk156), 
+    .coreclk                (clk156),
     .dclk                   (clk156),
     .rxrecclk_out           (),
     .txusrclk               (txusrclk),
@@ -315,19 +323,19 @@ module network_path #(
     .xgmii_txc              (xgmii_txc),
     .xgmii_rxd              (xgmii_rxd),
     .xgmii_rxc              (xgmii_rxc),
-    .txp                    (xphy_txp),    
-    .txn                    (xphy_txn),    
-    .rxp                    (xphy_rxp),    
-    .rxn                    (xphy_rxn),    
+    .txp                    (xphy_txp),
+    .txn                    (xphy_txn),
+    .rxp                    (xphy_rxp),
+    .rxn                    (xphy_rxn),
     .mdc                    (mdc),
     .mdio_in                (mdio_out),
     .mdio_out               (mdio_in),
-    .mdio_tri               (mdio_tri),                 
+    .mdio_tri               (mdio_tri),
     .prtad                  (PRTAD),
-    .core_status            (core_status), 
-    .tx_resetdone           (tx_resetdone), 
-    .rx_resetdone           (), 
-    .signal_detect          (signal_detect),  
+    .core_status            (core_status),
+    .tx_resetdone           (tx_resetdone),
+    .rx_resetdone           (),
+    .signal_detect          (signal_detect),
     .tx_fault               (tx_fault),
     .drp_req                (drp_req),
     .drp_gnt                (drp_gnt),
@@ -358,23 +366,30 @@ module network_path #(
   assign xphy_status[7:5] = 3'b0;
 
   // Wires for connecting the api_extension to the AXI slave.
-  // Wires for connecting modules to the api_extension.   
-  wire [1 : 0]  nts_api_command;
-  wire [31 : 0] nts_api_address;
-  wire [31 : 0] nts_api_write_data;
-  wire [1 : 0]  nts_api_status;
-  wire [31 : 0] nts_api_read_data;
-  
-   api_extension nts_api_extension (
+  // Wires for connecting modules to the api_extension.
+  wire [1 : 0]  api_ext_command;
+  wire [31 : 0] api_ext_address;
+  wire [31 : 0] api_ext_write_data;
+  wire [1 : 0]  api_ext_status;
+  wire [31 : 0] api_ext_read_data;
+  wire          pp_api_cs;
+  wire          pp_api_we;
+  wire [11 : 0] pp_api_address;
+  wire [31 : 0] pp_api_write_data;
+  wire [31 : 0] pp_api_read_data;
+  wire          pp_api_ready;
+
+
+   api_extension api_extension0 (
     .clk(clk156),
     .reset(areset_clk156),
 
     // I/O port.
-    .command(nts_api_command),
-    .status(nts_api_status),
-    .address(nts_api_address),
-    .write_data(nts_api_write_data),
-    .read_data(nts_api_read_data),
+    .command(api_ext_command),
+    .status(api_ext_status),
+    .address(api_ext_address),
+    .write_data(api_ext_write_data),
+    .read_data(api_ext_read_data),
 
     // Access ports to extensions.
     .nts_cs(),
@@ -383,7 +398,14 @@ module network_path #(
     .nts_write_data(),
     .nts_read_data(32'haaaa5555),
     .nts_ready(1'h1),
-				    
+
+    .pp_cs(pp_api_cs),
+    .pp_we(pp_api_we),
+    .pp_address(pp_api_address),
+    .pp_write_data(pp_api_write_data),
+    .pp_read_data(pp_api_read_data),
+    .pp_ready(pp_api_ready),
+
     .dp_cs(),
     .dp_we(),
     .dp_address(),
@@ -398,6 +420,6 @@ module network_path #(
     .rosc_read_data(32'hdeadbeef),
     .rosc_ready(1'h1)
   );
-  
+
 endmodule
 `default_nettype wire

@@ -1,19 +1,19 @@
 //
-// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
+//
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -30,7 +30,7 @@
 // Module Name: pp_sha1
 // Description: "Pipeline" that buffers and optionally signs NTP packets with SHA1.
 //              Equal delay for all kind of packets.
-// 
+//
 
 `timescale 1ns / 1ps
 `default_nettype none
@@ -40,23 +40,23 @@ module pp_sha1 (
   input wire          clk,
 
   // NTP Config
-  input  wire [31:0]  ntp_config,      // LI | VN | Mode | Stratum | Poll | Precision 
+  input  wire [31:0]  ntp_config,      // LI | VN | Mode | Stratum | Poll | Precision
   input  wire [31:0]  ntp_root_delay,  // Root Delay
-  input  wire [31:0]  ntp_root_disp,   // Root Dispersion 
+  input  wire [31:0]  ntp_root_disp,   // Root Dispersion
   input  wire [31:0]  ntp_ref_id,      // Reference ID
   input  wire [31:0]  ntp_ofs,         // TX offset
   // From clock
-  input  wire [63:0]  ntp_time,        // time stamp in our clock domain   
+  input  wire [63:0]  ntp_time,        // time stamp in our clock domain
 
   output wire         in_ready,        // ready for new packet
-  input wire          start, 
-  input wire [843:0]  rx_stuff,        // Received message stuff
+  input wire          start,
+  input wire [844:0]  rx_stuff,        // Received message stuff
 
   input wire          key_ack,
   input wire [255:0]  key,             // Key for checking and generating signature
 
   output wire         done,
-  output wire [779:0] tx_stuff,
+  output wire [780:0] tx_stuff,
 
   // Status
   output reg          sts_ipv4_ntp_pass,
@@ -75,7 +75,7 @@ module pp_sha1 (
   end
 
   wire [63:0]  rx_ntp_time0; // our rx time stamp
-  wire [1:0]   addr_sel0;
+  wire [2:0]   addr_sel0;
   wire         arp_0;
   wire         nd_0;
   wire         ntp4_0;
@@ -90,36 +90,36 @@ module pp_sha1 (
   wire [127:0] cl_ip0;       // protocol address of sender (IPv4 or IPv6)
   wire [15:0]  cl_port0;     // Source port for reply
   wire [383:0] cl_payload0;  // Received NTP payload
-  wire [31:0]  keyid0;       // Key id 
+  wire [31:0]  keyid0;       // Key id
   wire [159:0] cl_dgst0;     // Received message digest
 
   assign {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
           md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0} = rx_stuff;
-  
+
   //---------------------------------------------------------------------------------------------
   // Store packets in FIFO and start checking
 
   wire          check_done;
   wire [159:0]  check_hash;
-  
+
   sha1 sha_check (
     .clk       (clk),
     .areset    (areset),
     .in_ready  (in_ready),
-    .start     (start), 
+    .start     (start),
     .key       (key_buf),
     .payload   (cl_payload0),
     .hash_done (check_done),
     .hash      (check_hash)
   );
 
-  wire [1003:0] cfifo_wdata, cfifo_rdata;
+  wire [1004:0] cfifo_wdata, cfifo_rdata;
 
   assign cfifo_wdata = {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
                         md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0, key_buf};
 
   wire   check_fifo_full, check_fifo_empty;
-  
+
   pp_fifo_sc check_fifo(
     .rst       (areset),
     .clk       (clk),
@@ -132,7 +132,7 @@ module pp_sha1 (
   );
 
   wire [63:0]  rx_ntp_time1;
-  wire [1:0]   addr_sel1;
+  wire [2:0]   addr_sel1;
   wire         arp_1;
   wire         nd_1;
   wire         ntp4_1;
@@ -164,7 +164,7 @@ module pp_sha1 (
   reg [63:0] tx_ntp_time;
   reg [63:0] ntp_ref_ts;
 
-  always @(posedge clk) begin 
+  always @(posedge clk) begin
     tx_ntp_time <= ntp_time + ntp_ofs + HW_TX_LAT + SHA1_LAT;
     // Create a reference timestamp assuming it was set one the previous PPS.
     ntp_ref_ts <= {ntp_time[63:32] - 1, 32'b0};
@@ -192,7 +192,7 @@ module pp_sha1 (
     .clk       (clk),
     .areset    (areset),
     .in_ready  (),
-    .start     (check_done & check_ok), 
+    .start     (check_done & check_ok),
     .key       (key1),
     .payload   (tx_payload),
     .hash_done (sign_done),
@@ -200,12 +200,12 @@ module pp_sha1 (
   );
 
 
-  wire [619:0]  sfifo_wdata, sfifo_rdata;
+  wire [620:0]  sfifo_wdata, sfifo_rdata;
   assign sfifo_wdata = {addr_sel1, arp_1, nd_1, ntp4_1, ping4_1, trcrt4_1, ntp6_1, ping6_1, trcrt6_1,
                         md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, tx_payload, keyid1};
 
   wire sign_fifo_full, sign_fifo_empty;
-  
+
   pp_fifo_ss sign_fifo (
     .rst       (areset),
     .clk       (clk),
@@ -220,7 +220,7 @@ module pp_sha1 (
   assign tx_stuff          = {sfifo_rdata, sign_hash};
   assign done              = sign_done;
 
-  always @(posedge clk) begin 
+  always @(posedge clk) begin
     sts_ipv4_ntp_pass <= check_done & check_ok & ntp4_1 & sha1_1;
     sts_ipv6_ntp_pass <= check_done & check_ok & ntp6_1 & sha1_1;
     sts_bad_dgst      <= check_done & ~check_ok & sha1_1;

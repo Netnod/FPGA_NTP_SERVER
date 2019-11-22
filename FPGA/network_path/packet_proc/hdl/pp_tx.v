@@ -42,19 +42,29 @@ module pp_tx (
   input wire [47:0]  my_mac_addr1,
   input wire [47:0]  my_mac_addr2,
   input wire [47:0]  my_mac_addr3,
+
   input wire [31:0]  my_ipv4_addr0,
   input wire [31:0]  my_ipv4_addr1,
   input wire [31:0]  my_ipv4_addr2,
   input wire [31:0]  my_ipv4_addr3,
+  input wire [31:0]  my_ipv4_addr4,
+  input wire [31:0]  my_ipv4_addr5,
+  input wire [31:0]  my_ipv4_addr6,
+  input wire [31:0]  my_ipv4_addr7,
+
   input wire [127:0] my_ipv6_addr0,
   input wire [127:0] my_ipv6_addr1,
   input wire [127:0] my_ipv6_addr2,
   input wire [127:0] my_ipv6_addr3,
+  input wire [127:0] my_ipv6_addr4,
+  input wire [127:0] my_ipv6_addr5,
+  input wire [127:0] my_ipv6_addr6,
+  input wire [127:0] my_ipv6_addr7,
 
   // From TX FIFO
   input wire         start,
   output wire        ready,
-  input wire [939:0] data,
+  input wire [940:0] data,
 
   // To MAC
   output reg         tx_start,
@@ -67,7 +77,7 @@ module pp_tx (
 
 `include "pp_par.v"
 
-  wire [1:0]   my_addr_sel;  // Which Mac IP pair
+  wire [2:0]   my_addr_sel;  // Which Mac IP pair
 
   wire [47:0]  clnt_mac;     // Sender HW address  (MAC)
   wire [127:0] clnt_ip;      // Sender Protocol address (IPv4/IPv6)
@@ -99,14 +109,24 @@ module pp_tx (
   reg [47:0]  my_mac_addr1_reg;
   reg [47:0]  my_mac_addr2_reg;
   reg [47:0]  my_mac_addr3_reg;
+
   reg [31:0]  my_ipv4_addr0_reg;
   reg [31:0]  my_ipv4_addr1_reg;
   reg [31:0]  my_ipv4_addr2_reg;
   reg [31:0]  my_ipv4_addr3_reg;
+  reg [31:0]  my_ipv4_addr4_reg;
+  reg [31:0]  my_ipv4_addr5_reg;
+  reg [31:0]  my_ipv4_addr6_reg;
+  reg [31:0]  my_ipv4_addr7_reg;
+
   reg [127:0] my_ipv6_addr0_reg;
   reg [127:0] my_ipv6_addr1_reg;
   reg [127:0] my_ipv6_addr2_reg;
   reg [127:0] my_ipv6_addr3_reg;
+  reg [127:0] my_ipv6_addr4_reg;
+  reg [127:0] my_ipv6_addr5_reg;
+  reg [127:0] my_ipv6_addr6_reg;
+  reg [127:0] my_ipv6_addr7_reg;
 
   always @(posedge clk, posedge areset)
     begin : sample_inputs
@@ -117,14 +137,24 @@ module pp_tx (
           my_mac_addr1_reg  <= 48'h0;
           my_mac_addr2_reg  <= 48'h0;
           my_mac_addr3_reg  <= 48'h0;
+
           my_ipv4_addr0_reg <= 32'h0;
           my_ipv4_addr1_reg <= 32'h0;
           my_ipv4_addr2_reg <= 32'h0;
           my_ipv4_addr3_reg <= 32'h0;
+          my_ipv4_addr4_reg <= 32'h0;
+          my_ipv4_addr5_reg <= 32'h0;
+          my_ipv4_addr6_reg <= 32'h0;
+          my_ipv4_addr7_reg <= 32'h0;
+
           my_ipv6_addr0_reg <= 128'h0;
           my_ipv6_addr1_reg <= 128'h0;
           my_ipv6_addr2_reg <= 128'h0;
           my_ipv6_addr3_reg <= 128'h0;
+          my_ipv6_addr4_reg <= 128'h0;
+          my_ipv6_addr5_reg <= 128'h0;
+          my_ipv6_addr6_reg <= 128'h0;
+          my_ipv6_addr7_reg <= 128'h0;
         end
       else
         begin
@@ -133,14 +163,24 @@ module pp_tx (
           my_mac_addr1_reg  <= my_mac_addr1;
           my_mac_addr2_reg  <= my_mac_addr2;
           my_mac_addr3_reg  <= my_mac_addr3;
+
           my_ipv4_addr0_reg <= my_ipv4_addr0;
           my_ipv4_addr1_reg <= my_ipv4_addr1;
           my_ipv4_addr2_reg <= my_ipv4_addr2;
           my_ipv4_addr3_reg <= my_ipv4_addr3;
+          my_ipv4_addr4_reg <= my_ipv4_addr4;
+          my_ipv4_addr5_reg <= my_ipv4_addr5;
+          my_ipv4_addr6_reg <= my_ipv4_addr6;
+          my_ipv4_addr7_reg <= my_ipv4_addr7;
+
           my_ipv6_addr0_reg <= my_ipv6_addr0;
           my_ipv6_addr1_reg <= my_ipv6_addr1;
           my_ipv6_addr2_reg <= my_ipv6_addr2;
           my_ipv6_addr3_reg <= my_ipv6_addr3;
+          my_ipv6_addr4_reg <= my_ipv6_addr4;
+          my_ipv6_addr5_reg <= my_ipv6_addr5;
+          my_ipv6_addr6_reg <= my_ipv6_addr6;
+          my_ipv6_addr7_reg <= my_ipv6_addr7;
         end
     end
 
@@ -150,7 +190,7 @@ module pp_tx (
   // Note unused bits in keyid and digest must be 0 in order to get correct padding and checksumming
 
   assign {my_addr_sel, tx_arp, tx_nd, tx_ntp4, tx_ping4, tx_trcrt4, tx_ntp6, tx_ping6, tx_trcrt6, tx_md5, tx_sha1,
-          clnt_mac, clnt_ip, clnt_port, ntp_payload, keyid, digest} = data[939:160];
+          clnt_mac, clnt_ip, clnt_port, ntp_payload, keyid, digest} = data[940:160];
 
   assign payl_len     = data[727:720];
   assign icmp_payload = data[719:0];
@@ -159,9 +199,32 @@ module pp_tx (
   wire [31:0]  my_ipv4_addr;
   wire [127:0] my_ipv6_addr;
 
-  assign my_mac_addr  = my_addr_sel == 2'b00 ? my_mac_addr0_reg  : my_addr_sel == 2'b01 ? my_mac_addr1_reg  : my_addr_sel == 2'b10 ? my_mac_addr2_reg  : my_mac_addr3_reg;
-  assign my_ipv4_addr = my_addr_sel == 2'b00 ? my_ipv4_addr0_reg : my_addr_sel == 2'b01 ? my_ipv4_addr1_reg : my_addr_sel == 2'b10 ? my_ipv4_addr2_reg : my_ipv4_addr3_reg;
-  assign my_ipv6_addr = my_addr_sel == 2'b00 ? my_ipv6_addr0_reg : my_addr_sel == 2'b01 ? my_ipv6_addr1_reg : my_addr_sel == 2'b10 ? my_ipv6_addr2_reg : my_ipv6_addr3_reg;
+  assign my_mac_addr  = my_addr_sel == 3'h0 ? my_mac_addr0_reg  :
+                        my_addr_sel == 3'h1 ? my_mac_addr1_reg  :
+                        my_addr_sel == 3'h2 ? my_mac_addr2_reg  :
+                        my_addr_sel == 3'h3 ? my_mac_addr3_reg  :
+                        my_addr_sel == 3'h4 ? my_mac_addr0_reg  :
+                        my_addr_sel == 3'h5 ? my_mac_addr1_reg  :
+                        my_addr_sel == 3'h6 ? my_mac_addr2_reg  :
+                        my_mac_addr3_reg;
+
+  assign my_ipv4_addr = my_addr_sel == 3'h0 ? my_ipv4_addr0_reg :
+                        my_addr_sel == 3'h1 ? my_ipv4_addr1_reg :
+                        my_addr_sel == 3'h2 ? my_ipv4_addr2_reg :
+                        my_addr_sel == 3'h3 ? my_ipv4_addr3_reg :
+                        my_addr_sel == 3'h4 ? my_ipv4_addr4_reg :
+                        my_addr_sel == 3'h5 ? my_ipv4_addr5_reg :
+                        my_addr_sel == 3'h6 ? my_ipv4_addr6_reg :
+                        my_ipv4_addr7_reg;
+
+  assign my_ipv6_addr = my_addr_sel == 3'h0 ? my_ipv6_addr0_reg :
+                        my_addr_sel == 3'h1 ? my_ipv6_addr1_reg :
+                        my_addr_sel == 3'h2 ? my_ipv6_addr2_reg :
+                        my_addr_sel == 3'h3 ? my_ipv6_addr3_reg :
+                        my_addr_sel == 3'h4 ? my_ipv6_addr4_reg :
+                        my_addr_sel == 3'h5 ? my_ipv6_addr5_reg :
+                        my_addr_sel == 3'h6 ? my_ipv6_addr6_reg :
+                        my_ipv6_addr7_reg;
 
   wire [15:0] ntp_ip_len;
   assign ntp_ip_len  = tx_md5  == 1'b1 ? NTP_IP_MD5_LEN  :

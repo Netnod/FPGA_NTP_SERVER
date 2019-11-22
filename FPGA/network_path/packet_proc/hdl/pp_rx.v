@@ -41,14 +41,25 @@ module pp_rx (
   input wire [47:0]  my_mac_addr1,
   input wire [47:0]  my_mac_addr2,
   input wire [47:0]  my_mac_addr3,
+
   input wire [31:0]  my_ipv4_addr0,
   input wire [31:0]  my_ipv4_addr1,
   input wire [31:0]  my_ipv4_addr2,
   input wire [31:0]  my_ipv4_addr3,
+  input wire [31:0]  my_ipv4_addr4,
+  input wire [31:0]  my_ipv4_addr5,
+  input wire [31:0]  my_ipv4_addr6,
+  input wire [31:0]  my_ipv4_addr7,
+
   input wire [127:0] my_ipv6_addr0,
   input wire [127:0] my_ipv6_addr1,
   input wire [127:0] my_ipv6_addr2,
   input wire [127:0] my_ipv6_addr3,
+  input wire [127:0] my_ipv6_addr4,
+  input wire [127:0] my_ipv6_addr5,
+  input wire [127:0] my_ipv6_addr6,
+  input wire [127:0] my_ipv6_addr7,
+
   // Gen config
   input  wire         ipv4_arp_en,        // Enable ipv4 ARP
   input  wire         ipv4_ntp_en,        // Enable ipv4 NTP
@@ -78,7 +89,7 @@ module pp_rx (
   // tx FIFO
   input  wire         tx_fifo_full,       // Room in FIFO
   output reg          tx_fifo_wr,
-  output wire [1003:0]tx_fifo_data,
+  output wire [1004:0]tx_fifo_data,
   // Status bits
   output reg          sts_ipv4_arp_pass,  // ipv4 arp accepted
   output reg          sts_ipv4_ntp_pass,  // ipv4 ntp accepted
@@ -165,14 +176,24 @@ module pp_rx (
   reg [47:0]  my_mac_addr1_reg;
   reg [47:0]  my_mac_addr2_reg;
   reg [47:0]  my_mac_addr3_reg;
+
   reg [31:0]  my_ipv4_addr0_reg;
   reg [31:0]  my_ipv4_addr1_reg;
   reg [31:0]  my_ipv4_addr2_reg;
   reg [31:0]  my_ipv4_addr3_reg;
+  reg [31:0]  my_ipv4_addr4_reg;
+  reg [31:0]  my_ipv4_addr5_reg;
+  reg [31:0]  my_ipv4_addr6_reg;
+  reg [31:0]  my_ipv4_addr7_reg;
+
   reg [127:0] my_ipv6_addr0_reg;
   reg [127:0] my_ipv6_addr1_reg;
   reg [127:0] my_ipv6_addr2_reg;
   reg [127:0] my_ipv6_addr3_reg;
+  reg [127:0] my_ipv6_addr4_reg;
+  reg [127:0] my_ipv6_addr5_reg;
+  reg [127:0] my_ipv6_addr6_reg;
+  reg [127:0] my_ipv6_addr7_reg;
 
   always @(posedge clk, posedge areset)
     begin : sample_inputs
@@ -182,14 +203,24 @@ module pp_rx (
           my_mac_addr1_reg  <= 48'h0;
           my_mac_addr2_reg  <= 48'h0;
           my_mac_addr3_reg  <= 48'h0;
+
           my_ipv4_addr0_reg <= 32'h0;
           my_ipv4_addr1_reg <= 32'h0;
           my_ipv4_addr2_reg <= 32'h0;
           my_ipv4_addr3_reg <= 32'h0;
+          my_ipv4_addr4_reg <= 32'h0;
+          my_ipv4_addr5_reg <= 32'h0;
+          my_ipv4_addr6_reg <= 32'h0;
+          my_ipv4_addr7_reg <= 32'h0;
+
           my_ipv6_addr0_reg <= 128'h0;
           my_ipv6_addr1_reg <= 128'h0;
           my_ipv6_addr2_reg <= 128'h0;
           my_ipv6_addr3_reg <= 128'h0;
+          my_ipv6_addr4_reg <= 128'h0;
+          my_ipv6_addr5_reg <= 128'h0;
+          my_ipv6_addr6_reg <= 128'h0;
+          my_ipv6_addr7_reg <= 128'h0;
         end
       else
         begin
@@ -197,14 +228,24 @@ module pp_rx (
           my_mac_addr1_reg  <= my_mac_addr1;
           my_mac_addr2_reg  <= my_mac_addr2;
           my_mac_addr3_reg  <= my_mac_addr3;
+
           my_ipv4_addr0_reg <= my_ipv4_addr0;
           my_ipv4_addr1_reg <= my_ipv4_addr1;
           my_ipv4_addr2_reg <= my_ipv4_addr2;
           my_ipv4_addr3_reg <= my_ipv4_addr3;
+          my_ipv4_addr4_reg <= my_ipv4_addr4;
+          my_ipv4_addr5_reg <= my_ipv4_addr5;
+          my_ipv4_addr6_reg <= my_ipv4_addr6;
+          my_ipv4_addr7_reg <= my_ipv4_addr7;
+
           my_ipv6_addr0_reg <= my_ipv6_addr0;
           my_ipv6_addr1_reg <= my_ipv6_addr1;
           my_ipv6_addr2_reg <= my_ipv6_addr2;
           my_ipv6_addr3_reg <= my_ipv6_addr3;
+          my_ipv6_addr4_reg <= my_ipv6_addr4;
+          my_ipv6_addr5_reg <= my_ipv6_addr5;
+          my_ipv6_addr6_reg <= my_ipv6_addr6;
+          my_ipv6_addr7_reg <= my_ipv6_addr7;
         end
     end
 
@@ -214,24 +255,50 @@ module pp_rx (
   //
 
   wire   mac_match;
-  assign mac_match = rx_data[63:16] == my_mac_addr0_reg || rx_data[63:16] == my_mac_addr1_reg || rx_data[63:16] == my_mac_addr2_reg || rx_data[63:16] == my_mac_addr3_reg;
+  assign mac_match = rx_data[63:16] == my_mac_addr0_reg ||
+                     rx_data[63:16] == my_mac_addr1_reg ||
+                     rx_data[63:16] == my_mac_addr2_reg ||
+                     rx_data[63:16] == my_mac_addr3_reg;
 
   wire   ipv4_match;
-  assign ipv4_match = DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg || DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg || DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg || DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg;
+  assign ipv4_match = DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr4_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr5_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr6_reg ||
+                      DST_IP_rx_buf[31:0] == my_ipv4_addr7_reg;
 
   wire   ipv6_match;
-  assign ipv6_match = DST_IP_rx_buf == my_ipv6_addr0_reg || DST_IP_rx_buf == my_ipv6_addr1_reg || DST_IP_rx_buf == my_ipv6_addr2_reg || DST_IP_rx_buf == my_ipv6_addr3_reg;
+  assign ipv6_match = DST_IP_rx_buf == my_ipv6_addr0_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr1_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr2_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr3_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr4_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr5_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr6_reg ||
+                      DST_IP_rx_buf == my_ipv6_addr7_reg;
 
   wire   ipv4_addr_ok;
   assign ipv4_addr_ok = DST_MAC_rx_buf == my_mac_addr0_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg ||
                         DST_MAC_rx_buf == my_mac_addr1_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg ||
                         DST_MAC_rx_buf == my_mac_addr2_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg ||
-                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg;
+                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg ||
+                        DST_MAC_rx_buf == my_mac_addr0_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr4_reg ||
+                        DST_MAC_rx_buf == my_mac_addr1_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr5_reg ||
+                        DST_MAC_rx_buf == my_mac_addr2_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr6_reg ||
+                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf[31:0] == my_ipv4_addr7_reg;
+
   wire   ipv6_addr_ok;
   assign ipv6_addr_ok = DST_MAC_rx_buf == my_mac_addr0_reg && DST_IP_rx_buf == my_ipv6_addr0_reg ||
                         DST_MAC_rx_buf == my_mac_addr1_reg && DST_IP_rx_buf == my_ipv6_addr1_reg ||
                         DST_MAC_rx_buf == my_mac_addr2_reg && DST_IP_rx_buf == my_ipv6_addr2_reg ||
-                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf == my_ipv6_addr3_reg;
+                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf == my_ipv6_addr3_reg ||
+                        DST_MAC_rx_buf == my_mac_addr0_reg && DST_IP_rx_buf == my_ipv6_addr4_reg ||
+                        DST_MAC_rx_buf == my_mac_addr1_reg && DST_IP_rx_buf == my_ipv6_addr5_reg ||
+                        DST_MAC_rx_buf == my_mac_addr2_reg && DST_IP_rx_buf == my_ipv6_addr6_reg ||
+                        DST_MAC_rx_buf == my_mac_addr3_reg && DST_IP_rx_buf == my_ipv6_addr7_reg;
 
   reg [1:0] mac_addr_sel;
   always @(*) begin
@@ -246,31 +313,48 @@ module pp_rx (
     end
   end // always @ reg
 
-  reg [1:0] ipv4_addr_sel;
+  reg [2 : 0] ipv4_addr_sel;
   always @(*) begin
     if (DST_IP_rx_buf[31:0] == my_ipv4_addr0_reg) begin
-      ipv4_addr_sel = 2'b00;
+      ipv4_addr_sel = 3'h0;
     end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr1_reg) begin
-      ipv4_addr_sel = 2'b01;
+      ipv4_addr_sel = 3'h1;
     end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr2_reg) begin
-      ipv4_addr_sel = 2'b10;
-    end else /*if (DST_IP_rx_buf[31:0] == my_ipv4_addr3)*/ begin
-      ipv4_addr_sel = 2'b11;
+      ipv4_addr_sel = 3'h2;
+    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr3_reg) begin
+      ipv4_addr_sel = 3'h3;
+    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr4_reg) begin
+      ipv4_addr_sel = 3'h4;
+    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr5_reg) begin
+      ipv4_addr_sel = 3'h5;
+    end else if (DST_IP_rx_buf[31:0] == my_ipv4_addr6_reg) begin
+      ipv4_addr_sel = 3'h6;
+    end else /*if (DST_IP_rx_buf[31:0] == my_ipv4_addr7)*/ begin
+      ipv4_addr_sel = 3'h7;
     end
   end // always @ reg
 
-  reg [1:0] ipv6_addr_sel;
+  reg [1 : 0] ipv6_addr_sel;
   always @(*) begin
     if (DST_IP_rx_buf == my_ipv6_addr0_reg) begin
-      ipv6_addr_sel = 2'b00;
+      ipv6_addr_sel = 3'h0;
     end else if (DST_IP_rx_buf == my_ipv6_addr1_reg) begin
-      ipv6_addr_sel = 2'b01;
+      ipv6_addr_sel = 3'h1;
     end else if (DST_IP_rx_buf == my_ipv6_addr2_reg) begin
-      ipv6_addr_sel = 2'b10;
-    end else /*if (DST_IP_rx_buf == my_ipv6_addr3)*/ begin
-      ipv6_addr_sel = 2'b11;
+      ipv6_addr_sel = 3'h2;
+    end else if (DST_IP_rx_buf == my_ipv6_addr3_reg) begin
+      ipv6_addr_sel = 3'h2;
+    end else if (DST_IP_rx_buf == my_ipv6_addr4_reg) begin
+      ipv6_addr_sel = 3'h2;
+    end else if (DST_IP_rx_buf == my_ipv6_addr5_reg) begin
+      ipv6_addr_sel = 3'h2;
+    end else if (DST_IP_rx_buf == my_ipv6_addr6_reg) begin
+      ipv6_addr_sel = 3'h2;
+    end else /*if (DST_IP_rx_buf == my_ipv6_addr7)*/ begin
+      ipv6_addr_sel = 3'h7;
     end
   end // always @ begin
+
 
   //-------------------------------------------------------------------------------------------------
   // Decode start of new packet
@@ -1430,7 +1514,7 @@ module pp_rx (
   assign key_id = SRC_KEYID_rx_buf;
 
   // Save some bits by coding address bits into selector
-  wire [1:0] my_addr_sel;
+  wire [2 : 0] my_addr_sel;
   assign my_addr_sel = ((tx_arp | tx_ntp4 | tx_ping4 | tx_trcrt4) == 1'b1) ? ipv4_addr_sel : ipv6_addr_sel;
 
   wire [735:0] my_tx_stuff;

@@ -1,19 +1,19 @@
 //
-// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
+//
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -28,9 +28,9 @@
 //
 // Design Name: FPGA NTP Server
 // Module Name: pp_md5
-// Description: "Pipeline" that buffers and optionally signs NTP packets with MD5. 
+// Description: "Pipeline" that buffers and optionally signs NTP packets with MD5.
 //              Equal delay for all kind of packets.
-// 
+//
 
 `timescale 1ns / 1ps
 `default_nettype none
@@ -40,23 +40,23 @@ module pp_md5 (
   input wire          clk,
 
   // NTP Config
-  input  wire [31:0]  ntp_config,      // LI | VN | Mode | Stratum | Poll | Precision 
+  input  wire [31:0]  ntp_config,      // LI | VN | Mode | Stratum | Poll | Precision
   input  wire [31:0]  ntp_root_delay,  // Root Delay
-  input  wire [31:0]  ntp_root_disp,   // Root Dispersion 
+  input  wire [31:0]  ntp_root_disp,   // Root Dispersion
   input  wire [31:0]  ntp_ref_id,      // Reference ID
   input  wire [31:0]  ntp_ofs,         // TX offset
   // From clock
-  input  wire [63:0]  ntp_time,        // time stamp in our clock domain   
+  input  wire [63:0]  ntp_time,        // time stamp in our clock domain
 
   output wire         in_ready,        // ready for new packet
-  input wire          start, 
-  input wire [843:0]  rx_stuff,        // Received message stuff
+  input wire          start,
+  input wire [844:0]  rx_stuff,        // Received message stuff
 
   input wire          key_ack,
   input wire [255:0]  key,             // Key for checking and generating signature
 
   output wire         done,
-  output wire [779:0] tx_stuff,
+  output wire [780:0] tx_stuff,
 
   // Status
   output reg          sts_ipv4_ntp_pass,
@@ -75,7 +75,7 @@ module pp_md5 (
   end
 
   wire [63:0]  rx_ntp_time0; // our rx time stamp
-  wire [1:0]   addr_sel0;
+  wire [2:0]   addr_sel0;
   wire         arp_0;
   wire         nd_0;
   wire         ntp4_0;
@@ -90,14 +90,14 @@ module pp_md5 (
   wire [127:0] cl_ip0;       // protocol address of sender (IPv4 or IPv6)
   wire [15:0]  cl_port0;     // Source port for reply
   wire [383:0] cl_payload0;  // Received NTP payload
-  wire [31:0]  keyid0;       // Key id 
+  wire [31:0]  keyid0;       // Key id
   wire [159:0] cl_dgst0;     // Received message digest
   wire [159:0] key0;
-  
-  reg [843:0]  rx_stuff_reg; 
+
+  reg [844:0]  rx_stuff_reg;
   reg [159:0]  key_reg;
-  
-  // FIFOs are write through i.e Keep last value until next arrives since MD5 signing requires data to be stable until stage completes. 
+
+  // FIFOs are write through i.e Keep last value until next arrives since MD5 signing requires data to be stable until stage completes.
   always @(posedge clk) begin
     if (start == 1'b1) begin
       rx_stuff_reg <= rx_stuff;
@@ -107,7 +107,7 @@ module pp_md5 (
 
   assign {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
           md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0, key0 } = start == 1'b1 ? {rx_stuff,key_buf} : {rx_stuff_reg, key_reg};
-  
+
   //---------------------------------------------------------------------------------------------
   // Store packets in FIFO and start checking
 
@@ -116,25 +116,25 @@ module pp_md5 (
   wire [159:0]  check_hash;
 
   assign check_hash[31:0] = 'b0;
-  
+
   md5 md5_check (
     .clk       (clk),
     .areset    (areset),
     .in_ready  (in_ready),
-    .start     (start), 
+    .start     (start),
     .key       (key0),
     .payload   (cl_payload0),
     .hash_done (check_done),
     .hash      (check_hash[159:32])
   );
 
-  wire [1003:0] cfifo_wdata, cfifo_rdata;
+  wire [1004:0] cfifo_wdata, cfifo_rdata;
 
   assign cfifo_wdata = {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
                         md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0, key0};
 
   wire   check_fifo_full, check_fifo_empty;
-  
+
   pp_fifo_sc check_fifo(
     .rst       (areset),
     .clk       (clk),
@@ -147,7 +147,7 @@ module pp_md5 (
   );
 
   wire [63:0]  rx_ntp_time1;
-  wire [1:0]   addr_sel1;
+  wire [2:0]   addr_sel1;
   wire         arp_1;
   wire         nd_1;
   wire         ntp4_1;
@@ -173,12 +173,12 @@ module pp_md5 (
   assign check_ok = check_hash == cl_dgst1;
 
   reg  check_ok1;
-  
+
   reg [63:0] tx_ntp_time;
   reg [63:0] ntp_ref_ts;
 
-  reg [1003:0] cfifo_rdata_reg; 
-  
+  reg [1004:0] cfifo_rdata_reg;
+
   assign {rx_ntp_time1, addr_sel1, arp_1, nd_1, ntp4_1, ping4_1, trcrt4_1, ntp6_1, ping6_1, trcrt6_1,
           md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, cl_payload1, keyid1, cl_dgst1, key1} = check_done == 1'b1 ? cfifo_rdata : cfifo_rdata_reg;
 
@@ -214,24 +214,24 @@ module pp_md5 (
   wire [159:0]  sign_hash;
 
   assign sign_hash[31:0] = 'b0;
-  
+
   md5 md5_sign (
     .clk       (clk),
     .areset    (areset),
     .in_ready  (),
-    .start     (check_done1 & check_ok1), 
+    .start     (check_done1 & check_ok1),
     .key       (key1),
     .payload   (tx_payload),
     .hash_done (sign_done),
     .hash      (sign_hash[159:32])
   );
 
-  wire [619:0]  sfifo_wdata, sfifo_rdata;
+  wire [620:0]  sfifo_wdata, sfifo_rdata;
   assign sfifo_wdata = {addr_sel1, arp_1, nd_1, ntp4_1, ping4_1, trcrt4_1, ntp6_1, ping6_1, trcrt6_1,
                         md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, tx_payload, keyid1};
 
   wire sign_fifo_full, sign_fifo_empty;
-  
+
   pp_fifo_ss sign_fifo (
     .rst       (areset),
     .clk       (clk),
@@ -252,7 +252,7 @@ module pp_md5 (
     sts_bad_dgst      <= check_done & ~check_ok & md5_1;
   end
 
-  
+
 endmodule // pp_md5
 
 `default_nettype wire

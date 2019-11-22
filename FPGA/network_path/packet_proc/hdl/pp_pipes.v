@@ -1,19 +1,19 @@
 //
-// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS) 
+// Copyright (c) 2017, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
+//
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this
 //    list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice,
 //    this list of conditions and the following disclaimer in the documentation
 //    and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -29,7 +29,7 @@
 // Design Name: FPGA NTP Server
 // Module Name: pp_pipes
 // Description: Decode and put packets into either MD5 pipe, SHA1 pipe or bypass FIFO.
-// 
+//
 
 `timescale 1ns / 1ps
 `default_nettype none
@@ -39,27 +39,27 @@ module pp_pipes (
   input wire          clk,
 
   // NTP Config
-  input wire [31:0]   ntp_config,     // LI | VN | Mode | Stratum | Poll | Precision 
+  input wire [31:0]   ntp_config,     // LI | VN | Mode | Stratum | Poll | Precision
   input wire [31:0]   ntp_root_delay, // Root Delay
-  input wire [31:0]   ntp_root_disp,  // Root Dispersion 
+  input wire [31:0]   ntp_root_disp,  // Root Dispersion
   input wire [31:0]   ntp_ref_id,     // Reference ID
   input wire [31:0]   ntp_tx_ofs,     // TX offset
   // From clock
-  input wire [63:0]   ntp_time, 
+  input wire [63:0]   ntp_time,
 
-  // RX               
+  // RX
   input wire          fifo_empty,     // Data in FIFO
-  output wire         fifo_rd, 
-  input wire [1003:0] fifo_data,
+  output wire         fifo_rd,
+  input wire [1004:0] fifo_data,
 
   // Key Mem
   input wire          key_ack,
   input wire [255:0]  key,
-   
+
   // TX1
-  output reg          tx_start, 
-  input wire          tx_ready, 
-  output reg [939:0]  tx_data,
+  output reg          tx_start,
+  input wire          tx_ready,
+  output reg [940:0]  tx_data,
 
   // Status
   output wire         sts_ipv4_ntp_md5_pass,
@@ -74,9 +74,8 @@ module pp_pipes (
 
   //-----------------------------------------------------------------
 
-
   wire [63:0]  rx_ntp_time0;
-  wire [1:0]   addr_sel0;
+  wire [2:0]   addr_sel0;
   wire         arp_0;
   wire         nd_0;
   wire         ntp4_0;
@@ -94,8 +93,8 @@ module pp_pipes (
   wire [31:0]  keyid0;
   wire [159:0] cl_dgst0;
 
-  assign {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0, 
-          md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0} = fifo_data[1003:160];
+  assign {rx_ntp_time0, addr_sel0, arp_0, nd_0, ntp4_0, ping4_0, trcrt4_0, ntp6_0, ping6_0, trcrt6_0,
+          md5_0, sha1_0, cl_mac0, cl_ip0, cl_port0, cl_payload0, keyid0, cl_dgst0} = fifo_data[1004:160];
 
   wire md5_start;
   wire sha1_start;
@@ -108,14 +107,14 @@ module pp_pipes (
   assign md5_start  = ~fifo_empty & md5_0 & md5_ready;
   assign sha1_start = ~fifo_empty & sha1_0 & sha1_ready;
   assign fifo_rd    =  bp_fifo_wr | md5_start | sha1_start;
-  
+
   //-----------------------------------------------------------------
 
-  wire [843:0] md5_data0;
+  wire [844:0] md5_data0;
   wire         md5_done;
- 
-  assign md5_data0[843:780] = 'b0;
- 
+
+  assign md5_data0[844:781] = 'b0;
+
   pp_md5 md5_signing (
     .clk               (clk),
     .areset            (areset),
@@ -123,24 +122,24 @@ module pp_pipes (
     .ntp_root_delay    (ntp_root_delay),
     .ntp_root_disp     (ntp_root_disp),
     .ntp_ref_id        (ntp_ref_id),
-    .ntp_ofs           (ntp_tx_ofs),        
-    .ntp_time          (ntp_time),        
+    .ntp_ofs           (ntp_tx_ofs),
+    .ntp_time          (ntp_time),
     .in_ready          (md5_ready),
-    .start             (md5_start), 
-    .rx_stuff          (fifo_data[1003:160]),
+    .start             (md5_start),
+    .rx_stuff          (fifo_data[1004:160]),
     .key_ack           (key_ack),
     .key               (key),
     .done              (md5_done),
-    .tx_stuff          (md5_data0[779:0]),
+    .tx_stuff          (md5_data0[780:0]),
     .sts_ipv4_ntp_pass (sts_ipv4_ntp_md5_pass),
     .sts_ipv6_ntp_pass (sts_ipv6_ntp_md5_pass),
-    .sts_bad_dgst      (sts_bad_md5_dgst)               
+    .sts_bad_dgst      (sts_bad_md5_dgst)
   );
-  
+
   reg          md5_rd;
-  wire [843:0] md5_data1;
+  wire [844:0] md5_data1;
   wire         md5_empty;
-  
+
   pp_fifo md5_buf (
     .rst            (areset),
     .clk            (clk),
@@ -154,10 +153,10 @@ module pp_pipes (
 
   //-----------------------------------------------------------------
 
-  wire [843:0] sha1_data0;
+  wire [844:0] sha1_data0;
   wire         sha1_done;
- 
-  assign sha1_data0[843:780] = 'b0;
+
+  assign sha1_data0[844:781] = 'b0;
 
   pp_sha1 sha_signing (
     .clk               (clk),
@@ -166,25 +165,25 @@ module pp_pipes (
     .ntp_root_delay    (ntp_root_delay),
     .ntp_root_disp     (ntp_root_disp),
     .ntp_ref_id        (ntp_ref_id),
-    .ntp_ofs           (ntp_tx_ofs),        
-    .ntp_time          (ntp_time),        
+    .ntp_ofs           (ntp_tx_ofs),
+    .ntp_time          (ntp_time),
     .in_ready          (sha1_ready),
-    .start             (sha1_start), 
-    .rx_stuff          (fifo_data[1003:160]),
+    .start             (sha1_start),
+    .rx_stuff          (fifo_data[1004:160]),
     .key_ack           (key_ack),
     .key               (key),
     .done              (sha1_done),
-    .tx_stuff          (sha1_data0[779:0]),
+    .tx_stuff          (sha1_data0[780:0]),
     .sts_ipv4_ntp_pass (sts_ipv4_ntp_sha1_pass),
     .sts_ipv6_ntp_pass (sts_ipv6_ntp_sha1_pass),
-    .sts_bad_dgst      (sts_bad_sha1_dgst)               
+    .sts_bad_dgst      (sts_bad_sha1_dgst)
   );
 
   reg          sha1_rd;
-  wire [843:0] sha1_data1;
+  wire [844:0] sha1_data1;
   wire         sha1_empty;
 
-  // 
+  //
   pp_fifo sha1_buf (
     .rst            (areset),
     .clk            (clk),
@@ -198,11 +197,11 @@ module pp_pipes (
 
   //-----------------------------------------------------------------
   // Bypass path for unsigned packets
-  
+
   reg           bp_fifo_rd;
-  wire [1003:0] bp_data;
+  wire [1004:0] bp_data;
   wire          bp_fifo_empty;
-  
+
   // Bypass-buffer for unsigned NTP and other packets.
 
   pp_fifo_sc bp_buf (
@@ -216,15 +215,15 @@ module pp_pipes (
     .empty          (bp_fifo_empty)
   );
 
-  
+
   wire [63:0]  rx_ntp_time1;
-  wire [1:0]   addr_sel1;
+  wire [2:0]   addr_sel1;
   wire         arp_1;
   wire         nd_1;
-  wire         ntp4_1; 
+  wire         ntp4_1;
   wire         ping4_1;
   wire         trcrt4_1;
-  wire         ntp6_1; 
+  wire         ntp6_1;
   wire         ping6_1;
   wire         trcrt6_1;
   wire         md5_1;
@@ -237,7 +236,7 @@ module pp_pipes (
   wire [159:0] cl_dgst1;
 
   assign {rx_ntp_time1, addr_sel1, arp_1, nd_1, ntp4_1, ping4_1, trcrt4_1, ntp6_1, ping6_1, trcrt6_1,
-          md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, cl_payload1, keyid1, cl_dgst1} = bp_data[1003:160];
+          md5_1, sha1_1, cl_mac1, cl_ip1, cl_port1, cl_payload1, keyid1, cl_dgst1} = bp_data[1004:160];
 
   wire [63:0] tx_ntp_time;
   assign tx_ntp_time = ntp_time + ntp_tx_ofs + HW_TX_LAT;
@@ -261,10 +260,10 @@ module pp_pipes (
   assign bp_payload[256:319] = rx_ntp_time1;
   assign bp_payload[320:383] = tx_ntp_time;
 
-  wire [1003:0] bp_data1;
+  wire [1004:0] bp_data1;
 
-  assign bp_data1 = (ping4_1 | ping6_1 | trcrt4_1 | trcrt6_1) ? bp_data : {bp_data[1003:736], bp_payload, 192'b0, 160'b0};
-  
+  assign bp_data1 = (ping4_1 | ping6_1 | trcrt4_1 | trcrt6_1) ? bp_data : {bp_data[1004:736], bp_payload, 192'b0, 160'b0};
+
   //-----------------------------------------------------------------
 
   always @(posedge clk, posedge areset) begin
@@ -286,22 +285,22 @@ module pp_pipes (
         if (md5_empty == 1'b0) begin
           md5_rd   <= 1'b1;
           tx_start <= 1'b1;
-          tx_data  <= {md5_data1[779:0], 160'b0};
+          tx_data  <= {md5_data1[780:0], 160'b0};
         end else if (sha1_empty == 1'b0) begin
           sha1_rd  <= 1'b1;
           tx_start <= 1'b1;
-          tx_data  <= {sha1_data1[779:0], 160'b0};
+          tx_data  <= {sha1_data1[780:0], 160'b0};
         end else if (bp_fifo_empty == 1'b0) begin
           bp_fifo_rd <= 1'b1;
           tx_start   <= 1'b1;
-          tx_data    <= bp_data1[939:0];
+          tx_data    <= bp_data1[940:0];
         end
       end // if (tx_ready == 1'b1)
-  
+
     end // else: !if(areset == 1'b1)
 
   end // always @ (posedge clk, posedge areset)
-  
+
 endmodule // pp_pipes
 
 `default_nettype wire

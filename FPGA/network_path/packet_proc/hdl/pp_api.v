@@ -54,14 +54,14 @@ module pp_api(
               output wire [47 : 0] mac_addr2,
               output wire [47 : 0] mac_addr3,
 
-              output wire [31 : 0] ipv4_addr0;
-              output wire [31 : 0] ipv4_addr1;
-              output wire [31 : 0] ipv4_addr2;
-              output wire [31 : 0] ipv4_addr3;
-              output wire [31 : 0] ipv4_addr4;
-              output wire [31 : 0] ipv4_addr5;
-              output wire [31 : 0] ipv4_addr6;
-              output wire [31 : 0] ipv4_addr7;
+              output wire [31 : 0] ipv4_addr0,
+              output wire [31 : 0] ipv4_addr1,
+              output wire [31 : 0] ipv4_addr2,
+              output wire [31 : 0] ipv4_addr3,
+              output wire [31 : 0] ipv4_addr4,
+              output wire [31 : 0] ipv4_addr5,
+              output wire [31 : 0] ipv4_addr6,
+              output wire [31 : 0] ipv4_addr7,
 
               output wire [127 : 0] ipv6_addr0,
               output wire [127 : 0] ipv6_addr1,
@@ -392,7 +392,7 @@ module pp_api(
   always @*
     begin : api
       ready_we         = 1'h0;
-      tmp_read_data    = 32'h0;
+      tmp_read_data    = 32'hba553ba553;
       mac_addr0_lsb_we = 1'h0;
       mac_addr0_msb_we = 1'h0;
       ipv4_addr0_we    = 1'h0;
@@ -484,14 +484,14 @@ module pp_api(
                 MAC_ADDR3_LSB: tmp_read_data = mac_addr3_lsb_reg;
                 MAC_ADDR3_MSB: tmp_read_data = {16'h0, mac_addr3_msb_reg};
 
-                IPV4_ADDR0:    ipv4_addr0_we  = 1'h1;
-                IPV4_ADDR1:    ipv4_addr1_we  = 1'h1;
-                IPV4_ADDR2:    ipv4_addr2_we  = 1'h1;
-                IPV4_ADDR3:    ipv4_addr3_we  = 1'h1;
-                IPV4_ADDR4:    ipv4_addr4_we  = 1'h1;
-                IPV4_ADDR5:    ipv4_addr5_we  = 1'h1;
-                IPV4_ADDR6:    ipv4_addr6_we  = 1'h1;
-                IPV4_ADDR7:    ipv4_addr7_we  = 1'h1;
+                IPV4_ADDR0:    tmp_read_data = ipv4_addr0_reg;
+                IPV4_ADDR1:    tmp_read_data = ipv4_addr1_reg;
+                IPV4_ADDR2:    tmp_read_data = ipv4_addr2_reg;
+                IPV4_ADDR3:    tmp_read_data = ipv4_addr3_reg;
+                IPV4_ADDR4:    tmp_read_data = ipv4_addr4_reg;
+                IPV4_ADDR5:    tmp_read_data = ipv4_addr5_reg;
+                IPV4_ADDR6:    tmp_read_data = ipv4_addr6_reg;
+                IPV4_ADDR7:    tmp_read_data = ipv4_addr7_reg;
 
                 default:
                   begin

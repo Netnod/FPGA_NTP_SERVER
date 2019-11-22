@@ -1,5 +1,5 @@
 #
-# Vivado (TM) v2015.2 (64-bit)
+# Vivado (TM) v2019.1 (64-bit)
 #
 # ntps.tcl: Tcl script for re-creating project 'ntps'
 #
@@ -156,6 +156,7 @@ set files [list \
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_tx.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_rx.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_pipes.v"]"\
+ "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_api.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v"]"\
@@ -639,10 +640,10 @@ set_property "xelab.unifast" "" $obj
 
 # Create 'synth_1' run (if not found)
 if {[string equal [get_runs -quiet synth_1] ""]} {
-  create_run -name synth_1 -part xc7vx690tffg1761-2 -flow {Vivado Synthesis 2015} -strategy "Vivado Synthesis Defaults" -constrset constrs_1
+  create_run -name synth_1 -part xc7vx690tffg1761-2 -flow {Vivado Synthesis 2019} -strategy "Vivado Synthesis Defaults" -constrset constrs_1
 } else {
   set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
-  set_property flow "Vivado Synthesis 2015" [get_runs synth_1]
+  set_property flow "Vivado Synthesis 2019" [get_runs synth_1]
 }
 set obj [get_runs synth_1]
 set_property "steps.synth_design.tcl.pre" "[file normalize "$origin_dir/pre_synt.tcl"]" $obj
@@ -652,10 +653,10 @@ current_run -synthesis [get_runs synth_1]
 
 # Create 'impl_1' run (if not found)
 if {[string equal [get_runs -quiet impl_1] ""]} {
-  create_run -name impl_1 -part xc7vx690tffg1761-2 -flow {Vivado Implementation 2015} -strategy "Performance_Explore" -constrset constrs_1 -parent_run synth_1
+  create_run -name impl_1 -part xc7vx690tffg1761-2 -flow {Vivado Implementation 2019} -strategy "Performance_Explore" -constrset constrs_1 -parent_run synth_1
 } else {
   set_property strategy "Performance_Explore" [get_runs impl_1]
-  set_property flow "Vivado Implementation 2015" [get_runs impl_1]
+  set_property flow "Vivado Implementation 2019" [get_runs impl_1]
 }
 set obj [get_runs impl_1]
 set_property "steps.opt_design.args.directive" "Explore" $obj
