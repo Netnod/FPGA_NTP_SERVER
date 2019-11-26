@@ -7,3 +7,6 @@
 [submodule "FPGA/nts/rosc_entropy"]
 	path = FPGA/nts/rosc_entropy
 	url = ../rosc_entropy.git
+[submodule "FPGA/nts/nts-poc-verilog"]
+	path = FPGA/nts/nts-poc-verilog
+	url = ../nts-poc-verilog.git
