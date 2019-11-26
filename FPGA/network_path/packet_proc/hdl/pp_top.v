@@ -86,28 +86,29 @@ module pp_top (
   //----------------------------------------------------------------
   // API
 
-  wire [47:0]  my_mac_addr0;
-  wire [47:0]  my_mac_addr1;
-  wire [47:0]  my_mac_addr2;
-  wire [47:0]  my_mac_addr3;
+  localparam MY_MACS = 4;
+  localparam MY_IP4S = 8;
+  localparam MY_IP6S = 8;
 
-  wire [31:0]  my_ipv4_addr0;
-  wire [31:0]  my_ipv4_addr1;
-  wire [31:0]  my_ipv4_addr2;
-  wire [31:0]  my_ipv4_addr3;
-  wire [31:0]  my_ipv4_addr4;
-  wire [31:0]  my_ipv4_addr5;
-  wire [31:0]  my_ipv4_addr6;
-  wire [31:0]  my_ipv4_addr7;
+  wire  [MY_MACS*48-1:0] my_mac_addr;
+  wire  [MY_IP4S*32-1:0] my_ipv4_addr;
+  wire [MY_IP6S*128-1:0] my_ipv6_addr;
 
-  wire [127:0] my_ipv6_addr0;
-  wire [127:0] my_ipv6_addr1;
-  wire [127:0] my_ipv6_addr2;
-  wire [127:0] my_ipv6_addr3;
-  wire [127:0] my_ipv6_addr4;
-  wire [127:0] my_ipv6_addr5;
-  wire [127:0] my_ipv6_addr6;
-  wire [127:0] my_ipv6_addr7;
+  reg  [MY_MACS*48-1:0] my_mac_addr_reg;
+  reg  [MY_IP4S*32-1:0] my_ipv4_addr_reg;
+  reg [MY_IP6S*128-1:0] my_ipv6_addr_reg;
+
+  //Shorten critical path with additional registers
+  always @(posedge clk or posedge areset)
+  if (areset) begin
+    my_mac_addr_reg <= 0;
+    my_ipv4_addr_reg <= 0;
+    my_ipv6_addr_reg <= 0;
+  end else begin
+    my_mac_addr_reg <= my_mac_addr;
+    my_ipv4_addr_reg <= my_ipv4_addr;
+    my_ipv6_addr_reg <= my_ipv6_addr;
+  end
 
   pp_api api(
              .clk(clk),
@@ -120,28 +121,28 @@ module pp_top (
              .read_data(api_read_data),
              .ready(api_ready),
 
-             .mac_addr0(my_mac_addr0),
-             .mac_addr1(my_mac_addr1),
-             .mac_addr2(my_mac_addr2),
-             .mac_addr3(my_mac_addr3),
+             .mac_addr0(my_mac_addr[48*0+:48]),
+             .mac_addr1(my_mac_addr[48*1+:48]),
+             .mac_addr2(my_mac_addr[48*2+:48]),
+             .mac_addr3(my_mac_addr[48*3+:48]),
 
-             .ipv4_addr0(my_ipv4_addr0),
-             .ipv4_addr1(my_ipv4_addr1),
-             .ipv4_addr2(my_ipv4_addr2),
-             .ipv4_addr3(my_ipv4_addr3),
-             .ipv4_addr4(my_ipv4_addr4),
-             .ipv4_addr5(my_ipv4_addr5),
-             .ipv4_addr6(my_ipv4_addr6),
-             .ipv4_addr7(my_ipv4_addr7),
+             .ipv4_addr0(my_ipv4_addr[32*0+:32]),
+             .ipv4_addr1(my_ipv4_addr[32*1+:32]),
+             .ipv4_addr2(my_ipv4_addr[32*2+:32]),
+             .ipv4_addr3(my_ipv4_addr[32*3+:32]),
+             .ipv4_addr4(my_ipv4_addr[32*4+:32]),
+             .ipv4_addr5(my_ipv4_addr[32*5+:32]),
+             .ipv4_addr6(my_ipv4_addr[32*6+:32]),
+             .ipv4_addr7(my_ipv4_addr[32*7+:32]),
 
-             .ipv6_addr0(my_ipv6_addr0),
-             .ipv6_addr1(my_ipv6_addr1),
-             .ipv6_addr2(my_ipv6_addr2),
-             .ipv6_addr3(my_ipv6_addr3),
-             .ipv6_addr4(my_ipv6_addr4),
-             .ipv6_addr5(my_ipv6_addr5),
-             .ipv6_addr6(my_ipv6_addr6),
-             .ipv6_addr7(my_ipv6_addr7)
+             .ipv6_addr0(my_ipv6_addr[128*0+:128]),
+             .ipv6_addr1(my_ipv6_addr[128*1+:128]),
+             .ipv6_addr2(my_ipv6_addr[128*2+:128]),
+             .ipv6_addr3(my_ipv6_addr[128*3+:128]),
+             .ipv6_addr4(my_ipv6_addr[128*4+:128]),
+             .ipv6_addr5(my_ipv6_addr[128*5+:128]),
+             .ipv6_addr6(my_ipv6_addr[128*6+:128]),
+             .ipv6_addr7(my_ipv6_addr[128*7+:128])
             );
 
   reg [7:0]  rx_data_valid_reg;
@@ -177,28 +178,29 @@ module pp_top (
     .ipv6_ping_en       (gen_config[7]),
     .ipv4_trcrt_en      (gen_config[8]),
     .ipv6_trcrt_en      (gen_config[9]),
-    .my_mac_addr0       (my_mac_addr0),
-    .my_mac_addr1       (my_mac_addr1),
-    .my_mac_addr2       (my_mac_addr2),
-    .my_mac_addr3       (my_mac_addr3),
 
-    .my_ipv4_addr0      (my_ipv4_addr0),
-    .my_ipv4_addr1      (my_ipv4_addr1),
-    .my_ipv4_addr2      (my_ipv4_addr2),
-    .my_ipv4_addr3      (my_ipv4_addr3),
-    .my_ipv4_addr4      (my_ipv4_addr4),
-    .my_ipv4_addr5      (my_ipv4_addr5),
-    .my_ipv4_addr6      (my_ipv4_addr6),
-    .my_ipv4_addr7      (my_ipv4_addr7),
+    .my_mac_addr0       (my_mac_addr_reg[48*0+:48]),
+    .my_mac_addr1       (my_mac_addr_reg[48*1+:48]),
+    .my_mac_addr2       (my_mac_addr_reg[48*2+:48]),
+    .my_mac_addr3       (my_mac_addr_reg[48*3+:48]),
 
-    .my_ipv6_addr0      (my_ipv6_addr0),
-    .my_ipv6_addr1      (my_ipv6_addr1),
-    .my_ipv6_addr2      (my_ipv6_addr2),
-    .my_ipv6_addr3      (my_ipv6_addr3),
-    .my_ipv6_addr4      (my_ipv6_addr4),
-    .my_ipv6_addr5      (my_ipv6_addr5),
-    .my_ipv6_addr6      (my_ipv6_addr6),
-    .my_ipv6_addr7      (my_ipv6_addr7),
+    .my_ipv4_addr0      (my_ipv4_addr_reg[32*0+:32]),
+    .my_ipv4_addr1      (my_ipv4_addr_reg[32*1+:32]),
+    .my_ipv4_addr2      (my_ipv4_addr_reg[32*2+:32]),
+    .my_ipv4_addr3      (my_ipv4_addr_reg[32*3+:32]),
+    .my_ipv4_addr4      (my_ipv4_addr_reg[32*4+:32]),
+    .my_ipv4_addr5      (my_ipv4_addr_reg[32*5+:32]),
+    .my_ipv4_addr6      (my_ipv4_addr_reg[32*6+:32]),
+    .my_ipv4_addr7      (my_ipv4_addr_reg[32*7+:32]),
+
+    .my_ipv6_addr0      (my_ipv6_addr_reg[128*0+:128]),
+    .my_ipv6_addr1      (my_ipv6_addr_reg[128*1+:128]),
+    .my_ipv6_addr2      (my_ipv6_addr_reg[128*2+:128]),
+    .my_ipv6_addr3      (my_ipv6_addr_reg[128*3+:128]),
+    .my_ipv6_addr4      (my_ipv6_addr_reg[128*4+:128]),
+    .my_ipv6_addr5      (my_ipv6_addr_reg[128*5+:128]),
+    .my_ipv6_addr6      (my_ipv6_addr_reg[128*6+:128]),
+    .my_ipv6_addr7      (my_ipv6_addr_reg[128*7+:128]),
 
     .ntp_ofs            (ntp_rx_ofs),
     .ntp_time           (ntp_time),
@@ -299,28 +301,28 @@ module pp_top (
     .areset            (areset),
     .clk               (clk),
     .ip_ttl            (gen_config[23:16]),
-    .my_mac_addr0      (my_mac_addr0),
-    .my_mac_addr1      (my_mac_addr1),
-    .my_mac_addr2      (my_mac_addr2),
-    .my_mac_addr3      (my_mac_addr3),
+    .my_mac_addr0      (my_mac_addr_reg[48*0+:48]),
+    .my_mac_addr1      (my_mac_addr_reg[48*1+:48]),
+    .my_mac_addr2      (my_mac_addr_reg[48*2+:48]),
+    .my_mac_addr3      (my_mac_addr_reg[48*3+:48]),
 
-    .my_ipv4_addr0     (my_ipv4_addr0),
-    .my_ipv4_addr1     (my_ipv4_addr1),
-    .my_ipv4_addr2     (my_ipv4_addr2),
-    .my_ipv4_addr3     (my_ipv4_addr3),
-    .my_ipv4_addr4     (my_ipv4_addr4),
-    .my_ipv4_addr5     (my_ipv4_addr5),
-    .my_ipv4_addr6     (my_ipv4_addr6),
-    .my_ipv4_addr7     (my_ipv4_addr7),
+    .my_ipv4_addr0     (my_ipv4_addr_reg[32*0+:32]),
+    .my_ipv4_addr1     (my_ipv4_addr_reg[32*1+:32]),
+    .my_ipv4_addr2     (my_ipv4_addr_reg[32*2+:32]),
+    .my_ipv4_addr3     (my_ipv4_addr_reg[32*3+:32]),
+    .my_ipv4_addr4     (my_ipv4_addr_reg[32*4+:32]),
+    .my_ipv4_addr5     (my_ipv4_addr_reg[32*5+:32]),
+    .my_ipv4_addr6     (my_ipv4_addr_reg[32*6+:32]),
+    .my_ipv4_addr7     (my_ipv4_addr_reg[32*7+:32]),
 
-    .my_ipv6_addr0     (my_ipv6_addr0),
-    .my_ipv6_addr1     (my_ipv6_addr1),
-    .my_ipv6_addr2     (my_ipv6_addr2),
-    .my_ipv6_addr3     (my_ipv6_addr3),
-    .my_ipv6_addr4     (my_ipv6_addr4),
-    .my_ipv6_addr5     (my_ipv6_addr5),
-    .my_ipv6_addr6     (my_ipv6_addr6),
-    .my_ipv6_addr7     (my_ipv6_addr7),
+    .my_ipv6_addr0     (my_ipv6_addr_reg[128*0+:128]),
+    .my_ipv6_addr1     (my_ipv6_addr_reg[128*1+:128]),
+    .my_ipv6_addr2     (my_ipv6_addr_reg[128*2+:128]),
+    .my_ipv6_addr3     (my_ipv6_addr_reg[128*3+:128]),
+    .my_ipv6_addr4     (my_ipv6_addr_reg[128*4+:128]),
+    .my_ipv6_addr5     (my_ipv6_addr_reg[128*5+:128]),
+    .my_ipv6_addr6     (my_ipv6_addr_reg[128*6+:128]),
+    .my_ipv6_addr7     (my_ipv6_addr_reg[128*7+:128]),
 
     .start             (pp_tx_start),
     .ready             (pp_tx_ready),
