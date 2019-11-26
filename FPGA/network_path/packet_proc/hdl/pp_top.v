@@ -144,6 +144,24 @@ module pp_top (
              .ipv6_addr7(my_ipv6_addr7)
             );
 
+  reg [7:0]  rx_data_valid_reg;
+  reg [63:0] rx_data_reg;
+  reg        rx_bad_frame_reg;
+  reg        rx_good_frame_reg;
+
+  //Shorten critical path with additional registers
+  always @(posedge clk or posedge areset)
+  if (areset) begin
+    rx_data_valid_reg <= 0;
+    rx_data_reg       <= 0;
+    rx_bad_frame_reg  <= 0;
+    rx_good_frame_reg <= 0;
+  end else begin
+    rx_data_valid_reg <= rx_data_valid;
+    rx_data_reg       <= rx_data;
+    rx_bad_frame_reg  <= rx_bad_frame;
+    rx_good_frame_reg <= rx_good_frame;
+  end
 
   // Packet decoder
   pp_rx rx(
@@ -184,10 +202,10 @@ module pp_top (
 
     .ntp_ofs            (ntp_rx_ofs),
     .ntp_time           (ntp_time),
-    .rx_data_valid      (rx_data_valid),
-    .rx_data            (rx_data),
-    .rx_bad_frame       (rx_bad_frame),
-    .rx_good_frame      (rx_good_frame),
+    .rx_data_valid      (rx_data_valid_reg),
+    .rx_data            (rx_data_reg),
+    .rx_bad_frame       (rx_bad_frame_reg),
+    .rx_good_frame      (rx_good_frame_reg),
     .key_req            (key_req),
     .key_id             (key_id),
     .key_ack            (key_ack),
