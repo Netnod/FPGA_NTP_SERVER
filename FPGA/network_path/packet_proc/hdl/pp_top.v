@@ -45,22 +45,6 @@ module pp_top (
   output wire [31 : 0] api_read_data,
   output wire          api_ready,
 
-  //
-  input wire [47:0]  my_mac_addr0,
-  input wire [47:0]  my_mac_addr1,
-  input wire [47:0]  my_mac_addr2,
-  input wire [47:0]  my_mac_addr3,
-
-  input wire [31:0]  my_ipv4_addr0,
-  input wire [31:0]  my_ipv4_addr1,
-  input wire [31:0]  my_ipv4_addr2,
-  input wire [31:0]  my_ipv4_addr3,
-
-  input wire [127:0] my_ipv6_addr0,
-  input wire [127:0] my_ipv6_addr1,
-  input wire [127:0] my_ipv6_addr2,
-  input wire [127:0] my_ipv6_addr3,
-
   // Gen config
   input wire [23:0]  gen_config,
   // NTP Config
@@ -101,13 +85,25 @@ module pp_top (
 
   //----------------------------------------------------------------
   // API
-  wire [31:0]  test_my_ipv4_addr3;
 
+  wire [47:0]  my_mac_addr0;
+  wire [47:0]  my_mac_addr1;
+  wire [47:0]  my_mac_addr2;
+  wire [47:0]  my_mac_addr3;
+
+  wire [31:0]  my_ipv4_addr0;
+  wire [31:0]  my_ipv4_addr1;
+  wire [31:0]  my_ipv4_addr2;
+  wire [31:0]  my_ipv4_addr3;
   wire [31:0]  my_ipv4_addr4;
   wire [31:0]  my_ipv4_addr5;
   wire [31:0]  my_ipv4_addr6;
   wire [31:0]  my_ipv4_addr7;
 
+  wire [127:0] my_ipv6_addr0;
+  wire [127:0] my_ipv6_addr1;
+  wire [127:0] my_ipv6_addr2;
+  wire [127:0] my_ipv6_addr3;
   wire [127:0] my_ipv6_addr4;
   wire [127:0] my_ipv6_addr5;
   wire [127:0] my_ipv6_addr6;
@@ -116,29 +112,32 @@ module pp_top (
   pp_api api(
              .clk(clk),
              .areset(areset),
+
              .cs(api_cs),
              .we(api_we),
              .address(api_address),
              .write_data(api_write_data),
              .read_data(api_read_data),
              .ready(api_ready),
-             .mac_addr0(),
-             .mac_addr1(),
-             .mac_addr2(),
-             .mac_addr3(),
-             .ipv4_addr0(),
-             .ipv4_addr1(),
-             .ipv4_addr2(),
-             .ipv4_addr3(test_my_ipv4_addr3),
+
+             .mac_addr0(my_mac_addr0),
+             .mac_addr1(my_mac_addr1),
+             .mac_addr2(my_mac_addr2),
+             .mac_addr3(my_mac_addr3),
+
+             .ipv4_addr0(my_ipv4_addr0),
+             .ipv4_addr1(my_ipv4_addr1),
+             .ipv4_addr2(my_ipv4_addr2),
+             .ipv4_addr3(my_ipv4_addr3),
              .ipv4_addr4(my_ipv4_addr4),
              .ipv4_addr5(my_ipv4_addr5),
              .ipv4_addr6(my_ipv4_addr6),
              .ipv4_addr7(my_ipv4_addr7),
 
-             .ipv6_addr0(),
-             .ipv6_addr1(),
-             .ipv6_addr2(),
-             .ipv6_addr3(),
+             .ipv6_addr0(my_ipv6_addr0),
+             .ipv6_addr1(my_ipv6_addr1),
+             .ipv6_addr2(my_ipv6_addr2),
+             .ipv6_addr3(my_ipv6_addr3),
              .ipv6_addr4(my_ipv6_addr4),
              .ipv6_addr5(my_ipv6_addr5),
              .ipv6_addr6(my_ipv6_addr6),
@@ -168,7 +167,7 @@ module pp_top (
     .my_ipv4_addr0      (my_ipv4_addr0),
     .my_ipv4_addr1      (my_ipv4_addr1),
     .my_ipv4_addr2      (my_ipv4_addr2),
-    .my_ipv4_addr3      (test_my_ipv4_addr3),
+    .my_ipv4_addr3      (my_ipv4_addr3),
     .my_ipv4_addr4      (my_ipv4_addr4),
     .my_ipv4_addr5      (my_ipv4_addr5),
     .my_ipv4_addr6      (my_ipv4_addr6),
@@ -290,7 +289,7 @@ module pp_top (
     .my_ipv4_addr0     (my_ipv4_addr0),
     .my_ipv4_addr1     (my_ipv4_addr1),
     .my_ipv4_addr2     (my_ipv4_addr2),
-    .my_ipv4_addr3     (test_my_ipv4_addr3),
+    .my_ipv4_addr3     (my_ipv4_addr3),
     .my_ipv4_addr4     (my_ipv4_addr4),
     .my_ipv4_addr5     (my_ipv4_addr5),
     .my_ipv4_addr6     (my_ipv4_addr6),
