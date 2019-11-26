@@ -1,0 +1,9 @@
+[submodule "FPGA/nts/api_extension"]
+	path = FPGA/nts/api_extension
+	url = ../api_extension.git
+[submodule "FPGA/nts/default_packets"]
+	path = FPGA/nts/default_packets
+	url = ../default_packets.git
+[submodule "FPGA/nts/rosc_entropy"]
+	path = FPGA/nts/rosc_entropy
+	url = ../rosc_entropy.git
