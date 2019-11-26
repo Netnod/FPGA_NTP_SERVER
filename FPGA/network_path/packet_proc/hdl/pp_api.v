@@ -395,6 +395,12 @@ module pp_api(
       tmp_read_data    = 32'hba553ba553;
       mac_addr0_lsb_we = 1'h0;
       mac_addr0_msb_we = 1'h0;
+      mac_addr1_lsb_we = 1'h0;
+      mac_addr1_msb_we = 1'h0;
+      mac_addr2_lsb_we = 1'h0;
+      mac_addr2_msb_we = 1'h0;
+      mac_addr3_lsb_we = 1'h0;
+      mac_addr3_msb_we = 1'h0;
       ipv4_addr0_we    = 1'h0;
       ipv4_addr1_we    = 1'h0;
       ipv4_addr2_we    = 1'h0;
