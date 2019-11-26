@@ -392,7 +392,7 @@ module pp_api(
   always @*
     begin : api
       ready_we         = 1'h0;
-      tmp_read_data    = 32'hba553ba553;
+      tmp_read_data    = 32'h553b_a553;
       mac_addr0_lsb_we = 1'h0;
       mac_addr0_msb_we = 1'h0;
       mac_addr1_lsb_we = 1'h0;
