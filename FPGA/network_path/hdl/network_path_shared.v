@@ -117,18 +117,6 @@ module network_path_shared #(
 );
 
   wire [31:0]  gen_config;
-  wire [47:0]  pp_mac_addr0;
-  wire [47:0]  pp_mac_addr1;
-  wire [47:0]  pp_mac_addr2;
-  wire [47:0]  pp_mac_addr3;
-  wire [31:0]  pp_ipv4_addr0;
-  wire [31:0]  pp_ipv4_addr1;
-  wire [31:0]  pp_ipv4_addr2;
-  wire [31:0]  pp_ipv4_addr3;
-  wire [127:0] pp_ipv6_addr0;
-  wire [127:0] pp_ipv6_addr1;
-  wire [127:0] pp_ipv6_addr2;
-  wire [127:0] pp_ipv6_addr3;
   wire [31:0]  ntp_config;
   wire [31:0]  ntp_root_delay;
   wire [31:0]  ntp_root_disp;
@@ -151,18 +139,6 @@ module network_path_shared #(
   ) network_path_axi_slave_inst (
     .pp_clk        (clk156),
     .gen_config    (gen_config),
-    .pp_mac_addr0  (pp_mac_addr0),
-    .pp_mac_addr1  (pp_mac_addr1),
-    .pp_mac_addr2  (pp_mac_addr2),
-    .pp_mac_addr3  (pp_mac_addr3),
-    .pp_ipv4_addr0 (pp_ipv4_addr0),
-    .pp_ipv4_addr1 (pp_ipv4_addr1),
-    .pp_ipv4_addr2 (pp_ipv4_addr2),
-    .pp_ipv4_addr3 (pp_ipv4_addr3),
-    .pp_ipv6_addr0 (pp_ipv6_addr0),
-    .pp_ipv6_addr1 (pp_ipv6_addr1),
-    .pp_ipv6_addr2 (pp_ipv6_addr2),
-    .pp_ipv6_addr3 (pp_ipv6_addr3),
     .ntp_config    (ntp_config),
     .ntp_root_delay(ntp_root_delay),
     .ntp_root_disp (ntp_root_disp),
@@ -233,18 +209,6 @@ module network_path_shared #(
     .api_read_data  (pp_api_read_data),
     .api_ready      (pp_api_ready),
 
-    .my_mac_addr0   (pp_mac_addr0),
-    .my_mac_addr1   (pp_mac_addr1),
-    .my_mac_addr2   (pp_mac_addr2),
-    .my_mac_addr3   (pp_mac_addr3),
-    .my_ipv4_addr0  (pp_ipv4_addr0),
-    .my_ipv4_addr1  (pp_ipv4_addr1),
-    .my_ipv4_addr2  (pp_ipv4_addr2),
-    .my_ipv4_addr3  (pp_ipv4_addr3),
-    .my_ipv6_addr0  (pp_ipv6_addr0),
-    .my_ipv6_addr1  (pp_ipv6_addr1),
-    .my_ipv6_addr2  (pp_ipv6_addr2),
-    .my_ipv6_addr3  (pp_ipv6_addr3),
     .gen_config     (gen_config[23:0]),
     .ntp_config     (ntp_config),
     .ntp_root_delay (ntp_root_delay),

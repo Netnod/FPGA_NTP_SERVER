@@ -44,18 +44,6 @@ module network_path_axi_slave #(
   // Network stuff
   input wire 				  pp_clk,
   output wire [31:0] 			  gen_config,
-  output wire [47:0] 			  pp_mac_addr0,
-  output wire [47:0] 			  pp_mac_addr1,
-  output wire [47:0] 			  pp_mac_addr2,
-  output wire [47:0] 			  pp_mac_addr3,
-  output wire [31:0] 			  pp_ipv4_addr0,
-  output wire [31:0] 			  pp_ipv4_addr1,
-  output wire [31:0] 			  pp_ipv4_addr2,
-  output wire [31:0] 			  pp_ipv4_addr3,
-  output wire [127:0] 			  pp_ipv6_addr0,
-  output wire [127:0] 			  pp_ipv6_addr1,
-  output wire [127:0] 			  pp_ipv6_addr2,
-  output wire [127:0] 			  pp_ipv6_addr3,
   output wire [31:0] 			  ntp_config,
   output wire [31:0] 			  ntp_root_delay,
   output wire [31:0] 			  ntp_root_disp,
@@ -351,18 +339,6 @@ module network_path_axi_slave #(
 
   // Outputs
   wire [31:0]  gen_config_axi;
-  wire [47:0]  pp_mac_addr0_axi;
-  wire [47:0]  pp_mac_addr1_axi;
-  wire [47:0]  pp_mac_addr2_axi;
-  wire [47:0]  pp_mac_addr3_axi;
-  wire [31:0]  pp_ipv4_addr0_axi;
-  wire [31:0]  pp_ipv4_addr1_axi;
-  wire [31:0]  pp_ipv4_addr2_axi;
-  wire [31:0]  pp_ipv4_addr3_axi;
-  wire [127:0] pp_ipv6_addr0_axi;
-  wire [127:0] pp_ipv6_addr1_axi;
-  wire [127:0] pp_ipv6_addr2_axi;
-  wire [127:0] pp_ipv6_addr3_axi;
   wire [31:0]  ntp_config_axi;
   wire [31:0]  ntp_root_delay_axi;
   wire [31:0]  ntp_root_disp_axi;
@@ -372,18 +348,6 @@ module network_path_axi_slave #(
   wire [31:0]  ntp_tx_ofs_axi;
 
   assign gen_config_axi     =  slv_reg[ 0];
-  assign pp_mac_addr0_axi   = {slv_reg[ 2][15:0], slv_reg[1]};
-  assign pp_mac_addr1_axi   = {slv_reg[ 4][15:0], slv_reg[3]};
-  assign pp_mac_addr2_axi   = {slv_reg[ 6][15:0], slv_reg[5]};
-  assign pp_mac_addr3_axi   = {slv_reg[ 8][15:0], slv_reg[7]};
-  assign pp_ipv4_addr0_axi  =  slv_reg[ 9];
-  assign pp_ipv4_addr1_axi  =  slv_reg[10];
-  assign pp_ipv4_addr2_axi  =  slv_reg[11];
-  assign pp_ipv4_addr3_axi  =  slv_reg[12];
-  assign pp_ipv6_addr0_axi  = {slv_reg[16], slv_reg[15], slv_reg[14], slv_reg[13]};
-  assign pp_ipv6_addr1_axi  = {slv_reg[20], slv_reg[19], slv_reg[18], slv_reg[17]};
-  assign pp_ipv6_addr2_axi  = {slv_reg[24], slv_reg[23], slv_reg[22], slv_reg[21]};
-  assign pp_ipv6_addr3_axi  = {slv_reg[28], slv_reg[27], slv_reg[26], slv_reg[25]};
   assign ntp_config_axi     =  slv_reg[29];
   assign ntp_root_delay_axi =  slv_reg[30];
   assign ntp_root_disp_axi  =  slv_reg[31];
@@ -407,18 +371,6 @@ module network_path_axi_slave #(
   synchronizer_simple #(.DATA_WIDTH(32)) sync_api_ext_read_data (.data_in(api_ext_read_data), .new_clk(S_AXI_ACLK), .data_out(api_ext_read_data_axi));
 
   synchronizer_vector #(.DATA_WIDTH(32))  sync_gen_config    (.data_in(gen_config_axi),     .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(gen_config));
-  synchronizer_vector #(.DATA_WIDTH(48))  sync_pp_mac_addr0  (.data_in(pp_mac_addr0_axi),   .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_mac_addr0));
-  synchronizer_vector #(.DATA_WIDTH(48))  sync_pp_mac_addr1  (.data_in(pp_mac_addr1_axi),   .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_mac_addr1));
-  synchronizer_vector #(.DATA_WIDTH(48))  sync_pp_mac_addr2  (.data_in(pp_mac_addr2_axi),   .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_mac_addr2));
-  synchronizer_vector #(.DATA_WIDTH(48))  sync_pp_mac_addr3  (.data_in(pp_mac_addr3_axi),   .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_mac_addr3));
-  synchronizer_vector #(.DATA_WIDTH(32))  sync_pp_ipv4_addr0 (.data_in(pp_ipv4_addr0_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv4_addr0));
-  synchronizer_vector #(.DATA_WIDTH(32))  sync_pp_ipv4_addr1 (.data_in(pp_ipv4_addr1_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv4_addr1));
-  synchronizer_vector #(.DATA_WIDTH(32))  sync_pp_ipv4_addr2 (.data_in(pp_ipv4_addr2_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv4_addr2));
-  synchronizer_vector #(.DATA_WIDTH(32))  sync_pp_ipv4_addr3 (.data_in(pp_ipv4_addr3_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv4_addr3));
-  synchronizer_vector #(.DATA_WIDTH(128)) sync_pp_ipv6_addr0 (.data_in(pp_ipv6_addr0_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv6_addr0));
-  synchronizer_vector #(.DATA_WIDTH(128)) sync_pp_ipv6_addr1 (.data_in(pp_ipv6_addr1_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv6_addr1));
-  synchronizer_vector #(.DATA_WIDTH(128)) sync_pp_ipv6_addr2 (.data_in(pp_ipv6_addr2_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv6_addr2));
-  synchronizer_vector #(.DATA_WIDTH(128)) sync_pp_ipv6_addr3 (.data_in(pp_ipv6_addr3_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(pp_ipv6_addr3));
   synchronizer_vector #(.DATA_WIDTH(32))  sync_ntp_config    (.data_in(ntp_config_axi),     .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(ntp_config));
   synchronizer_vector #(.DATA_WIDTH(32))  sync_root_delay    (.data_in(ntp_root_delay_axi), .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(ntp_root_delay));
   synchronizer_vector #(.DATA_WIDTH(32))  sync_root_disp     (.data_in(ntp_root_disp_axi),  .old_clk(S_AXI_ACLK), .new_clk(pp_clk), .data_out(ntp_root_disp));
