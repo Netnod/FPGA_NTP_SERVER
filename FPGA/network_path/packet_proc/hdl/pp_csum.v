@@ -1,6 +1,43 @@
 //-----------------------------------------------------------------------------------------------
 
+  function [16:0] calc_csum16;
+     input [15:0] a;
+     input [15:0] b;
+     begin
+       calc_csum16 = { 1'b0, a } + { 1'b0, b };
+     end
+   endfunction
+
   function [15:0] calc_csum;
+    input [0:127] packet;
+    input integer     len;
+    integer           i;
+    reg   [6:0]       carry;
+    reg   [7:0]       msb; // Largest possible sum is 7 as in 8 * 0xFFFF = 0x7FFF8.
+    reg  [15:0]       tmp_sum0 [0:3];
+    reg  [15:0]       tmp_sum1 [0:1];
+    reg  [15:0]       tmp_sum2;
+    reg  [15:0]       tmp_sum3; //Largest possible sum here is 0x7 + 0xFFF8 = 0xFFFF. Cannot overflow.
+    begin
+      for (i = 0; i < 4; i = i+1) begin
+        { carry[i], tmp_sum0[i] } = calc_csum16( packet[i*32+:16], packet[i*32+16+:16] );
+      end
+      for (i = 0; i < 2; i = i+1) begin
+        { carry[4+i], tmp_sum1[i] } = calc_csum16( tmp_sum0[2*i], tmp_sum0[2*i+1] );
+      end
+      { carry[6], tmp_sum2 } = calc_csum16( tmp_sum1[0], tmp_sum1[1] );
+
+      msb = 0;
+      for (i = 0; i < 7; i = i + 1) begin
+        msb = msb + { 7'h0, carry[i] };
+      end
+
+      tmp_sum3 = tmp_sum2 + { 8'h0, msb }; //Cannot overflow! 0x7 + 0xFFF8 = 0xFFFF
+      calc_csum = tmp_sum3;
+    end
+  endfunction
+
+  function [15:0] calc_csumxx;
     input [0:127] packet;
     input integer     len;
     integer           i;
@@ -17,7 +54,7 @@
       end
       tmp_sum2 = tmp_sum1[0] + tmp_sum1[1];
       tmp_sum3 = tmp_sum2[15:0] + tmp_sum2[18:16];
-      calc_csum = tmp_sum3[15:0] + tmp_sum3[16];
+      calc_csumxx = tmp_sum3[15:0] + tmp_sum3[16];
     end
   endfunction
   
