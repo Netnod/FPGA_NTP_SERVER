@@ -83,8 +83,42 @@ module pp_top (
 
   wire [31:0]      rx_status;
 
+
+  //--------------------------------------------------------------
+  // Make status pulses 2 cycles long, enough to catch them in AXI clock domain
+  reg [31:0]  old_status;
+  always @(posedge clk, posedge areset) begin
+    if (areset == 1'b1) begin
+      old_status <= 'b0;
+    end else begin
+      old_status <= rx_status;
+    end
+  end
+  assign status = rx_status | old_status;
+
+
   //----------------------------------------------------------------
   // API
+  wire [47:0]  my_mac_addr0;
+  wire [47:0]  my_mac_addr1;
+  wire [47:0]  my_mac_addr2;
+  wire [47:0]  my_mac_addr3;
+  wire [31:0]  my_ipv4_addr0;
+  wire [31:0]  my_ipv4_addr1;
+  wire [31:0]  my_ipv4_addr2;
+  wire [31:0]  my_ipv4_addr3;
+  wire [31:0]  my_ipv4_addr4;
+  wire [31:0]  my_ipv4_addr5;
+  wire [31:0]  my_ipv4_addr6;
+  wire [31:0]  my_ipv4_addr7;
+  wire [127:0] my_ipv6_addr0;
+  wire [127:0] my_ipv6_addr1;
+  wire [127:0] my_ipv6_addr2;
+  wire [127:0] my_ipv6_addr3;
+  wire [127:0] my_ipv6_addr4;
+  wire [127:0] my_ipv6_addr5;
+  wire [127:0] my_ipv6_addr6;
+  wire [127:0] my_ipv6_addr7;
 
   reg [47:0]  my_mac_addr0_reg;
   reg [47:0]  my_mac_addr1_reg;
@@ -168,28 +202,28 @@ module pp_top (
              .read_data(api_read_data),
              .ready(api_ready),
 
-             .mac_addr0(my_mac_addr0_reg),
-             .mac_addr1(my_mac_addr1_reg),
-             .mac_addr2(my_mac_addr2_reg),
-             .mac_addr3(my_mac_addr3_reg),
+             .mac_addr0(my_mac_addr0),
+             .mac_addr1(my_mac_addr1),
+             .mac_addr2(my_mac_addr2),
+             .mac_addr3(my_mac_addr3),
 
-             .ipv4_addr0(my_ipv4_addr0_reg),
-             .ipv4_addr1(my_ipv4_addr1_reg),
-             .ipv4_addr2(my_ipv4_addr2_reg),
-             .ipv4_addr3(my_ipv4_addr3_reg),
-             .ipv4_addr4(my_ipv4_addr4_reg),
-             .ipv4_addr5(my_ipv4_addr5_reg),
-             .ipv4_addr6(my_ipv4_addr6_reg),
-             .ipv4_addr7(my_ipv4_addr7_reg),
+             .ipv4_addr0(my_ipv4_addr0),
+             .ipv4_addr1(my_ipv4_addr1),
+             .ipv4_addr2(my_ipv4_addr2),
+             .ipv4_addr3(my_ipv4_addr3),
+             .ipv4_addr4(my_ipv4_addr4),
+             .ipv4_addr5(my_ipv4_addr5),
+             .ipv4_addr6(my_ipv4_addr6),
+             .ipv4_addr7(my_ipv4_addr7),
 
-             .ipv6_addr0(my_ipv6_addr0_reg),
-             .ipv6_addr1(my_ipv6_addr1_reg),
-             .ipv6_addr2(my_ipv6_addr2_reg),
-             .ipv6_addr3(my_ipv6_addr3_reg),
-             .ipv6_addr4(my_ipv6_addr4_reg),
-             .ipv6_addr5(my_ipv6_addr5_reg),
-             .ipv6_addr6(my_ipv6_addr6_reg),
-             .ipv6_addr7(my_ipv6_addr7_reg)
+             .ipv6_addr0(my_ipv6_addr0),
+             .ipv6_addr1(my_ipv6_addr1),
+             .ipv6_addr2(my_ipv6_addr2),
+             .ipv6_addr3(my_ipv6_addr3),
+             .ipv6_addr4(my_ipv6_addr4),
+             .ipv6_addr5(my_ipv6_addr5),
+             .ipv6_addr6(my_ipv6_addr6),
+             .ipv6_addr7(my_ipv6_addr7)
             );
 
 
@@ -361,20 +395,4 @@ module pp_top (
     .tx_data           (tx_data)
   );
 
-
-  //--------------------------------------------------------------
-  // Make status pulses 2 cycles long, enough to catch them in AXI clock domain
-
-  reg [31:0]  old_status;
-  always @(posedge clk, posedge areset) begin
-    if (areset == 1'b1) begin
-      old_status <= 'b0;
-    end else begin
-      old_status <= rx_status;
-    end
-  end
-  assign status = rx_status | old_status;
-
 endmodule // pp_top
-
-`default_nettype wire
