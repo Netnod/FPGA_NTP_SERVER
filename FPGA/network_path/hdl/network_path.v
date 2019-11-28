@@ -112,18 +112,6 @@ module network_path #(
 );
 
   wire [31:0]  gen_config;
-  wire [47:0]  pp_mac_addr0;
-  wire [47:0]  pp_mac_addr1;
-  wire [47:0]  pp_mac_addr2;
-  wire [47:0]  pp_mac_addr3;
-  wire [31:0]  pp_ipv4_addr0;
-  wire [31:0]  pp_ipv4_addr1;
-  wire [31:0]  pp_ipv4_addr2;
-  wire [31:0]  pp_ipv4_addr3;
-  wire [127:0] pp_ipv6_addr0;
-  wire [127:0] pp_ipv6_addr1;
-  wire [127:0] pp_ipv6_addr2;
-  wire [127:0] pp_ipv6_addr3;
   wire [31:0]  ntp_config;
   wire [31:0]  ntp_root_delay;
   wire [31:0]  ntp_root_disp;
