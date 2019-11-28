@@ -198,6 +198,28 @@ set files [list \
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy_core.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/keymem/src/rtl/nts_keymem.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_core.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_decipher_block.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_encipher_block.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_inv_sbox.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_key_mem.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_sbox.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/cmac/src/rtl/cmac_core.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes-siv/src/rtl/aes_siv_core.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dpge.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dp2w.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/memory_ctrl.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_api.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_engine.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_parser_ctrl.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_rx_buffer.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_timestamp.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_tx_buffer.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_verify_secure.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_dispatcher.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_top.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
 

@@ -352,6 +352,11 @@ module network_path_shared #(
    wire [23 : 0] rosc_address;
    wire [31 : 0] rosc_write_data;
    wire [31 : 0] rosc_read_data;
+   wire          nts_cs;
+   wire          nts_we;
+   wire [23 : 0] nts_address;
+   wire [31 : 0] nts_write_data;
+   wire [31 : 0] nts_read_data;
 
    api_extension api_extension0 (
     .clk(clk156),
@@ -365,11 +370,11 @@ module network_path_shared #(
     .read_data(api_ext_read_data),
 
     // Access ports to extensions.
-    .nts_cs(),
-    .nts_we(),
-    .nts_address(),
-    .nts_write_data(),
-    .nts_read_data(32'haaaa5555),
+    .nts_cs(nts_cs),
+    .nts_we(nts_we),
+    .nts_address(nts_address),
+    .nts_write_data(nts_write_data),
+    .nts_read_data(nts_read_data),
     .nts_ready(1'h1),
 
     .pp_cs(pp_api_cs),
@@ -403,6 +408,23 @@ module network_path_shared #(
                      .write_data(rosc_write_data),
                      .read_data(rosc_read_data)
                    );
+
+  nts_top #( .ENGINES(1) ) nts (
+    .i_areset(clk156),
+    .i_clk(areset_clk156),
+
+    .i_mac_rx_data_valid(8'h0),
+    .i_mac_rx_data(64'h0),
+    .i_mac_rx_bad_frame(1'h0),
+    .i_mac_rx_good_frame(1'h0),
+
+    .i_api_dispatcher_cs(nts_cs),
+    .i_api_dispatcher_we(nts_we),
+    .i_api_dispatcher_address(nts_address[11:0]),
+    .i_api_dispatcher_write_data(nts_write_data),
+    .o_api_dispatcher_read_data(nts_read_data)
+  );
+
 
 endmodule // network_path_shared
 
