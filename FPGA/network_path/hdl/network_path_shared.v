@@ -197,8 +197,55 @@ module network_path_shared #(
   wire [63:0]  xgmii_rxd;
   wire [7:0]   xgmii_rxc;
 
+  wire [7:0]   rx_mac_data_valid;
+  wire [63:0]  rx_mac_data;
+  wire         tx_mac_start;
+  wire         tx_mac_ack;
+  wire [7:0]   tx_mac_data_valid;
+  wire [63:0]  tx_mac_data;
+  wire         rx_mac_bad_frame;
+  wire         rx_mac_good_frame;
+
+  wire         sys_aresetn;
+  assign       sys_aresetn = ~sys_reset;
+
+  // Swap and mask bytes within long word
+  function [63:0] mac_swap_bytes;
+    input [63:0] data;
+    input [7:0]  mask; // Avoid Xs
+    begin
+      mac_swap_bytes[ 0+:8] = data[56+:8] & {8{mask[7]}};
+      mac_swap_bytes[ 8+:8] = data[48+:8] & {8{mask[6]}};
+      mac_swap_bytes[16+:8] = data[40+:8] & {8{mask[5]}};
+      mac_swap_bytes[24+:8] = data[32+:8] & {8{mask[4]}};
+      mac_swap_bytes[32+:8] = data[24+:8] & {8{mask[3]}};
+      mac_swap_bytes[40+:8] = data[16+:8] & {8{mask[2]}};
+      mac_swap_bytes[48+:8] = data[ 8+:8] & {8{mask[1]}};
+      mac_swap_bytes[56+:8] = data[ 0+:8] & {8{mask[0]}};
+    end
+  endfunction //
+
+  // 10GbMAC
+  oc_mac mac(
+    .res_n         (sys_aresetn),
+    .tx_clk        (clk156),
+    .tx_start      (tx_mac_start),
+    .tx_data       (mac_swap_bytes(tx_mac_data, 8'hff)), // mask doesn't work here since it is already swapped (is not needed anyway)
+    .tx_data_valid (tx_mac_data_valid),
+    .xgmii_rxd     (xgmii_rxd),
+    .xgmii_rxc     (xgmii_rxc),
+    .tx_ack        (tx_mac_ack),
+    .rx_clk        (clk156),
+    .rx_bad_frame  (rx_mac_bad_frame),
+    .rx_good_frame (rx_mac_good_frame),
+    .rx_data       (rx_mac_data),
+    .rx_data_valid (rx_mac_data_valid),
+    .xgmii_txc     (xgmii_txc),
+    .xgmii_txd     (xgmii_txd)
+  );
+
   // Packet processing including MAC
-  pp_mac_top pp(
+  pp_top pp(
     .areset         (sys_reset),
     .clk            (clk156),
 
@@ -222,10 +269,21 @@ module network_path_shared #(
     .key_id         (key_id),
     .key_ack        (key_ack),
     .key            (key),
-    .xgmii_rxd      (xgmii_rxd),
-    .xgmii_rxc      (xgmii_rxc),
-    .xgmii_txd      (xgmii_txd),
-    .xgmii_txc      (xgmii_txc),
+
+  //.xgmii_rxd      (xgmii_rxd),
+  //.xgmii_rxc      (xgmii_rxc),
+  //.xgmii_txd      (xgmii_txd),
+  //.xgmii_txc      (xgmii_txc),
+
+    .rx_data_valid  (rx_mac_data_valid),
+    .rx_data        (mac_swap_bytes(rx_mac_data, rx_mac_data_valid)),
+    .rx_bad_frame   (rx_mac_bad_frame),
+    .rx_good_frame  (rx_mac_good_frame),
+    .tx_start       (tx_mac_start),
+    .tx_ack         (tx_mac_ack),
+    .tx_data_valid  (tx_mac_data_valid),
+    .tx_data        (tx_mac_data),
+
     .status         (pp_status)
   );
 
@@ -413,10 +471,10 @@ module network_path_shared #(
     .i_areset(clk156),
     .i_clk(areset_clk156),
 
-    .i_mac_rx_data_valid(8'h0),
-    .i_mac_rx_data(64'h0),
-    .i_mac_rx_bad_frame(1'h0),
-    .i_mac_rx_good_frame(1'h0),
+    .i_mac_rx_data_valid(rx_mac_data_valid),
+    .i_mac_rx_data(rx_mac_data),
+    .i_mac_rx_bad_frame(rx_mac_bad_frame),
+    .i_mac_rx_good_frame(rx_mac_good_frame),
 
     .i_api_dispatcher_cs(nts_cs),
     .i_api_dispatcher_we(nts_we),
