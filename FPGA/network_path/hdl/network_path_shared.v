@@ -471,6 +471,8 @@ module network_path_shared #(
     .i_areset(clk156),
     .i_clk(areset_clk156),
 
+    .i_ntp_time(ntp_time),
+
     .i_mac_rx_data_valid(rx_mac_data_valid),
     .i_mac_rx_data(rx_mac_data),
     .i_mac_rx_bad_frame(rx_mac_bad_frame),
