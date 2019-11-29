@@ -412,7 +412,7 @@ module network_path_shared #(
    wire [31 : 0] rosc_read_data;
    wire          nts_cs;
    wire          nts_we;
-   wire [23 : 0] nts_address;
+   wire [11 : 0] nts_address;
    wire [31 : 0] nts_write_data;
    wire [31 : 0] nts_read_data;
 
@@ -480,7 +480,7 @@ module network_path_shared #(
 
     .i_api_dispatcher_cs(nts_cs),
     .i_api_dispatcher_we(nts_we),
-    .i_api_dispatcher_address(nts_address[11:0]),
+    .i_api_dispatcher_address(nts_address),
     .i_api_dispatcher_write_data(nts_write_data),
     .o_api_dispatcher_read_data(nts_read_data)
   );

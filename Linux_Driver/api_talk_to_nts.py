@@ -33,6 +33,8 @@ DISPATCHER_BASE = 0x20000000
 API_DISPATCHER_ADDR_NAME               = 0x000
 API_DISPATCHER_ADDR_VERSION            = 0x002
 API_DISPATCHER_ADDR_DUMMY              = 0x003
+API_DISPATCHER_ADDR_SYSTICK32          = 0x004
+API_DISPATCHER_ADDR_NTPTIME            = 0x006
 API_DISPATCHER_ADDR_BYTES_RX           = 0x00a
 API_DISPATCHER_ADDR_COUNTER_FRAMES     = 0x020
 API_DISPATCHER_ADDR_COUNTER_GOOD       = 0x022
@@ -99,6 +101,10 @@ def write32(api, base, offset, value):
 def humanL(a):
     return hex(a)[2:][:-1].decode("hex")
 
+def human32(api, base, offset):
+    machine = read32(api, base, offset)
+    return humanL(machine)
+
 def human64(api, base, offset):
     machine = read64(api, base, offset)
     return humanL(machine)
@@ -123,8 +129,6 @@ def engine_read64(api, addr):
     msb = engine_read32(api, addr)
     lsb = engine_read32(api, addr + 1)
     word = (msb<<32) | lsb
-    #print word
-    #print hex(word)
     return word
 
 def human_engine64(api, addr):
@@ -137,7 +141,10 @@ def check_nts_dispatcher_apis(api):
     print("VERSION:     0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
     print("")
     print("Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
-    print("Version: %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION)) # bug :) version is 32bit...
+    print("Version: %s" % human32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
+    print("")
+    print("SYSTICK32:   0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_SYSTICK32));
+    print("NTP_TIME:    0x%016x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTPTIME))
     print("")
     print("DUMMY:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY, 0xdeadbeef)
@@ -156,7 +163,11 @@ def check_nts_dispatcher_apis(api):
     print(" Core:    %016x" % engine_read64(api, API_ADDR_ENGINE_NAME0));
     print(" Core:    %016x" % engine_read64(api, API_ADDR_CLOCK_NAME0));
     print(" Core:    %016x" % engine_read64(api, API_ADDR_KEYMEM_NAME0));
-
+    print("")
+    for addr in range(0, 0xFFF):
+        value = read32(api, DISPATCHER_BASE, addr)
+        if (value != 0):
+            print("dispatcher[%03x] = %08x" % (addr, value) );
 
 #-------------------------------------------------------------------
 if __name__=="__main__":
