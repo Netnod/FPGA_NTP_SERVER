@@ -57,24 +57,26 @@ def humanL(a):
 
 def human64(api, base, offset):
     machine = read64(api, base, offset)
-    #print(machine)
-    #print(hex(machine))
     return humanL(machine)
-
-#def human(a):
-#    return bytes.fromhex(hex(a)[2:]).decode('utf-8')
 
 def check_nts_dispatcher_apis(api):
     print("Checking access to APIs in NTS")
-    print("NAME0:   0x%08x" % api.read(0x20000000))
-    print("NAME1:   0x%08x" % api.read(0x20000001))
-    print("VERSION: 0x%08x" % api.read(0x20000002))
+    print("NAME0:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
+    print("NAME1:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME + 1))
+    print("VERSION:     0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
     print("")
-    print("Name: %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
+    print("Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
+    print("Version: %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
+    print("")
+    print("DUMMY:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
+    print("BYTES_RX:    0x%08x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX))
+    print("")
+    print("FRAMES:        %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_FRAMES))
+    print(" - GOOD:       %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_GOOD))
+    print(" - BAD:        %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
+    print(" - DISPATCHED: %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
     print("")
 
-
-    
 #-------------------------------------------------------------------
 if __name__=="__main__":
     print("Setting up the server FPGA based NTP server.")
@@ -85,5 +87,5 @@ if __name__=="__main__":
     api = api_extension(path)
 
     check_nts_dispatcher_apis(api)
-    
+
     sys.exit(0)
