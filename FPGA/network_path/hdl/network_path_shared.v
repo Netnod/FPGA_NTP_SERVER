@@ -468,8 +468,8 @@ module network_path_shared #(
                    );
 
   nts_top #( .ENGINES(1) ) nts (
-    .i_areset(clk156),
-    .i_clk(areset_clk156),
+    .i_areset(areset_clk156),
+    .i_clk(clk156),
 
     .i_ntp_time(ntp_time),
 
