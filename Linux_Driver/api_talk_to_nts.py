@@ -112,7 +112,6 @@ def human64(api, base, offset):
 def engine_read32(api, addr):
     engine = 0 # TODO add as a parameter
     id_cmd_addr = (engine<<20) | (BUS_READ<<12) | (addr & 0xFFF)
-    #print ("id_cmd_addr: %x" % id_cmd_addr );
 
     write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR, id_cmd_addr )
     write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_STATUS, 1 )
@@ -125,13 +124,35 @@ def engine_read32(api, addr):
 
     return result
 
+def engine_write32(api, addr, value):
+    engine = 0 # TODO add as a parameter
+    id_cmd_addr = (engine<<20) | (BUS_WRITE<<12) | (addr & 0xFFF)
+    #print ("id_cmd_addr: %x" % id_cmd_addr );
+
+    write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR, id_cmd_addr )
+    write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_DATA, value )
+    write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_STATUS, 1 )
+
+    status = read32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_STATUS )
+    while status:
+          status = read32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_STATUS )
+
+def engine_write32_checkreadback(api, addr, value):
+    engine_write32(api, addr, value)
+    readback = engine_read32(api, addr)
+    if (value != readback):
+      raise Exception("WARNING: Write engine[{}]={}, read back was: {}".format(hex(addr), hex(value), hex(readback)));
+
 def engine_read64(api, addr):
     msb = engine_read32(api, addr)
     lsb = engine_read32(api, addr + 1)
     word = (msb<<32) | lsb
     return word
 
-def human_engine64(api, addr):
+def engine_human32(api, addr):
+    return humanL(engine_read32(api, addr))
+
+def engine_human64(api, addr):
     return humanL(engine_read64(api, addr))
 
 def check_nts_dispatcher_apis(api):
@@ -160,14 +181,53 @@ def check_nts_dispatcher_apis(api):
     print(" - DISPATCHED: %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
     print("")
     print("ENGINE:");
-    print(" Core:    %016x" % engine_read64(api, API_ADDR_ENGINE_NAME0));
-    print(" Core:    %016x" % engine_read64(api, API_ADDR_CLOCK_NAME0));
-    print(" Core:    %016x" % engine_read64(api, API_ADDR_KEYMEM_NAME0));
+    print(" Core:    %s" % engine_human64(api, API_ADDR_ENGINE_NAME0));
+    print(" Core:    %s" % engine_human64(api, API_ADDR_CLOCK_NAME0));
+    print(" Core:    %s" % engine_human64(api, API_ADDR_KEYMEM_NAME0));
     print("")
     for addr in range(0, 0xFFF):
         value = read32(api, DISPATCHER_BASE, addr)
         if (value != 0):
             print("dispatcher[%03x] = %08x" % (addr, value) );
+
+def nts_install_key_256bit(api, key_index, keyid, key=[]):
+    addr_key = 0
+    addr_keyid = 0
+    addr_length = 0
+    ctrl = 0
+    dictionary = {
+      0: ( API_ADDR_KEYMEM_KEY0_START, API_ADDR_KEYMEM_KEY0_ID, API_ADDR_KEYMEM_KEY0_LENGTH ),
+      1: ( API_ADDR_KEYMEM_KEY1_START, API_ADDR_KEYMEM_KEY1_ID, API_ADDR_KEYMEM_KEY1_LENGTH ),
+      2: ( API_ADDR_KEYMEM_KEY2_START, API_ADDR_KEYMEM_KEY2_ID, API_ADDR_KEYMEM_KEY2_LENGTH ),
+      3: ( API_ADDR_KEYMEM_KEY3_START, API_ADDR_KEYMEM_KEY3_ID, API_ADDR_KEYMEM_KEY3_LENGTH ),
+    }
+
+    ( addr_key, addr_keyid, addr_length ) = dictionary.get( key_index )
+
+    print("Install key, index = %x, address key = %x, address key id = %x, address key length = %x" % (key_index, addr_key, addr_keyid, addr_length))
+
+    ctrl = engine_read32( api, API_ADDR_KEYMEM_ADDR_CTRL )
+    ctrl = ctrl & ~ (1<<key_index);
+
+    engine_write32_checkreadback( api, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
+
+    engine_write32_checkreadback( api, addr_keyid, keyid )
+    engine_write32_checkreadback( api, addr_length, 0 )
+
+    for i in range(0, 8):
+       addr = addr_key + i
+       value = key[7-i]
+       print("Install key, engine[%x]=%x" % (addr, value))
+       engine_write32_checkreadback( api, addr,       value ) #256bit LSB
+       engine_write32_checkreadback( api, addr + 0x8, 0     ) #256bit MSB, all zeros
+
+    for i in range(7, -1, -1):
+       addr = addr_key + i
+       print("key[%d]: %08x" % (i, engine_read32( api, addr )))
+
+    ctrl = ctrl | (1<<key_index)
+    engine_write32_checkreadback( api, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
+
 
 #-------------------------------------------------------------------
 if __name__=="__main__":
@@ -180,4 +240,5 @@ if __name__=="__main__":
 
     check_nts_dispatcher_apis(api)
 
+    nts_install_key_256bit(api, 0, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] );
     sys.exit(0)
