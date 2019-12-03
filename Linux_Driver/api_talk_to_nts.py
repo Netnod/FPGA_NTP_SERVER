@@ -163,7 +163,6 @@ def check_nts_dispatcher_apis(api):
     print("Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
     print("Version: %s" % human32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
     print("")
-    print("SYSTICK32:   0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_SYSTICK32));
     print("NTP_TIME:    0x%016x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTPTIME))
     print("")
     print("DUMMY:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
@@ -172,7 +171,8 @@ def check_nts_dispatcher_apis(api):
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY, 0x1cec001d)
     print("DUMMY:       0x%08x (expected: 1cec001d)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
     print("")
-    print("BYTES_RX:    0x%08x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX))
+    print("BYTES_RX:    %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX))
+    print("SYSTICK32:   %d" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_SYSTICK32))
     print("")
     print("FRAMES:");
     print(" - DETECTED:   %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_FRAMES))
@@ -181,11 +181,22 @@ def check_nts_dispatcher_apis(api):
     print(" - DISPATCHED: %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_DISPATCHED))
     print("")
     print("ENGINE:");
-    print(" Core:    %s" % engine_human64(api, API_ADDR_ENGINE_NAME0));
-    print(" Core:    %s" % engine_human64(api, API_ADDR_CLOCK_NAME0));
-    print(" Core:    %s" % engine_human64(api, API_ADDR_KEYMEM_NAME0));
+    print(" Core:    %s" % engine_human64(api, API_ADDR_ENGINE_NAME0))
+    print(" Core:    %s" % engine_human64(api, API_ADDR_CLOCK_NAME0))
+    print(" Core:    %s" % engine_human64(api, API_ADDR_KEYMEM_NAME0))
     print("")
-    for addr in range(0, 0xFFF):
+    print("ENGINE Debug");
+    print(" - NTS");
+    print("   - Processed:  %d" % engine_read64(api, API_ADDR_DEBUG_NTS_PROCESSED))
+    print("   - Bad cookie: %d" % engine_read64(api, API_ADDR_DEBUG_NTS_BAD_COOKIE))
+    print("   - Bad auth:   %d" % engine_read64(api, API_ADDR_DEBUG_NTS_BAD_AUTH))
+    print("   - Bad keyid:  %d" % engine_read64(api, API_ADDR_DEBUG_NTS_BAD_KEYID))
+    print(" - Error counters");
+    print("   - Crypto:     %d" % engine_read64(api, API_ADDR_DEBUG_ERR_CRYPTO))
+    print("   - TxBuf:      %d" % engine_read64(api, API_ADDR_DEBUG_ERR_TXBUF))
+
+
+    for addr in range(0, 0x1000):
         value = read32(api, DISPATCHER_BASE, addr)
         if (value != 0):
             print("dispatcher[%03x] = %08x" % (addr, value) );
