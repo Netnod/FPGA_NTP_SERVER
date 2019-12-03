@@ -127,7 +127,6 @@ def engine_read32(api, addr):
 def engine_write32(api, addr, value):
     engine = 0 # TODO add as a parameter
     id_cmd_addr = (engine<<20) | (BUS_WRITE<<12) | (addr & 0xFFF)
-    #print ("id_cmd_addr: %x" % id_cmd_addr );
 
     write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR, id_cmd_addr )
     write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_DATA, value )
@@ -175,10 +174,11 @@ def check_nts_dispatcher_apis(api):
     print("")
     print("BYTES_RX:    0x%08x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX))
     print("")
-    print("FRAMES:        %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_FRAMES))
+    print("FRAMES:");
+    print(" - DETECTED:   %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_FRAMES))
     print(" - GOOD:       %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_GOOD))
     print(" - BAD:        %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
-    print(" - DISPATCHED: %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
+    print(" - DISPATCHED: %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_DISPATCHED))
     print("")
     print("ENGINE:");
     print(" Core:    %s" % engine_human64(api, API_ADDR_ENGINE_NAME0));
