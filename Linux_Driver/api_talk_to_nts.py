@@ -55,6 +55,8 @@ API_ADDR_DEBUG_NTS_PROCESSED  = API_ADDR_DEBUG_BASE + 0
 API_ADDR_DEBUG_NTS_BAD_COOKIE = API_ADDR_DEBUG_BASE + 2
 API_ADDR_DEBUG_NTS_BAD_AUTH   = API_ADDR_DEBUG_BASE + 4
 API_ADDR_DEBUG_NTS_BAD_KEYID  = API_ADDR_DEBUG_BASE + 6
+API_ADDR_DEBUG_NAME           = API_ADDR_DEBUG_BASE + 8
+API_ADDR_DEBUG_SYSTICK32      = API_ADDR_DEBUG_BASE + 9
 API_ADDR_DEBUG_ERR_CRYPTO     = API_ADDR_DEBUG_BASE + 0x20
 API_ADDR_DEBUG_ERR_TXBUF      = API_ADDR_DEBUG_BASE + 0x22
 
@@ -156,9 +158,21 @@ def engine_human64(api, addr):
 
 def check_nts_dispatcher_apis(api):
     print("Checking access to APIs in NTS")
-    print("NAME0:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
-    print("NAME1:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME + 1))
-    print("VERSION:     0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
+    for addr in range(0, 0x1000):
+        value = read32(api, DISPATCHER_BASE, addr)
+        if (value != 0):
+            print("dispatcher[%03x] = %08x" % (addr, value) );
+
+    print("")
+    for addr in range(0, 0x1000):
+        value = engine_read32(api, addr)
+        if (value != 0):
+            print("engine[%03x] = %08x" % (addr, value) );
+
+    print("")
+    #print("NAME0:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
+    #print("NAME1:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME + 1))
+    #print("VERSION:     0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
     print("")
     print("Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
     print("Version: %s" % human32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
@@ -183,6 +197,7 @@ def check_nts_dispatcher_apis(api):
     print("ENGINE:");
     print(" Core:    %s" % engine_human64(api, API_ADDR_ENGINE_NAME0))
     print(" Core:    %s" % engine_human64(api, API_ADDR_CLOCK_NAME0))
+    print(" Core:    %s" % engine_human32(api, API_ADDR_DEBUG_NAME))
     print(" Core:    %s" % engine_human64(api, API_ADDR_KEYMEM_NAME0))
     print("")
     print("ENGINE Debug");
@@ -194,12 +209,9 @@ def check_nts_dispatcher_apis(api):
     print(" - Error counters");
     print("   - Crypto:     %d" % engine_read64(api, API_ADDR_DEBUG_ERR_CRYPTO))
     print("   - TxBuf:      %d" % engine_read64(api, API_ADDR_DEBUG_ERR_TXBUF))
-
-
-    for addr in range(0, 0x1000):
-        value = read32(api, DISPATCHER_BASE, addr)
-        if (value != 0):
-            print("dispatcher[%03x] = %08x" % (addr, value) );
+    print(" - Other debug messurements:")
+    print("   - Systick32:  %d" % engine_read32(api, API_ADDR_DEBUG_SYSTICK32))
+    print("")
 
 def nts_install_key_256bit(api, key_index, keyid, key=[]):
     addr_key = 0
