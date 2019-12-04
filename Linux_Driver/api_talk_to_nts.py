@@ -45,6 +45,9 @@ API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR    = 80
 API_DISPATCHER_ADDR_BUS_STATUS         = 81
 API_DISPATCHER_ADDR_BUS_DATA           = 82
 
+BUS_READ  = 0x55
+BUS_WRITE = 0xAA
+
 API_ADDR_ENGINE_BASE        = 0x000
 API_ADDR_ENGINE_NAME0       = API_ADDR_ENGINE_BASE
 API_ADDR_ENGINE_NAME1       = API_ADDR_ENGINE_BASE + 1
@@ -85,8 +88,14 @@ API_ADDR_KEYMEM_KEY3_LENGTH = API_ADDR_KEYMEM_BASE + 0x17
 API_ADDR_KEYMEM_KEY3_START  = API_ADDR_KEYMEM_BASE + 0x70
 API_ADDR_KEYMEM_KEY3_END    = API_ADDR_KEYMEM_BASE + 0x7f
 
-BUS_READ  = 0x55
-BUS_WRITE = 0xAA
+API_ADDR_PRASER_BASE         = 0x200;
+API_ADDR_PARSER_NAME0        = API_ADDR_PRASER_BASE + 0x00;
+API_ADDR_PARSER_NAME1        = API_ADDR_PRASER_BASE + 0x01;
+API_ADDR_PARSER_VERSION      = API_ADDR_PRASER_BASE + 0x02;
+API_ADDR_PARSER_STATE        = API_ADDR_PRASER_BASE + 0x10;
+API_ADDR_PARSER_STATE_CRYPTO = API_ADDR_PRASER_BASE + 0x12;
+API_ADDR_PARSER_ERROR_STATE  = API_ADDR_PRASER_BASE + 0x13;
+API_ADDR_PARSER_ERROR_COUNT  = API_ADDR_PRASER_BASE + 0x14;
 
 def read32(api, base, offset):
     return api.read(base + offset)
@@ -199,6 +208,7 @@ def check_nts_dispatcher_apis(api):
     print(" Core:    %s" % engine_human64(api, API_ADDR_CLOCK_NAME0))
     print(" Core:    %s" % engine_human32(api, API_ADDR_DEBUG_NAME))
     print(" Core:    %s" % engine_human64(api, API_ADDR_KEYMEM_NAME0))
+    print(" Core:    %s" % engine_human64(api, API_ADDR_PARSER_NAME0))
     print("")
     print("ENGINE Debug");
     print(" - NTS");
@@ -211,6 +221,12 @@ def check_nts_dispatcher_apis(api):
     print("   - TxBuf:      %d" % engine_read64(api, API_ADDR_DEBUG_ERR_TXBUF))
     print(" - Other debug messurements:")
     print("   - Systick32:  %d" % engine_read32(api, API_ADDR_DEBUG_SYSTICK32))
+    print("")
+    print("Parser");
+    print(" - State:         0x%0x" % engine_read32(api, API_ADDR_PARSER_STATE));
+    print(" - State Crypto:  0x%0x" % engine_read32(api, API_ADDR_PARSER_STATE_CRYPTO))
+    print(" - Error State:   0x%0x" % engine_read32(api, API_ADDR_PARSER_ERROR_STATE))
+    print(" - Error Counter: %0d" % engine_read32(api, API_ADDR_PARSER_ERROR_COUNT))
     print("")
 
 def nts_install_key_256bit(api, key_index, keyid, key=[]):
