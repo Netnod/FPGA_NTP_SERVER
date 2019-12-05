@@ -165,19 +165,21 @@ def engine_human32(api, addr):
 def engine_human64(api, addr):
     return humanL(engine_read64(api, addr))
 
-def check_nts_dispatcher_apis(api):
-    print("Checking access to APIs in NTS")
+def dump_nts_dispatcher_api(api):
     for addr in range(0, 0x1000):
         value = read32(api, DISPATCHER_BASE, addr)
         if (value != 0):
             print("dispatcher[%03x] = %08x" % (addr, value) );
 
-    print("")
+def dump_nts_engine_api(api):
     for addr in range(0, 0x1000):
         value = engine_read32(api, addr)
         if (value != 0):
             print("engine[%03x] = %08x" % (addr, value) );
 
+def check_nts_dispatcher_apis(api):
+    print("Checking access to APIs in NTS")
+    print("")
     print("")
     #print("NAME0:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
     #print("NAME1:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME + 1))
@@ -270,13 +272,12 @@ def nts_install_key_256bit(api, key_index, keyid, key=[]):
 
 #-------------------------------------------------------------------
 if __name__=="__main__":
-    print("Setting up the server FPGA based NTP server.")
-    print("============================================")
-    check_version_board()
-
     path = network_path(0)
     api = api_extension(path)
 
+    dump_nts_dispatcher_api(api)
+    dump_nts_engine_api(api)
+    check_version_board()
     check_nts_dispatcher_apis(api)
 
     nts_install_key_256bit(api, 0, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] );
