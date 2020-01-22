@@ -6,6 +6,8 @@ import time
 import struct
 import netaddr
 
+DEBUG = 0
+
 # Globals
 xpcie = open("/dev/xpcie")
 
@@ -190,8 +192,13 @@ class network_path(xpcie_class):
     trcrt4_drop_cnt        = 67
     trcrt6_drop_cnt        = 68
     xphy_status            = 69
+    nts_api_command        = 70
+    nts_api_status         = 71
+    nts_api_address        = 72
+    nts_api_write_data     = 73
+    nts_api_read_data      = 74
 
-    no_regs =  70
+    no_regs =  75
 
     # gen config bits
     arp_en    =  2**0
@@ -372,3 +379,59 @@ class key_mem(xpcie_class):
             self.write(key_id*8+i, 0)
 
 #-------------------------------------------------------------------------------------------------------#
+
+class api_extension(object):
+    COMMAND_IDLE = 0x0
+    COMMAND_READ = 0x1
+    COMMAND_WRITE = 0x3
+
+    STATUS_BUSY  = 0x0
+    STATUS_READY = 0x1
+    
+    def __init__(self, path):
+        self.path = path
+        self.path.write(self.path.nts_api_command, 0)
+
+        
+    def read(self, address):
+        if DEBUG:
+            print "api[0x%08x] ->" % address,
+        self.path.write(self.path.nts_api_address, address)
+        self.path.write(self.path.nts_api_command, self.COMMAND_READ)
+        for i in range(10):
+            status = self.path.read(self.path.nts_api_status)
+            if status & self.STATUS_READY:
+                break
+            if DEBUG:
+                print status,
+            time.sleep(0.001)
+        else:
+            print "read timeout"
+            return
+
+        data = self.path.read(self.path.nts_api_read_data)
+        self.path.write(self.path.nts_api_command, self.COMMAND_IDLE)
+        if DEBUG:
+            print "0x%08x" % data
+        return data
+
+    
+    def write(self, address, data):
+        if DEBUG:
+            print "api[0x%04x] <-" % address,
+        self.path.write(self.path.nts_api_address, address)
+        self.path.write(self.path.nts_api_write_data, data)
+        self.path.write(self.path.nts_api_command, self.COMMAND_WRITE)
+        for i in range(10):
+            status = self.path.read(self.path.nts_api_status)
+            if status & self.STATUS_READY:
+                break
+            if DEBUG:
+                print status,
+            time.sleep(0.001)
+        else:
+            print "write timeout"
+            return
+        self.path.write(self.path.nts_api_command, self.COMMAND_IDLE)
+        if DEBUG:
+            print "0x%08x" % data
