@@ -10,3 +10,6 @@
 [submodule "FPGA/nts/nts-poc-verilog"]
 	path = FPGA/nts/nts-poc-verilog
 	url = ../nts-poc-verilog.git
+[submodule "FPGA/nts/pp_merge"]
+	path = FPGA/nts/pp_merge
+	url = ../pp_merge
