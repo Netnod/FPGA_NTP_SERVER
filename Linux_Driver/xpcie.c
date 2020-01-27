@@ -153,8 +153,10 @@ ssize_t XPCIe_Write(struct file *filp, const char *buf, size_t count,
 {
 	int ret = SUCCESS;
 	memcpy((char *)gBaseVirt, buf, count);
+#if 0
 	printk("%s: XPCIe_Write: %d bytes have been written...\n",
 	       gDrvrName, (int)count);
+#endif
 	return (ret);
 }
 
@@ -185,8 +187,10 @@ ssize_t XPCIe_Write(struct file *filp, const char *buf, size_t count,
 ssize_t XPCIe_Read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
 	memcpy(buf, (char *)gBaseVirt, count);
+#if 0
 	printk("%s: XPCIe_Read: %d bytes have been read...\n",
 	       gDrvrName, (int)count);
+#endif
 	return (0);
 }
 
@@ -237,12 +241,16 @@ long XPCIe_Ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       *((u32 *)arg) = regx; 
     } else if (cmd == WRREG) {                 // Write: Any FPGA Reg.  Added generic functionality so all register can be read
       	XPCIe_WriteReg((*(regwr *)arg).reg,(*(regwr *)arg).value);
+#if 0
 	printk(KERN_WARNING"%d: Write Register.\n", (*(regwr *)arg).reg);
 	printk(KERN_WARNING"%d: Write Value\n", (*(regwr *)arg).value);
+#endif
     } else if (cmd == WRCFGREG) {                 // Write: Any CFG Reg.  Added generic functionality so all register can be read
       	regx = XPCIe_WriteCfgReg((*(cfgwr *)arg).reg,(*(cfgwr *)arg).value);
+#if 0
 	printk(KERN_WARNING"%d: Write Register.\n", (*(cfgwr *)arg).reg);
 	printk(KERN_WARNING"%d: Write Value\n", (*(cfgwr *)arg).value);
+#endif
       */
 
     return ret;
