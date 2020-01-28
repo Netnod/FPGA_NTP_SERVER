@@ -199,12 +199,23 @@ module network_path_shared #(
 
   wire [7:0]   rx_mac_data_valid;
   wire [63:0]  rx_mac_data;
+  wire         rx_mac_bad_frame;
+  wire         rx_mac_good_frame;
+
   wire         tx_mac_start;
   wire         tx_mac_ack;
   wire [7:0]   tx_mac_data_valid;
   wire [63:0]  tx_mac_data;
-  wire         rx_mac_bad_frame;
-  wire         rx_mac_good_frame;
+
+  wire         pp_mactx_start;
+  wire         pp_mactx_ack;
+  wire [7:0]   pp_mactx_data_valid;
+  wire [63:0]  pp_mactx_data;
+
+  wire         nts_mactx_start;
+  wire         nts_mactx_ack;
+  wire [7:0]   nts_mactx_data_valid;
+  wire [63:0]  nts_mactx_data;
 
   wire         sys_aresetn;
   assign       sys_aresetn = ~sys_reset;
@@ -230,7 +241,7 @@ module network_path_shared #(
     .res_n         (sys_aresetn),
     .tx_clk        (clk156),
     .tx_start      (tx_mac_start),
-    .tx_data       (mac_swap_bytes(tx_mac_data, 8'hff)), // mask doesn't work here since it is already swapped (is not needed anyway)
+    .tx_data       (tx_mac_data),
     .tx_data_valid (tx_mac_data_valid),
     .xgmii_rxd     (xgmii_rxd),
     .xgmii_rxc     (xgmii_rxc),
@@ -279,10 +290,11 @@ module network_path_shared #(
     .rx_data        (mac_swap_bytes(rx_mac_data, rx_mac_data_valid)),
     .rx_bad_frame   (rx_mac_bad_frame),
     .rx_good_frame  (rx_mac_good_frame),
-    .tx_start       (tx_mac_start),
-    .tx_ack         (tx_mac_ack),
-    .tx_data_valid  (tx_mac_data_valid),
-    .tx_data        (tx_mac_data),
+
+    .tx_start       (pp_mactx_start),
+    .tx_ack         (pp_mactx_ack),
+    .tx_data_valid  (pp_mactx_data_valid),
+    .tx_data        (pp_mactx_data),
 
     .status         (pp_status)
   );
@@ -478,6 +490,11 @@ module network_path_shared #(
     .i_mac_rx_bad_frame(rx_mac_bad_frame),
     .i_mac_rx_good_frame(rx_mac_good_frame),
 
+    .o_mac_tx_start(nts_mactx_start),
+    .i_mac_tx_ack(nts_mactx_ack),
+    .o_mac_tx_data_valid(nts_mactx_data_valid),
+    .o_mac_tx_data(nts_mactx_data),
+
     .i_api_dispatcher_cs(nts_cs),
     .i_api_dispatcher_we(nts_we),
     .i_api_dispatcher_address(nts_address),
@@ -485,6 +502,25 @@ module network_path_shared #(
     .o_api_dispatcher_read_data(nts_read_data)
   );
 
+  pp_merge merge (
+    .clk(clk156),
+    .areset(areset_clk156),
+
+    .pp_start       (pp_mactx_start),
+    .pp_ack         (pp_mactx_ack),
+    .pp_data_valid  (pp_mactx_data_valid),
+    .pp_data        (mac_swap_bytes(pp_mactx_data, 8'hff)), // mask doesn't work here since it is already swapped (is not needed anyway)
+
+    .nts_start      (nts_mactx_start),
+    .nts_ack        (nts_mactx_ack),
+    .nts_data_valid (nts_mactx_data_valid),
+    .nts_data       (nts_mactx_data),
+
+    .mac_start      (tx_mac_start),
+    .mac_ack        (tx_mac_ack),
+    .mac_data_valid (tx_mac_data_valid),
+    .mac_data       (tx_mac_data)
+  );
 
 endmodule // network_path_shared
 
