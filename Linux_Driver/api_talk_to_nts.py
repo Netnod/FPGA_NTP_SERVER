@@ -88,6 +88,21 @@ API_ADDR_KEYMEM_KEY3_LENGTH = API_ADDR_KEYMEM_BASE + 0x17
 API_ADDR_KEYMEM_KEY3_START  = API_ADDR_KEYMEM_BASE + 0x70
 API_ADDR_KEYMEM_KEY3_END    = API_ADDR_KEYMEM_BASE + 0x7f
 
+API_ADDR_NONCEGEN_BASE     = 0x20
+API_ADDR_NONCEGEN_NAME     = API_ADDR_NONCEGEN_BASE + 0
+API_ADDR_NONCEGEN_CTRL     = API_ADDR_NONCEGEN_BASE + 0x08
+API_ADDR_NONCEGEN_KEY0     = API_ADDR_NONCEGEN_BASE + 0x10
+API_ADDR_NONCEGEN_KEY1     = API_ADDR_NONCEGEN_BASE + 0x11
+API_ADDR_NONCEGEN_KEY2     = API_ADDR_NONCEGEN_BASE + 0x12
+API_ADDR_NONCEGEN_KEY3     = API_ADDR_NONCEGEN_BASE + 0x13
+API_ADDR_NONCEGEN_LABEL    = API_ADDR_NONCEGEN_BASE + 0x20
+API_ADDR_NONCEGEN_CONTEXT0 = API_ADDR_NONCEGEN_BASE + 0x40
+API_ADDR_NONCEGEN_CONTEXT1 = API_ADDR_NONCEGEN_BASE + 0x41
+API_ADDR_NONCEGEN_CONTEXT2 = API_ADDR_NONCEGEN_BASE + 0x42
+API_ADDR_NONCEGEN_CONTEXT3 = API_ADDR_NONCEGEN_BASE + 0x43
+API_ADDR_NONCEGEN_CONTEXT4 = API_ADDR_NONCEGEN_BASE + 0x44
+API_ADDR_NONCEGEN_CONTEXT5 = API_ADDR_NONCEGEN_BASE + 0x45
+
 API_ADDR_PRASER_BASE         = 0x200;
 API_ADDR_PARSER_NAME0        = API_ADDR_PRASER_BASE + 0x00;
 API_ADDR_PARSER_NAME1        = API_ADDR_PRASER_BASE + 0x01;
@@ -210,6 +225,7 @@ def check_nts_dispatcher_apis(api):
     print(" Core:    %s" % engine_human64(api, API_ADDR_CLOCK_NAME0))
     print(" Core:    %s" % engine_human32(api, API_ADDR_DEBUG_NAME))
     print(" Core:    %s" % engine_human64(api, API_ADDR_KEYMEM_NAME0))
+    print(" Core:    %s" % engine_human64(api, API_ADDR_NONCEGEN_NAME))
     print(" Core:    %s" % engine_human64(api, API_ADDR_PARSER_NAME0))
     print("")
     print("ENGINE Debug");
@@ -230,6 +246,21 @@ def check_nts_dispatcher_apis(api):
     print(" - Error State:   0x%0x" % engine_read32(api, API_ADDR_PARSER_ERROR_STATE))
     print(" - Error Counter: %0d" % engine_read32(api, API_ADDR_PARSER_ERROR_COUNT))
     print("")
+
+def nts_init_noncegen(api):
+    print("Init nonce generator")
+    engine_write32( api, API_ADDR_NONCEGEN_KEY0, 0x5eb63bbb); # TODO: Seed noncegen with Randomness
+    engine_write32( api, API_ADDR_NONCEGEN_KEY1, 0xe01eeed0);
+    engine_write32( api, API_ADDR_NONCEGEN_KEY2, 0x93cb22bb);
+    engine_write32( api, API_ADDR_NONCEGEN_KEY3, 0x8f5acdc3);
+    engine_write32( api, API_ADDR_NONCEGEN_CONTEXT0, 0x6adfb183);
+    engine_write32( api, API_ADDR_NONCEGEN_CONTEXT1, 0xa4a2c94a);
+    engine_write32( api, API_ADDR_NONCEGEN_CONTEXT2, 0x2f92dab5);
+    engine_write32( api, API_ADDR_NONCEGEN_CONTEXT3, 0xade762a4);
+    engine_write32( api, API_ADDR_NONCEGEN_CONTEXT4, 0x7889a5a1);
+    engine_write32( api, API_ADDR_NONCEGEN_CONTEXT5, 0xdeadbeef);
+    engine_write32( api, API_ADDR_NONCEGEN_LABEL, 0x00000000); # TODO: Use 16B engine counter as nonce label
+    engine_write32( api, API_ADDR_NONCEGEN_CTRL, 0x00000001);
 
 def nts_install_key_256bit(api, key_index, keyid, key=[]):
     addr_key = 0
@@ -280,5 +311,6 @@ if __name__=="__main__":
     check_version_board()
     check_nts_dispatcher_apis(api)
 
+    nts_init_noncegen(api);
     nts_install_key_256bit(api, 0, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] );
     sys.exit(0)
