@@ -262,6 +262,25 @@ def nts_init_noncegen(api):
     engine_write32( api, API_ADDR_NONCEGEN_LABEL, 0x00000000); # TODO: Use 16B engine counter as nonce label
     engine_write32( api, API_ADDR_NONCEGEN_CTRL, 0x00000001);
 
+def nts_disable_keys(api):
+    print("Disable NTS keys")
+    engine_write32_checkreadback( api, API_ADDR_KEYMEM_ADDR_CTRL, 0 )
+
+def nts_set_current_key(api, keynum):
+    print("Set current NTS key: %x" % keynum);
+    print(" * key ctrl: %08x" % engine_read32( api, API_ADDR_KEYMEM_ADDR_CTRL ))
+    CTRL_CURR_LOW = 16
+    ctrl = 0
+    mask1 = 0x3<<CTRL_CURR_LOW
+    mask2 = 0xffffffff ^ mask1;
+    k = 0
+    k = (keynum & 0x3) << CTRL_CURR_LOW
+    ctrl = engine_read32( api, API_ADDR_KEYMEM_ADDR_CTRL )
+    ctrl = ctrl & mask2
+    ctrl = ctrl | k
+    engine_write32_checkreadback( api, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
+    print(" * key ctrl: %08x" % engine_read32( api, API_ADDR_KEYMEM_ADDR_CTRL ))
+
 def nts_install_key_256bit(api, key_index, keyid, key=[]):
     addr_key = 0
     addr_keyid = 0
@@ -282,6 +301,7 @@ def nts_install_key_256bit(api, key_index, keyid, key=[]):
     ctrl = ctrl & ~ (1<<key_index);
 
     engine_write32_checkreadback( api, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
+    print(" * key ctrl: %08x" % engine_read32( api, API_ADDR_KEYMEM_ADDR_CTRL ))
 
     engine_write32_checkreadback( api, addr_keyid, keyid )
     engine_write32_checkreadback( api, addr_length, 0 )
@@ -289,16 +309,17 @@ def nts_install_key_256bit(api, key_index, keyid, key=[]):
     for i in range(0, 8):
        addr = addr_key + i
        value = key[7-i]
-       print("Install key, engine[%x]=%x" % (addr, value))
+       print(" * key[%x,%x]=engine[%x]=%x" % (key_index, i, addr, value))
        engine_write32_checkreadback( api, addr,       value ) #256bit LSB
        engine_write32_checkreadback( api, addr + 0x8, 0     ) #256bit MSB, all zeros
 
-    for i in range(7, -1, -1):
-       addr = addr_key + i
-       print("key[%d]: %08x" % (i, engine_read32( api, addr )))
+   #for i in range(7, -1, -1):
+   #   addr = addr_key + i
+   #   print(" * key[%d]: %08x" % (i, engine_read32( api, addr )))
 
     ctrl = ctrl | (1<<key_index)
     engine_write32_checkreadback( api, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
+    print(" * key ctrl: %08x" % engine_read32( api, API_ADDR_KEYMEM_ADDR_CTRL ))
 
 
 #-------------------------------------------------------------------
@@ -311,6 +332,10 @@ if __name__=="__main__":
     check_version_board()
     check_nts_dispatcher_apis(api)
 
+    nts_disable_keys(api);
     nts_init_noncegen(api);
-    nts_install_key_256bit(api, 0, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] );
+    nts_install_key_256bit(api, 0, 0x12345678, [ 0x9b71d224, 0xbd62f378, 0x5d96d46a, 0xd3ea3d73, 0x319bfbc2, 0x890caada, 0xe2dff725, 0x19673ca7 ] )
+    nts_install_key_256bit(api, 1, 0xb01dface, [ 0x2323c3d9, 0x9ba5c11d, 0x7c7acc6e, 0x14b8c5da, 0x0c466347, 0x5c2e5c3a, 0xdef46f73, 0xbcdec043 ] )
+    nts_install_key_256bit(api, 2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
+    nts_set_current_key(api, 2)
     sys.exit(0)
