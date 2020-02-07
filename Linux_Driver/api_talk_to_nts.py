@@ -337,5 +337,5 @@ if __name__=="__main__":
     nts_install_key_256bit(api, 0, 0x12345678, [ 0x9b71d224, 0xbd62f378, 0x5d96d46a, 0xd3ea3d73, 0x319bfbc2, 0x890caada, 0xe2dff725, 0x19673ca7 ] )
     nts_install_key_256bit(api, 1, 0xb01dface, [ 0x2323c3d9, 0x9ba5c11d, 0x7c7acc6e, 0x14b8c5da, 0x0c466347, 0x5c2e5c3a, 0xdef46f73, 0xbcdec043 ] )
     nts_install_key_256bit(api, 2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
-    nts_set_current_key(api, 2)
+    nts_set_current_key(api, 1)
     sys.exit(0)
