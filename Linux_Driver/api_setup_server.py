@@ -187,16 +187,37 @@ def check_pp_apis(apis):
 #-------------------------------------------------------------------
 # Set all MAC-, IPV4- and IPv6-addresses via the API extension.
 #-------------------------------------------------------------------
+IPV6_ADDR0_START   = 0x060
 def set_api_addr(apis):
     for p in range(4):
         print("Setting upp addresses for port%d:" % p)
         print("MAC addresses: 52:5A:2C:18:2E:%02x -- 52:5A:2C:18:2E:%02x" %((0x80 + 0x10*p), (0x83 + 0x10*p)))
         for i in range(4):
-            apis[0].write((0x10000040 + 2*i), (0x2C182E80 + (0x10*p + i)))
-            apis[0].write((0x10000041 + 2*i), 0x0000525A)
+            apis[p].write((0x10000040 + 2*i), (0x2C182E80 + (0x10*p + i)))
+            apis[p].write((0x10000041 + 2*i), 0x0000525A)
         print("IPv4 192.168.%d.20 -- 192.168.%d.27" % ((40 + p), (40 + p)))
         for i in range(8):
             apis[p].write((0x10000050 + i), int(netaddr.IPAddress("192.168.%d.%d" % ((40 + p), (20 + i)))))
+        for i in range(8):
+            word0 = 0xfd75
+            word1 = 0x502f
+            word2 = 0xe221
+            word3 = 0xddcf
+            word4 = 0
+            word5 = 0
+            word6 = p * 16
+            word7 = i + 2
+            print("IPv6 %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x" % (word0, word1, word2, word3, word4, word5, word6, word7))
+            u0 = ((word0 & 0xfffffff) <<16) | (word1 & 0xffffffff)
+            u1 = ((word2 & 0xfffffff) <<16) | (word3 & 0xffffffff)
+            u2 = ((word4 & 0xfffffff) <<16) | (word5 & 0xffffffff)
+            u3 = ((word6 & 0xfffffff) <<16) | (word7 & 0xffffffff)
+            addr = 0x10000000 + IPV6_ADDR0_START + (i * 4)
+            apis[p].write(addr + 3, u0); print(" write(%x, %x)" % (addr + 3, u0))
+            apis[p].write(addr + 2, u1); print(" write(%x, %x)" % (addr + 2, u1))
+            apis[p].write(addr + 1, u2); print(" write(%x, %x)" % (addr + 1, u2))
+            apis[p].write(addr + 0, u3); print(" write(%x, %x)" % (addr + 0, u3))
+
         print("")
 
         
