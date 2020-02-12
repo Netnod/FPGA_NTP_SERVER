@@ -334,7 +334,7 @@ module pp_rx (
     end
   end // always @ reg
 
-  reg [1 : 0] ipv6_addr_sel;
+  reg [2 : 0] ipv6_addr_sel;
   always @(*) begin
     if (DST_IP_rx_buf == my_ipv6_addr0_reg) begin
       ipv6_addr_sel = 3'h0;
