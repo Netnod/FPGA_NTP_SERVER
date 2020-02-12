@@ -343,13 +343,13 @@ module pp_rx (
     end else if (DST_IP_rx_buf == my_ipv6_addr2_reg) begin
       ipv6_addr_sel = 3'h2;
     end else if (DST_IP_rx_buf == my_ipv6_addr3_reg) begin
-      ipv6_addr_sel = 3'h2;
+      ipv6_addr_sel = 3'h3;
     end else if (DST_IP_rx_buf == my_ipv6_addr4_reg) begin
-      ipv6_addr_sel = 3'h2;
+      ipv6_addr_sel = 3'h4;
     end else if (DST_IP_rx_buf == my_ipv6_addr5_reg) begin
-      ipv6_addr_sel = 3'h2;
+      ipv6_addr_sel = 3'h5;
     end else if (DST_IP_rx_buf == my_ipv6_addr6_reg) begin
-      ipv6_addr_sel = 3'h2;
+      ipv6_addr_sel = 3'h6;
     end else /*if (DST_IP_rx_buf == my_ipv6_addr7)*/ begin
       ipv6_addr_sel = 3'h7;
     end
