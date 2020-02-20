@@ -479,7 +479,7 @@ module network_path_shared #(
                      .read_data(rosc_read_data)
                    );
 
-  nts_top #( .ENGINES(1) ) nts (
+  nts_top nts (
     .i_areset(areset_clk156),
     .i_clk(clk156),
 
