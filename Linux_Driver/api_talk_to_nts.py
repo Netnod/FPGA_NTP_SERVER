@@ -53,6 +53,7 @@ API_ADDR_ENGINE_BASE        = 0x000
 API_ADDR_ENGINE_NAME0       = API_ADDR_ENGINE_BASE
 API_ADDR_ENGINE_NAME1       = API_ADDR_ENGINE_BASE + 1
 API_ADDR_ENGINE_VERSION     = API_ADDR_ENGINE_BASE + 2
+API_ADDR_ENGINE_CTRL        = API_ADDR_ENGINE_BASE + 8
 
 API_ADDR_DEBUG_BASE           = 0x180
 API_ADDR_DEBUG_NTS_PROCESSED  = API_ADDR_DEBUG_BASE + 0
@@ -256,8 +257,12 @@ def check_nts_engine_apis(api, engine):
     print("    - Error Counter: %0d" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_COUNT))
     print("")
 
+def nts_enable(api, engine):
+    print("Engine %d - Init engine" % engine)
+    engine_write32( api, engine, API_ADDR_ENGINE_CTRL, 0x1)
+
 def nts_init_noncegen(api, engine):
-    print("Init nonce generator")
+    print("Engine %d - Init nonce generator")
     engine_write32( api, engine, API_ADDR_NONCEGEN_KEY0, 0x5eb63bbb); # TODO: Seed noncegen with Randomness
     engine_write32( api, engine, API_ADDR_NONCEGEN_KEY1, 0xe01eeed0);
     engine_write32( api, engine, API_ADDR_NONCEGEN_KEY2, 0x93cb22bb);
@@ -352,7 +357,11 @@ if __name__=="__main__":
       nts_install_key_256bit(api, engine, 2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
       nts_set_current_key(api, engine, 1)
 
+    for engine in range(0, engines):
+      nts_enable(api, engine)
+
     check_nts_dispatcher_apis(api)
+
     for engine in range(0, engines):
       check_nts_engine_apis(api, engine)
 
