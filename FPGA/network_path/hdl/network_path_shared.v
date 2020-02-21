@@ -419,7 +419,7 @@ module network_path_shared #(
    wire          pp_api_ready;
    wire          rosc_cs;
    wire          rosc_we;
-   wire [23 : 0] rosc_address;
+   wire [7 : 0]  rosc_address;
    wire [31 : 0] rosc_write_data;
    wire [31 : 0] rosc_read_data;
    wire          nts_cs;
@@ -427,6 +427,11 @@ module network_path_shared #(
    wire [11 : 0] nts_address;
    wire [31 : 0] nts_write_data;
    wire [31 : 0] nts_read_data;
+   wire          merge_cs;
+   wire          merge_we;
+   wire [7 : 0]  merge_address;
+   wire [31 : 0] merge_write_data;
+   wire [31 : 0] merge_read_data;
 
    api_extension api_extension0 (
     .clk(clk156),
@@ -460,6 +465,13 @@ module network_path_shared #(
     .dp_write_data(),
     .dp_read_data(32'hbeefbeef),
     .dp_ready(1'h1),
+
+    .merge_cs(merge_cs),
+    .merge_we(merge_we),
+    .merge_address(merge_address),
+    .merge_write_data(merge_write_data),
+    .merge_read_data(merge_read_data),
+    .merge_ready(1'h1),
 
     .rosc_cs(rosc_cs),
     .rosc_we(rosc_we),
@@ -505,6 +517,12 @@ module network_path_shared #(
   pp_merge merge (
     .clk(clk156),
     .areset(areset_clk156),
+
+    .cs         (merge_cs),
+    .we         (merge_we),
+    .address    (merge_address),
+    .write_data (merge_write_data),
+    .read_data  (merge_read_data),
 
     .pp_start       (pp_mactx_start),
     .pp_ack         (pp_mactx_ack),
