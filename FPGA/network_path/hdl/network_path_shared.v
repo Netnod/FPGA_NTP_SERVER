@@ -449,8 +449,8 @@ module network_path_shared #(
     .nts_we(nts_we),
     .nts_address(nts_address),
     .nts_write_data(nts_write_data),
-    .nts_read_data(nts_read_data),
-    .nts_ready(1'h1),
+    .nts_read_data(p1_nts_read_data_reg),
+    .nts_ready(ready_nts_reg),
 
     .pp_cs(pp_api_cs),
     .pp_we(pp_api_we),
@@ -470,8 +470,8 @@ module network_path_shared #(
     .merge_we(merge_we),
     .merge_address(merge_address),
     .merge_write_data(merge_write_data),
-    .merge_read_data(merge_read_data),
-    .merge_ready(1'h1),
+    .merge_read_data(p1_merge_read_data_reg),
+    .merge_ready(ready_merge_reg),
 
     .rosc_cs(rosc_cs),
     .rosc_we(rosc_we),
@@ -480,6 +480,66 @@ module network_path_shared #(
     .rosc_read_data(rosc_read_data),
     .rosc_ready(1'h1)
   );
+
+  reg          ready_merge_reg;
+  reg          p0_merge_cs_reg;
+  reg          p0_merge_we_reg;
+  reg [7 : 0]  p0_merge_address_reg;
+  reg [31 : 0] p0_merge_write_data_reg;
+  reg [31 : 0] p1_merge_read_data_reg;
+
+  reg           ready_nts_reg;
+  reg           p0_nts_cs_reg;
+  reg           p0_nts_we_reg;
+  reg  [11 : 0] p0_nts_address_reg;
+  reg  [31 : 0] p0_nts_write_data_reg;
+  reg  [31 : 0] p1_nts_read_data_reg;
+
+
+  // API pipeline.
+  //  p0 stage: input register buffers
+  //  p1 stage: output register buffers
+  always @(posedge clk156 or posedge areset_clk156)
+  if (areset_clk156) begin
+    ready_merge_reg <= 1;
+    ready_nts_reg <= 1;
+
+    p0_merge_cs_reg         <= 0;
+    p0_merge_we_reg         <= 0;
+    p0_merge_address_reg    <= 0;
+    p0_merge_write_data_reg <= 0;
+    p1_merge_read_data_reg  <= 0;
+
+    p0_nts_cs_reg         <= 0;
+    p0_nts_we_reg         <= 0;
+    p0_nts_address_reg    <= 0;
+    p0_nts_write_data_reg <= 0;
+    p1_nts_read_data_reg  <= 0;
+  end else begin
+    if (ready_merge_reg && merge_cs)
+      ready_merge_reg <= 0;
+
+    if (p0_merge_cs_reg)
+      ready_merge_reg <= 1;
+
+    if (ready_nts_reg && nts_cs)
+      ready_nts_reg <= 0;
+
+    if (p0_nts_cs_reg)
+      ready_nts_reg <= 1;
+
+    p0_merge_cs_reg         <= merge_cs;
+    p0_merge_we_reg         <= merge_we;
+    p0_merge_address_reg    <= merge_address;
+    p0_merge_write_data_reg <= merge_write_data;
+    p1_merge_read_data_reg  <= merge_read_data;
+
+    p0_nts_cs_reg         <= nts_cs;
+    p0_nts_we_reg         <= nts_we;
+    p0_nts_address_reg    <= nts_address;
+    p0_nts_write_data_reg <= nts_write_data;
+    p1_nts_read_data_reg  <= nts_read_data;
+  end
 
    rosc_entropy rosc(
                      .clk(clk156),
@@ -507,10 +567,10 @@ module network_path_shared #(
     .o_mac_tx_data_valid(nts_mactx_data_valid),
     .o_mac_tx_data(nts_mactx_data),
 
-    .i_api_dispatcher_cs(nts_cs),
-    .i_api_dispatcher_we(nts_we),
-    .i_api_dispatcher_address(nts_address),
-    .i_api_dispatcher_write_data(nts_write_data),
+    .i_api_dispatcher_cs(p0_nts_cs_reg),
+    .i_api_dispatcher_we(p0_nts_we_reg),
+    .i_api_dispatcher_address(p0_nts_address_reg),
+    .i_api_dispatcher_write_data(p0_nts_write_data_reg),
     .o_api_dispatcher_read_data(nts_read_data)
   );
 
@@ -518,11 +578,11 @@ module network_path_shared #(
     .clk(clk156),
     .areset(areset_clk156),
 
-    .cs         (merge_cs),
-    .we         (merge_we),
-    .address    (merge_address),
-    .write_data (merge_write_data),
-    .read_data  (merge_read_data),
+    .cs         ( p0_merge_cs_reg          ),
+    .we         ( p0_merge_we_reg          ),
+    .address    ( p0_merge_address_reg     ),
+    .write_data ( p0_merge_write_data_reg  ),
+    .read_data  ( merge_read_data          ),
 
     .pp_start       (pp_mactx_start),
     .pp_ack         (pp_mactx_ack),
