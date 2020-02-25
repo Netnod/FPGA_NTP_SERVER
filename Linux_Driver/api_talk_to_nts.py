@@ -1,7 +1,8 @@
 #! /usr/bin/python
 
 from xpcie import *
-from struct import pack
+#from struct import pack
+import struct
 import time
 import random
 import datetime
@@ -261,19 +262,54 @@ def nts_enable(api, engine):
     print("Engine %d - Init engine" % engine)
     engine_write32( api, engine, API_ADDR_ENGINE_CTRL, 0x1)
 
+def random32(f):
+    b = f.read(4)
+    if (len(b) != 4):
+      raise Exception("WARNING: Read 4 bytes, returned length was: {}".format(len(b)))
+    l = struct.unpack('I', b)
+    if (len(l) != 1):
+      raise Exception("WARNING: , returned length was: {}".format(len(b)))
+    ll = l[0]
+    print("random32: %08x" % ll);
+    return ll
+
 def nts_init_noncegen(api, engine):
-    print("Engine %d - Init nonce generator")
-    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY0, 0x5eb63bbb); # TODO: Seed noncegen with Randomness
-    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY1, 0xe01eeed0);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY2, 0x93cb22bb);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY3, 0x8f5acdc3);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT0, 0x6adfb183);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT1, 0xa4a2c94a);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT2, 0x2f92dab5);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT3, 0xade762a4);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT4, 0x7889a5a1);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT5, 0xdeadbeef);
-    engine_write32( api, engine, API_ADDR_NONCEGEN_LABEL, 0x00000000); # TODO: Use 16B engine counter as nonce label
+    print("Engine %d - Init nonce generator" % engine)
+    label = 0xffffffff & engine
+    key0 = 0
+    key1 = 0
+    key1 = 0
+    key3 = 0
+    context0 = 0
+    context1 = 0
+    context2 = 0
+    context3 = 0
+    context4 = 0
+    context5 = 0
+
+    with open("/dev/urandom", 'rb') as f:
+      key0 = random32(f)
+      key1 = random32(f)
+      key2 = random32(f)
+      key3 = random32(f)
+      context0 = random32(f)
+      context1 = random32(f)
+      context2 = random32(f)
+      context3 = random32(f)
+      context4 = random32(f)
+      context5 = random32(f)
+      f.close()
+    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY0, key0)
+    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY1, key1)
+    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY2, key2)
+    engine_write32( api, engine, API_ADDR_NONCEGEN_KEY3, key3)
+    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT0, context0 )
+    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT1, context1 )
+    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT2, context2 )
+    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT3, context3 )
+    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT4, context4 )
+    engine_write32( api, engine, API_ADDR_NONCEGEN_CONTEXT5, context5 )
+    engine_write32( api, engine, API_ADDR_NONCEGEN_LABEL, label)
     engine_write32( api, engine, API_ADDR_NONCEGEN_CTRL, 0x00000001);
 
 def nts_disable_keys(api, engine):
