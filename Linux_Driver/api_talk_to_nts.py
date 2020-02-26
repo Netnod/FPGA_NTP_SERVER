@@ -84,34 +84,47 @@ API_ADDR_DEBUG_SYSTICK32      = API_ADDR_DEBUG_BASE + 9
 API_ADDR_DEBUG_ERR_CRYPTO     = API_ADDR_DEBUG_BASE + 0x20
 API_ADDR_DEBUG_ERR_TXBUF      = API_ADDR_DEBUG_BASE + 0x22
 
-API_ADDR_CLOCK_BASE         = 0x010
-API_ADDR_CLOCK_NAME0        = API_ADDR_CLOCK_BASE + 0
-API_ADDR_CLOCK_NAME1        = API_ADDR_CLOCK_BASE + 1
+API_ADDR_CLOCK_BASE      = 0x010
+API_ADDR_CLOCK_NAME0     = API_ADDR_CLOCK_BASE + 0
+API_ADDR_CLOCK_NAME1     = API_ADDR_CLOCK_BASE + 1
+API_ADDR_CLOCK_VERSION   = API_ADDR_CLOCK_BASE + 2
+API_ADDR_NTP_CONFIG      = API_ADDR_CLOCK_BASE + 10
+API_ADDR_NTP_ROOT_DELAY  = API_ADDR_CLOCK_BASE + 11
+API_ADDR_NTP_ROOT_DISP   = API_ADDR_CLOCK_BASE + 12
+API_ADDR_NTP_REF_ID      = API_ADDR_CLOCK_BASE + 13
+API_ADDR_NTP_TX_OFS      = API_ADDR_CLOCK_BASE + 14
 
-API_ADDR_KEYMEM_BASE        = 0x080
-API_ADDR_KEYMEM_NAME0       = API_ADDR_KEYMEM_BASE + 0
-API_ADDR_KEYMEM_NAME1       = API_ADDR_KEYMEM_BASE + 1
-API_ADDR_KEYMEM_ADDR_CTRL   = API_ADDR_KEYMEM_BASE + 0x08
-API_ADDR_KEYMEM_KEY0_ID     = API_ADDR_KEYMEM_BASE + 0x10
-API_ADDR_KEYMEM_KEY0_LENGTH = API_ADDR_KEYMEM_BASE + 0x11
-API_ADDR_KEYMEM_KEY0_START  = API_ADDR_KEYMEM_BASE + 0x40
-API_ADDR_KEYMEM_KEY0_END    = API_ADDR_KEYMEM_BASE + 0x4f
-API_ADDR_KEYMEM_KEY1_ID     = API_ADDR_KEYMEM_BASE + 0x12
-API_ADDR_KEYMEM_KEY1_LENGTH = API_ADDR_KEYMEM_BASE + 0x13
-API_ADDR_KEYMEM_KEY1_START  = API_ADDR_KEYMEM_BASE + 0x50
-API_ADDR_KEYMEM_KEY1_END    = API_ADDR_KEYMEM_BASE + 0x5f
-API_ADDR_KEYMEM_KEY2_ID     = API_ADDR_KEYMEM_BASE + 0x14
-API_ADDR_KEYMEM_KEY2_LENGTH = API_ADDR_KEYMEM_BASE + 0x15
-API_ADDR_KEYMEM_KEY2_START  = API_ADDR_KEYMEM_BASE + 0x60
-API_ADDR_KEYMEM_KEY2_END    = API_ADDR_KEYMEM_BASE + 0x6f
-API_ADDR_KEYMEM_KEY3_ID     = API_ADDR_KEYMEM_BASE + 0x16
-API_ADDR_KEYMEM_KEY3_LENGTH = API_ADDR_KEYMEM_BASE + 0x17
-API_ADDR_KEYMEM_KEY3_START  = API_ADDR_KEYMEM_BASE + 0x70
-API_ADDR_KEYMEM_KEY3_END    = API_ADDR_KEYMEM_BASE + 0x7f
+
+API_ADDR_KEYMEM_BASE          = 0x080
+API_ADDR_KEYMEM_NAME0         = API_ADDR_KEYMEM_BASE + 0
+API_ADDR_KEYMEM_NAME1         = API_ADDR_KEYMEM_BASE + 1
+API_ADDR_KEYMEM_VERSION       = API_ADDR_KEYMEM_BASE + 2
+API_ADDR_KEYMEM_CTRL          = API_ADDR_KEYMEM_BASE + 0x08
+API_ADDR_KEYMEM_KEY0_ID       = API_ADDR_KEYMEM_BASE + 0x10
+API_ADDR_KEYMEM_KEY1_ID       = API_ADDR_KEYMEM_BASE + 0x12
+API_ADDR_KEYMEM_KEY2_ID       = API_ADDR_KEYMEM_BASE + 0x14
+API_ADDR_KEYMEM_KEY3_ID       = API_ADDR_KEYMEM_BASE + 0x16
+API_ADDR_KEYMEM_KEY0_COUNTER  = API_ADDR_KEYMEM_BASE + 0x30
+API_ADDR_KEYMEM_KEY1_COUNTER  = API_ADDR_KEYMEM_BASE + 0x31
+API_ADDR_KEYMEM_KEY2_COUNTER  = API_ADDR_KEYMEM_BASE + 0x32
+API_ADDR_KEYMEM_KEY3_COUNTER  = API_ADDR_KEYMEM_BASE + 0x33
+API_ADDR_KEYMEM_ERROR_COUNTER = API_ADDR_KEYMEM_BASE + 0x34
+API_ADDR_KEYMEM_KEY0_START    = API_ADDR_KEYMEM_BASE + 0x40
+API_ADDR_KEYMEM_KEY0_END      = API_ADDR_KEYMEM_BASE + 0x4f
+API_ADDR_KEYMEM_KEY1_START    = API_ADDR_KEYMEM_BASE + 0x50
+API_ADDR_KEYMEM_KEY1_END      = API_ADDR_KEYMEM_BASE + 0x5f
+API_ADDR_KEYMEM_KEY2_START    = API_ADDR_KEYMEM_BASE + 0x60
+API_ADDR_KEYMEM_KEY2_END      = API_ADDR_KEYMEM_BASE + 0x6f
+API_ADDR_KEYMEM_KEY3_START    = API_ADDR_KEYMEM_BASE + 0x70
+API_ADDR_KEYMEM_KEY3_END      = API_ADDR_KEYMEM_BASE + 0x7f
+
 
 API_ADDR_NONCEGEN_BASE     = 0x20
 API_ADDR_NONCEGEN_NAME     = API_ADDR_NONCEGEN_BASE + 0
+API_ADDR_NONCEGEN_VERSION  = API_ADDR_NONCEGEN_BASE + 2
 API_ADDR_NONCEGEN_CTRL     = API_ADDR_NONCEGEN_BASE + 0x08
+API_ADDR_NONCEGEN_STATUS   = API_ADDR_NONCEGEN_BASE + 0x09
+API_ADDR_NONCEGEN_CONFIG   = API_ADDR_NONCEGEN_BASE + 0x0a
 API_ADDR_NONCEGEN_KEY0     = API_ADDR_NONCEGEN_BASE + 0x10
 API_ADDR_NONCEGEN_KEY1     = API_ADDR_NONCEGEN_BASE + 0x11
 API_ADDR_NONCEGEN_KEY2     = API_ADDR_NONCEGEN_BASE + 0x12
@@ -278,23 +291,40 @@ def check_nts_extractor_apis(api):
 def check_nts_engine_apis(api, engine):
     print("ENGINE %x:" % engine);
     print("  - Cores:")
-    print("   - Core:  %s" % engine_human64(api, engine, API_ADDR_ENGINE_NAME0))
-    print("   - Core:  %s" % engine_human64(api, engine, API_ADDR_CLOCK_NAME0))
+    print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_ENGINE_NAME0), engine_human32(api, engine, API_ADDR_ENGINE_VERSION)))
+    print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_CLOCK_NAME0), engine_human32(api, engine, API_ADDR_ENGINE_VERSION)))
     print("   - Core:  %s" % engine_human32(api, engine, API_ADDR_DEBUG_NAME))
-    print("   - Core:  %s" % engine_human64(api, engine, API_ADDR_KEYMEM_NAME0))
-    print("   - Core:  %s" % engine_human64(api, engine, API_ADDR_NONCEGEN_NAME))
+    print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_KEYMEM_NAME0), engine_human32(api, engine, API_ADDR_KEYMEM_VERSION)))
+    print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_NONCEGEN_NAME), engine_human32(api, engine, API_ADDR_NONCEGEN_VERSION)))
     print("   - Core:  %s" % engine_human64(api, engine, API_ADDR_PARSER_NAME0))
     print("  - Debug");
-    print("   - NTS");
-    print("     - Processed:  %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_PROCESSED))
-    print("     - Bad cookie: %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_BAD_COOKIE))
-    print("     - Bad auth:   %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_BAD_AUTH))
-    print("     - Bad keyid:  %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_BAD_KEYID))
-    print("   - Error counters");
-    print("     - Crypto:     %d" % engine_read64(api, engine, API_ADDR_DEBUG_ERR_CRYPTO))
-    print("     - TxBuf:      %d" % engine_read64(api, engine, API_ADDR_DEBUG_ERR_TXBUF))
-    print("   - Other debug messurements:")
-    print("     - Systick32:  %d" % engine_read32(api, engine, API_ADDR_DEBUG_SYSTICK32))
+    print("    - NTS");
+    print("      - Processed:  %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_PROCESSED))
+    print("      - Bad cookie: %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_BAD_COOKIE))
+    print("      - Bad auth:   %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_BAD_AUTH))
+    print("      - Bad keyid:  %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_BAD_KEYID))
+    print("    - Error counters");
+    print("      - Crypto:     %d" % engine_read64(api, engine, API_ADDR_DEBUG_ERR_CRYPTO))
+    print("      - TxBuf:      %d" % engine_read64(api, engine, API_ADDR_DEBUG_ERR_TXBUF))
+    print("    - Other debug messurements:")
+    print("      - Systick32:  %d" % engine_read32(api, engine, API_ADDR_DEBUG_SYSTICK32))
+    print("  - Clock / Timestamper")
+    print("     - NTP Configuration:   0x%08x" % engine_read32(api, engine, API_ADDR_NTP_CONFIG))
+    print("     - NTP Root Delay:      0x%08x" % engine_read32(api, engine, API_ADDR_NTP_ROOT_DELAY))
+    print("     - NTP Root Dispersion: 0x%08x" % engine_read32(api, engine, API_ADDR_NTP_ROOT_DISP))
+    print("     - NTP Reference Id:    0x%08x" % engine_read32(api, engine, API_ADDR_NTP_REF_ID))
+    print("     - NTP Transmit Offset: 0x%08x" % engine_read32(api, engine, API_ADDR_NTP_TX_OFS))
+    print("  - Key Memory (32 bit counters)")
+    print("    - Control: 0x%08x" % engine_read32(api, engine, API_ADDR_KEYMEM_CTRL))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_COUNTER)))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY1_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY1_COUNTER)))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY2_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY2_COUNTER)))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY3_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY3_COUNTER)))
+    print("    - Errors: %d (dec)" % engine_read32(api, engine, API_ADDR_KEYMEM_ERROR_COUNTER))
+    print("  - Nonce Generator")
+    print("    - Control: %08x" % engine_read32(api, engine, API_ADDR_NONCEGEN_CTRL))
+    print("    - Status:  %08x" % engine_read32(api, engine, API_ADDR_NONCEGEN_STATUS))
+    print("    - Config:  %08x" % engine_read32(api, engine, API_ADDR_NONCEGEN_CONFIG))
     print("  - Parser");
     print("    - State:         0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_STATE));
     print("    - State Crypto:  0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_STATE_CRYPTO))
@@ -375,47 +405,45 @@ def nts_init_noncegen(api, engine):
 
 def nts_disable_keys(api, engine):
     print("Engine %d - Disable NTS keys" % engine)
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_ADDR_CTRL, 0 )
+    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, 0 )
 
 def nts_set_current_key(api, engine, keynum):
     print("Engine %d - Set current NTS key: %x" % (engine, keynum))
-    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL ))
+    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
     CTRL_CURR_LOW = 16
     ctrl = 0
     mask1 = 0x3<<CTRL_CURR_LOW
     mask2 = 0xffffffff ^ mask1;
     k = 0
     k = (keynum & 0x3) << CTRL_CURR_LOW
-    ctrl = engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL )
+    ctrl = engine_read32( api, engine, API_ADDR_KEYMEM_CTRL )
     ctrl = ctrl & mask2
     ctrl = ctrl | k
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
-    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL ))
+    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
+    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
 
 def nts_install_key_256bit(api, engine, key_index, keyid, key=[]):
     addr_key = 0
     addr_keyid = 0
-    addr_length = 0
     ctrl = 0
     dictionary = {
-      0: ( API_ADDR_KEYMEM_KEY0_START, API_ADDR_KEYMEM_KEY0_ID, API_ADDR_KEYMEM_KEY0_LENGTH ),
-      1: ( API_ADDR_KEYMEM_KEY1_START, API_ADDR_KEYMEM_KEY1_ID, API_ADDR_KEYMEM_KEY1_LENGTH ),
-      2: ( API_ADDR_KEYMEM_KEY2_START, API_ADDR_KEYMEM_KEY2_ID, API_ADDR_KEYMEM_KEY2_LENGTH ),
-      3: ( API_ADDR_KEYMEM_KEY3_START, API_ADDR_KEYMEM_KEY3_ID, API_ADDR_KEYMEM_KEY3_LENGTH ),
+      0: ( API_ADDR_KEYMEM_KEY0_START, API_ADDR_KEYMEM_KEY0_ID ),
+      1: ( API_ADDR_KEYMEM_KEY1_START, API_ADDR_KEYMEM_KEY1_ID ),
+      2: ( API_ADDR_KEYMEM_KEY2_START, API_ADDR_KEYMEM_KEY2_ID ),
+      3: ( API_ADDR_KEYMEM_KEY3_START, API_ADDR_KEYMEM_KEY3_ID ),
     }
 
-    ( addr_key, addr_keyid, addr_length ) = dictionary.get( key_index )
+    ( addr_key, addr_keyid ) = dictionary.get( key_index )
 
-    print("Engine %d - Install key, index = %x, address key = %x, address key id = %x, address key length = %x" % (engine, key_index, addr_key, addr_keyid, addr_length))
+    print("Engine %d - Install key, index = %x, address key = %x, address key id = %x" % (engine, key_index, addr_key, addr_keyid))
 
-    ctrl = engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL )
+    ctrl = engine_read32( api, engine, API_ADDR_KEYMEM_CTRL )
     ctrl = ctrl & ~ (1<<key_index);
 
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
-    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL ))
+    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
+    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
 
     engine_write32_checkreadback( api, engine, addr_keyid, keyid )
-    engine_write32_checkreadback( api, engine, addr_length, 0 )
 
     for i in range(0, 8):
        addr = addr_key + i
@@ -429,8 +457,8 @@ def nts_install_key_256bit(api, engine, key_index, keyid, key=[]):
    #   print(" * key[%d]: %08x" % (i, engine_read32( api, addr )))
 
     ctrl = ctrl | (1<<key_index)
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_ADDR_CTRL, ctrl )
-    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL ))
+    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
+    print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
 
 
 def nts_install_test_keys(api, engine):
