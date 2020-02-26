@@ -55,6 +55,19 @@ API_DISPATCHER_ADDR_BUS_DATA           = 82
 BUS_READ  = 0x55
 BUS_WRITE = 0xAA
 
+EXTRACTOR_BASE = DISPATCHER_BASE + 0x400
+
+API_EXTRACTOR_ADDR_NAME           = 0
+API_EXTRACTOR_ADDR_VERSION        = 2
+API_EXTRACTOR_ADDR_DUMMY          = 3
+API_EXTRACTOR_ADDR_BYTES          = 0x0a
+API_EXTRACTOR_ADDR_PACKETS        = 0x0c
+API_EXTRACTOR_ADDR_MUX_STATE      = 0x20
+API_EXTRACTOR_ADDR_MUX_INDEX      = 0x21
+API_EXTRACTOR_ADDR_DEBUG_TX       = 0x30
+API_EXTRACTOR_ADDR_ERROR_STARTS   = 0x40
+API_EXTRACTOR_ADDR_ERROR_DISCARDS = 0x41
+
 API_ADDR_ENGINE_BASE        = 0x000
 API_ADDR_ENGINE_NAME0       = API_ADDR_ENGINE_BASE
 API_ADDR_ENGINE_NAME1       = API_ADDR_ENGINE_BASE + 1
@@ -211,9 +224,7 @@ def dump_nts_engine_api(api, engine):
             print("engine%d[%03x] = %08x" % (engine, addr, value) );
 
 def check_nts_dispatcher_apis(api):
-    print("Checking access to APIs in NTS")
-    print("")
-    print("")
+    print("Checking access to Dispatcher APIs in NTS")
     print("")
     print("Dispatcher")
     print(" - Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
@@ -241,6 +252,28 @@ def check_nts_dispatcher_apis(api):
     print("  - Engines ready/idle:  %d (dec)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_ENGINES_READY))
     print("  - Engines (all):       %d (dec)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_ENGINES_READY))
     print("")
+
+def check_nts_extractor_apis(api):
+    print("Checking access to Extractor APIs in NTS")
+    print("")
+    print("Extractor")
+    print(" - Core:    %s" % human64(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_NAME))
+    print(" - Version: %s" % human32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_VERSION))
+    print("")
+    print(" - Unofficial undocumented debug registers (behaivor subject to change)")
+    dummy = read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_DUMMY)
+    print("   - DUMMY:          0x%08x" % dummy)
+    write32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_DUMMY, dummy + 1)
+    dummy2 = read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_DUMMY)
+    print("   - DUMMY:          0x%08x (line above + 1)" % dummy2)
+    print("   - MUX_STATE:      0x%08x" % read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_MUX_STATE))
+    print("   - MUX_INDEX:      0x%08x" % read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_MUX_INDEX))
+    print("   - DEBUG_TX:       0x%08x" % read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_DEBUG_TX))
+    print("   - ERROR_STARTS:   %d (dec)" % read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_ERROR_STARTS))
+    print("   - ERROR_DISCARDS: %d (dec)" % read32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_ERROR_DISCARDS))
+    print(" - Official documented APIs")
+    print("   - Transmitted (bytes):   %d (dec)" % read64(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_BYTES))
+    print("   - Transmitted (packets): %d (dec)" % read64(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_PACKETS))
 
 def check_nts_engine_apis(api, engine):
     print("ENGINE %x:" % engine);
@@ -278,6 +311,11 @@ def nts_reset_dispatcher_api(api):
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX, 0)
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_REC, 0)
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_DISCARDED,0 )
+
+def nts_reset_extractor_api(api):
+    print("Extractor - Reset counters")
+    write32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_BYTES, 0)
+    write32(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_PACKETS, 0)
 
 def nts_dispatcher_enable(api):
     print("Dispatcher - Enable")
@@ -406,19 +444,22 @@ if __name__=="__main__":
     dump = False
     human = True
     reset_api_dispatcher = False
+    reset_api_extractor = False
     setup = True
 
     options, remainder = getopt.getopt(sys.argv[1:], '', [
         'dump',
         'nohuman',
         'nosetup',
-        'reset-api-dispatcher'
+        'reset-api-dispatcher',
+        'reset-api-extractor'
       ])
     for opt, arg in options:
       if (opt == '--dump'): dump = True
       if (opt == '--nohuman'): human = False
       if (opt == '--nosetup'): setup = False
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
+      if (opt == '--reset-api-extractor'): reset_api_extractor = True
 
     path = network_path(0)
     api = api_extension(path)
@@ -447,8 +488,13 @@ if __name__=="__main__":
     if (reset_api_dispatcher):
       nts_reset_dispatcher_api(api)
 
+    if (reset_api_extractor):
+      nts_reset_extractor_api(api)
+
     if (human):
       check_nts_dispatcher_apis(api)
+
+      check_nts_extractor_apis(api)
 
       for engine in range(0, engines):
         check_nts_engine_apis(api, engine)
