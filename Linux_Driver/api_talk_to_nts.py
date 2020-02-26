@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 from xpcie import *
-#from struct import pack
+import getopt
 import struct
 import time
 import random
@@ -36,7 +36,12 @@ API_DISPATCHER_ADDR_VERSION            = 0x002
 API_DISPATCHER_ADDR_DUMMY              = 0x003
 API_DISPATCHER_ADDR_SYSTICK32          = 0x004
 API_DISPATCHER_ADDR_NTPTIME            = 0x006
+API_DISPATCHER_ADDR_CTRL               = 0x008
+API_DISPATCHER_ADDR_STATUS             = 0x009
 API_DISPATCHER_ADDR_BYTES_RX           = 0x00a
+API_DISPATCHER_ADDR_NTS_REC            = 0x00c
+API_DISPATCHER_ADDR_NTS_DISCARDED      = 0x00e
+API_DISPATCHER_ADDR_NTS_ENGINES_READY  = 0x010
 API_DISPATCHER_ADDR_NTS_ENGINES_ALL    = 0x011
 API_DISPATCHER_ADDR_COUNTER_FRAMES     = 0x020
 API_DISPATCHER_ADDR_COUNTER_GOOD       = 0x022
@@ -210,25 +215,31 @@ def check_nts_dispatcher_apis(api):
     print("")
     print("")
     print("")
-    print("Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
-    print("Version: %s" % human32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
+    print("Dispatcher")
+    print(" - Core:    %s" % human64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NAME))
+    print(" - Version: %s" % human32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION))
     print("")
-    print("NTP_TIME:    0x%016x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTPTIME))
-    print("")
-    print("DUMMY:       0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
+    print(" - Unofficial undocumented debug registers (behaivor subject to change)")
+    print("   - NTP_TIME:  0x%016x" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTPTIME))
+    print("   - DUMMY:     0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY, 0xdeadbeef)
-    print("DUMMY:       0x%08x (expected: deadbeef)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
+    print("   - DUMMY:     0x%08x (expected: deadbeef)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
     write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY, 0x1cec001d)
-    print("DUMMY:       0x%08x (expected: 1cec001d)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
-    print("")
-    print("BYTES_RX:    %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX))
-    print("SYSTICK32:   %d" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_SYSTICK32))
-    print("")
-    print("FRAMES:");
-    print(" - DETECTED:   %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_FRAMES))
-    print(" - GOOD:       %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_GOOD))
-    print(" - BAD:        %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
-    print(" - DISPATCHED: %d" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_DISPATCHED))
+    print("   - DUMMY:     0x%08x (expected: 1cec001d)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_DUMMY))
+    print("   - SYSTICK32: %d (dec)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_SYSTICK32))
+    print("   - FRAMES:");
+    print("     - DETECTED:   %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_FRAMES))
+    print("     - GOOD:       %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_GOOD))
+    print("     - BAD:        %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_BAD))
+    print("     - DISPATCHED: %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_COUNTER_DISPATCHED))
+    print(" - Official documented APIs")
+    print("  - Control:  0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_CTRL))
+    print("  - Status:   0x%08x" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_STATUS))
+    print("  - Received (bytes):    %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX))
+    print("  - Received (packets):  %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_REC))
+    print("  - Discarded (packets): %d (dec)" % read64(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_DISCARDED))
+    print("  - Engines ready/idle:  %d (dec)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_ENGINES_READY))
+    print("  - Engines (all):       %d (dec)" % read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_ENGINES_READY))
     print("")
 
 def check_nts_engine_apis(api, engine):
@@ -258,9 +269,19 @@ def check_nts_engine_apis(api, engine):
     print("    - Error Counter: %0d" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_COUNT))
     print("")
 
-def nts_enable(api, engine):
-    print("Engine %d - Init engine" % engine)
+def nts_engine_enable(api, engine):
+    print("Engine %d - Enable engine" % engine)
     engine_write32( api, engine, API_ADDR_ENGINE_CTRL, 0x1)
+
+def nts_reset_dispatcher_api(api):
+    print("Dispatcher - Reset counters")
+    write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BYTES_RX, 0)
+    write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_REC, 0)
+    write32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_DISCARDED,0 )
+
+def nts_dispatcher_enable(api):
+    print("Dispatcher - Enable")
+    write32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_CTRL, 0x1)
 
 def random32(f):
     b = f.read(4)
@@ -270,7 +291,6 @@ def random32(f):
     if (len(l) != 1):
       raise Exception("WARNING: , returned length was: {}".format(len(b)))
     ll = l[0]
-    print("random32: %08x" % ll);
     return ll
 
 def nts_init_noncegen(api, engine):
@@ -299,6 +319,9 @@ def nts_init_noncegen(api, engine):
       context4 = random32(f)
       context5 = random32(f)
       f.close()
+    print(" * Key: %08x%08x%08x%08x" % (key0, key1, key2, key3))
+    print(" * Context %08x%08x%08x%08x%08x%08x" % (context0, context1, context2, context3, context4, context5))
+    print(" * Label: %03x" % label)
     engine_write32( api, engine, API_ADDR_NONCEGEN_KEY0, key0)
     engine_write32( api, engine, API_ADDR_NONCEGEN_KEY1, key1)
     engine_write32( api, engine, API_ADDR_NONCEGEN_KEY2, key2)
@@ -372,33 +395,62 @@ def nts_install_key_256bit(api, engine, key_index, keyid, key=[]):
     print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_ADDR_CTRL ))
 
 
+def nts_install_test_keys(api, engine):
+    nts_install_key_256bit(api, engine, 0, 0x12345678, [ 0x9b71d224, 0xbd62f378, 0x5d96d46a, 0xd3ea3d73, 0x319bfbc2, 0x890caada, 0xe2dff725, 0x19673ca7 ] )
+    nts_install_key_256bit(api, engine, 1, 0xb01dface, [ 0x2323c3d9, 0x9ba5c11d, 0x7c7acc6e, 0x14b8c5da, 0x0c466347, 0x5c2e5c3a, 0xdef46f73, 0xbcdec043 ] )
+    nts_install_key_256bit(api, engine, 2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
+    nts_set_current_key(api, engine, 1)
+
 #-------------------------------------------------------------------
 if __name__=="__main__":
+    dump = False
+    human = True
+    reset_api_dispatcher = False
+    setup = True
+
+    options, remainder = getopt.getopt(sys.argv[1:], '', [
+        'dump',
+        'nohuman',
+        'nosetup',
+        'reset-api-dispatcher'
+      ])
+    for opt, arg in options:
+      if (opt == '--dump'): dump = True
+      if (opt == '--nohuman'): human = False
+      if (opt == '--nosetup'): setup = False
+      if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
+
     path = network_path(0)
     api = api_extension(path)
 
-    dump_nts_dispatcher_api(api)
+    if (dump):
+      dump_nts_dispatcher_api(api)
+
     engines = detect_engines(api)
 
-    for engine in range(0, engines):
-      dump_nts_engine_api(api, engine)
+    if (dump):
+      for engine in range(0, engines):
+        dump_nts_engine_api(api, engine)
 
-    check_version_board()
+    if (human):
+       check_version_board()
 
-    for engine in range(0, engines):
-      nts_disable_keys(api, engine)
-      nts_init_noncegen(api, engine)
-      nts_install_key_256bit(api, engine, 0, 0x12345678, [ 0x9b71d224, 0xbd62f378, 0x5d96d46a, 0xd3ea3d73, 0x319bfbc2, 0x890caada, 0xe2dff725, 0x19673ca7 ] )
-      nts_install_key_256bit(api, engine, 1, 0xb01dface, [ 0x2323c3d9, 0x9ba5c11d, 0x7c7acc6e, 0x14b8c5da, 0x0c466347, 0x5c2e5c3a, 0xdef46f73, 0xbcdec043 ] )
-      nts_install_key_256bit(api, engine, 2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
-      nts_set_current_key(api, engine, 1)
+    if (setup):
+      for engine in range(0, engines):
+        nts_disable_keys(api, engine)
+        nts_init_noncegen(api, engine)
+        nts_install_test_keys(api, engine)
+      for engine in range(0, engines):
+        nts_engine_enable(api, engine)
+      nts_dispatcher_enable(api)
 
-    for engine in range(0, engines):
-      nts_enable(api, engine)
+    if (reset_api_dispatcher):
+      nts_reset_dispatcher_api(api)
 
-    check_nts_dispatcher_apis(api)
+    if (human):
+      check_nts_dispatcher_apis(api)
 
-    for engine in range(0, engines):
-      check_nts_engine_apis(api, engine)
+      for engine in range(0, engines):
+        check_nts_engine_apis(api, engine)
 
     sys.exit(0)
