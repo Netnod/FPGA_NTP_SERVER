@@ -84,16 +84,15 @@ API_ADDR_DEBUG_SYSTICK32      = API_ADDR_DEBUG_BASE + 9
 API_ADDR_DEBUG_ERR_CRYPTO     = API_ADDR_DEBUG_BASE + 0x20
 API_ADDR_DEBUG_ERR_TXBUF      = API_ADDR_DEBUG_BASE + 0x22
 
-API_ADDR_CLOCK_BASE      = 0x010
-API_ADDR_CLOCK_NAME0     = API_ADDR_CLOCK_BASE + 0
-API_ADDR_CLOCK_NAME1     = API_ADDR_CLOCK_BASE + 1
-API_ADDR_CLOCK_VERSION   = API_ADDR_CLOCK_BASE + 2
-API_ADDR_NTP_CONFIG      = API_ADDR_CLOCK_BASE + 10
-API_ADDR_NTP_ROOT_DELAY  = API_ADDR_CLOCK_BASE + 11
-API_ADDR_NTP_ROOT_DISP   = API_ADDR_CLOCK_BASE + 12
-API_ADDR_NTP_REF_ID      = API_ADDR_CLOCK_BASE + 13
-API_ADDR_NTP_TX_OFS      = API_ADDR_CLOCK_BASE + 14
-
+API_ADDR_CLOCK_BASE       = 0x010
+API_ADDR_CLOCK_NAME0      = API_ADDR_CLOCK_BASE + 0
+API_ADDR_CLOCK_NAME1      = API_ADDR_CLOCK_BASE + 1
+API_ADDR_CLOCK_VERSION    = API_ADDR_CLOCK_BASE + 2
+API_ADDR_CLOCK_CONFIG     = API_ADDR_CLOCK_BASE + 10
+API_ADDR_CLOCK_ROOT_DELAY = API_ADDR_CLOCK_BASE + 11
+API_ADDR_CLOCK_ROOT_DISP  = API_ADDR_CLOCK_BASE + 12
+API_ADDR_CLOCK_REF_ID     = API_ADDR_CLOCK_BASE + 13
+API_ADDR_CLOCK_TX_OFS     = API_ADDR_CLOCK_BASE + 14
 
 API_ADDR_KEYMEM_BASE          = 0x080
 API_ADDR_KEYMEM_NAME0         = API_ADDR_KEYMEM_BASE + 0
@@ -309,11 +308,11 @@ def check_nts_engine_apis(api, engine):
     print("    - Other debug messurements:")
     print("      - Systick32:  %d" % engine_read32(api, engine, API_ADDR_DEBUG_SYSTICK32))
     print("  - Clock / Timestamper")
-    print("     - NTP Configuration:   0x%08x" % engine_read32(api, engine, API_ADDR_NTP_CONFIG))
-    print("     - NTP Root Delay:      0x%08x" % engine_read32(api, engine, API_ADDR_NTP_ROOT_DELAY))
-    print("     - NTP Root Dispersion: 0x%08x" % engine_read32(api, engine, API_ADDR_NTP_ROOT_DISP))
-    print("     - NTP Reference Id:    0x%08x" % engine_read32(api, engine, API_ADDR_NTP_REF_ID))
-    print("     - NTP Transmit Offset: 0x%08x" % engine_read32(api, engine, API_ADDR_NTP_TX_OFS))
+    print("     - NTP Configuration:   0x%08x" % engine_read32(api, engine, API_ADDR_CLOCK_CONFIG))
+    print("     - NTP Root Delay:      0x%08x" % engine_read32(api, engine, API_ADDR_CLOCK_ROOT_DELAY))
+    print("     - NTP Root Dispersion: 0x%08x" % engine_read32(api, engine, API_ADDR_CLOCK_ROOT_DISP))
+    print("     - NTP Reference Id:    0x%08x" % engine_read32(api, engine, API_ADDR_CLOCK_REF_ID))
+    print("     - NTP Transmit Offset: 0x%08x" % engine_read32(api, engine, API_ADDR_CLOCK_TX_OFS))
     print("  - Key Memory (32 bit counters)")
     print("    - Control: 0x%08x" % engine_read32(api, engine, API_ADDR_KEYMEM_CTRL))
     print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_COUNTER)))
@@ -467,10 +466,38 @@ def nts_install_test_keys(api, engine):
     nts_install_key_256bit(api, engine, 2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
     nts_set_current_key(api, engine, 1)
 
+
+def nts_configure_ntp(api, engine, refid, rootdelay, rootdisp, tx_ofs, config):
+    v_config = int(config, 16)
+    v_refid = 0 # refid is zero-padded if length<4
+    v_rootdelay = int(rootdelay, 16)
+    v_rootdisp = int(rootdisp, 16)
+    v_tx_ofs = int(tx_ofs, 16)
+
+    if (len(refid) > 4):
+      raise Exception("WARNING: refid {}: illegal length greater than 4".format(refid))
+
+    for i in range(len(refid)):
+      a = ord(refid[i])
+      if ((a < 31) or (a > 127)):
+        raise Exception("WARNING: refid {}: illegal character {} at position {}".format(refid, a, i))
+      v_refid |= a << ((3-i)*8)
+
+    engine_write32(api, engine, API_ADDR_CLOCK_CONFIG, v_config)
+    engine_write32(api, engine, API_ADDR_CLOCK_ROOT_DELAY, v_rootdelay)
+    engine_write32(api, engine, API_ADDR_CLOCK_ROOT_DISP, v_rootdisp)
+    engine_write32(api, engine, API_ADDR_CLOCK_REF_ID, v_refid)
+    engine_write32(api, engine, API_ADDR_CLOCK_TX_OFS, v_tx_ofs)
+
 #-------------------------------------------------------------------
 if __name__=="__main__":
     dump = False
     human = True
+    ntp_refid = 'PPS'
+    ntp_rootdelay = '1'
+    ntp_rootdisp = '2'
+    ntp_tx_ofs = '3'
+    ntp_config = '00000000'
     reset_api_dispatcher = False
     reset_api_extractor = False
     setup = True
@@ -479,6 +506,10 @@ if __name__=="__main__":
         'dump',
         'nohuman',
         'nosetup',
+        'ntp_config=',
+        'ntp_refid=',
+        'ntp_rootdisp=',
+        'ntp_tx_ofs=',
         'reset-api-dispatcher',
         'reset-api-extractor'
       ])
@@ -486,6 +517,10 @@ if __name__=="__main__":
       if (opt == '--dump'): dump = True
       if (opt == '--nohuman'): human = False
       if (opt == '--nosetup'): setup = False
+      if (opt == '--ntp_config'): ntp_config = arg
+      if (opt == '--ntp_refid'): ntp_refid = arg
+      if (opt == '--ntp_rootdisp'): ntp_rootdisp = arg
+      if (opt == '--ntp_tx_ofs'): ntp_tx_ofs = arg
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
 
@@ -506,6 +541,7 @@ if __name__=="__main__":
 
     if (setup):
       for engine in range(0, engines):
+        nts_configure_ntp(api, engine, ntp_refid, ntp_rootdelay, ntp_rootdisp, ntp_tx_ofs, ntp_config)
         nts_disable_keys(api, engine)
         nts_init_noncegen(api, engine)
         nts_install_test_keys(api, engine)
