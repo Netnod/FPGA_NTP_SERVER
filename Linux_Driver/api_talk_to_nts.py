@@ -117,7 +117,6 @@ API_ADDR_KEYMEM_KEY2_END      = API_ADDR_KEYMEM_BASE + 0x6f
 API_ADDR_KEYMEM_KEY3_START    = API_ADDR_KEYMEM_BASE + 0x70
 API_ADDR_KEYMEM_KEY3_END      = API_ADDR_KEYMEM_BASE + 0x7f
 
-
 API_ADDR_NONCEGEN_BASE     = 0x20
 API_ADDR_NONCEGEN_NAME     = API_ADDR_NONCEGEN_BASE + 0
 API_ADDR_NONCEGEN_VERSION  = API_ADDR_NONCEGEN_BASE + 2
@@ -216,11 +215,11 @@ def detect_engines(api):
     disp_version = read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_VERSION)
     disp_engines = read32(api, DISPATCHER_BASE, API_DISPATCHER_ADDR_NTS_ENGINES_ALL)
     if (disp_name != 0x4e54532d44495350L):
-      raise Exception("WARNING: invalid dispatcher name: {}" % disp_name)
+      raise Exception("WARNING: invalid dispatcher name: {}".format(disp_name))
     if (disp_version < 0x302e3032L):
-      raise Exception("WARNING: invalid dispatcher version: {}" % disp_version)
+      raise Exception("WARNING: invalid dispatcher version: {}".format(disp_version))
     if (disp_engines < 1):
-      raise Exception("WARNING: invalid dispatcher engine count: {}" % disp_engines)
+      raise Exception("WARNING: invalid dispatcher engine count: {}".format(disp_engines))
     return disp_engines
 
 def dump_nts_dispatcher_api(api):
@@ -295,7 +294,7 @@ def check_nts_engine_apis(api, engine):
     print("   - Core:  %s" % engine_human32(api, engine, API_ADDR_DEBUG_NAME))
     print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_KEYMEM_NAME0), engine_human32(api, engine, API_ADDR_KEYMEM_VERSION)))
     print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_NONCEGEN_NAME), engine_human32(api, engine, API_ADDR_NONCEGEN_VERSION)))
-    print("   - Core:  %s" % engine_human64(api, engine, API_ADDR_PARSER_NAME0))
+    print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_PARSER_NAME0), engine_human32(api, engine, API_ADDR_PARSER_VERSION)))
     print("  - Debug");
     print("    - NTS");
     print("      - Processed:  %d" % engine_read64(api, engine, API_ADDR_DEBUG_NTS_PROCESSED))
