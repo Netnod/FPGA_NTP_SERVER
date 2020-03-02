@@ -104,10 +104,10 @@ API_ADDR_KEYMEM_KEY1_ID       = API_ADDR_KEYMEM_BASE + 0x12
 API_ADDR_KEYMEM_KEY2_ID       = API_ADDR_KEYMEM_BASE + 0x14
 API_ADDR_KEYMEM_KEY3_ID       = API_ADDR_KEYMEM_BASE + 0x16
 API_ADDR_KEYMEM_KEY0_COUNTER  = API_ADDR_KEYMEM_BASE + 0x30
-API_ADDR_KEYMEM_KEY1_COUNTER  = API_ADDR_KEYMEM_BASE + 0x31
-API_ADDR_KEYMEM_KEY2_COUNTER  = API_ADDR_KEYMEM_BASE + 0x32
-API_ADDR_KEYMEM_KEY3_COUNTER  = API_ADDR_KEYMEM_BASE + 0x33
-API_ADDR_KEYMEM_ERROR_COUNTER = API_ADDR_KEYMEM_BASE + 0x34
+API_ADDR_KEYMEM_KEY1_COUNTER  = API_ADDR_KEYMEM_BASE + 0x32
+API_ADDR_KEYMEM_KEY2_COUNTER  = API_ADDR_KEYMEM_BASE + 0x34
+API_ADDR_KEYMEM_KEY3_COUNTER  = API_ADDR_KEYMEM_BASE + 0x36
+API_ADDR_KEYMEM_ERROR_COUNTER = API_ADDR_KEYMEM_BASE + 0x38
 API_ADDR_KEYMEM_KEY0_START    = API_ADDR_KEYMEM_BASE + 0x40
 API_ADDR_KEYMEM_KEY0_END      = API_ADDR_KEYMEM_BASE + 0x4f
 API_ADDR_KEYMEM_KEY1_START    = API_ADDR_KEYMEM_BASE + 0x50
@@ -314,11 +314,11 @@ def check_nts_engine_apis(api, engine):
     print("     - NTP Transmit Offset: 0x%08x" % engine_read32(api, engine, API_ADDR_CLOCK_TX_OFS))
     print("  - Key Memory (32 bit counters)")
     print("    - Control: 0x%08x" % engine_read32(api, engine, API_ADDR_KEYMEM_CTRL))
-    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_COUNTER)))
-    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY1_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY1_COUNTER)))
-    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY2_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY2_COUNTER)))
-    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY3_ID), engine_read32(api, engine, API_ADDR_KEYMEM_KEY3_COUNTER)))
-    print("    - Errors: %d (dec)" % engine_read32(api, engine, API_ADDR_KEYMEM_ERROR_COUNTER))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY0_ID), engine_read64(api, engine, API_ADDR_KEYMEM_KEY0_COUNTER)))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY1_ID), engine_read64(api, engine, API_ADDR_KEYMEM_KEY1_COUNTER)))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY2_ID), engine_read64(api, engine, API_ADDR_KEYMEM_KEY2_COUNTER)))
+    print("    - KeyId: 0x%08x Counter: %d (dec)" % (engine_read32(api, engine, API_ADDR_KEYMEM_KEY3_ID), engine_read64(api, engine, API_ADDR_KEYMEM_KEY3_COUNTER)))
+    print("    - Errors: %d (dec)" % engine_read64(api, engine, API_ADDR_KEYMEM_ERROR_COUNTER))
     print("  - Nonce Generator")
     print("    - Control: %08x" % engine_read32(api, engine, API_ADDR_NONCEGEN_CTRL))
     print("    - Status:  %08x" % engine_read32(api, engine, API_ADDR_NONCEGEN_STATUS))
