@@ -201,9 +201,7 @@ set files [list \
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/keymem/src/rtl/nts_keymem.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_core.v"]"\
- "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_decipher_block.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_encipher_block.v"]"\
- "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_inv_sbox.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_key_mem.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_sbox.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/cmac/src/rtl/cmac_core.v"]"\
