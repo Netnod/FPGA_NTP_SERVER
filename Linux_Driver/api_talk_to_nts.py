@@ -135,14 +135,28 @@ API_ADDR_NONCEGEN_CONTEXT3 = API_ADDR_NONCEGEN_BASE + 0x43
 API_ADDR_NONCEGEN_CONTEXT4 = API_ADDR_NONCEGEN_BASE + 0x44
 API_ADDR_NONCEGEN_CONTEXT5 = API_ADDR_NONCEGEN_BASE + 0x45
 
-API_ADDR_PRASER_BASE         = 0x200;
-API_ADDR_PARSER_NAME0        = API_ADDR_PRASER_BASE + 0x00;
-API_ADDR_PARSER_NAME1        = API_ADDR_PRASER_BASE + 0x01;
-API_ADDR_PARSER_VERSION      = API_ADDR_PRASER_BASE + 0x02;
-API_ADDR_PARSER_STATE        = API_ADDR_PRASER_BASE + 0x10;
-API_ADDR_PARSER_STATE_CRYPTO = API_ADDR_PRASER_BASE + 0x12;
-API_ADDR_PARSER_ERROR_STATE  = API_ADDR_PRASER_BASE + 0x13;
-API_ADDR_PARSER_ERROR_COUNT  = API_ADDR_PRASER_BASE + 0x14;
+API_ADDR_PARSER_BASE         = 0x200
+API_ADDR_PARSER_NAME0        = API_ADDR_PARSER_BASE + 0x00
+API_ADDR_PARSER_NAME1        = API_ADDR_PARSER_BASE + 0x01
+API_ADDR_PARSER_VERSION      = API_ADDR_PARSER_BASE + 0x02
+API_ADDR_PARSER_STATE        = API_ADDR_PARSER_BASE + 0x10
+API_ADDR_PARSER_STATE_CRYPTO = API_ADDR_PARSER_BASE + 0x12
+API_ADDR_PARSER_ERROR_STATE  = API_ADDR_PARSER_BASE + 0x13
+API_ADDR_PARSER_ERROR_COUNT  = API_ADDR_PARSER_BASE + 0x14
+API_ADDR_PARSER_MAC_CTRL     = API_ADDR_PARSER_BASE + 0x30
+API_ADDR_PARSER_IPV4_CTRL    = API_ADDR_PARSER_BASE + 0x31
+API_ADDR_PARSER_MAC_0        = API_ADDR_PARSER_BASE + 0x40
+API_ADDR_PARSER_MAC_1        = API_ADDR_PARSER_BASE + 0x42
+API_ADDR_PARSER_MAC_2        = API_ADDR_PARSER_BASE + 0x44
+API_ADDR_PARSER_MAC_3        = API_ADDR_PARSER_BASE + 0x46
+API_ADDR_PARSER_IPV4_0       = API_ADDR_PARSER_BASE + 0x50
+API_ADDR_PARSER_IPV4_1       = API_ADDR_PARSER_BASE + 0x51
+API_ADDR_PARSER_IPV4_2       = API_ADDR_PARSER_BASE + 0x52
+API_ADDR_PARSER_IPV4_3       = API_ADDR_PARSER_BASE + 0x53
+API_ADDR_PARSER_IPV4_4       = API_ADDR_PARSER_BASE + 0x54
+API_ADDR_PARSER_IPV4_5       = API_ADDR_PARSER_BASE + 0x55
+API_ADDR_PARSER_IPV4_6       = API_ADDR_PARSER_BASE + 0x56
+API_ADDR_PARSER_IPV4_7       = API_ADDR_PARSER_BASE + 0x57
 
 def read32(api, base, offset):
     return api.read(base + offset)
@@ -191,6 +205,10 @@ def engine_write32(api, engine, addr, value):
     status = read32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_STATUS )
     while status:
           status = read32( api, DISPATCHER_BASE, API_DISPATCHER_ADDR_BUS_STATUS )
+
+def engine_write64(api, engine, addr, value):
+    engine_write32(api, engine, addr, (value>>32) & 0xffffffff)
+    engine_write32(api, engine, addr + 1, value & 0xffffffff)
 
 def engine_write32_checkreadback(api, engine, addr, value):
     engine_write32(api, engine, addr, value)
@@ -329,6 +347,20 @@ def check_nts_engine_apis(api, engine):
     print("    - Error State:   0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_STATE))
     print("    - Error Counter: %0d" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_COUNT))
     print("")
+
+def init_arp(api, engine):
+    print("Engine %d - init ARP" % engine)
+    engine_write64( api, engine, API_ADDR_PARSER_MAC_0, 0xFFFEFDFCFBFA );
+    engine_write64( api, engine, API_ADDR_PARSER_MAC_1, 0xEFEEEDECEBEA );
+    engine_write64( api, engine, API_ADDR_PARSER_MAC_2, 0xDFDEDDDCDBDA );
+    engine_write64( api, engine, API_ADDR_PARSER_MAC_3, 0xCFCECDCCCBCA );
+    for i in range(0,8):
+       string = "192.168.%d.%d" % (40, (30 + i))
+       print(" - IP: %s" % string)
+       ip = int(netaddr.IPAddress(string))
+       engine_write32( api, engine, API_ADDR_PARSER_IPV4_0 + i, ip )
+    engine_write32( api, engine, API_ADDR_PARSER_MAC_CTRL, 0x0f )
+    engine_write32( api, engine, API_ADDR_PARSER_IPV4_CTRL, 0xff )
 
 def nts_engine_enable(api, engine):
     print("Engine %d - Enable engine" % engine)
@@ -540,6 +572,7 @@ if __name__=="__main__":
 
     if (setup):
       for engine in range(0, engines):
+        init_arp(api, engine)
         nts_configure_ntp(api, engine, ntp_refid, ntp_rootdelay, ntp_rootdisp, ntp_tx_ofs, ntp_config)
         nts_disable_keys(api, engine)
         nts_init_noncegen(api, engine)
