@@ -145,6 +145,7 @@ API_ADDR_PARSER_ERROR_STATE  = API_ADDR_PARSER_BASE + 0x13
 API_ADDR_PARSER_ERROR_COUNT  = API_ADDR_PARSER_BASE + 0x14
 API_ADDR_PARSER_MAC_CTRL     = API_ADDR_PARSER_BASE + 0x30
 API_ADDR_PARSER_IPV4_CTRL    = API_ADDR_PARSER_BASE + 0x31
+API_ADDR_PARSER_IPV6_CTRL    = API_ADDR_PARSER_BASE + 0x32
 API_ADDR_PARSER_MAC_0        = API_ADDR_PARSER_BASE + 0x40
 API_ADDR_PARSER_MAC_1        = API_ADDR_PARSER_BASE + 0x42
 API_ADDR_PARSER_MAC_2        = API_ADDR_PARSER_BASE + 0x44
@@ -157,6 +158,14 @@ API_ADDR_PARSER_IPV4_4       = API_ADDR_PARSER_BASE + 0x54
 API_ADDR_PARSER_IPV4_5       = API_ADDR_PARSER_BASE + 0x55
 API_ADDR_PARSER_IPV4_6       = API_ADDR_PARSER_BASE + 0x56
 API_ADDR_PARSER_IPV4_7       = API_ADDR_PARSER_BASE + 0x57
+API_ADDR_PARSER_IPV6_0       = API_ADDR_PARSER_BASE + 0x60
+API_ADDR_PARSER_IPV6_1       = API_ADDR_PARSER_BASE + 0x64
+API_ADDR_PARSER_IPV6_2       = API_ADDR_PARSER_BASE + 0x68
+API_ADDR_PARSER_IPV6_3       = API_ADDR_PARSER_BASE + 0x6C
+API_ADDR_PARSER_IPV6_4       = API_ADDR_PARSER_BASE + 0x70
+API_ADDR_PARSER_IPV6_5       = API_ADDR_PARSER_BASE + 0x74
+API_ADDR_PARSER_IPV6_6       = API_ADDR_PARSER_BASE + 0x78
+API_ADDR_PARSER_IPV6_7       = API_ADDR_PARSER_BASE + 0x7C
 
 def read32(api, base, offset):
     return api.read(base + offset)
@@ -354,13 +363,35 @@ def init_arp(api, engine):
     engine_write64( api, engine, API_ADDR_PARSER_MAC_1, 0xEFEEEDECEBEA );
     engine_write64( api, engine, API_ADDR_PARSER_MAC_2, 0xDFDEDDDCDBDA );
     engine_write64( api, engine, API_ADDR_PARSER_MAC_3, 0xCFCECDCCCBCA );
+
     for i in range(0,8):
        string = "192.168.%d.%d" % (40, (30 + i))
        print(" - IP: %s" % string)
        ip = int(netaddr.IPAddress(string))
        engine_write32( api, engine, API_ADDR_PARSER_IPV4_0 + i, ip )
+
+    for i in range(8):
+       word0 = 0xfd75
+       word1 = 0x502f
+       word2 = 0xe221
+       word3 = 0xddcf
+       word4 = 0
+       word5 = 0
+       word6 = 0 # p * 16
+       word7 = i + 16
+       print(" - IPv6 %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x" % (word0, word1, word2, word3, word4, word5, word6, word7))
+       u0 = ((word0 & 0xfffffff) <<16) | (word1 & 0xffffffff)
+       u1 = ((word2 & 0xfffffff) <<16) | (word3 & 0xffffffff)
+       u2 = ((word4 & 0xfffffff) <<16) | (word5 & 0xffffffff)
+       u3 = ((word6 & 0xfffffff) <<16) | (word7 & 0xffffffff)
+       engine_write32( api, engine, API_ADDR_PARSER_IPV6_0 + i * 4 + 0, u0 )
+       engine_write32( api, engine, API_ADDR_PARSER_IPV6_0 + i * 4 + 1, u1 )
+       engine_write32( api, engine, API_ADDR_PARSER_IPV6_0 + i * 4 + 2, u2 )
+       engine_write32( api, engine, API_ADDR_PARSER_IPV6_0 + i * 4 + 3, u3 )
+
     engine_write32( api, engine, API_ADDR_PARSER_MAC_CTRL, 0x0f )
     engine_write32( api, engine, API_ADDR_PARSER_IPV4_CTRL, 0xff )
+    engine_write32( api, engine, API_ADDR_PARSER_IPV6_CTRL, 0xff )
 
 def nts_engine_enable(api, engine):
     print("Engine %d - Enable engine" % engine)
