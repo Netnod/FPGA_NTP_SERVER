@@ -139,10 +139,12 @@ API_ADDR_PARSER_BASE         = 0x200
 API_ADDR_PARSER_NAME0        = API_ADDR_PARSER_BASE + 0x00
 API_ADDR_PARSER_NAME1        = API_ADDR_PARSER_BASE + 0x01
 API_ADDR_PARSER_VERSION      = API_ADDR_PARSER_BASE + 0x02
+API_ADDR_PARSER_CTRL         = API_ADDR_PARSER_BASE + 0x04
 API_ADDR_PARSER_STATE        = API_ADDR_PARSER_BASE + 0x10
 API_ADDR_PARSER_STATE_CRYPTO = API_ADDR_PARSER_BASE + 0x12
 API_ADDR_PARSER_ERROR_STATE  = API_ADDR_PARSER_BASE + 0x13
 API_ADDR_PARSER_ERROR_COUNT  = API_ADDR_PARSER_BASE + 0x14
+API_ADDR_PARSER_ERROR_CAUSE  = API_ADDR_PARSER_BASE + 0x15
 API_ADDR_PARSER_MAC_CTRL     = API_ADDR_PARSER_BASE + 0x30
 API_ADDR_PARSER_IPV4_CTRL    = API_ADDR_PARSER_BASE + 0x31
 API_ADDR_PARSER_IPV6_CTRL    = API_ADDR_PARSER_BASE + 0x32
@@ -354,6 +356,7 @@ def check_nts_engine_apis(api, engine):
     print("    - State:         0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_STATE));
     print("    - State Crypto:  0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_STATE_CRYPTO))
     print("    - Error State:   0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_STATE))
+    print("    - Error Cause:   0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_CAUSE))
     print("    - Error Counter: %0d" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_COUNT))
     print("")
 
@@ -551,6 +554,49 @@ def nts_configure_ntp(api, engine, refid, rootdelay, rootdisp, tx_ofs, config):
     engine_write32(api, engine, API_ADDR_CLOCK_REF_ID, v_refid)
     engine_write32(api, engine, API_ADDR_CLOCK_TX_OFS, v_tx_ofs)
 
+def parser_configure_helper ( e, d, bit, value ):
+    if (value is None):
+      return (e, d)
+
+    disable = False
+    enable = False
+
+    disable_words = [ "0", "no", "false" ]
+    enable_words = [ "1", "yes", "true" ]
+
+    for word in disable_words:
+      if (value.lower() == word):
+        disable = True
+
+    for word in enable_words:
+      if (value.lower() == word):
+        enable = True
+
+    if (disable):
+      return (e, d + (1<<bit))
+    elif (enable):
+      return (e + (1<<bit), d)
+    else:
+      raise Exception("WARNING: configuration argument {} is not a proper boolean, valid values: {}".format(value, disable_words + enable_words))
+
+def parser_configure( api, engine, csum_verify, nts, ntp ):
+    enable_bits = 0
+    disable_bits = 0
+
+    (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 0, csum_verify)
+    (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 1, nts)
+    (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 2, ntp)
+
+    print("Engine %d - configuring parser" % engine)
+    print("  * enable  bits: %08x" % enable_bits )
+    print("  * disbale bits: %08x" % disable_bits )
+    if (enable_bits or disable_bits):
+      ctrl_old = engine_read32(api, engine, API_ADDR_PARSER_CTRL)
+      ctrl_new = (ctrl_old | enable_bits) & ( ~ disable_bits )
+      engine_write32(api, engine, API_ADDR_PARSER_CTRL, ctrl_new)
+      print("  * ctrl old: %08x" % ctrl_old)
+      print("  * ctrl new: %08x" % ctrl_new)
+
 #-------------------------------------------------------------------
 if __name__=="__main__":
     dump = False
@@ -560,6 +606,9 @@ if __name__=="__main__":
     ntp_rootdisp = '2'
     ntp_tx_ofs = '3'
     ntp_config = '00000000'
+    parser_ctrl_csum_verify = None
+    parser_ctrl_nts = None
+    parser_ctrl_ntp = None
     reset_api_dispatcher = False
     reset_api_extractor = False
     setup = True
@@ -568,6 +617,9 @@ if __name__=="__main__":
         'dump',
         'nohuman',
         'nosetup',
+        'parser_ctrl_csum_verify=',
+        'parser_ctrl_nts=',
+        'parser_ctrl_ntp=',
         'ntp_config=',
         'ntp_refid=',
         'ntp_rootdisp=',
@@ -583,6 +635,9 @@ if __name__=="__main__":
       if (opt == '--ntp_refid'): ntp_refid = arg
       if (opt == '--ntp_rootdisp'): ntp_rootdisp = arg
       if (opt == '--ntp_tx_ofs'): ntp_tx_ofs = arg
+      if (opt == '--parser_ctrl_csum_verify'): parser_ctrl_csum_verify = arg
+      if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
+      if (opt == '--parser_ctrl_ntp'): parser_ctrl_ntp = arg;
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
 
@@ -608,6 +663,7 @@ if __name__=="__main__":
         nts_disable_keys(api, engine)
         nts_init_noncegen(api, engine)
         nts_install_test_keys(api, engine)
+        parser_configure(api, engine, parser_ctrl_csum_verify,  parser_ctrl_nts, parser_ctrl_ntp)
       for engine in range(0, engines):
         nts_engine_enable(api, engine)
       nts_dispatcher_enable(api)
