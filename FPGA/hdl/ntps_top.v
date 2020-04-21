@@ -184,19 +184,19 @@ module ntps_top #(
   // ntps_clocks
   // clock generators, clock control and clock tree allocations.
   //----------------------------------------------------------------
-  wire pcie_clk§;       // 100Mhz PCI express clock
+  wire pcie_clk;       // 100Mhz PCI express clock
+  wire sys_clk;
   wire clk50;          // sys_clk/4
   wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
-  wire test_PPS_OUT;
-  wire test_TEN_MHZ_OUT;
 
   ntps_clocks clocks(
                      .reset(reset),
                      .pcie_clk_n(PCIE_CLK_N),
                      .pcie_clk_p(PCIE_CLK_P),
-                     .pcie_clk(pcie_clk§),
+                     .pcie_clk(pcie_clk),
                      .sys_clk_n(SYS_CLK_N),
                      .sys_clk_p(SYS_CLK_P),
+                     .sys_clk(sys_clk),
                      .clk50(clk50),
                      .i2c_clk(i2c_clk),
                      .i2c_data(i2c_data),
@@ -205,6 +205,21 @@ module ntps_top #(
                      .pps_out(test_PPS_OUT),
                      .ten_mhz_out(test_TEN_MHZ_OUT)
                      );
+
+
+  //----------------------------------------------------------------
+  // pps_test
+  // Test pulse and clock output signals.
+  //----------------------------------------------------------------
+  wire test_PPS_OUT;
+  wire test_TEN_MHZ_OUT;
+
+  pps_test pps_test_0 (
+    .areset       (reset),
+    .clk_in       (sys_clk),
+    .PPS_OUT      (test_PPS_OUT),
+    .TEN_MHZ_OUT  (test_TEN_MHZ_OUT)
+  );
 
 
   //----------------------------------------------------------------
