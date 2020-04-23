@@ -202,8 +202,6 @@ module ntps_top #(
                      .i2c_data(i2c_data),
                      .i2c_mux_rst_n(i2c_mux_rst_n),
                      .si5324_rst_n(si5324_rst_n)
-                     .pps_out(test_PPS_OUT),
-                     .ten_mhz_out(test_TEN_MHZ_OUT)
                      );
 
 

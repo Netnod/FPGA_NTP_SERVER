@@ -56,10 +56,7 @@ module ntps_clocks(
                    inout wire  i2c_clk,
                    inout wire  i2c_data,
                    output wire i2c_mux_rst_n,
-                   output wire si5324_rst_n,
-
-                   output wire pps_out,
-                   output wire ten_mhz_out
+                   output wire si5324_rst_n
                   );
 
 
