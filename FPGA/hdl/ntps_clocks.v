@@ -69,7 +69,7 @@ module ntps_clocks(
   // pcie_clk clock tree input buffer.
   ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
      .IBUF_DS_N  (pcie_clk_n),
-     .ibuf_ds_p  (pcie_clk_p),
+     .IBUF_DS_P  (pcie_clk_p),
      .IBUF_OUT   (pcie_clk)
   );
 
@@ -78,7 +78,7 @@ module ntps_clocks(
   // sys_clk clock tree input buffer.
   ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
      .IBUF_DS_N  (sys_clk_n),
-     .ibuf_ds_p  (sys_clk_p),
+     .IBUF_DS_P  (sys_clk_p),
      .IBUF_OUT   (sys_clk)
   );
 

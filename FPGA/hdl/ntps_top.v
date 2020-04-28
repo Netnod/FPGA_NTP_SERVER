@@ -148,6 +148,110 @@ module ntps_top #(
 
 
   //----------------------------------------------------------------
+  // Wires.
+  //----------------------------------------------------------------
+  // Wires for clocks.
+  wire pcie_clk;       // 100Mhz PCI express clock
+  wire sys_clk;
+  wire clk50;          // sys_clk/4
+  wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
+
+
+  // Wires for pps_test.
+  wire test_PPS_OUT;
+  wire test_TEN_MHZ_OUT;
+
+
+  // Wires for PCI-AXI:
+  wire             axi_aresetn;
+  wire             user_link_up;
+
+  wire [384-1:0]   m_axi_awaddr;
+  wire [36-1:0]    m_axi_awprot;
+  wire [12-1:0]    m_axi_awvalid;
+  wire [12-1:0]    m_axi_awready;
+  wire [384-1:0]   m_axi_wdata;
+  wire [384/8-1:0] m_axi_wstrb;
+  wire [12-1:0]    m_axi_wvalid;
+  wire [12-1:0]    m_axi_wready;
+  wire [24-1:0]    m_axi_bresp;
+  wire [12-1:0]    m_axi_bvalid;
+  wire [12-1:0]    m_axi_bready;
+  wire [384-1:0]   m_axi_araddr;
+  wire [36-1:0]    m_axi_arprot;
+  wire [12-1:0]    m_axi_arvalid;
+  wire [12-1:0]    m_axi_arready;
+  wire [384-1:0]   m_axi_rdata;
+  wire [24-1:0]    m_axi_rresp;
+  wire [12-1:0]    m_axi_rvalid;
+  wire [12-1:0]    m_axi_rready;
+
+
+  // Wires for NTP clocks.
+  wire         PLL_locked_A;
+  wire [63:0]  NTP_TIME_A;
+  wire         NTP_TIME_A_UPD;
+  wire         ntp_clock_topA_LED1;
+  wire         ntp_clock_topA_LED2;
+  wire         SYNC_OK_A;
+
+  wire         PLL_locked_B;
+  wire [63:0]  NTP_TIME_B;
+  wire         NTP_TIME_B_UPD;
+  wire         ntp_clock_topB_LED1;
+  wire         ntp_clock_topB_LED2;
+  wire         SYNC_OK_B;
+
+
+  // Shared MDIO signals
+  wire         phy_mdc;
+  wire         phy_mdio_o;
+  wire         mdio_mux_0_mdio_out;
+
+  // Shared network paths signals
+  wire         areset_clk156;
+  wire         clk156;
+  wire         gtrxreset;
+  wire         gttxreset;
+  wire         qplllock;
+  wire         qplloutclk;
+  wire         qplloutrefclk;
+  wire         reset_counter_done;
+  wire         txuserrdy;
+  wire         txusrclk;
+  wire         txusrclk2;
+
+  wire [31:0]  network_path_shared_0_key_id;
+  wire         network_path_shared_0_key_req;
+  wire         network_path_shared_0_mdio_out;
+  wire         network_path_shared_0_mdio_tri;
+  wire [255:0] keymem_top_0_key;
+  wire         keymem_top_0_key_ack;
+
+  wire [31:0]  network_path_1_key_id;
+  wire         network_path_1_key_req;
+  wire         network_path_1_mdio_out;
+  wire         network_path_1_mdio_tri;
+  wire [255:0] keymem_top_1_key;
+  wire         keymem_top_1_key_ack;
+
+  wire [31:0]  network_path_2_key_id;
+  wire         network_path_2_key_req;
+  wire         network_path_2_mdio_out;
+  wire         network_path_2_mdio_tri;
+  wire [255:0] keymem_top_2_key;
+  wire         keymem_top_2_key_ack;
+
+  wire [31:0]  network_path_3_key_id;
+  wire         network_path_3_key_req;
+  wire         network_path_3_mdio_out;
+  wire         network_path_3_mdio_tri;
+
+  wire [255:0] keymem_top_3_key;
+  wire         keymem_top_3_key_ack;
+
+
+  //----------------------------------------------------------------
   // Pin Assignments.
   //----------------------------------------------------------------
   assign HEAD2  = test_TEN_MHZ_OUT;
@@ -184,11 +288,6 @@ module ntps_top #(
   // ntps_clocks
   // clock generators, clock control and clock tree allocations.
   //----------------------------------------------------------------
-  wire pcie_clk;       // 100Mhz PCI express clock
-  wire sys_clk;
-  wire clk50;          // sys_clk/4
-  wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
-
   ntps_clocks clocks(
                      .reset(reset),
                      .pcie_clk_n(PCIE_CLK_N),
@@ -209,9 +308,6 @@ module ntps_top #(
   // pps_test
   // Test pulse and clock output signals.
   //----------------------------------------------------------------
-  wire test_PPS_OUT;
-  wire test_TEN_MHZ_OUT;
-
   pps_test pps_test_0 (
     .areset       (reset),
     .clk_in       (sys_clk),
@@ -223,29 +319,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   // PCIe to AXI subsystem, note the aggregated outputs
   //----------------------------------------------------------------
-  wire             axi_aresetn;
-  wire             user_link_up;
-
-  wire [384-1:0]   m_axi_awaddr;
-  wire [36-1:0]    m_axi_awprot;
-  wire [12-1:0]    m_axi_awvalid;
-  wire [12-1:0]    m_axi_awready;
-  wire [384-1:0]   m_axi_wdata;
-  wire [384/8-1:0] m_axi_wstrb;
-  wire [12-1:0]    m_axi_wvalid;
-  wire [12-1:0]    m_axi_wready;
-  wire [24-1:0]    m_axi_bresp;
-  wire [12-1:0]    m_axi_bvalid;
-  wire [12-1:0]    m_axi_bready;
-  wire [384-1:0]   m_axi_araddr;
-  wire [36-1:0]    m_axi_arprot;
-  wire [12-1:0]    m_axi_arvalid;
-  wire [12-1:0]    m_axi_arready;
-  wire [384-1:0]   m_axi_rdata;
-  wire [24-1:0]    m_axi_rresp;
-  wire [12-1:0]    m_axi_rvalid;
-  wire [12-1:0]    m_axi_rready;
-
   pcie_axi pcie_axi_0 (
     .reset         (reset),
     .pcie_perst    (pcie_perst),
@@ -282,13 +355,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   // NTP clocks
   //----------------------------------------------------------------
-  wire         PLL_locked_A;
-  wire [63:0]  NTP_TIME_A;
-  wire         NTP_TIME_A_UPD;
-  wire         ntp_clock_topA_LED1;
-  wire         ntp_clock_topA_LED2;
-  wire         SYNC_OK_A;
-
   ntp_clock_top ntp_clock_topA (
     .reset        (reset),
     .axi_aclk     (axi_aclk),
@@ -326,12 +392,6 @@ module ntps_top #(
     .SYNC_OK      (SYNC_OK_A)
     );
 
-  wire         PLL_locked_B;
-  wire [63:0]  NTP_TIME_B;
-  wire         NTP_TIME_B_UPD;
-  wire         ntp_clock_topB_LED1;
-  wire         ntp_clock_topB_LED2;
-  wire         SYNC_OK_B;
 
   ntp_clock_top ntp_clock_topB (
     .reset        (reset),
@@ -374,31 +434,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   // network_path_shared with associated keymem.
   //----------------------------------------------------------------
-  // Shared MDIO signals
-  wire         phy_mdc;
-  wire         phy_mdio_o;
-  wire         mdio_mux_0_mdio_out;
-
-  // Shared network paths signals
-  wire         areset_clk156;
-  wire         clk156;
-  wire         gtrxreset;
-  wire         gttxreset;
-  wire         qplllock;
-  wire         qplloutclk;
-  wire         qplloutrefclk;
-  wire         reset_counter_done;
-  wire         txuserrdy;
-  wire         txusrclk;
-  wire         txusrclk2;
-
-  wire [31:0]  network_path_shared_0_key_id;
-  wire         network_path_shared_0_key_req;
-  wire         network_path_shared_0_mdio_out;
-  wire         network_path_shared_0_mdio_tri;
-  wire [255:0] keymem_top_0_key;
-  wire         keymem_top_0_key_ack;
-
   network_path_shared #(.PRTAD(0)) network_path_shared_0 (
     .areset_clk156       (areset_clk156),
     .clk156              (clk156),
@@ -491,13 +526,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   // network_path 1 with associated keymem.
   //----------------------------------------------------------------
-  wire [31:0]  network_path_1_key_id;
-  wire         network_path_1_key_req;
-  wire         network_path_1_mdio_out;
-  wire         network_path_1_mdio_tri;
-  wire [255:0] keymem_top_1_key;
-  wire         keymem_top_1_key_ack;
-
   network_path  #(.PRTAD(1)) network_path_1 (
     .areset_clk156       (areset_clk156),
     .clk156              (clk156),
@@ -588,13 +616,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   // network_path 2 with associated keymem.
   //----------------------------------------------------------------
-  wire [31:0]  network_path_2_key_id;
-  wire         network_path_2_key_req;
-  wire         network_path_2_mdio_out;
-  wire         network_path_2_mdio_tri;
-  wire [255:0] keymem_top_2_key;
-  wire         keymem_top_2_key_ack;
-
   network_path  #(.PRTAD(2)) network_path_2 (
     .areset_clk156       (areset_clk156),
     .clk156              (clk156),
@@ -685,14 +706,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   // Network path 3 with associated keymem.
   //----------------------------------------------------------------
-  wire [31:0]  network_path_3_key_id;
-  wire         network_path_3_key_req;
-  wire         network_path_3_mdio_out;
-  wire         network_path_3_mdio_tri;
-
-  wire [255:0] keymem_top_3_key;
-  wire         keymem_top_3_key_ack;
-
   network_path  #(.PRTAD(3)) network_path_3 (
     .areset_clk156       (areset_clk156),
     .clk156              (clk156),
@@ -868,7 +881,6 @@ module ntps_top #(
     .s_axi_wstrb    (m_axi_wstrb  [7*32/8 +: 32/8]),
     .s_axi_wvalid   (m_axi_wvalid [7*1 +: 1])
     );
-
 
 endmodule // ntps_top
 
