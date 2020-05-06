@@ -199,6 +199,7 @@ set files [list \
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy_core.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/keymem/src/rtl/ntp_auth_keymem.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/keymem/src/rtl/nts_keymem.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_core.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_encipher_block.v"]"\
@@ -208,11 +209,13 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/aes-siv/src/rtl/aes_siv_core.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/siphash/src/rtl/siphash_core.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/nts_noncegen/src/rtl/nts_noncegen.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/md5/src/rtl/md5_core.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/misc/counter64.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dpge.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dp2w.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/memory_ctrl.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/ntp_auth.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_api.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_engine.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_parser_ctrl.v"]"\
