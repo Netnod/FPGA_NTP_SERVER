@@ -169,6 +169,24 @@ API_ADDR_PARSER_IPV6_5       = API_ADDR_PARSER_BASE + 0x74
 API_ADDR_PARSER_IPV6_6       = API_ADDR_PARSER_BASE + 0x78
 API_ADDR_PARSER_IPV6_7       = API_ADDR_PARSER_BASE + 0x7C
 
+API_ADDR_NTPAUTH_KEYMEM_BASE          = 0x300;
+API_ADDR_NTPAUTH_KEYMEM_NAME0         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x00
+API_ADDR_NTPAUTH_KEYMEM_NAME1         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x01
+API_ADDR_NTPAUTH_KEYMEM_VERSION       = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x02
+API_ADDR_NTPAUTH_KEYMEM_SLOTS         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x03
+API_ADDR_NTPAUTH_KEYMEM_ACTIVE_SLOT   = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x10
+API_ADDR_NTPAUTH_KEYMEM_LOAD          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x11
+API_ADDR_NTPAUTH_KEYMEM_BUSY          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x12
+API_ADDR_NTPAUTH_KEYMEM_MD5_SHA1      = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x13
+API_ADDR_NTPAUTH_KEYMEM_KEYID         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x20
+API_ADDR_NTPAUTH_KEYMEM_COUNTER_MSB   = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x21
+API_ADDR_NTPAUTH_KEYMEM_COUNTER_LSB   = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x22
+API_ADDR_NTPAUTH_KEYMEM_KEY0          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x23
+API_ADDR_NTPAUTH_KEYMEM_KEY1          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x24
+API_ADDR_NTPAUTH_KEYMEM_KEY2          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x25
+API_ADDR_NTPAUTH_KEYMEM_KEY3          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x26
+API_ADDR_NTPAUTH_KEYMEM_KEY4          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x27
+
 def read32(api, base, offset):
     return api.read(base + offset)
 
@@ -532,6 +550,34 @@ def nts_install_test_keys(api, engine):
     nts_set_current_key(api, engine, 1)
 
 
+def ntp_auth_install_key(api, engine, slots, slot, md5, sha1, keyid, key):
+    print(" * Slot %d - Install install key keyid=%08x MD5=%s SHA1=%s" % (slot, keyid, md5, sha1))
+    keytype = 0;
+    if (md5 and sha1):
+        keytype = 3;
+        print(" * WARNING: Key is MD5 and SHA1, probably unwise")
+    elif (md5):
+        keytype = 1;
+    elif (sha1):
+        keytype = 2;
+    if (slot >= slots):
+        raise Exception("WARNING: Slots: %0d, slot %0d is out of range".format(slots, slot))
+    engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_ACTIVE_SLOT, slot)
+    engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_MD5_SHA1, 0) # disable slot during install
+    engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_COUNTER_MSB, 0)
+    engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_COUNTER_LSB, 0)
+    engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_KEYID, keyid)
+    for i in range (0, 5):
+      engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_KEY0 + i, key[4-i] )
+    engine_write32(api, engine, API_ADDR_NTPAUTH_KEYMEM_MD5_SHA1, keytype )
+
+
+def ntp_auth_install_test_keys(api, engine):
+    print("Engine %d - Install NTP AUTH install test keys" %  engine)
+    slots = engine_read32(api, engine, API_ADDR_NTPAUTH_KEYMEM_SLOTS);
+    print(" * Slots: %0d" % slots);
+    ntp_auth_install_key(api, engine, slots, 7, 1, 0, 0xc01df00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
+
 def nts_configure_ntp(api, engine, refid, rootdelay, rootdisp, tx_ofs, config):
     v_config = int(config, 16)
     v_refid = 0 # refid is zero-padded if length<4
@@ -579,13 +625,14 @@ def parser_configure_helper ( e, d, bit, value ):
     else:
       raise Exception("WARNING: configuration argument {} is not a proper boolean, valid values: {}".format(value, disable_words + enable_words))
 
-def parser_configure( api, engine, csum_verify, nts, ntp ):
+def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5 ):
     enable_bits = 0
     disable_bits = 0
 
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 0, csum_verify)
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 1, nts)
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 2, ntp)
+    (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 3, ntp_md5)
 
     print("Engine %d - configuring parser" % engine)
     print("  * enable  bits: %08x" % enable_bits )
@@ -609,6 +656,7 @@ if __name__=="__main__":
     parser_ctrl_csum_verify = None
     parser_ctrl_nts = None
     parser_ctrl_ntp = None
+    parser_ctrl_ntp_md5 = None
     reset_api_dispatcher = False
     reset_api_extractor = False
     setup = True
@@ -620,6 +668,7 @@ if __name__=="__main__":
         'parser_ctrl_csum_verify=',
         'parser_ctrl_nts=',
         'parser_ctrl_ntp=',
+        'parser_ctrl_ntp_md5=',
         'ntp_config=',
         'ntp_refid=',
         'ntp_rootdisp=',
@@ -638,6 +687,7 @@ if __name__=="__main__":
       if (opt == '--parser_ctrl_csum_verify'): parser_ctrl_csum_verify = arg
       if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
       if (opt == '--parser_ctrl_ntp'): parser_ctrl_ntp = arg;
+      if (opt == '--parser_ctrl_ntp_md5'): parser_ctrl_ntp_md5 = arg;
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
 
@@ -663,7 +713,8 @@ if __name__=="__main__":
         nts_disable_keys(api, engine)
         nts_init_noncegen(api, engine)
         nts_install_test_keys(api, engine)
-        parser_configure(api, engine, parser_ctrl_csum_verify,  parser_ctrl_nts, parser_ctrl_ntp)
+        ntp_auth_install_test_keys(api, engine)
+        parser_configure(api, engine, parser_ctrl_csum_verify,  parser_ctrl_nts, parser_ctrl_ntp, parser_ctrl_ntp_md5)
       for engine in range(0, engines):
         nts_engine_enable(api, engine)
       nts_dispatcher_enable(api)
