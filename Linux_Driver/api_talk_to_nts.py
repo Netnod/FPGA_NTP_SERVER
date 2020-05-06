@@ -576,7 +576,7 @@ def ntp_auth_install_test_keys(api, engine):
     print("Engine %d - Install NTP AUTH install test keys" %  engine)
     slots = engine_read32(api, engine, API_ADDR_NTPAUTH_KEYMEM_SLOTS);
     print(" * Slots: %0d" % slots);
-    ntp_auth_install_key(api, engine, slots, 7, 1, 0, 0xc01df00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
+    ntp_auth_install_key(api, engine, slots, 7, 1, 0, 0xf00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
 
 def nts_configure_ntp(api, engine, refid, rootdelay, rootdisp, tx_ofs, config):
     v_config = int(config, 16)
