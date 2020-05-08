@@ -316,7 +316,7 @@ module ntps_top #(
      .pci_exp_txp   (pci_exp_txp),
      .axi_aclk      (axi_aclk),
      .axi_aresetn   (axi_aresetn),
-     .user_link_up  (user_link_up)
+     .user_link_up  (user_link_up),
      .m_axi_awaddr  (m_axi_awaddr),
      .m_axi_awprot  (m_axi_awprot),
      .m_axi_awvalid (m_axi_awvalid),
