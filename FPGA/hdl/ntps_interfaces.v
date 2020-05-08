@@ -216,7 +216,7 @@ module ntps_interfaces(
     .TEN_MHZ_OUT  (TEN_MHZ_OUTA),
     .PLL_locked   (PLL_LOCKEDA),
     .NTP_TIME     (NTP_TIMEA),
-    .NTP_TIME_UPD (NTP_TIMEA_UPD),
+    .NTP_TIME_UPD (NTP_TIME_UPDA),
     .LED1         (NTP_LED1A),
     .LED2         (NTP_LED2A),
     .SYNC_OK      (SYNC_OKA)
@@ -254,7 +254,7 @@ module ntps_interfaces(
     .TEN_MHZ_OUT  (TEN_MHZ_OUTB),
     .PLL_locked   (PLL_LOCKEDB),
     .NTP_TIME     (NTP_TIMEB),
-    .NTP_TIME_UPD (NTP_TIMEB_UPD),
+    .NTP_TIME_UPD (NTP_TIME_UPDB),
     .LED1         (NTP_LED1B),
     .LED2         (NTP_LED2B),
     .SYNC_OK      (SYNC_OKB)
