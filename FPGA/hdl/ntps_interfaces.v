@@ -105,6 +105,13 @@ module ntps_interfaces(
 
 
   //----------------------------------------------------------------
+  // Local parameters.
+  //----------------------------------------------------------------
+  localparam AXI_NTPA_INDEX = 0;
+  localparam AXI_NTPB_INDEX = 1;
+
+
+  //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
   // PCI-AXI
@@ -130,6 +137,8 @@ module ntps_interfaces(
   wire [24-1:0]    m_axi_rresp;
   wire [12-1:0]    m_axi_rvalid;
   wire [12-1:0]    m_axi_rready;
+
+  wire             pcie_clk;
 
 
   //----------------------------------------------------------------
@@ -180,37 +189,37 @@ module ntps_interfaces(
     .reset        (reset),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
-    .axi_araddr   (m_axi_araddr [0*32 +: 5]),
-    .axi_arprot   (m_axi_arprot [0*3 +: 3]),
-    .axi_arready  (m_axi_arready[0*1 +: 1]),
-    .axi_arvalid  (m_axi_arvalid[0*1 +: 1]),
-    .axi_awaddr   (m_axi_awaddr [0*32 +: 5]),
-    .axi_awprot   (m_axi_awprot [0*3 +: 3]),
-    .axi_awready  (m_axi_awready[0*1 +: 1]),
-    .axi_awvalid  (m_axi_awvalid[0*1 +: 1]),
-    .axi_bready   (m_axi_bready [0*1 +: 1]),
-    .axi_bresp    (m_axi_bresp  [0*2 +: 2]),
-    .axi_bvalid   (m_axi_bvalid [0*1 +: 1]),
-    .axi_rdata    (m_axi_rdata  [0*32 +: 32]),
-    .axi_rready   (m_axi_rready [0*1 +: 1]),
-    .axi_rresp    (m_axi_rresp  [0*2 +: 2]),
-    .axi_rvalid   (m_axi_rvalid [0*1 +: 1]),
-    .axi_wdata    (m_axi_wdata  [0*32 +: 32]),
-    .axi_wready   (m_axi_wready [0*1 +: 1]),
-    .axi_wstrb    (m_axi_wstrb  [0*32/8 +: 32/8]),
-    .axi_wvalid   (m_axi_wvalid [0*1 +: 1]),
+    .axi_araddr   (m_axi_araddr [(AXI_NTPA_INDEX * 32) +: 5]),
+    .axi_arprot   (m_axi_arprot [(AXI_NTPA_INDEX * 3) +: 3]),
+    .axi_arready  (m_axi_arready[(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_arvalid  (m_axi_arvalid[(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_awaddr   (m_axi_awaddr [(AXI_NTPA_INDEX * 32) +: 5]),
+    .axi_awprot   (m_axi_awprot [(AXI_NTPA_INDEX * 3) +: 3]),
+    .axi_awready  (m_axi_awready[(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_awvalid  (m_axi_awvalid[(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_bready   (m_axi_bready [(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_bresp    (m_axi_bresp  [(AXI_NTPA_INDEX * 2) +: 2]),
+    .axi_bvalid   (m_axi_bvalid [(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_rdata    (m_axi_rdata  [(AXI_NTPA_INDEX * 32) +: 32]),
+    .axi_rready   (m_axi_rready [(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_rresp    (m_axi_rresp  [(AXI_NTPA_INDEX * 2) +: 2]),
+    .axi_rvalid   (m_axi_rvalid [(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_wdata    (m_axi_wdata  [(AXI_NTPA_INDEX * 32) +: 32]),
+    .axi_wready   (m_axi_wready [(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPA_INDEX * 32/8) +: 32/8]),
+    .axi_wvalid   (m_axi_wvalid [(AXI_NTPA_INDEX * 1) +: 1]),
     .PPS_IN_N     (PPS_INA_N),
     .PPS_IN_P     (PPS_INA_P),
     .PPS_OUT      (PPS_OUTA),
-    .TEN_MHZ_IN_N (TEN_MHZ_INA_clk_n),
-    .TEN_MHZ_IN_P (TEN_MHZ_INA_clk_p),
+    .TEN_MHZ_IN_N (TEN_MHZ_INA_N),
+    .TEN_MHZ_IN_P (TEN_MHZ_INA_P),
     .TEN_MHZ_OUT  (TEN_MHZ_OUTA),
     .PLL_locked   (PLL_LOCKEDA),
-    .NTP_TIME     (NTP_TIME_A),
-    .NTP_TIME_UPD (NTP_TIME_A_UPD),
-    .LED1         (ntp_clock_topA_LED1),
-    .LED2         (ntp_clock_topA_LED2),
-    .SYNC_OK      (SYNC_OK_A)
+    .NTP_TIME     (NTP_TIMEA),
+    .NTP_TIME_UPD (NTP_TIMEA_UPD),
+    .LED1         (NTP_LED1A),
+    .LED2         (NTP_LED2A),
+    .SYNC_OK      (SYNC_OKA)
     );
 
 
@@ -218,37 +227,37 @@ module ntps_interfaces(
     .reset        (reset),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
-    .axi_araddr   (m_axi_araddr [1*32 +: 5]),
-    .axi_arprot   (m_axi_arprot [1*3 +: 3]),
-    .axi_arready  (m_axi_arready[1*1 +: 1]),
-    .axi_arvalid  (m_axi_arvalid[1*1 +: 1]),
-    .axi_awaddr   (m_axi_awaddr [1*32 +: 5]),
-    .axi_awprot   (m_axi_awprot [1*3 +: 3]),
-    .axi_awready  (m_axi_awready[1*1 +: 1]),
-    .axi_awvalid  (m_axi_awvalid[1*1 +: 1]),
-    .axi_bready   (m_axi_bready [1*1 +: 1]),
-    .axi_bresp    (m_axi_bresp  [1*2 +: 2]),
-    .axi_bvalid   (m_axi_bvalid [1*1 +: 1]),
-    .axi_rdata    (m_axi_rdata  [1*32 +: 32]),
-    .axi_rready   (m_axi_rready [1*1 +: 1]),
-    .axi_rresp    (m_axi_rresp  [1*2 +: 2]),
-    .axi_rvalid   (m_axi_rvalid [1*1 +: 1]),
-    .axi_wdata    (m_axi_wdata  [1*32 +: 32]),
-    .axi_wready   (m_axi_wready [1*1 +: 1]),
-    .axi_wstrb    (m_axi_wstrb  [1*32/8 +: 32/8]),
-    .axi_wvalid   (m_axi_wvalid [1*1 +: 1]),
+    .axi_araddr   (m_axi_araddr [(AXI_NTPB_INDEX * 32) +: 5]),
+    .axi_arprot   (m_axi_arprot [(AXI_NTPB_INDEX * 3) +: 3]),
+    .axi_arready  (m_axi_arready[(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_arvalid  (m_axi_arvalid[(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_awaddr   (m_axi_awaddr [(AXI_NTPB_INDEX * 32) +: 5]),
+    .axi_awprot   (m_axi_awprot [(AXI_NTPB_INDEX * 3) +: 3]),
+    .axi_awready  (m_axi_awready[(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_awvalid  (m_axi_awvalid[(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_bready   (m_axi_bready [(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_bresp    (m_axi_bresp  [(AXI_NTPB_INDEX * 2) +: 2]),
+    .axi_bvalid   (m_axi_bvalid [(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_rdata    (m_axi_rdata  [(AXI_NTPB_INDEX * 32) +: 32]),
+    .axi_rready   (m_axi_rready [(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_rresp    (m_axi_rresp  [(AXI_NTPB_INDEX * 2) +: 2]),
+    .axi_rvalid   (m_axi_rvalid [(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_wdata    (m_axi_wdata  [(AXI_NTPB_INDEX * 32) +: 32]),
+    .axi_wready   (m_axi_wready [(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPB_INDEX * 32/8) +: 32/8]),
+    .axi_wvalid   (m_axi_wvalid [(AXI_NTPB_INDEX * 1) +: 1]),
     .PPS_IN_N     (PPS_INB_N),
     .PPS_IN_P     (PPS_INB_P),
     .PPS_OUT      (PPS_OUTB),
-    .TEN_MHZ_IN_N (TEN_MHZ_INB_clk_n),
-    .TEN_MHZ_IN_P (TEN_MHZ_INB_clk_p),
+    .TEN_MHZ_IN_N (TEN_MHZ_INB_N),
+    .TEN_MHZ_IN_P (TEN_MHZ_INB_P),
     .TEN_MHZ_OUT  (TEN_MHZ_OUTB),
-    .PLL_locked   (PLL_locked_B),
-    .NTP_TIME     (NTP_TIME_B),
-    .NTP_TIME_UPD (NTP_TIME_B_UPD),
-    .LED1         (ntp_clock_topB_LED1),
-    .LED2         (ntp_clock_topB_LED2),
-    .SYNC_OK      (SYNC_OK_B)
+    .PLL_locked   (PLL_LOCKEDB),
+    .NTP_TIME     (NTP_TIMEB),
+    .NTP_TIME_UPD (NTP_TIMEB_UPD),
+    .LED1         (NTP_LED1B),
+    .LED2         (NTP_LED2B),
+    .SYNC_OK      (SYNC_OKB)
     );
 
 endmodule // ntps_interfaces
