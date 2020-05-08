@@ -216,7 +216,8 @@ module network_path_top #(
   );
 
 
-endmodule
+endmodule // network_path_top
+
 `default_nettype wire
 
 //======================================================================

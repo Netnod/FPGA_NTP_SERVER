@@ -61,10 +61,8 @@ module ntps_clocks(
 
 
   //----------------------------------------------------------------
-  // Internal wires.
+  // Instantiations.
   //----------------------------------------------------------------
-  wire sys_clk;
-  wire clk50;
 
   // pcie_clk clock tree input buffer.
   ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
