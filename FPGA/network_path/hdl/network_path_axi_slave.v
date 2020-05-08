@@ -228,14 +228,14 @@ module network_path_axi_slave #(
         end
       end else begin
         for (sts_index=0; sts_index < NCNT; sts_index=sts_index+1) begin
-          slv_reg[CNT_OFS+sts_index] = new_status_cnt[sts_index];
+          slv_reg[CNT_OFS+sts_index] <= new_status_cnt[sts_index];
         end
-        slv_reg[XOFS] = xphy_status_axi;
+        slv_reg[XOFS] <= xphy_status_axi;
       end // else: !if(slv_reg_wren)
 
       // Clear laser enable if sync is lost
       if (ntp_sync_ok_axi == 1'b0) begin
-	slv_reg[0][29] = 1'b0;
+	slv_reg[0][29] <= 1'b0;
       end
 
     end // else: !if( S_AXI_ARESETN == 1'b0 )

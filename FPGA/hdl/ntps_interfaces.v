@@ -45,7 +45,7 @@ module ntps_interfaces(
 
                        // PCI-AXI interface and bridge.
                        input wire            pcie_perst,
-                       input wire            pci_clk,
+                       input wire            pcie_clk,
                        input wire [7:0]      pci_exp_rxn,
                        input wire [7:0]      pci_exp_rxp,
                        output wire [7:0]     pci_exp_txn,
@@ -114,31 +114,6 @@ module ntps_interfaces(
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
-  // PCI-AXI
-  wire             axi_aclk;
-  wire             axi_aresetn;
-  wire             user_link_up;
-  wire [384-1:0]   m_axi_awaddr;
-  wire [36-1:0]    m_axi_awprot;
-  wire [12-1:0]    m_axi_awvalid;
-  wire [12-1:0]    m_axi_awready;
-  wire [384-1:0]   m_axi_wdata;
-  wire [384/8-1:0] m_axi_wstrb;
-  wire [12-1:0]    m_axi_wvalid;
-  wire [12-1:0]    m_axi_wready;
-  wire [24-1:0]    m_axi_bresp;
-  wire [12-1:0]    m_axi_bvalid;
-  wire [12-1:0]    m_axi_bready;
-  wire [384-1:0]   m_axi_araddr;
-  wire [36-1:0]    m_axi_arprot;
-  wire [12-1:0]    m_axi_arvalid;
-  wire [12-1:0]    m_axi_arready;
-  wire [384-1:0]   m_axi_rdata;
-  wire [24-1:0]    m_axi_rresp;
-  wire [12-1:0]    m_axi_rvalid;
-  wire [12-1:0]    m_axi_rready;
-
-  wire             pcie_clk;
 
 
   //----------------------------------------------------------------
