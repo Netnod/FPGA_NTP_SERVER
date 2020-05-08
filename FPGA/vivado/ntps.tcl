@@ -189,12 +189,14 @@ set files [list \
  "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_top.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_shared.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path.v"]"\
+ "[file normalize "$origin_dir/../network_path/hdl/network_path_top.v"]"\
  "[file normalize "$origin_dir/../hdl/mdio_mux.v"]"\
  "[file normalize "$origin_dir/../keymem/hdl/keymem_top.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\
  "[file normalize "$origin_dir/../hdl/clk50_gen.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_top.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_clocks.v"]"\
+ "[file normalize "$origin_dir/../hdl/ntps_interfaces.v"]"\
  "[file normalize "$origin_dir/../nts/api_extension/src/rtl/api_extension.v"]"\
  "[file normalize "$origin_dir/../nts/pp_merge/src/rtl/pp_merge.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy.v"]"\
