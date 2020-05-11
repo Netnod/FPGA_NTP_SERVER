@@ -576,6 +576,7 @@ def ntp_auth_install_test_keys(api, engine):
     print("Engine %d - Install NTP AUTH install test keys" %  engine)
     slots = engine_read32(api, engine, API_ADDR_NTPAUTH_KEYMEM_SLOTS);
     print(" * Slots: %0d" % slots);
+    ntp_auth_install_key(api, engine, slots, 5, 0, 1, 0xbaad, [ 0xbaad4444, 0xbaad3333, 0xbaad2222, 0xbaad1111, 0xbaad0000 ])
     ntp_auth_install_key(api, engine, slots, 7, 1, 0, 0xf00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
 
 def nts_configure_ntp(api, engine, refid, rootdelay, rootdisp, tx_ofs, config):
@@ -625,7 +626,7 @@ def parser_configure_helper ( e, d, bit, value ):
     else:
       raise Exception("WARNING: configuration argument {} is not a proper boolean, valid values: {}".format(value, disable_words + enable_words))
 
-def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5 ):
+def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5, ntp_sha1 ):
     enable_bits = 0
     disable_bits = 0
 
@@ -633,6 +634,7 @@ def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5 ):
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 1, nts)
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 2, ntp)
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 3, ntp_md5)
+    (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 4, ntp_sha1)
 
     print("Engine %d - configuring parser" % engine)
     print("  * enable  bits: %08x" % enable_bits )
@@ -657,6 +659,7 @@ if __name__=="__main__":
     parser_ctrl_nts = None
     parser_ctrl_ntp = None
     parser_ctrl_ntp_md5 = None
+    parser_ctrl_ntp_sha1 = None
     reset_api_dispatcher = False
     reset_api_extractor = False
     setup = True
@@ -669,6 +672,7 @@ if __name__=="__main__":
         'parser_ctrl_nts=',
         'parser_ctrl_ntp=',
         'parser_ctrl_ntp_md5=',
+        'parser_ctrl_ntp_sha1=',
         'ntp_config=',
         'ntp_refid=',
         'ntp_rootdisp=',
@@ -688,6 +692,7 @@ if __name__=="__main__":
       if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
       if (opt == '--parser_ctrl_ntp'): parser_ctrl_ntp = arg;
       if (opt == '--parser_ctrl_ntp_md5'): parser_ctrl_ntp_md5 = arg;
+      if (opt == '--parser_ctrl_ntp_sha1'): parser_ctrl_ntp_sha1 = arg;
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
 
@@ -714,7 +719,7 @@ if __name__=="__main__":
         nts_init_noncegen(api, engine)
         nts_install_test_keys(api, engine)
         ntp_auth_install_test_keys(api, engine)
-        parser_configure(api, engine, parser_ctrl_csum_verify,  parser_ctrl_nts, parser_ctrl_ntp, parser_ctrl_ntp_md5)
+        parser_configure(api, engine, parser_ctrl_csum_verify,  parser_ctrl_nts, parser_ctrl_ntp, parser_ctrl_ntp_md5, parser_ctrl_ntp_sha1)
       for engine in range(0, engines):
         nts_engine_enable(api, engine)
       nts_dispatcher_enable(api)
