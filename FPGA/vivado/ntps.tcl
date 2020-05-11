@@ -210,6 +210,8 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/siphash/src/rtl/siphash_core.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/nts_noncegen/src/rtl/nts_noncegen.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/md5/src/rtl/md5_core.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/sha1/src/rtl/sha1_w_mem.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/sub/sha1/src/rtl/sha1_core.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/misc/counter64.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dpge.v"]"\
