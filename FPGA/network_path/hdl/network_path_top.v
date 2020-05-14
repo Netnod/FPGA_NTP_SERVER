@@ -48,7 +48,7 @@
 module network_path_top #(
   parameter [4:0]   AXI_NP_INDEX = 5'd0,
   parameter [4:0]   AXI_KM_INDEX = 5'd5,
-  parameter [4:0]   PRTAD        = 5'd1,   // For MDIO addressing
+  parameter [4:0]   PRTAD        = 5'd1   // For MDIO addressing
   )
   (
   /// AXI Lite register interface
