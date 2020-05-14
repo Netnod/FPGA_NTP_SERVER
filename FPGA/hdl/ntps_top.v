@@ -369,29 +369,6 @@ module ntps_top #(
   // network_path_shared with associated keymem.
   //----------------------------------------------------------------
   network_path_shared #(.PRTAD(0)) network_path_shared_0 (
-    .areset_clk156       (areset_clk156),
-    .clk156              (clk156),
-    .gtrxreset           (gtrxreset),
-    .gttxreset           (gttxreset),
-    .key                 (keymem_top_0_key),
-    .key_ack             (keymem_top_0_key_ack),
-    .key_id              (network_path_shared_0_key_id),
-    .key_req             (network_path_shared_0_key_req),
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_shared_0_mdio_out),
-    .mdio_tri            (network_path_shared_0_mdio_tri),
-    .module_detect_n     (sfp_module_detect0_n),
-    .ntp_time_a          (NTP_TIME_A),
-    .ntp_time_b          (NTP_TIME_B),
-    .ntp_time_upd_a      (NTP_TIME_A_UPD),
-    .ntp_time_upd_b      (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a       (SYNC_OK_A),
-    .ntp_sync_ok_b       (SYNC_OK_B),
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
     .s_axi_clk           (axi_aclk),
     .s_axi_aresetn       (axi_aresetn),
     .s_axi_araddr        (m_axi_araddr [3*32 +: 32]),
@@ -411,20 +388,52 @@ module ntps_top #(
     .s_axi_wready        (m_axi_wready [3*1 +: 1]),
     .s_axi_wstrb         (m_axi_wstrb  [3*32/8 +: 32/8]),
     .s_axi_wvalid        (m_axi_wvalid [3*1 +: 1]),
-    .signal_lost         (sfp_signal_lost0),
-    .sim_speedup_control (1'b0),
-    .sys_reset           (reset),
-    .tx_disable          (sfp_tx_disable0),
-    .tx_fault            (sfp_tx_fault0),
-    .txuserrdy           (txuserrdy),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
+
+    .ntp_time_a          (NTP_TIME_A),
+    .ntp_time_upd_a      (NTP_TIME_A_UPD),
+    .ntp_time_b          (NTP_TIME_B),
+    .ntp_time_upd_b      (NTP_TIME_B_UPD),
+    .ntp_sync_ok_a       (SYNC_OK_A),
+    .ntp_sync_ok_b       (SYNC_OK_B),
+
+    .key_req             (network_path_shared_0_key_req),
+    .key_id              (network_path_shared_0_key_id),
+    .key_ack             (keymem_top_0_key_ack),
+    .key                 (keymem_top_0_key),
+
     .xphy_refclk_n       (xphy_refclk_n),
     .xphy_refclk_p       (xphy_refclk_p),
-    .xphy_rxn            (xphy0_rxn),
-    .xphy_rxp            (xphy0_rxp),
+    .xphy_txp            (xphy0_txp),
     .xphy_txn            (xphy0_txn),
-    .xphy_txp            (xphy0_txp)
+    .xphy_rxp            (xphy0_rxp),
+    .xphy_rxn            (xphy0_rxn),
+    .signal_lost         (sfp_signal_lost0),
+    .module_detect_n     (sfp_module_detect0_n),
+    .tx_fault            (sfp_tx_fault0),
+    .tx_disable          (sfp_tx_disable0),
+
+    .mdc                 (phy_mdc),
+    .mdio_in             (phy_mdio_o),
+    .mdio_out            (network_path_shared_0_mdio_out),
+    .mdio_tri            (network_path_shared_0_mdio_tri),
+
+    .clk156              (clk156),
+    .txusrclk            (txusrclk),
+    .txusrclk2           (txusrclk2),
+    .areset_clk156       (areset_clk156),
+    .gttxreset           (gttxreset),
+    .gtrxreset           (gtrxreset),
+    .txuserrdy           (txuserrdy),
+    .qplllock            (qplllock),
+    .qplloutclk          (qplloutclk),
+    .qplloutrefclk       (qplloutrefclk),
+    .reset_counter_done  (reset_counter_done),
+
+    // Dangling port.
+    .tx_resetdone(),
+
+    .sys_reset           (reset),
+    .sim_speedup_control (1'b0)
   );
 
   keymem_top keymem_top_0 (
