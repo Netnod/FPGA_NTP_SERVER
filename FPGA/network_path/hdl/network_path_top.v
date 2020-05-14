@@ -71,6 +71,7 @@ module network_path_top #(
   output wire [11 : 0]  s_axi_rvalid,
   input wire [11 : 0]   s_axi_rready,
   input wire [47 : 0]   s_axi_wstrb,
+  input wire [35 : 0]   s_axi_arprot,
 
   // NTP times
   input wire [63:0]     ntp_time_a,
@@ -139,7 +140,7 @@ module network_path_top #(
     .key_id              (key_id),
     .key_req             (key_req),
     .mdc                 (mdc),
-    .mdio_in             (mdio_o),
+    .mdio_in             (mdio_in),
     .mdio_out            (mdio_out),
     .mdio_tri            (mdio_tri),
     .module_detect_n     (module_detect_n),
@@ -174,7 +175,7 @@ module network_path_top #(
     .s_axi_wvalid        (s_axi_wvalid [(AXI_NP_INDEX * 1) +: 1]),
     .signal_lost         (signal_lost),
     .sim_speedup_control (1'b0),
-    .sys_reset           (reset),
+    .sys_reset           (sys_reset),
     .tx_disable          (tx_disable),
     .tx_fault            (tx_fault),
     .txuserrdy           (txuserrdy),
