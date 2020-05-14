@@ -70,6 +70,7 @@ module network_path_top #(
   output wire [23 : 0]  s_axi_rresp,
   output wire [11 : 0]  s_axi_rvalid,
   input wire [11 : 0]   s_axi_rready,
+  input wire [47 : 0]   s_axi_wstrb,
 
   // NTP times
   input wire [63:0]     ntp_time_a,
@@ -119,9 +120,9 @@ module network_path_top #(
   // Wires.
   //----------------------------------------------------------------
   // Key Memory
-  wire 	      key_req;
-  wire [31:0] key_id;
-  wire 	     key_ack;
+  wire 	       key_req;
+  wire [31:0]  key_id;
+  wire 	       key_ack;
   wire [255:0] key;
 
 
@@ -137,17 +138,17 @@ module network_path_top #(
     .key_ack             (key_ack),
     .key_id              (key_id),
     .key_req             (key_req),
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_1_mdio_out),
-    .mdio_tri            (network_path_1_mdio_tri),
-    .module_detect_n     (sfp_module_detect1_n),
-    .ntp_time_a          (NTP_TIME_A),
-    .ntp_time_b          (NTP_TIME_B),
-    .ntp_time_upd_a      (NTP_TIME_A_UPD),
-    .ntp_time_upd_b      (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a       (SYNC_OK_A),
-    .ntp_sync_ok_b       (SYNC_OK_B),
+    .mdc                 (mdc),
+    .mdio_in             (mdio_o),
+    .mdio_out            (mdio_out),
+    .mdio_tri            (mdio_tri),
+    .module_detect_n     (module_detect_n),
+    .ntp_time_a          (ntp_time_a),
+    .ntp_time_upd_a      (ntp_time_upd_a),
+    .ntp_time_b          (ntp_time_b),
+    .ntp_time_upd_b      (ntp_time_upd_b),
+    .ntp_sync_ok_a       (ntp_sync_ok_a),
+    .ntp_sync_ok_b       (ntp_sync_ok_b),
     .qplllock            (qplllock),
     .qplloutclk          (qplloutclk),
     .qplloutrefclk       (qplloutrefclk),
@@ -171,18 +172,18 @@ module network_path_top #(
     .s_axi_wready        (s_axi_wready [(AXI_NP_INDEX * 1) +: 1]),
     .s_axi_wstrb         (s_axi_wstrb  [(AXI_NP_INDEX * 32/8) +: 32/8]),
     .s_axi_wvalid        (s_axi_wvalid [(AXI_NP_INDEX * 1) +: 1]),
-    .signal_lost         (sfp_signal_lost1),
+    .signal_lost         (signal_lost),
     .sim_speedup_control (1'b0),
     .sys_reset           (reset),
-    .tx_disable          (sfp_tx_disable1),
-    .tx_fault            (sfp_tx_fault1),
+    .tx_disable          (tx_disable),
+    .tx_fault            (tx_fault),
     .txuserrdy           (txuserrdy),
     .txusrclk            (txusrclk),
     .txusrclk2           (txusrclk2),
-    .xphy_rxn            (xphy1_rxn),
-    .xphy_rxp            (xphy1_rxp),
-    .xphy_txn            (xphy1_txn),
-    .xphy_txp            (xphy1_txp)
+    .xphy_rxn            (xphy_rxn),
+    .xphy_rxp            (xphy_rxp),
+    .xphy_txn            (xphy_txn),
+    .xphy_txp            (xphy_txp)
   );
 
 
