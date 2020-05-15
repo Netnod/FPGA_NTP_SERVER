@@ -331,7 +331,7 @@ module ntps_top #(
      .mdio_tri_0    (network_path_shared_0_mdio_tri),
      .mdio_tri_1    (network_path_1_mdio_tri),
      .mdio_tri_2    (network_path_2_mdio_tri),
-     .mdio_tri_3    (network_path_3_mdio_tri)
+     .mdio_tri_3    (network_path_3_mdio_tri),
 
      .axi_aclk      (axi_aclk),
      .axi_aresetn   (axi_aresetn),
