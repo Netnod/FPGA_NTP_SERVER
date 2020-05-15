@@ -322,8 +322,8 @@ module ntps_top #(
      .pmbus_data    (pmbus_data),
      .pmbus_alert   (pmbus_alert),
 
-     .phy_mdio_o    (phy_mdio_o);
-     .phy_mdc       (phy_mdc);
+     .phy_mdio_o    (phy_mdio_o),
+     .phy_mdc       (phy_mdc),
      .mdio_out_0    (network_path_shared_0_mdio_out),
      .mdio_out_1    (network_path_1_mdio_out),
      .mdio_out_2    (network_path_2_mdio_out),
