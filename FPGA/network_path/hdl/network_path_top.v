@@ -72,6 +72,7 @@ module network_path_top #(
   input wire [11 : 0]   s_axi_rready,
   input wire [47 : 0]   s_axi_wstrb,
   input wire [35 : 0]   s_axi_arprot,
+  input wire [35 : 0]   s_axi_awprot,
 
   // NTP times
   input wire [63:0]     ntp_time_a,
