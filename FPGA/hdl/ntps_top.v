@@ -205,7 +205,15 @@ module ntps_top #(
   // Shared MDIO signals
   wire         phy_mdc;
   wire         phy_mdio_o;
-  wire         mdio_mux_0_mdio_out;
+  wire         network_path_shared_0_mdio_out;
+  wire         network_path_shared_0_mdio_tri;
+  wire         network_path_1_mdio_out;
+  wire         network_path_1_mdio_tri;
+  wire         network_path_2_mdio_out;
+  wire         network_path_2_mdio_tri;
+  wire         network_path_3_mdio_out;
+  wire         network_path_3_mdio_tri;
+
 
   // Shared network paths signals
   wire         areset_clk156;
@@ -222,17 +230,9 @@ module ntps_top #(
 
   wire [31:0]  network_path_shared_0_key_id;
   wire         network_path_shared_0_key_req;
-  wire         network_path_shared_0_mdio_out;
-  wire         network_path_shared_0_mdio_tri;
   wire [255:0] keymem_top_0_key;
   wire         keymem_top_0_key_ack;
 
-  wire         network_path_1_mdio_out;
-  wire         network_path_1_mdio_tri;
-  wire         network_path_2_mdio_out;
-  wire         network_path_2_mdio_tri;
-  wire         network_path_3_mdio_out;
-  wire         network_path_3_mdio_tri;
 
 
   //----------------------------------------------------------------
@@ -305,18 +305,38 @@ module ntps_top #(
   // All external/physical interfaces including pci-axi bridge
   // and NTP clocks.
   //----------------------------------------------------------------
-  ntps_interfaces ntps_interfaces_0
+  ntps_interfaces ntps_interfaces_0 #(
+     .BUILD_INFO(BUILD_INFO),
+     .GIT_HASH(GIT_HASH)
+    )
     (
      .reset         (reset),
+
      .pcie_perst    (pcie_perst),
      .pcie_clk      (pcie_clk),
      .pci_exp_rxn   (pci_exp_rxn),
      .pci_exp_rxp   (pci_exp_rxp),
      .pci_exp_txn   (pci_exp_txn),
      .pci_exp_txp   (pci_exp_txp),
+
+     .user_link_up  (user_link_up),
+     .pmbus_clk     (pmbus_clk),
+     .pmbus_data    (pmbus_data),
+     .pmbus_alert   (pmbus_alert),
+
+     .phy_mdio_o    (phy_mdio_o);
+     .phy_mdc       (phy_mdc);
+     .mdio_out_0    (network_path_shared_0_mdio_out),
+     .mdio_out_1    (network_path_1_mdio_out),
+     .mdio_out_2    (network_path_2_mdio_out),
+     .mdio_out_3    (network_path_3_mdio_out),
+     .mdio_tri_0    (network_path_shared_0_mdio_tri),
+     .mdio_tri_1    (network_path_1_mdio_tri),
+     .mdio_tri_2    (network_path_2_mdio_tri),
+     .mdio_tri_3    (network_path_3_mdio_tri)
+
      .axi_aclk      (axi_aclk),
      .axi_aresetn   (axi_aresetn),
-     .user_link_up  (user_link_up),
      .m_axi_awaddr  (m_axi_awaddr),
      .m_axi_awprot  (m_axi_awprot),
      .m_axi_awvalid (m_axi_awvalid),
@@ -650,96 +670,6 @@ module ntps_top #(
     .xphy_txn            (xphy3_txn),
     .xphy_txp            (xphy3_txp)
   );
-
-
-  //----------------------------------------------------------------
-  // Merge mdio outputs from network paths
-  //----------------------------------------------------------------
-  mdio_mux mdio_mux_0 (
-    .mdio_out   (mdio_mux_0_mdio_out),
-    .mdio_out_0 (network_path_shared_0_mdio_out),
-    .mdio_out_1 (network_path_1_mdio_out),
-    .mdio_out_2 (network_path_2_mdio_out),
-    .mdio_out_3 (network_path_3_mdio_out),
-    .mdio_tri_0 (network_path_shared_0_mdio_tri),
-    .mdio_tri_1 (network_path_1_mdio_tri),
-    .mdio_tri_2 (network_path_2_mdio_tri),
-    .mdio_tri_3 (network_path_3_mdio_tri)
-  );
-
-
-  //----------------------------------------------------------------
-  // Ethernet lite module for MDIO control only
-  //----------------------------------------------------------------
-  ntps_top_axi_ethernetlite_0_0 mdio_ctrl_0 (
-    .phy_col       (1'b0),
-    .phy_crs       (1'b0),
-    .phy_dv        (1'b0),
-    .phy_mdc       (phy_mdc),
-    .phy_mdio_i    (mdio_mux_0_mdio_out),
-    .phy_mdio_o    (phy_mdio_o),
-    .phy_rx_clk    (1'b0),
-    .phy_rx_data   (4'b0),
-    .phy_rx_er     (1'b0),
-    .phy_tx_clk    (1'b0),
-    .s_axi_aclk    (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [2*32 +: 13]),
-    .s_axi_arready (m_axi_arready[2*1 +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[2*1 +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [2*32 +: 13]),
-    .s_axi_awready (m_axi_awready[2*1 +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[2*1 +: 1]),
-    .s_axi_bready  (m_axi_bready [2*1 +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [2*2 +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [2*1 +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [2*32 +: 32]),
-    .s_axi_rready  (m_axi_rready [2*1 +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [2*2 +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [2*1 +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [2*32 +: 32]),
-    .s_axi_wready  (m_axi_wready [2*1 +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [2*32/8 +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [2*1 +: 1])
-  );
-
-
-  //----------------------------------------------------------------
-  // pvtmon
-  // Status registers for board power and temperature.
-  // Also includes registers for build info to ID the FPGA design.
-  //----------------------------------------------------------------
-  pvtmon_top #(
-               .BUILD_INFO(BUILD_INFO),
-               .GIT_HASH(GIT_HASH)
-               )
-  pvtmon_top_0 (
-    .clk50          (clk50),
-    .rst            (reset),
-    .pcie_link_up   (user_link_up),
-    .pmbus_alert    (pmbus_alert),
-    .pmbus_clk      (pmbus_clk),
-    .pmbus_data     (pmbus_data),
-    .s_axi_clk      (axi_aclk),
-    .s_axi_aresetn  (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [7*32 +: 32]),
-    .s_axi_arready  (m_axi_arready[7*1 +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[7*1 +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [7*32 +: 32]),
-    .s_axi_awready  (m_axi_awready[7*1 +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[7*1 +: 1]),
-    .s_axi_bready   (m_axi_bready [7*1 +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [7*2 +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [7*1 +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [7*32 +: 32]),
-    .s_axi_rready   (m_axi_rready [7*1 +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [7*2 +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [7*1 +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [7*32 +: 32]),
-    .s_axi_wready   (m_axi_wready [7*1 +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [7*32/8 +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [7*1 +: 1])
-    );
 
 endmodule // ntps_top
 

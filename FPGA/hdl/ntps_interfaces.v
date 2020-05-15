@@ -40,7 +40,11 @@
 
 `default_nettype none
 
-module ntps_interfaces(
+module ntps_interfaces #(
+                         parameter BUILD_INFO = 0,
+                         parameter GIT_HASH = 0
+                        )
+                        (
                        input wire            reset,
 
                        // PCI-AXI interface and bridge.
@@ -51,9 +55,25 @@ module ntps_interfaces(
                        output wire [7:0]     pci_exp_txn,
                        output wire [7:0]     pci_exp_txp,
 
+                       output wire           user_link_up,
+                       inout wire            pmbus_clk,
+                       inout wire            pmbus_data,
+                       input wire            pmbus_alert,
+
+                       output wire           phy_mdio_o;
+                       output wire           phy_mdc;
+
+                       input wire            mdio_out_0,
+                       input wire            mdio_out_1,
+                       input wire            mdio_out_2,
+                       input wire            mdio_out_3,
+                       input wire            mdio_tri_0,
+                       input wire            mdio_tri_1,
+                       input wire            mdio_tri_2,
+                       input wire            mdio_tri_3,
+
                        output wire           axi_aclk,
                        output wire           axi_aresetn,
-                       output wire           user_link_up,
 
                        output wire [383 : 0] m_axi_awaddr,
                        output wire [35 : 0]  m_axi_awprot,
@@ -75,7 +95,6 @@ module ntps_interfaces(
                        input  wire [11 : 0]  m_axi_rvalid,
                        output wire [11 : 0]  m_axi_rready,
 
-                       // NTP clocks.
                        input wire            PPS_INA_N,
                        input wire            PPS_INA_P,
                        output wire           PPS_OUTA,
@@ -107,18 +126,16 @@ module ntps_interfaces(
   //----------------------------------------------------------------
   // Local parameters.
   //----------------------------------------------------------------
-  localparam AXI_NTPA_INDEX = 0;
-  localparam AXI_NTPB_INDEX = 1;
+  localparam AXI_NTPA_INDEX    = 0;
+  localparam AXI_NTPB_INDEX    = 1;
+  localparam AXI_PVT_INDEX     = 7;
+  localparam AXI_ETHLITE_INDEX = 2;
 
 
   //----------------------------------------------------------------
-  // Wires.
+  // Internal wires.
   //----------------------------------------------------------------
-
-
-  //----------------------------------------------------------------
-  // Assignments for ports.
-  //----------------------------------------------------------------
+  wire mdio_mux_0_mdio_out;
 
 
   //----------------------------------------------------------------
@@ -234,6 +251,97 @@ module ntps_interfaces(
     .LED2         (NTP_LED2B),
     .SYNC_OK      (SYNC_OKB)
     );
+
+
+  //----------------------------------------------------------------
+  // Mux to merge mdio outputs from network paths
+  //----------------------------------------------------------------
+  mdio_mux mdio_mux_0 (
+    .mdio_out   (mdio_mux_0_mdio_out),
+    .mdio_out_0 (mdio_out_0),
+    .mdio_out_1 (mdio_out_1),
+    .mdio_out_2 (mdio_out_2),
+    .mdio_out_3 (mdio_out_3),
+    .mdio_tri_0 (mdio_tri_0),
+    .mdio_tri_1 (mdio_tri_1),
+    .mdio_tri_2 (mdio_tri_2),
+    .mdio_tri_3 (mdio_tri_3),
+  );
+
+
+  //----------------------------------------------------------------
+  // Ethernet lite module for MDIO control only
+  //----------------------------------------------------------------
+  ntps_top_axi_ethernetlite_0_0 mdio_ctrl_0 (
+    .phy_col       (1'b0),
+    .phy_crs       (1'b0),
+    .phy_dv        (1'b0),
+    .phy_mdc       (phy_mdc),
+    .phy_mdio_i    (mdio_mux_0_mdio_out),
+    .phy_mdio_o    (phy_mdio_o),
+    .phy_rx_clk    (1'b0),
+    .phy_rx_data   (4'b0),
+    .phy_rx_er     (1'b0),
+    .phy_tx_clk    (1'b0),
+    .s_axi_aclk    (axi_aclk),
+    .s_axi_aresetn (axi_aresetn),
+    .s_axi_araddr  (m_axi_araddr [(AXI_ETHLITE_INDEX * 32) +: 13]),
+    .s_axi_arready (m_axi_arready[(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_arvalid (m_axi_arvalid[(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_awaddr  (m_axi_awaddr [(AXI_ETHLITE_INDEX * 32) +: 13]),
+    .s_axi_awready (m_axi_awready[(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_awvalid (m_axi_awvalid[(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_bready  (m_axi_bready [(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_bresp   (m_axi_bresp  [(AXI_ETHLITE_INDEX * 2) +: 2]),
+    .s_axi_bvalid  (m_axi_bvalid [(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_rdata   (m_axi_rdata  [(AXI_ETHLITE_INDEX * 32) +: 32]),
+    .s_axi_rready  (m_axi_rready [(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_rresp   (m_axi_rresp  [(AXI_ETHLITE_INDEX * 2) +: 2]),
+    .s_axi_rvalid  (m_axi_rvalid [(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_wdata   (m_axi_wdata  [(AXI_ETHLITE_INDEX * 32) +: 32]),
+    .s_axi_wready  (m_axi_wready [(AXI_ETHLITE_INDEX * 1) +: 1]),
+    .s_axi_wstrb   (m_axi_wstrb  [(AXI_ETHLITE_INDEX * 32/8) +: 32/8]),
+    .s_axi_wvalid  (m_axi_wvalid [(AXI_ETHLITE_INDEX * 1) +: 1])
+  );
+
+
+  //----------------------------------------------------------------
+  // pvtmon
+  // Status registers for board power and temperature.
+  // Also includes registers for build info to ID the FPGA design.
+  //----------------------------------------------------------------
+  pvtmon_top #(
+               .BUILD_INFO(BUILD_INFO),
+               .GIT_HASH(GIT_HASH)
+               )
+  pvtmon_top_0 (
+    .clk50          (clk50),
+    .rst            (reset),
+    .pcie_link_up   (user_link_up),
+    .pmbus_alert    (pmbus_alert),
+    .pmbus_clk      (pmbus_clk),
+    .pmbus_data     (pmbus_data),
+    .s_axi_clk      (axi_aclk),
+    .s_axi_aresetn  (axi_aresetn),
+    .s_axi_araddr   (m_axi_araddr [(AXI_PVT_INDEX * 32) +: 32]),
+    .s_axi_arready  (m_axi_arready[(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_arvalid  (m_axi_arvalid[(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_awaddr   (m_axi_awaddr [(AXI_PVT_INDEX * 32) +: 32]),
+    .s_axi_awready  (m_axi_awready[(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_awvalid  (m_axi_awvalid[(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_bready   (m_axi_bready [(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_bresp    (m_axi_bresp  [(AXI_PVT_INDEX * 2) +: 2]),
+    .s_axi_bvalid   (m_axi_bvalid [(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_rdata    (m_axi_rdata  [(AXI_PVT_INDEX * 32) +: 32]),
+    .s_axi_rready   (m_axi_rready [(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_rresp    (m_axi_rresp  [(AXI_PVT_INDEX * 2) +: 2]),
+    .s_axi_rvalid   (m_axi_rvalid [(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_wdata    (m_axi_wdata  [(AXI_PVT_INDEX * 32) +: 32]),
+    .s_axi_wready   (m_axi_wready [(AXI_PVT_INDEX * 1) +: 1]),
+    .s_axi_wstrb    (m_axi_wstrb  [(AXI_PVT_INDEX * 32/8) +: 32/8]),
+    .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT_INDEX * 1) +: 1])
+    );
+
 
 endmodule // ntps_interfaces
 
