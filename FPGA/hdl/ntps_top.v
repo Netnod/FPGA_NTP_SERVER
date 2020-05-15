@@ -305,11 +305,9 @@ module ntps_top #(
   // All external/physical interfaces including pci-axi bridge
   // and NTP clocks.
   //----------------------------------------------------------------
-  ntps_interfaces ntps_interfaces_0 #(
-     .BUILD_INFO(BUILD_INFO),
-     .GIT_HASH(GIT_HASH)
-    )
-    (
+  ntps_interfaces #(.BUILD_INFO(BUILD_INFO),
+                    .GIT_HASH(GIT_HASH))
+     ntps_interfaces_0 (
      .reset         (reset),
 
      .pcie_perst    (pcie_perst),
