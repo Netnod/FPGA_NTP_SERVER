@@ -146,8 +146,6 @@ module ntps_top #(
                   output wire       LED7
                  );
 
-  localparam AXI_PVT_INDEX     = 7;
-
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
@@ -307,7 +305,11 @@ module ntps_top #(
   // All external/physical interfaces including pci-axi bridge
   // and NTP clocks.
   //----------------------------------------------------------------
-  ntps_interfaces ntps_interfaces_0 (
+  ntps_interfaces #(
+                    .BUILD_INFO(BUILD_INFO),
+                    .GIT_HASH(GIT_HASH)
+                   )
+ ntps_interfaces_0 (
      .reset         (reset),
 
      .pcie_perst    (pcie_perst),
@@ -317,10 +319,10 @@ module ntps_top #(
      .pci_exp_txn   (pci_exp_txn),
      .pci_exp_txp   (pci_exp_txp),
 
-//     .user_link_up  (user_link_up),
-//     .pmbus_clk     (pmbus_clk),
-//     .pmbus_data    (pmbus_data),
-//     .pmbus_alert   (pmbus_alert),
+     .user_link_up  (user_link_up),
+     .pmbus_clk     (pmbus_clk),
+     .pmbus_data    (pmbus_data),
+     .pmbus_alert   (pmbus_alert),
 
      .phy_mdio_o    (phy_mdio_o),
      .phy_mdc       (phy_mdc),
@@ -669,44 +671,6 @@ module ntps_top #(
     .xphy_txn            (xphy3_txn),
     .xphy_txp            (xphy3_txp)
   );
-
-
-  //----------------------------------------------------------------
-  // pvtmon
-  // Status registers for board power and temperature.
-  // Also includes registers for build info to ID the FPGA design.
-  //----------------------------------------------------------------
-  pvtmon_top #(
-               .BUILD_INFO(BUILD_INFO),
-               .GIT_HASH(GIT_HASH)
-               )
-  pvtmon_top_0 (
-    .clk50          (clk50),
-    .rst            (reset),
-    .pcie_link_up   (user_link_up),
-    .pmbus_alert    (pmbus_alert),
-    .pmbus_clk      (pmbus_clk),
-    .pmbus_data     (pmbus_data),
-    .s_axi_clk      (axi_aclk),
-    .s_axi_aresetn  (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_arready  (m_axi_arready[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_awready  (m_axi_awready[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_bready   (m_axi_bready [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [(AXI_PVT_INDEX * 2) +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_rready   (m_axi_rready [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [(AXI_PVT_INDEX * 2) +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_wready   (m_axi_wready [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [(AXI_PVT_INDEX * 32/8) +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT_INDEX * 1) +: 1])
-    );
 
 endmodule // ntps_top
 
