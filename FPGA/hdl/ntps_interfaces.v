@@ -56,9 +56,11 @@ module ntps_interfaces #(
                        output wire [7:0]     pci_exp_txp,
 
                        output wire           user_link_up,
+
+                       input wire            clk50,
+                       input wire            pmbus_alert,
                        inout wire            pmbus_clk,
                        inout wire            pmbus_data,
-                       input wire            pmbus_alert,
 
                        output wire           phy_mdio_o,
                        output wire           phy_mdc,

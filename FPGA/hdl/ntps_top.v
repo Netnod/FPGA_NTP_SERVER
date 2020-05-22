@@ -71,6 +71,7 @@ module ntps_top #(
                   output wire [7:0] pci_exp_txn,
                   output wire [7:0] pci_exp_txp,
 
+                  input wire        clk50,
                   input wire        pmbus_alert,
                   inout wire        pmbus_clk,
                   inout wire        pmbus_data,
@@ -320,9 +321,11 @@ module ntps_top #(
      .pci_exp_txp   (pci_exp_txp),
 
      .user_link_up  (user_link_up),
+
+     .clk50         (clk50),
+     .pmbus_alert   (pmbus_alert),
      .pmbus_clk     (pmbus_clk),
      .pmbus_data    (pmbus_data),
-     .pmbus_alert   (pmbus_alert),
 
      .phy_mdio_o    (phy_mdio_o),
      .phy_mdc       (phy_mdc),
