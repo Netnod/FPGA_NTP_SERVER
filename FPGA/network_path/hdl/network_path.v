@@ -42,19 +42,24 @@ module network_path #(
   /// AXI Lite register interface
   input wire 	     s_axi_clk,
   input wire 	     s_axi_aresetn,
+
   output wire 	     s_axi_awready,
   input wire [31:0]  s_axi_awaddr,
   input wire 	     s_axi_awvalid,
+
   output wire 	     s_axi_wready,
   input wire [31:0]  s_axi_wdata,
   input wire [3:0]   s_axi_wstrb,
   input wire 	     s_axi_wvalid,
+
   output wire 	     s_axi_bvalid,
   output wire [1:0]  s_axi_bresp,
   input wire 	     s_axi_bready,
+
   output wire 	     s_axi_arready,
   input wire 	     s_axi_arvalid,
   input wire [31:0]  s_axi_araddr,
+
   output wire [31:0] s_axi_rdata,
   output wire [1:0]  s_axi_rresp,
   output wire 	     s_axi_rvalid,
