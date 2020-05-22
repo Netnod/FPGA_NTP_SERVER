@@ -56,8 +56,8 @@ module ntps_interfaces (
 //                       inout wire            pmbus_data,
 //                       input wire            pmbus_alert,
 
-                       output wire           phy_mdio_o;
-                       output wire           phy_mdc;
+                       output wire           phy_mdio_o,
+                       output wire           phy_mdc,
 
                        input wire            mdio_out_0,
                        input wire            mdio_out_1,
