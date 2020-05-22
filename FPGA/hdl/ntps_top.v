@@ -41,7 +41,7 @@
 
 module ntps_top #(
                   parameter BUILD_INFO = 0,
-                  parameter GIT_HASH = 0
+                  parameter GIT_HASH   = 0
                  )
                  (
                   input wire        reset,
@@ -305,9 +305,7 @@ module ntps_top #(
   // All external/physical interfaces including pci-axi bridge
   // and NTP clocks.
   //----------------------------------------------------------------
-  ntps_interfaces #(.BUILD_INFO(BUILD_INFO),
-                    .GIT_HASH(GIT_HASH))
-     ntps_interfaces_0 (
+  ntps_interfaces ntps_interfaces_0 (
      .reset         (reset),
 
      .pcie_perst    (pcie_perst),
@@ -453,6 +451,7 @@ module ntps_top #(
     .sys_reset           (reset),
     .sim_speedup_control (1'b0)
   );
+
 
   keymem_top keymem_top_0 (
     .key           (keymem_top_0_key),
