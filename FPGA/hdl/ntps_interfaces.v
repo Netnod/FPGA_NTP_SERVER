@@ -65,17 +65,14 @@ module ntps_interfaces #(
                        output wire           phy_mdio_o,
                        output wire           phy_mdc,
 
-//                       input wire            mdio_out_0,
-//                       input wire            mdio_out_1,
-//                       input wire            mdio_out_2,
-//                       input wire            mdio_out_3,
-//                       input wire            mdio_tri_0,
-//                       input wire            mdio_tri_1,
-//                       input wire            mdio_tri_2,
-//                       input wire            mdio_tri_3,
-
-                       input wire            mdio_out,
-
+                       input wire            mdio_out_0,
+                       input wire            mdio_tri_0,
+                       input wire            mdio_out_1,
+                       input wire            mdio_tri_1,
+                       input wire            mdio_out_2,
+                       input wire            mdio_tri_2,
+                       input wire            mdio_out_3,
+                       input wire            mdio_tri_3,
 
                        output wire           axi_aclk,
                        output wire           axi_aresetn,
@@ -330,6 +327,26 @@ module ntps_interfaces #(
     .s_axi_wstrb    (m_axi_wstrb  [(AXI_PVT_INDEX * 32/8) +: 32/8]),
     .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT_INDEX * 1) +: 1])
     );
+
+
+  //----------------------------------------------------------------
+  // Mux to merge mdio outputs from network paths
+  //----------------------------------------------------------------
+  mdio_mux mdio_mux_0 (
+    .mdio_out_0 (mdio_out_0),
+    .mdio_tri_0 (mdio_tri_0),
+
+    .mdio_out_1 (mdio_out_1),
+    .mdio_tri_1 (mdio_tri_1),
+
+    .mdio_out_2 (mdio_out_2),
+    .mdio_tri_2 (mdio_tri_2),
+
+    .mdio_out_3 (mdio_out_3),
+    .mdio_tri_3 (mdio_tri_3),
+
+    .mdio_out   (mdio_mux_0_mdio_out)
+  );
 
 endmodule // ntps_interfaces
 
