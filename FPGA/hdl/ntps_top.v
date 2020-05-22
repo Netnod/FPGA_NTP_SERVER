@@ -329,17 +329,21 @@ module ntps_top #(
 
      .phy_mdio_o    (phy_mdio_o),
      .phy_mdc       (phy_mdc),
-     .mdio_out_0    (network_path_shared_0_mdio_out),
-     .mdio_out_1    (network_path_1_mdio_out),
-     .mdio_out_2    (network_path_2_mdio_out),
-     .mdio_out_3    (network_path_3_mdio_out),
-     .mdio_tri_0    (network_path_shared_0_mdio_tri),
-     .mdio_tri_1    (network_path_1_mdio_tri),
-     .mdio_tri_2    (network_path_2_mdio_tri),
-     .mdio_tri_3    (network_path_3_mdio_tri),
+
+//     .mdio_out_0    (network_path_shared_0_mdio_out),
+//     .mdio_out_1    (network_path_1_mdio_out),
+//     .mdio_out_2    (network_path_2_mdio_out),
+//     .mdio_out_3    (network_path_3_mdio_out),
+//     .mdio_tri_0    (network_path_shared_0_mdio_tri),
+//     .mdio_tri_1    (network_path_1_mdio_tri),
+//     .mdio_tri_2    (network_path_2_mdio_tri),
+//     .mdio_tri_3    (network_path_3_mdio_tri),
+
+     .mdio_out(mdio_mux_0_mdio_out),
 
      .axi_aclk      (axi_aclk),
      .axi_aresetn   (axi_aresetn),
+
      .m_axi_awaddr  (m_axi_awaddr),
      .m_axi_awprot  (m_axi_awprot),
      .m_axi_awvalid (m_axi_awvalid),
@@ -673,6 +677,26 @@ module ntps_top #(
     .xphy_rxp            (xphy3_rxp),
     .xphy_txn            (xphy3_txn),
     .xphy_txp            (xphy3_txp)
+  );
+
+
+  //----------------------------------------------------------------
+  // Mux to merge mdio outputs from network paths
+  //----------------------------------------------------------------
+  mdio_mux mdio_mux_0 (
+    .mdio_out_0 (network_path_shared_0_mdio_out),
+    .mdio_tri_0 (network_path_shared_0_mdio_tri),
+
+    .mdio_out_1 (network_path_1_mdio_out),
+    .mdio_tri_1 (network_path_1_mdio_tri),
+
+    .mdio_out_2 (network_path_2_mdio_out),
+    .mdio_tri_2 (network_path_2_mdio_tri),
+
+    .mdio_out_3 (network_path_3_mdio_out),
+    .mdio_tri_3 (network_path_3_mdio_tri),
+
+    .mdio_out   (mdio_mux_0_mdio_out),
   );
 
 endmodule // ntps_top

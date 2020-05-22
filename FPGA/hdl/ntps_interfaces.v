@@ -65,14 +65,17 @@ module ntps_interfaces #(
                        output wire           phy_mdio_o,
                        output wire           phy_mdc,
 
-                       input wire            mdio_out_0,
-                       input wire            mdio_out_1,
-                       input wire            mdio_out_2,
-                       input wire            mdio_out_3,
-                       input wire            mdio_tri_0,
-                       input wire            mdio_tri_1,
-                       input wire            mdio_tri_2,
-                       input wire            mdio_tri_3,
+//                       input wire            mdio_out_0,
+//                       input wire            mdio_out_1,
+//                       input wire            mdio_out_2,
+//                       input wire            mdio_out_3,
+//                       input wire            mdio_tri_0,
+//                       input wire            mdio_tri_1,
+//                       input wire            mdio_tri_2,
+//                       input wire            mdio_tri_3,
+
+                       input wire            mdio_out,
+
 
                        output wire           axi_aclk,
                        output wire           axi_aresetn,
@@ -253,22 +256,6 @@ module ntps_interfaces #(
     .LED2         (NTP_LED2B),
     .SYNC_OK      (SYNC_OKB)
     );
-
-
-  //----------------------------------------------------------------
-  // Mux to merge mdio outputs from network paths
-  //----------------------------------------------------------------
-  mdio_mux mdio_mux_0 (
-    .mdio_out   (mdio_mux_0_mdio_out),
-    .mdio_out_0 (mdio_out_0),
-    .mdio_out_1 (mdio_out_1),
-    .mdio_out_2 (mdio_out_2),
-    .mdio_out_3 (mdio_out_3),
-    .mdio_tri_0 (mdio_tri_0),
-    .mdio_tri_1 (mdio_tri_1),
-    .mdio_tri_2 (mdio_tri_2),
-    .mdio_tri_3 (mdio_tri_3),
-  );
 
 
   //----------------------------------------------------------------
