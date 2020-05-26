@@ -56,7 +56,10 @@ module ntps_clocks(
                    inout wire  i2c_clk,
                    inout wire  i2c_data,
                    output wire i2c_mux_rst_n,
-                   output wire si5324_rst_n
+                   output wire si5324_rst_n,
+
+                   output wire PPS_OUT,
+                   output wire TEN_MHZ_OUT
                   );
 
 
@@ -99,6 +102,18 @@ module ntps_clocks(
      .i2c_data      (i2c_data),
      .i2c_mux_rst_n (i2c_mux_rst_n),
      .si5324_rst_n  (si5324_rst_n)
+  );
+
+
+  //----------------------------------------------------------------
+  // pps_test
+  // Test pulse and 10 MHz generator.
+  //----------------------------------------------------------------
+  pps_test pps_test_0 (
+    .areset       (reset),
+    .clk_in       (sys_clk),
+    .PPS_OUT      (PPS_OUT),
+    .TEN_MHZ_OUT  (TEN_MHZ_OUT)
   );
 
 endmodule // ntps_clocks

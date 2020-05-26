@@ -273,31 +273,21 @@ module ntps_top #(
   // clock generators, clock control and clock tree allocations.
   //----------------------------------------------------------------
   ntps_clocks clocks(
-                     .reset(reset),
-                     .pcie_clk_n(PCIE_CLK_N),
-                     .pcie_clk_p(PCIE_CLK_P),
-                     .pcie_clk(pcie_clk),
-                     .sys_clk_n(SYS_CLK_N),
-                     .sys_clk_p(SYS_CLK_P),
-                     .sys_clk(sys_clk),
-                     .clk50(clk50),
-                     .i2c_clk(i2c_clk),
-                     .i2c_data(i2c_data),
-                     .i2c_mux_rst_n(i2c_mux_rst_n),
-                     .si5324_rst_n(si5324_rst_n)
+                     .reset         (reset),
+                     .pcie_clk_n    (PCIE_CLK_N),
+                     .pcie_clk_p    (PCIE_CLK_P),
+                     .pcie_clk      (pcie_clk),
+                     .sys_clk_n     (SYS_CLK_N),
+                     .sys_clk_p     (SYS_CLK_P),
+                     .sys_clk       (sys_clk),
+                     .clk50         (clk50),
+                     .i2c_clk       (i2c_clk),
+                     .i2c_data      (i2c_data),
+                     .i2c_mux_rst_n (i2c_mux_rst_n),
+                     .si5324_rst_n  (si5324_rst_n),
+                     .PPS_OUT       (test_PPS_OUT),
+                     .TEN_MHZ_OUT   (test_TEN_MHZ_OUT)
                      );
-
-
-  //----------------------------------------------------------------
-  // pps_test
-  // Test pulse and clock output signals.
-  //----------------------------------------------------------------
-  pps_test pps_test_0 (
-    .areset       (reset),
-    .clk_in       (sys_clk),
-    .PPS_OUT      (test_PPS_OUT),
-    .TEN_MHZ_OUT  (test_TEN_MHZ_OUT)
-  );
 
 
   //----------------------------------------------------------------
