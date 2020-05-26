@@ -71,7 +71,6 @@ module ntps_top #(
                   output wire [7:0] pci_exp_txn,
                   output wire [7:0] pci_exp_txp,
 
-                  input wire        clk50,
                   input wire        pmbus_alert,
                   inout wire        pmbus_clk,
                   inout wire        pmbus_data,
@@ -153,6 +152,7 @@ module ntps_top #(
   // Wires for clocks.
   wire pcie_clk;       // 100Mhz PCI express clock
   wire sys_clk;
+  wire clk50;
   wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
 
 
