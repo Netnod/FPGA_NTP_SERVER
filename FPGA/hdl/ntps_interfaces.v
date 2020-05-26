@@ -177,10 +177,16 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // NTP clocks
+  // NTP clocks.
   //----------------------------------------------------------------
   ntp_clock_top ntp_clock_topA (
     .reset        (reset),
+    .TEN_MHZ_IN_N (TEN_MHZ_INA_N),
+    .TEN_MHZ_IN_P (TEN_MHZ_INA_P),
+    .TEN_MHZ_OUT  (TEN_MHZ_OUTA),
+    .PPS_IN_N     (PPS_INA_N),
+    .PPS_IN_P     (PPS_INA_P),
+    .PPS_OUT      (PPS_OUTA),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
     .axi_araddr   (m_axi_araddr [(AXI_NTPA_INDEX * 32) +: 5]),
@@ -202,23 +208,30 @@ module ntps_interfaces #(
     .axi_wready   (m_axi_wready [(AXI_NTPA_INDEX * 1) +: 1]),
     .axi_wstrb    (m_axi_wstrb  [(AXI_NTPA_INDEX * 32/8) +: 32/8]),
     .axi_wvalid   (m_axi_wvalid [(AXI_NTPA_INDEX * 1) +: 1]),
-    .PPS_IN_N     (PPS_INA_N),
-    .PPS_IN_P     (PPS_INA_P),
-    .PPS_OUT      (PPS_OUTA),
-    .TEN_MHZ_IN_N (TEN_MHZ_INA_N),
-    .TEN_MHZ_IN_P (TEN_MHZ_INA_P),
-    .TEN_MHZ_OUT  (TEN_MHZ_OUTA),
-    .PLL_locked   (PLL_LOCKEDA),
     .NTP_TIME     (NTP_TIMEA),
     .NTP_TIME_UPD (NTP_TIME_UPDA),
+    .PLL_locked   (PLL_LOCKEDA),
     .LED1         (NTP_LED1A),
     .LED2         (NTP_LED2A),
-    .SYNC_OK      (SYNC_OKA)
+    .LED3         (),
+    .LED4         (),
+    .LED5         (),
+    .LED6         (),
+    .LED7         (),
+    .LED8         (),
+    .SYNC_OK      (SYNC_OKA),
+    .test         ()
     );
 
 
   ntp_clock_top ntp_clock_topB (
     .reset        (reset),
+    .TEN_MHZ_IN_N (TEN_MHZ_INB_N),
+    .TEN_MHZ_IN_P (TEN_MHZ_INB_P),
+    .TEN_MHZ_OUT  (TEN_MHZ_OUTB),
+    .PPS_IN_N     (PPS_INB_N),
+    .PPS_IN_P     (PPS_INB_P),
+    .PPS_OUT      (PPS_OUTB),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
     .axi_araddr   (m_axi_araddr [(AXI_NTPB_INDEX * 32) +: 5]),
@@ -240,23 +253,24 @@ module ntps_interfaces #(
     .axi_wready   (m_axi_wready [(AXI_NTPB_INDEX * 1) +: 1]),
     .axi_wstrb    (m_axi_wstrb  [(AXI_NTPB_INDEX * 32/8) +: 32/8]),
     .axi_wvalid   (m_axi_wvalid [(AXI_NTPB_INDEX * 1) +: 1]),
-    .PPS_IN_N     (PPS_INB_N),
-    .PPS_IN_P     (PPS_INB_P),
-    .PPS_OUT      (PPS_OUTB),
-    .TEN_MHZ_IN_N (TEN_MHZ_INB_N),
-    .TEN_MHZ_IN_P (TEN_MHZ_INB_P),
-    .TEN_MHZ_OUT  (TEN_MHZ_OUTB),
-    .PLL_locked   (PLL_LOCKEDB),
     .NTP_TIME     (NTP_TIMEB),
     .NTP_TIME_UPD (NTP_TIME_UPDB),
+    .PLL_locked   (PLL_LOCKEDB),
     .LED1         (NTP_LED1B),
     .LED2         (NTP_LED2B),
-    .SYNC_OK      (SYNC_OKB)
+    .LED3         (),
+    .LED4         (),
+    .LED5         (),
+    .LED6         (),
+    .LED7         (),
+    .LED8         (),
+    .SYNC_OK      (SYNC_OKB),
+    .test         ()
     );
 
 
   //----------------------------------------------------------------
-  // Ethernet lite module for MDIO control only
+  // Ethernet lite module for MDIO control only.
   //----------------------------------------------------------------
   ntps_top_axi_ethernetlite_0_0 mdio_ctrl_0 (
     .phy_col       (1'b0),
