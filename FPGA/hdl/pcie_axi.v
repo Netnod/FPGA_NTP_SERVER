@@ -1,37 +1,39 @@
-//
-// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS) 
+//======================================================================
+// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
-// modification, are permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 //
 // Author: Rolf Andersson (rolf@mechanicalmen.se)
 //
 // Design Name: FPGA NTP Server
 // Module Name: pcie_axi
 // Description: Wrapper for the PCIe and AXI backplane
-// 
+//======================================================================
 
-`timescale 1ns / 1ps
 `default_nettype none
 
 module pcie_axi (
@@ -66,23 +68,27 @@ module pcie_axi (
   output wire         user_link_up
 );
 
-  //-----------------------------------------------------------------------------------------------------------//
+  //----------------------------------------------------------------
   // Reset synchronizer
-
+  //----------------------------------------------------------------
   wire interconnect_aresetn;
+
   ntps_top_rst_axi_pcie3_0_250M_0 rst_axi_pcie3_0_125M (
-     .aux_reset_in         (1'b1),
-     .dcm_locked           (1'b1),
-     .ext_reset_in         (reset),
-     .mb_debug_sys_rst     (1'b0),
-     .peripheral_aresetn   (axi_aresetn),
      .slowest_sync_clk     (axi_aclk),
-     .interconnect_aresetn (interconnect_aresetn)
+     .ext_reset_in         (reset),
+     .aux_reset_in         (1'b1),
+     .mb_debug_sys_rst     (1'b0),
+     .dcm_locked           (1'b1),
+     .bus_struct_reset     (),
+     .peripheral_reset     (),
+     .interconnect_aresetn (interconnect_aresetn),
+     .peripheral_aresetn   (axi_aresetn)
   );
 
-  //-----------------------------------------------------------------------------------------------------------//
-  // PCIe AXI bridge
 
+  //----------------------------------------------------------------
+  // PCIe AXI bridge
+  //----------------------------------------------------------------
   wire [31:0]  pcie_axi_araddr;
   wire [1:0]   pcie_axi_arburst;
   wire [3:0]   pcie_axi_arcache;
@@ -121,66 +127,81 @@ module pcie_axi (
 
   ntps_top_axi_pcie3_0_0 axi_pcie3_0 (
     .sys_rst_n         (pcie_perst),
-    .refclk            (pcie_clk),
-    .pci_exp_rxn       (pci_exp_rxn),
-    .pci_exp_rxp       (pci_exp_rxp),
-    .pci_exp_txn       (pci_exp_txn),
-    .pci_exp_txp       (pci_exp_txp),
+    .user_link_up      (user_link_up),
     .axi_ctl_aclk      (axi_aclk),
-    .s_axi_ctl_araddr  (32'b0),
-    .s_axi_ctl_arvalid (1'b0),
+    .intx_msi_request  (1'b0),
+    .msi_vector_num    (5'b0),
+    .m_axi_awready     (pcie_axi_awready),
+    .m_axi_wready      (pcie_axi_wready),
+    .m_axi_bid         (pcie_axi_bid),
+    .m_axi_bresp       (pcie_axi_bresp),
+    .m_axi_bvalid      (pcie_axi_bvalid),
+    .m_axi_arready     (pcie_axi_arready),
+    .m_axi_rid         (pcie_axi_rid),
+    .m_axi_rdata       (pcie_axi_rdata),
+    .m_axi_ruser       ({32{1'B0}}),
+    .m_axi_rresp       (pcie_axi_rresp),
+    .m_axi_rlast       (pcie_axi_rlast),
+    .m_axi_rvalid      (pcie_axi_rvalid),
+    .pci_exp_rxp       (pci_exp_rxp),
+    .pci_exp_rxn       (pci_exp_rxn),
+    .refclk            (pcie_clk),
     .s_axi_ctl_awaddr  (32'b0),
     .s_axi_ctl_awvalid (1'b0),
-    .s_axi_ctl_bready  (1'b0),
-    .s_axi_ctl_rready  (1'b0),
     .s_axi_ctl_wdata   (32'b0),
     .s_axi_ctl_wstrb   (4'b0),
     .s_axi_ctl_wvalid  (1'b0),
-    .intx_msi_request  (1'b0),
-    .msi_vector_num    (5'b0),
+    .s_axi_ctl_bready  (1'b0),
+    .s_axi_ctl_araddr  (32'b0),
+    .s_axi_ctl_arvalid (1'b0),
+    .s_axi_ctl_rready  (1'b0),
     .axi_aclk          (axi_aclk),
-    .m_axi_araddr      (pcie_axi_araddr),
-    .m_axi_arburst     (pcie_axi_arburst),
-    .m_axi_arcache     (pcie_axi_arcache),
-    .m_axi_arid        (pcie_axi_arid),
-    .m_axi_arlen       (pcie_axi_arlen),
-    .m_axi_arlock      (pcie_axi_arlock),
-    .m_axi_arprot      (pcie_axi_arprot),
-    .m_axi_arready     (pcie_axi_arready),
-    .m_axi_arsize      (pcie_axi_arsize),
-    .m_axi_arvalid     (pcie_axi_arvalid),
-    .m_axi_awaddr      (pcie_axi_awaddr),
-    .m_axi_awburst     (pcie_axi_awburst),
-    .m_axi_awcache     (pcie_axi_awcache),
+    .axi_aresetn       (),
+    .interrupt_out     (),
+    .intx_msi_grant    (),
+    .msi_enable        (),
+    .msi_vector_width  ()
     .m_axi_awid        (pcie_axi_awid),
+    .m_axi_awaddr      (pcie_axi_awaddr),
     .m_axi_awlen       (pcie_axi_awlen),
-    .m_axi_awlock      (pcie_axi_awlock),
-    .m_axi_awprot      (pcie_axi_awprot),
-    .m_axi_awready     (pcie_axi_awready),
     .m_axi_awsize      (pcie_axi_awsize),
+    .m_axi_awburst     (pcie_axi_awburst),
+    .m_axi_awprot      (pcie_axi_awprot),
     .m_axi_awvalid     (pcie_axi_awvalid),
-    .m_axi_bid         (pcie_axi_bid),
-    .m_axi_bready      (pcie_axi_bready),
-    .m_axi_bresp       (pcie_axi_bresp),
-    .m_axi_bvalid      (pcie_axi_bvalid),
-    .m_axi_rdata       (pcie_axi_rdata),
-    .m_axi_rid         (pcie_axi_rid),
-    .m_axi_rlast       (pcie_axi_rlast),
-    .m_axi_rready      (pcie_axi_rready),
-    .m_axi_rresp       (pcie_axi_rresp),
-    .m_axi_ruser       ({32{1'B0}}),
-    .m_axi_rvalid      (pcie_axi_rvalid),
+    .m_axi_awlock      (pcie_axi_awlock),
+    .m_axi_awcache     (pcie_axi_awcache),
     .m_axi_wdata       (pcie_axi_wdata),
-    .m_axi_wlast       (pcie_axi_wlast),
-    .m_axi_wready      (pcie_axi_wready),
+    .m_axi_wuser       (),
     .m_axi_wstrb       (pcie_axi_wstrb),
+    .m_axi_wlast       (pcie_axi_wlast),
     .m_axi_wvalid      (pcie_axi_wvalid),
-    .user_link_up      (user_link_up)
+    .m_axi_bready      (pcie_axi_bready),
+    .m_axi_arid        (pcie_axi_arid),
+    .m_axi_araddr      (pcie_axi_araddr),
+    .m_axi_arlen       (pcie_axi_arlen),
+    .m_axi_arsize      (pcie_axi_arsize),
+    .m_axi_arburst     (pcie_axi_arburst),
+    .m_axi_arprot      (pcie_axi_arprot),
+    .m_axi_arvalid     (pcie_axi_arvalid),
+    .m_axi_arlock      (pcie_axi_arlock),
+    .m_axi_arcache     (pcie_axi_arcache),
+    .m_axi_rready      (pcie_axi_rready),
+    .pci_exp_txp       (pci_exp_txp),
+    .pci_exp_txn       (pci_exp_txn),
+    .s_axi_ctl_awready (),
+    .s_axi_ctl_wready  (),
+    .s_axi_ctl_bresp   (),
+    .s_axi_ctl_bvalid  (),
+    .s_axi_ctl_arready (),
+    .s_axi_ctl_rdata   (),
+    .s_axi_ctl_rresp   (),
+    .s_axi_ctl_rvalid  ()
   );
 
-  //-----------------------------------------------------------------------------------------------------------//
-  // axi interconnections
 
+  //----------------------------------------------------------------
+  // axi interconnections
+  //----------------------------------------------------------------
   // data width converter
   wire [31:0]  ds_axi_araddr;
   wire [1:0]   ds_axi_arburst;
@@ -297,8 +318,8 @@ module pcie_axi (
     .m_axi_wvalid   (ds_axi_wvalid)
   );
 
-  // protocol converter AXI4 to AXI4light
 
+  // protocol converter AXI4 to AXI4light
   wire [31:0]  pc_axi_araddr;
   wire [2:0]   pc_axi_arprot;
   wire         pc_axi_arready;
@@ -378,8 +399,8 @@ module pcie_axi (
     .m_axi_wvalid   (pc_axi_wvalid)
   );
 
-  // Fifo
 
+  // Fifo
   wire [31:0]  fifo_axi_araddr;
   wire [2:0]   fifo_axi_arprot;
   wire         fifo_axi_arready;
@@ -399,7 +420,7 @@ module pcie_axi (
   wire         fifo_axi_wready;
   wire [3:0]   fifo_axi_wstrb;
   wire         fifo_axi_wvalid;
-  
+
   ntps_top_s00_data_fifo_0 s00_data_fifo (
     .aclk           (axi_aclk),
     .aresetn	    (interconnect_aresetn),
@@ -443,8 +464,8 @@ module pcie_axi (
     .m_axi_wvalid   (fifo_axi_wvalid)
   );
 
+
   // Crossbar, note the aggregated outputs
-  
   wire [384-1:0]   xbar_axi_awaddr;
   wire [36-1:0]    xbar_axi_awprot;
   wire [12-1:0]    xbar_axi_awvalid;
@@ -509,4 +530,7 @@ module pcie_axi (
   );
 
 endmodule // pcie_axi
-                 
+
+//======================================================================
+// EOF pcie_axi.v
+//======================================================================
