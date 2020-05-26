@@ -74,7 +74,7 @@ module ntps_clocks(
   );
 
 
-  // 200Mhz System clock from external source.
+  // 200 MHz System clock from external source.
   // sys_clk clock tree input buffer.
   ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
      .IBUF_DS_N  (sys_clk_n),
@@ -83,7 +83,7 @@ module ntps_clocks(
   );
 
 
-  // 50MHz clock generator sys_clk / 4.
+  // 50 MHz clock generator sys_clk / 4.
   // Instantiates a BUFG.
   clk50_gen clk50_gen_0 (
      .clk200     (sys_clk),
