@@ -197,6 +197,7 @@ set files [list \
  "[file normalize "$origin_dir/../hdl/ntps_top.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_clocks.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_interfaces.v"]"\
+ "[file normalize "$origin_dir/../hdl/ntps_phys.v"]"\
  "[file normalize "$origin_dir/../nts/api_extension/src/rtl/api_extension.v"]"\
  "[file normalize "$origin_dir/../nts/pp_merge/src/rtl/pp_merge.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy.v"]"\
