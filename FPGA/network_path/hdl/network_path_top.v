@@ -100,6 +100,8 @@ module network_path_top #(
   output wire 	        mdio_out,
   output wire 	        mdio_tri,
 
+  output wire 	        tx_resetdone,
+
   // shared control signals from phy0 to phy1-3
   input wire 	        clk156,
   input wire 	        areset_clk156,
@@ -112,7 +114,6 @@ module network_path_top #(
   input wire 	        qplloutclk,
   input wire 	        qplloutrefclk,
   input wire 	        reset_counter_done,
-  output wire 	        tx_resetdone,
   input wire 	        sys_reset,
   input wire 	        sim_speedup_control
 );

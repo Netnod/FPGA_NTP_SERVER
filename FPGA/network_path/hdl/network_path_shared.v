@@ -255,7 +255,7 @@ module network_path_shared #(
     .xgmii_txd     (xgmii_txd)
   );
 
-  // Packet processing including MAC
+  // Packet processing excluding MAC
   pp_top pp(
     .areset         (sys_reset),
     .clk            (clk156),
