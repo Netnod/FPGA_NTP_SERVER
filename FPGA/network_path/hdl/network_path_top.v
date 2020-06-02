@@ -159,7 +159,6 @@ module network_path_top #(
     .clk156              (clk156),
     .areset_clk156       (areset_clk156),
     .sys_reset           (sys_reset)
-    .sim_speedup_control (1'b0)
   );
 
 
