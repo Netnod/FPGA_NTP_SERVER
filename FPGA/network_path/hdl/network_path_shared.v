@@ -205,7 +205,6 @@ module network_path_shared #(
   assign ntp_sync_ok = (ntp_sync_ok_a & ~gen_config[24] ) |
                        (ntp_sync_ok_b & gen_config[24]);
 
-  // Map xphy configuration to network_path config.
   assign xphy_config = gen_config[31 : 29];
 
   assign sys_aresetn = ~sys_reset;

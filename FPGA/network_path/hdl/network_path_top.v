@@ -47,8 +47,7 @@
 
 module network_path_top #(
   parameter [4:0]   AXI_NP_INDEX = 5'd0,
-  parameter [4:0]   AXI_KM_INDEX = 5'd5,
-  parameter [4:0]   PRTAD        = 5'd1   // For MDIO addressing
+  parameter [4:0]   AXI_KM_INDEX = 5'd5
   )
   (
   /// AXI Lite register interface
@@ -84,38 +83,17 @@ module network_path_top #(
   input wire 	        ntp_sync_ok_a,
   input wire 	        ntp_sync_ok_b,
 
-  // sfp+
-  output wire 	        xphy_txp,
-  output wire 	        xphy_txn,
-  input wire 	        xphy_rxp,
-  input wire 	        xphy_rxn,
-  input wire 	        signal_lost,
-  input wire 	        module_detect_n,
-  input wire 	        tx_fault,
-  output wire 	        tx_disable,
+  // Ethernet PHY.
+  output wire [2 : 0]   xphy_config,
+  input wire  [4 : 0]   xphy_status,
+  input wire [63 : 0]   xgmii_rxd,
+  input wire [7  : 0]   xgmii_rxc,
+  output wire [63  : 0] xgmii_txd,
+  output wire [7   : 0] xgmii_txc,
 
-  // MDIO controller
-  input wire 	        mdc,
-  input wire 	        mdio_in,
-  output wire 	        mdio_out,
-  output wire 	        mdio_tri,
-
-  output wire 	        tx_resetdone,
-
-  // shared control signals from phy0 to phy1-3
   input wire 	        clk156,
   input wire 	        areset_clk156,
-  input wire 	        txusrclk,
-  input wire 	        txusrclk2,
-  input wire 	        gttxreset,
-  input wire 	        gtrxreset,
-  input wire 	        txuserrdy,
-  input wire 	        qplllock,
-  input wire 	        qplloutclk,
-  input wire 	        qplloutrefclk,
-  input wire 	        reset_counter_done,
-  input wire 	        sys_reset,
-  input wire 	        sim_speedup_control
+  input wire 	        sys_reset
 );
 
 
@@ -171,35 +149,16 @@ module network_path_top #(
     .key_ack             (key_ack),
     .key                 (key),
 
-    .xphy_txp            (xphy_txp),
-    .xphy_txn            (xphy_txn),
-    .xphy_rxp            (xphy_rxp),
-    .xphy_rxn            (xphy_rxn),
-    .signal_lost         (signal_lost),
-    .module_detect_n     (module_detect_n),
-    .tx_fault            (tx_fault),
-    .tx_disable          (tx_disable),
-
-    .mdc                 (mdc),
-    .mdio_in             (mdio_in),
-    .mdio_out            (mdio_out),
-    .mdio_tri            (mdio_tri),
+    .xphy_config         (xphy_config),
+    .xphy_status         (xphy_status),
+    .xgmii_rxd           (xgmii_rxd),
+    .xgmii_rxc           (xgmii_rxc),
+    .xgmii_txd           (xgmii_txd),
+    .xgmii_txc           (xgmii_txc),
 
     .clk156              (clk156),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
     .areset_clk156       (areset_clk156),
-    .gttxreset           (gttxreset),
-    .gtrxreset           (gtrxreset),
-    .txuserrdy           (txuserrdy),
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
-
-    .tx_resetdone        (tx_resetdone),
-
-    .sys_reset           (sys_reset),
+    .sys_reset           (sys_reset)
     .sim_speedup_control (1'b0)
   );
 
