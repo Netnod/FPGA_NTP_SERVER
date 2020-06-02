@@ -521,10 +521,9 @@ module ntps_top #(
 
 
   //----------------------------------------------------------------
-  // network_path 1.
+  // network_path_top_1
   //----------------------------------------------------------------
-  network_path_top #(.PRTAD(1),
-                     .AXI_NP_INDEX(4),
+  network_path_top #(.AXI_NP_INDEX(4),
                      .AXI_KM_INDEX(9)
              )
   network_path_top_1 (
@@ -557,66 +556,26 @@ module ntps_top #(
     .ntp_sync_ok_a       (SYNC_OK_A),
     .ntp_sync_ok_b       (SYNC_OK_B),
 
-    .xphy_txn            (xphy1_txn),
-    .xphy_txp            (xphy1_txp)
-    .xphy_rxn            (xphy1_rxn),
-    .xphy_rxp            (xphy1_rxp),
-    .signal_lost         (sfp_signal_lost1),
-    .module_detect_n     (sfp_module_detect1_n),
-    .tx_fault            (sfp_tx_fault1),
-    .tx_disable          (sfp_tx_disable1),
-
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_1_mdio_out),
-    .mdio_tri            (network_path_1_mdio_tri),
+    .xphy_config         (xphy_config_1),
+    .xphy_status         (xphy_status_1),
+    .xgmii_rxd           (xgmii_rxd_1),
+    .xgmii_rxc           (xgmii_rxc_1),
+    .xgmii_txd           (xgmii_txd_1),
+    .xgmii_txc           (xgmii_txc_1),
 
     .clk156              (clk156),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
     .areset_clk156       (areset_clk156),
-    .gttxreset           (gttxreset),
-    .gtrxreset           (gtrxreset),
-    .txuserrdy           (txuserrdy),
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
-
-    .tx_resetdone        (),
-
-    .sys_reset           (reset),
-    .sim_speedup_control (1'b0),
+    .sys_reset           (reset)
   );
 
 
   //----------------------------------------------------------------
-  // network_path 2.
+  // network_path_top_2
   //----------------------------------------------------------------
-  network_path_top #(.PRTAD(2),
-                     .AXI_NP_INDEX(5),
+  network_path_top #(.AXI_NP_INDEX(5),
                      .AXI_KM_INDEX(10)
              )
   network_path_top_2 (
-    .areset_clk156       (areset_clk156),
-    .clk156              (clk156),
-    .gtrxreset           (gtrxreset),
-    .gttxreset           (gttxreset),
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_2_mdio_out),
-    .mdio_tri            (network_path_2_mdio_tri),
-    .module_detect_n     (sfp_module_detect2_n),
-    .ntp_time_a          (NTP_TIME_A),
-    .ntp_time_b          (NTP_TIME_B),
-    .ntp_time_upd_a      (NTP_TIME_A_UPD),
-    .ntp_time_upd_b      (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a       (SYNC_OK_A),
-    .ntp_sync_ok_b       (SYNC_OK_B),
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
     .s_axi_clk           (axi_aclk),
     .s_axi_aresetn       (axi_aresetn),
     .s_axi_araddr        (m_axi_araddr),
@@ -638,27 +597,31 @@ module ntps_top #(
     .s_axi_wvalid        (m_axi_wvalid),
     .s_axi_arprot        (m_axi_arprot),
     .s_axi_awprot        (m_axi_awprot),
-    .signal_lost         (sfp_signal_lost2),
-    .sim_speedup_control (1'b0),
-    .tx_resetdone        (),
-    .sys_reset           (reset),
-    .tx_disable          (sfp_tx_disable2),
-    .tx_fault            (sfp_tx_fault2),
-    .txuserrdy           (txuserrdy),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
-    .xphy_rxn            (xphy2_rxn),
-    .xphy_rxp            (xphy2_rxp),
-    .xphy_txn            (xphy2_txn),
-    .xphy_txp            (xphy2_txp)
+
+    .ntp_time_a          (NTP_TIME_A),
+    .ntp_time_b          (NTP_TIME_B),
+    .ntp_time_upd_a      (NTP_TIME_A_UPD),
+    .ntp_time_upd_b      (NTP_TIME_B_UPD),
+    .ntp_sync_ok_a       (SYNC_OK_A),
+    .ntp_sync_ok_b       (SYNC_OK_B),
+
+    .xphy_config         (xphy_config_2),
+    .xphy_status         (xphy_status_2),
+    .xgmii_rxd           (xgmii_rxd_2),
+    .xgmii_rxc           (xgmii_rxc_2),
+    .xgmii_txd           (xgmii_txd_2),
+    .xgmii_txc           (xgmii_txc_2),
+
+    .clk156              (clk156),
+    .areset_clk156       (areset_clk156),
+    .sys_reset           (reset)
   );
 
 
   //----------------------------------------------------------------
-  // Network path 3.
+  // network_path_top_3
   //----------------------------------------------------------------
-  network_path_top #(.PRTAD(3),
-                     .AXI_NP_INDEX(6),
+  network_path_top #(.AXI_NP_INDEX(6),
                      .AXI_KM_INDEX(11)
              )
   network_path_top_3 (
@@ -696,34 +659,16 @@ module ntps_top #(
     .ntp_sync_ok_a       (SYNC_OK_A),
     .ntp_sync_ok_b       (SYNC_OK_B),
 
-    .xphy_txn            (xphy3_txn),
-    .xphy_txp            (xphy3_txp),
-    .xphy_rxn            (xphy3_rxn),
-    .xphy_rxp            (xphy3_rxp),
-    .signal_lost         (sfp_signal_lost3),
-    .module_detect_n     (sfp_module_detect3_n),
-    .tx_fault            (sfp_tx_fault3),
-    .tx_disable          (sfp_tx_disable3),
-
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_3_mdio_out),
-    .mdio_tri            (network_path_3_mdio_tri),
+    .xphy_config         (xphy_config_3),
+    .xphy_status         (xphy_status_3),
+    .xgmii_rxd           (xgmii_rxd_3),
+    .xgmii_rxc           (xgmii_rxc_3),
+    .xgmii_txd           (xgmii_txd_3),
+    .xgmii_txc           (xgmii_txc_3),
 
     .clk156              (clk156),
     .areset_clk156       (areset_clk156),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
-    .gttxreset           (gttxreset),
-    .gtrxreset           (gtrxreset),
-    .txuserrdy           (txuserrdy),
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
-    .tx_resetdone        (),
-    .sys_reset           (reset),
-    .sim_speedup_control (1'b0)
+    .sys_reset           (reset)
   );
 
 endmodule // ntps_top
