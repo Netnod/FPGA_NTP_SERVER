@@ -44,7 +44,7 @@ module ntps_interfaces #(
                          parameter BUILD_INFO = 0,
                          parameter GIT_HASH   = 0
                          )
-  (
+                       (
                        input wire            reset,
 
                        // PCI-AXI interface and bridge.
