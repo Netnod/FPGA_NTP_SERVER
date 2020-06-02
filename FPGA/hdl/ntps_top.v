@@ -202,37 +202,42 @@ module ntps_top #(
   wire         SYNC_OK_B;
 
 
-  // Shared MDIO signals
-  wire         phy_mdc;
-  wire         phy_mdio_o;
-  wire         network_path_shared_0_mdio_out;
-  wire         network_path_shared_0_mdio_tri;
-  wire         network_path_1_mdio_out;
-  wire         network_path_1_mdio_tri;
-  wire         network_path_2_mdio_out;
-  wire         network_path_2_mdio_tri;
-  wire         network_path_3_mdio_out;
-  wire         network_path_3_mdio_tri;
-
-
   // Shared network paths signals
   wire         areset_clk156;
   wire         clk156;
-  wire         gtrxreset;
-  wire         gttxreset;
-  wire         qplllock;
-  wire         qplloutclk;
-  wire         qplloutrefclk;
-  wire         reset_counter_done;
-  wire         txuserrdy;
-  wire         txusrclk;
-  wire         txusrclk2;
 
   wire [31:0]  network_path_shared_0_key_id;
   wire         network_path_shared_0_key_req;
   wire [255:0] keymem_top_0_key;
   wire         keymem_top_0_key_ack;
 
+  wire  [2 : 0]  xphy_config_0;
+  wire [4 : 0]   xphy_status_0;
+  wire [63  : 0] xgmii_txd_0;
+  wire [7   : 0] xgmii_txc_0;
+  wire [63 : 0]  xgmii_rxd_0;
+  wire [7  : 0]  xgmii_rxc_0;
+
+  wire  [2 : 0]  xphy_config_1;
+  wire [4 : 0]   xphy_status_1;
+  wire [63  : 0] xgmii_txd_1;
+  wire [7   : 0] xgmii_txc_1;
+  wire [63 : 0]  xgmii_rxd_1;
+  wire [7  : 0]  xgmii_rxc_1;
+
+  wire  [2 : 0]  xphy_config_2;
+  wire [4 : 0]   xphy_status_2;
+  wire [63  : 0] xgmii_txd_2;
+  wire [7   : 0] xgmii_txc_2;
+  wire [63 : 0]  xgmii_rxd_2;
+  wire [7  : 0]  xgmii_rxc_2;
+
+  wire  [2 : 0]  xphy_config_3;
+  wire [4 : 0]   xphy_status_3;
+  wire [63  : 0] xgmii_txd_3;
+  wire [7   : 0] xgmii_txc_3;
+  wire [63 : 0]  xgmii_rxd_3;
+  wire [7  : 0]  xgmii_rxc_3;
 
 
   //----------------------------------------------------------------
@@ -316,17 +321,71 @@ module ntps_top #(
      .pmbus_clk     (pmbus_clk),
      .pmbus_data    (pmbus_data),
 
-     .phy_mdio_o    (phy_mdio_o),
-     .phy_mdc       (phy_mdc),
+     .clk156        (clk156),
+     .areset_clk156 (areset_clk156),
 
-     .mdio_out_0    (network_path_shared_0_mdio_out),
-     .mdio_tri_0    (network_path_shared_0_mdio_tri),
-     .mdio_out_1    (network_path_1_mdio_out),
-     .mdio_tri_1    (network_path_1_mdio_tri),
-     .mdio_out_2    (network_path_2_mdio_out),
-     .mdio_tri_2    (network_path_2_mdio_tri),
-     .mdio_out_3    (network_path_3_mdio_out),
-     .mdio_tri_3    (network_path_3_mdio_tri),
+     .xphy_refclk_n (xphy_refclk_n),
+     .xphy_refclk_p (xphy_refclk_p),
+
+     .xphy_config_0         (xphy_config_0),
+     .xphy_status_0         (xphy_status_0),
+     .sfp_module_detect_n_0 (sfp_module_detect0_n),
+     .sfp_signal_lost_0     (sfp_signal_lost0),
+     .sfp_tx_fault_0        (sfp_tx_fault0),
+     .sfp_tx_disable_0      (sfp_tx_disable0),
+     .xphy_rxp_0            (xphy0_rxp),
+     .xphy_rxn_0            (xphy0_rxn),
+     .xphy_txp_0            (xphy0_txp),
+     .xphy_txn_0            (xphy0_txn),
+     .xgmii_txd_0           (xgmii_txd_0),
+     .xgmii_txc_0           (xgmii_txc_0),
+     .xgmii_rxd_0           (xgmii_rxd_0),
+     .xgmii_rxc_0           (xgmii_rxc_0),
+
+     .xphy_config_1         (xphy_config_1),
+     .xphy_status_1         (xphy_status_1),
+     .sfp_module_detect_n_1 (sfp_module_detect1_n),
+     .sfp_signal_lost_1     (sfp_signal_lost1),
+     .sfp_tx_fault_1        (sfp_tx_fault1),
+     .sfp_tx_disable_1      (sfp_tx_disable1),
+     .xphy_rxp_1            (xphy1_rxp),
+     .xphy_rxn_1            (xphy1_rxn),
+     .xphy_txp_1            (xphy1_txp),
+     .xphy_txn_1            (xphy1_txn),
+     .xgmii_txd_1           (xgmii_txd_1),
+     .xgmii_txc_1           (xgmii_txc_1),
+     .xgmii_rxd_1           (xgmii_rxd_1),
+     .xgmii_rxc_1           (xgmii_rxc_1),
+
+     .xphy_config_2         (xphy_config_2),
+     .xphy_status_2         (xphy_status_2),
+     .sfp_module_detect_n_2 (sfp_module_detect2_n),
+     .sfp_signal_lost_2     (sfp_signal_lost2),
+     .sfp_tx_fault_2        (sfp_tx_fault2),
+     .sfp_tx_disable_2      (sfp_tx_disable2),
+     .xphy_rxp_2            (xphy2_rxp),
+     .xphy_rxn_2            (xphy2_rxn),
+     .xphy_txp_2            (xphy2_txp),
+     .xphy_txn_2            (xphy2_txn),
+     .xgmii_txd_2           (xgmii_txd_2),
+     .xgmii_txc_2           (xgmii_txc_2),
+     .xgmii_rxd_2           (xgmii_rxd_2),
+     .xgmii_rxc_2           (xgmii_rxc_2),
+
+     .xphy_config_3         (xphy_config_3),
+     .xphy_status_3         (xphy_status_3),
+     .sfp_module_detect_n_3 (sfp_module_detect3_n),
+     .sfp_signal_lost_3     (sfp_signal_lost3),
+     .sfp_tx_fault_3        (sfp_tx_fault3),
+     .sfp_tx_disable_3      (sfp_tx_disable3),
+     .xphy_rxp_3            (xphy3_rxp),
+     .xphy_rxn_3            (xphy3_rxn),
+     .xphy_txp_3            (xphy3_txp),
+     .xphy_txn_3            (xphy3_txn),
+     .xgmii_txd_3           (xgmii_txd_3),
+     .xgmii_txc_3           (xgmii_txc_3),
+     .xgmii_rxd_3           (xgmii_rxd_3),
+     .xgmii_rxc_3           (xgmii_rxc_3),
 
      .axi_aclk      (axi_aclk),
      .axi_aresetn   (axi_aresetn),

@@ -40,7 +40,7 @@
 `default_nettype none
 
 module ntps_phys (
-                  input wire           sys_reset,
+                  input wire           reset,
                   output wire          clk156,
                   output wire          areset_clk156,
 
@@ -107,7 +107,7 @@ module ntps_phys (
                   output wire [7  : 0] xgmii_rxc_2,
 
 
-                  // Port 2.
+                  // Port 3.
                   output wire 	       mdio_out_3,
                   output wire 	       mdio_tri_3,
                   input wire  [2 : 0]  xphy_config_3,
@@ -191,7 +191,7 @@ module ntps_phys (
     .rxrecclk_out           (),
     .txusrclk_out           (txusrclk),
     .txusrclk2_out          (txusrclk2),
-    .reset                  (sys_reset),
+    .reset                  (reset),
     .areset_datapathclk_out (areset_clk156),
     .gttxreset_out          (gttxreset),
     .gtrxreset_out          (gtrxreset),
@@ -292,7 +292,7 @@ module ntps_phys (
     .rxrecclk_out        (),
     .txusrclk            (txusrclk),
     .txusrclk2           (txusrclk2),
-    .areset              (sys_reset),
+    .areset              (reset),
     .txoutclk            (),
     .areset_coreclk      (areset_clk156),
     .gttxreset           (gttxreset),
@@ -395,7 +395,7 @@ module ntps_phys (
     .rxrecclk_out        (),
     .txusrclk            (txusrclk),
     .txusrclk2           (txusrclk2),
-    .areset              (sys_reset),
+    .areset              (reset),
     .txoutclk            (),
     .areset_coreclk      (areset_clk156),
     .gttxreset           (gttxreset),
@@ -498,7 +498,7 @@ module ntps_phys (
     .rxrecclk_out        (),
     .txusrclk            (txusrclk),
     .txusrclk2           (txusrclk2),
-    .areset              (sys_reset),
+    .areset              (reset),
     .txoutclk            (),
     .areset_coreclk      (areset_clk156),
     .gttxreset           (gttxreset),
