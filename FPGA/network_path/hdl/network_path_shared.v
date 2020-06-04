@@ -136,11 +136,6 @@ module network_path_shared (
 
   // Wires for connecting the api_extension to the AXI slave.
   // Wires for connecting modules to the api_extension.
-  wire [1 : 0]  api_ext_command;
-  wire [31 : 0] api_ext_address;
-  wire [31 : 0] api_ext_write_data;
-  wire [1 : 0]  api_ext_status;
-  wire [31 : 0] api_ext_read_data;
   wire          pp_api_cs;
   wire          pp_api_we;
   wire [11 : 0] pp_api_address;
