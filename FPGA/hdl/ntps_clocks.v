@@ -70,7 +70,7 @@ module ntps_clocks(
   // pcie_clk clock tree input buffer.
   // IBUF_DS_ODIV2 is unused and left dangling.
   ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
-     .IBUF_DS_N     (cie_clk_n),
+     .IBUF_DS_N     (pcie_clk_n),
      .IBUF_DS_P     (pcie_clk_p),
      .IBUF_DS_ODIV2 (),
      .IBUF_OUT      (pcie_clk)
