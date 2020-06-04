@@ -44,7 +44,7 @@ module ntps_phys (
                   output wire          clk156,
                   output wire          areset_clk156,
 
-                  input wire           mdc
+                  input wire           mdc,
                   input wire           mdio_in,
                   output wire          mdio_out,
 
