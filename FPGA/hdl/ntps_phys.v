@@ -46,13 +46,12 @@ module ntps_phys (
 
                   input wire           mdc
                   input wire           mdio_in,
+                  output wire          mdio_out,
 
                   // Port 0.
                   input wire           xphy_refclk_n,
                   input wire           xphy_refclk_p,
 
-                  output wire 	       mdio_out_0,
-                  output wire 	       mdio_tri_0,
                   input wire  [2 : 0]  xphy_config_0,
                   output wire [4 : 0]  xphy_status_0,
                   input wire           sfp_module_detect_n_0,
@@ -70,8 +69,6 @@ module ntps_phys (
 
 
                   // Port 1.
-                  output wire 	       mdio_out_1,
-                  output wire 	       mdio_tri_1,
                   input wire  [2 : 0]  xphy_config_1,
                   output wire [4 : 0]  xphy_status_1,
                   input wire           sfp_module_detect_n_1,
@@ -89,8 +86,6 @@ module ntps_phys (
 
 
                   // Port 2.
-                  output wire 	       mdio_out_2,
-                  output wire 	       mdio_tri_2,
                   input wire  [2 : 0]  xphy_config_2,
                   output wire [4 : 0]  xphy_status_2,
                   input wire           sfp_module_detect_n_2,
@@ -108,8 +103,6 @@ module ntps_phys (
 
 
                   // Port 3.
-                  output wire 	       mdio_out_3,
-                  output wire 	       mdio_tri_3,
                   input wire  [2 : 0]  xphy_config_3,
                   output wire [4 : 0]  xphy_status_3,
                   input wire           sfp_module_detect_n_3,
@@ -142,6 +135,25 @@ module ntps_phys (
   wire         txuserrdy;
   wire         txusrclk;
   wire         txusrclk2;
+
+  // mdio wires just to resolve mdio_out muxing here.
+  wire 	       mdio_out_0;
+  wire 	       mdio_tri_0;
+  wire 	       mdio_out_1;
+  wire 	       mdio_tri_1;
+  wire 	       mdio_out_2;
+  wire 	       mdio_tri_2;
+  wire 	       mdio_out_3;
+  wire 	       mdio_tri_3;
+
+
+  //----------------------------------------------------------------
+  // Mux to merge mdio outputs from network paths
+  //----------------------------------------------------------------
+  assign mdio_out = (mdio_out_0 & ~mdio_tri_0) |
+                    (mdio_out_1 & ~mdio_tri_1) |
+                    (mdio_out_2 & ~mdio_tri_2) |
+                    (mdio_out_3 & ~mdio_tri_3);
 
 
   //----------------------------------------------------------------

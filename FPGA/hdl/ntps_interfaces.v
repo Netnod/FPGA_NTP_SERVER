@@ -199,19 +199,9 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   // Internal wires.
   //----------------------------------------------------------------
-
-  wire mdio_in;
   wire mdc;
-  wire mdio_out_0;
-  wire mdio_tri_0;
-  wire mdio_out_1;
-  wire mdio_tri_1;
-  wire mdio_out_2;
-  wire mdio_tri_2;
-  wire mdio_out_3;
-  wire mdio_tri_3;
-  wire mdio_mux_0_mdio_out;
-
+  wire mdio_in;
+  wire mdio_out;
 
 
   //----------------------------------------------------------------
@@ -351,7 +341,7 @@ module ntps_interfaces #(
     .phy_crs       (1'b0),
     .phy_dv        (1'b0),
     .phy_mdc       (mdc),
-    .phy_mdio_i    (mdio_mux_0_mdio_out),
+    .phy_mdio_i    (mdio_out),
     .phy_mdio_o    (mdio_in),
     .phy_rx_clk    (1'b0),
     .phy_rx_data   (4'b0),
@@ -418,108 +408,80 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // Mux to merge mdio outputs from network paths
-  //----------------------------------------------------------------
-  mdio_mux mdio_mux_0 (
-    .mdio_out_0 (mdio_out_0),
-    .mdio_tri_0 (mdio_tri_0),
-
-    .mdio_out_1 (mdio_out_1),
-    .mdio_tri_1 (mdio_tri_1),
-
-    .mdio_out_2 (mdio_out_2),
-    .mdio_tri_2 (mdio_tri_2),
-
-    .mdio_out_3 (mdio_out_3),
-    .mdio_tri_3 (mdio_tri_3),
-
-    .mdio_out   (mdio_mux_0_mdio_out)
-  );
-
-
-  //----------------------------------------------------------------
   // Ethernet PHYs.
   //----------------------------------------------------------------
   ntps_phys phys(
-                 .reset(reset),
-                 .clk156(clk156),
-                 .areset_clk156(areset_clk156),
+                 .reset                 (reset),
+                 .clk156                (clk156),
+                 .areset_clk156         (areset_clk156),
 
-                 .mdc(mdc),
-                 .mdio_in(mdio_in),
+                 .mdc                   (mdc),
+                 .mdio_in               (mdio_in),
+                 .mdio_out              (mdio_out),
 
-                 .xphy_refclk_n(xphy_refclk_n),
-                 .xphy_refclk_p(xphy_refclk_p),
+                 .xphy_refclk_n         (xphy_refclk_n),
+                 .xphy_refclk_p         (xphy_refclk_p),
 
-                 .mdio_out_0(mdio_out_0),
-                 .mdio_tri_0(mdio_tri_0),
-                 .xphy_config_0(xphy_config_0),
-                 .xphy_status_0(xphy_status_0),
-                 .sfp_module_detect_n_0(sfp_module_detect_n_0),
-                 .sfp_signal_lost_0(sfp_signal_lost_0),
-                 .sfp_tx_fault_0(sfp_tx_fault_0),
-                 .sfp_tx_disable_0(sfp_tx_disable_0),
-                 .xphy_rxp_0(xphy_rxp_0),
-                 .xphy_rxn_0(xphy_rxn_0),
-                 .xphy_txp_0(xphy_txp_0),
-                 .xphy_txn_0(xphy_txn_0),
-                 .xgmii_txd_0(xgmii_txd_0),
-                 .xgmii_txc_0(xgmii_txc_0),
-                 .xgmii_rxd_0(xgmii_rxd_0),
-                 .xgmii_rxc_0(xgmii_rxc_0),
+                 .xphy_config_0         (xphy_config_0),
+                 .xphy_status_0         (xphy_status_0),
+                 .sfp_module_detect_n_0 (sfp_module_detect_n_0),
+                 .sfp_signal_lost_0     (sfp_signal_lost_0),
+                 .sfp_tx_fault_0        (sfp_tx_fault_0),
+                 .sfp_tx_disable_0      (sfp_tx_disable_0),
+                 .xphy_rxp_0            (xphy_rxp_0),
+                 .xphy_rxn_0            (xphy_rxn_0),
+                 .xphy_txp_0            (xphy_txp_0),
+                 .xphy_txn_0            (xphy_txn_0),
+                 .xgmii_txd_0           (xgmii_txd_0),
+                 .xgmii_txc_0           (xgmii_txc_0),
+                 .xgmii_rxd_0           (xgmii_rxd_0),
+                 .xgmii_rxc_0           (xgmii_rxc_0),
 
-                 .mdio_out_1(mdio_out_1),
-                 .mdio_tri_1(mdio_tri_1),
-                 .xphy_config_1(xphy_config_1),
-                 .xphy_status_1(xphy_status_1),
-                 .sfp_module_detect_n_1(sfp_module_detect_n_1),
-                 .sfp_signal_lost_1(sfp_signal_lost_1),
-                 .sfp_tx_fault_1(sfp_tx_fault_1),
-                 .sfp_tx_disable_1(sfp_tx_disable_1),
-                 .xphy_rxp_1(xphy_rxp_1),
-                 .xphy_rxn_1(xphy_rxn_1),
-                 .xphy_txp_1(xphy_txp_1),
-                 .xphy_txn_1(xphy_txn_1),
-                 .xgmii_txd_1(xgmii_txd_1),
-                 .xgmii_txc_1(xgmii_txc_1),
-                 .xgmii_rxd_1(xgmii_rxd_1),
-                 .xgmii_rxc_1(xgmii_rxc_1),
+                 .xphy_config_1         (xphy_config_1),
+                 .xphy_status_1         (xphy_status_1),
+                 .sfp_module_detect_n_1 (sfp_module_detect_n_1),
+                 .sfp_signal_lost_1     (sfp_signal_lost_1),
+                 .sfp_tx_fault_1        (sfp_tx_fault_1),
+                 .sfp_tx_disable_1      (sfp_tx_disable_1),
+                 .xphy_rxp_1            (xphy_rxp_1),
+                 .xphy_rxn_1            (xphy_rxn_1),
+                 .xphy_txp_1            (xphy_txp_1),
+                 .xphy_txn_1            (xphy_txn_1),
+                 .xgmii_txd_1           (xgmii_txd_1),
+                 .xgmii_txc_1           (xgmii_txc_1),
+                 .xgmii_rxd_1           (xgmii_rxd_1),
+                 .xgmii_rxc_1           (xgmii_rxc_1),
 
-                 .mdio_out_2(mdio_out_2),
-                 .mdio_tri_2(mdio_tri_2),
-                 .xphy_config_2(xphy_config_2),
-                 .xphy_status_2(xphy_status_2),
-                 .sfp_module_detect_n_2(sfp_module_detect_n_2),
-                 .sfp_signal_lost_2(sfp_signal_lost_2),
-                 .sfp_tx_fault_2(sfp_tx_fault_2),
-                 .sfp_tx_disable_2(sfp_tx_disable_2),
-                 .xphy_rxp_2(xphy_rxp_2),
-                 .xphy_rxn_2(xphy_rxn_2),
-                 .xphy_txp_2(xphy_txp_2),
-                 .xphy_txn_2(xphy_txn_2),
-                 .xgmii_txd_2(xgmii_txd_2),
-                 .xgmii_txc_2(xgmii_txc_2),
-                 .xgmii_rxd_2(xgmii_rxd_2),
-                 .xgmii_rxc_2(xgmii_rxc_2),
+                 .xphy_config_2         (xphy_config_2),
+                 .xphy_status_2         (xphy_status_2),
+                 .sfp_module_detect_n_2 (sfp_module_detect_n_2),
+                 .sfp_signal_lost_2     (sfp_signal_lost_2),
+                 .sfp_tx_fault_2        (sfp_tx_fault_2),
+                 .sfp_tx_disable_2      (sfp_tx_disable_2),
+                 .xphy_rxp_2            (xphy_rxp_2),
+                 .xphy_rxn_2            (xphy_rxn_2),
+                 .xphy_txp_2            (xphy_txp_2),
+                 .xphy_txn_2            (xphy_txn_2),
+                 .xgmii_txd_2           (xgmii_txd_2),
+                 .xgmii_txc_2           (xgmii_txc_2),
+                 .xgmii_rxd_2           (xgmii_rxd_2),
+                 .xgmii_rxc_2           (xgmii_rxc_2),
 
-                 .mdio_out_3(mdio_out_3),
-                 .mdio_tri_3(mdio_tri_3),
-                 .xphy_config_3(xphy_config_3),
-                 .xphy_status_3(xphy_status_3),
-                 .sfp_module_detect_n_3(sfp_module_detect_n_3),
-                 .sfp_signal_lost_3(sfp_signal_lost_3),
-                 .sfp_tx_fault_3(sfp_tx_fault_3),
-                 .sfp_tx_disable_3(sfp_tx_disable_3),
-                 .xphy_rxp_3(xphy_rxp_3),
-                 .xphy_rxn_3(xphy_rxn_3),
-                 .xphy_txp_3(xphy_txp_3),
-                 .xphy_txn_3(xphy_txn_3),
-                 .xgmii_txd_3(xgmii_txd_3),
-                 .xgmii_txc_3(xgmii_txc_3),
-                 .xgmii_rxd_3(xgmii_rxd_3),
-                 .xgmii_rxc_3(xgmii_rxc_3)
+                 .xphy_config_3         (xphy_config_3),
+                 .xphy_status_3         (xphy_status_3),
+                 .sfp_module_detect_n_3 (sfp_module_detect_n_3),
+                 .sfp_signal_lost_3     (sfp_signal_lost_3),
+                 .sfp_tx_fault_3        (sfp_tx_fault_3),
+                 .sfp_tx_disable_3      (sfp_tx_disable_3),
+                 .xphy_rxp_3            (xphy_rxp_3),
+                 .xphy_rxn_3            (xphy_rxn_3),
+                 .xphy_txp_3            (xphy_txp_3),
+                 .xphy_txn_3            (xphy_txn_3),
+                 .xgmii_txd_3           (xgmii_txd_3),
+                 .xgmii_txc_3           (xgmii_txc_3),
+                 .xgmii_rxd_3           (xgmii_rxd_3),
+                 .xgmii_rxc_3           (xgmii_rxc_3)
                  );
-
 
 endmodule // ntps_interfaces
 
