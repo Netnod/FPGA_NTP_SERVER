@@ -566,9 +566,9 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // network_path_axi_slave_0_0
+  // network_path_axi_slave_0
   //----------------------------------------------------------------
-  network_path_axi_slave_0 network_path_axi_slave_0_0 (
+  network_path_axi_slave network_path_axi_slave_0 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_0),
     .ntp_config     (ntp_config_0),
@@ -612,9 +612,9 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // network_path_axi_slave_0_1
+  // network_path_axi_slave_1
   //----------------------------------------------------------------
-  network_path_axi_slave_0 network_path_axi_slave_0_1 (
+  network_path_axi_slave network_path_axi_slave_1 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_1),
     .ntp_config     (ntp_config_1),
@@ -658,9 +658,9 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // network_path_axi_slave_0_2
+  // network_path_axi_slave_2
   //----------------------------------------------------------------
-  network_path_axi_slave_0 network_path_axi_slave_0_2 (
+  network_path_axi_slave network_path_axi_slave_2 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_2),
     .ntp_config     (ntp_config_2),
@@ -704,9 +704,9 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // network_path_axi_slave_0_3
+  // network_path_axi_slave_3
   //----------------------------------------------------------------
-  network_path_axi_slave_0 network_path_axi_slave_0_3 (
+  network_path_axi_slave network_path_axi_slave_3 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_3),
     .ntp_config     (ntp_config_3),

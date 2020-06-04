@@ -180,6 +180,13 @@ module ntps_phys (
   wire [2 : 0]  pma_pmd_type_0;
   wire [7 : 0]  core_status_0;
 
+  assign drp_gnt_0        = drp_req_0;
+  assign drp_den_i_0      = drp_den_o_0;
+  assign drp_dwe_i_0      = drp_dwe_o_0;
+  assign drp_daddr_i_0    = drp_daddr_o_0;
+  assign drp_di_i_0       = drp_di_o_0;
+  assign drp_drdy_i_0     = drp_drdy_o_0;
+  assign drp_drpdo_i_0    = drp_drpdo_o_0;
   assign signal_detect_0  = ~sfp_signal_lost_0;
   assign sfp_tx_disable_0 = tx_disable_if_0 | ~xphy_config_0[0];
   assign xphy_status_0[0] = qplllock;
