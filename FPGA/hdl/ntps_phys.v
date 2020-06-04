@@ -124,8 +124,6 @@ module ntps_phys (
   // Internal wires.
   //----------------------------------------------------------------
   // Shared signals. From phy0 to phy1..3.
-  wire         clk156;
-  wire         areset_clk156;
   wire         gtrxreset;
   wire         gttxreset;
   wire         qplllock;
@@ -290,7 +288,7 @@ module ntps_phys (
   assign xphy_status_1[0] = qplllock;
   assign xphy_status_1[1] = ~sfp_module_detect_n_1;
   assign xphy_status_1[2] = signal_detect_1;
-  assign xphy_status_1[3] = tx_fault;
+  assign xphy_status_1[3] = sfp_tx_fault_1;
   assign xphy_status_1[4] = core_status_1[0];
 
   assign pma_pmd_type_1   = xphy_config_1[2 : 1] == 2'b00 ? 3'b101 : // 10GBASE-ER
@@ -393,7 +391,7 @@ module ntps_phys (
   assign xphy_status_2[0] = qplllock;
   assign xphy_status_2[1] = ~sfp_module_detect_n_2;
   assign xphy_status_2[2] = signal_detect_2;
-  assign xphy_status_2[3] = tx_fault;
+  assign xphy_status_2[3] = sfp_tx_fault_2;
   assign xphy_status_2[4] = core_status_2[0];
 
   assign pma_pmd_type_2   = xphy_config_2[2 : 1] == 2'b00 ? 3'b101 : // 10GBASE-ER
@@ -496,7 +494,7 @@ module ntps_phys (
   assign xphy_status_3[0] = qplllock;
   assign xphy_status_3[1] = ~sfp_module_detect_n_3;
   assign xphy_status_3[2] = signal_detect_3;
-  assign xphy_status_3[3] = tx_fault;
+  assign xphy_status_3[3] = sfp_tx_fault_3;
   assign xphy_status_3[4] = core_status_3[0];
 
   assign pma_pmd_type_3   = xphy_config_3[2 : 1] == 2'b00 ? 3'b101 : // 10GBASE-ER
