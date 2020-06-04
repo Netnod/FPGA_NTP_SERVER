@@ -160,7 +160,7 @@ module pcie_axi (
     .interrupt_out     (),
     .intx_msi_grant    (),
     .msi_enable        (),
-    .msi_vector_width  ()
+    .msi_vector_width  (),
     .m_axi_awid        (pcie_axi_awid),
     .m_axi_awaddr      (pcie_axi_awaddr),
     .m_axi_awlen       (pcie_axi_awlen),
