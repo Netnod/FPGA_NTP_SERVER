@@ -44,163 +44,190 @@ module ntps_interfaces #(
                          parameter BUILD_INFO = 0,
                          parameter GIT_HASH   = 0
                          )
-                       (
-                       input wire            reset,
+  (
+    input wire            reset,
 
-                       // PCI-AXI interface and bridge.
-                       input wire            pcie_perst,
-                       input wire            pcie_clk,
-                       input wire [7:0]      pci_exp_rxn,
-                       input wire [7:0]      pci_exp_rxp,
-                       output wire [7:0]     pci_exp_txn,
-                       output wire [7:0]     pci_exp_txp,
+    // PCI-AXI interface and bridge.
+    input wire            pcie_perst,
+    input wire            pcie_clk,
+    input wire [7:0]      pci_exp_rxn,
+    input wire [7:0]      pci_exp_rxp,
+    output wire [7:0]     pci_exp_txn,
+    output wire [7:0]     pci_exp_txp,
 
-                       output wire           user_link_up,
+    output wire           user_link_up,
 
-                       input wire            clk50,
-                       input wire            pmbus_alert,
-                       inout wire            pmbus_clk,
-                       inout wire            pmbus_data,
+    input wire            clk50,
+    input wire            pmbus_alert,
+    inout wire            pmbus_clk,
+    inout wire            pmbus_data,
 
-                       output wire           clk156,
-                       output wire           areset_clk156,
+    output wire           clk156,
+    output wire           areset_clk156,
 
-                       // Port 0.
-                       input wire            xphy_refclk_n,
-                       input wire            xphy_refclk_p,
+    input wire            xphy_refclk_n,
+    input wire            xphy_refclk_p,
 
-                       input wire  [2 : 0]   xphy_config_0,
-                       output wire [4 : 0]   xphy_status_0,
-                       input wire            sfp_module_detect_n_0,
-                       input wire            sfp_signal_lost_0,
-                       input wire            sfp_tx_fault_0,
-                       output wire           sfp_tx_disable_0,
-                       input wire            xphy_rxp_0,
-                       input wire            xphy_rxn_0,
-                       output wire           xphy_txp_0,
-                       output wire           xphy_txn_0,
-                       input wire [63  : 0]  xgmii_txd_0,
-                       input wire [7   : 0]  xgmii_txc_0,
-                       output wire [63 : 0]  xgmii_rxd_0,
-                       output wire [7  : 0]  xgmii_rxc_0,
-                       input wire            key_req_0,
-                       input wire [31 : 0]   key_id_0,
-                       output wire           key_ack_0,
-                       output wire [255 : 0] key_0,
+    // Port 0.
+    input wire            sfp_module_detect_n_0,
+    input wire            sfp_signal_lost_0,
+    input wire            sfp_tx_fault_0,
+    output wire           sfp_tx_disable_0,
+    input wire            xphy_rxp_0,
+    input wire            xphy_rxn_0,
+    output wire           xphy_txp_0,
+    output wire           xphy_txn_0,
+    input wire [63  : 0]  xgmii_txd_0,
+    input wire [7   : 0]  xgmii_txc_0,
+    output wire [63 : 0]  xgmii_rxd_0,
+    output wire [7  : 0]  xgmii_rxc_0,
+    output wire [1 : 0]   api_ext_command_0,
+    output wire [31 : 0]  api_ext_address_0,
+    output wire [31 : 0]  api_ext_write_data_0,
+    input wire [1 : 0]    api_ext_status_0,
+    input wire [31 : 0]   api_ext_read_data_0,
+    output wire [31:0]    gen_config_0,
+    output wire [31:0]    ntp_config_0,
+    output wire [31:0]    ntp_root_delay_0,
+    output wire [31:0]    ntp_root_disp_0,
+    output wire [31:0]    ntp_ref_id_0,
+    output wire [63:0]    ntp_ref_ts_0,
+    output wire [31:0]    ntp_rx_ofs_0,
+    output wire [31:0]    ntp_tx_ofs_0,
+    input wire [31:0]     pp_status_0,
+    input wire 	          ntp_sync_ok_0,
+    input wire            key_req_0,
+    input wire [31 : 0]   key_id_0,
+    output wire           key_ack_0,
+    output wire [255 : 0] key_0,
+
+    // Port 1.
+    input wire            sfp_module_detect_n_1,
+    input wire            sfp_signal_lost_1,
+    input wire            sfp_tx_fault_1,
+    output wire           sfp_tx_disable_1,
+    input wire            xphy_rxp_1,
+    input wire            xphy_rxn_1,
+    output wire           xphy_txp_1,
+    output wire           xphy_txn_1,
+    input wire [63  : 0]  xgmii_txd_1,
+    input wire [7   : 0]  xgmii_txc_1,
+    output wire [63 : 0]  xgmii_rxd_1,
+    output wire [7  : 0]  xgmii_rxc_1,
+    output wire [1 : 0]   api_ext_command_1,
+    output wire [31 : 0]  api_ext_address_1,
+    output wire [31 : 0]  api_ext_write_data_1,
+    input wire [1 : 0]    api_ext_status_1,
+    input wire [31 : 0]   api_ext_read_data_1,
+    output wire [31:0]    gen_config_1,
+    output wire [31:0]    ntp_config_1,
+    output wire [31:0]    ntp_root_delay_1,
+    output wire [31:0]    ntp_root_disp_1,
+    output wire [31:0]    ntp_ref_id_1,
+    output wire [63:0]    ntp_ref_ts_1,
+    output wire [31:0]    ntp_rx_ofs_1,
+    output wire [31:0]    ntp_tx_ofs_1,
+    input wire [31:0]     pp_status_1,
+    input wire 	          ntp_sync_ok_1,
+    input wire            key_req_1,
+    input wire [31 : 0]   key_id_1,
+    output wire           key_ack_1,
+    output wire [255 : 0] key_1,
+
+    // Port 2.
+    input wire            sfp_module_detect_n_2,
+    input wire            sfp_signal_lost_2,
+    input wire            sfp_tx_fault_2,
+    output wire           sfp_tx_disable_2,
+    input wire            xphy_rxp_2,
+    input wire            xphy_rxn_2,
+    output wire           xphy_txp_2,
+    output wire           xphy_txn_2,
+    input wire [63  : 0]  xgmii_txd_2,
+    input wire [7   : 0]  xgmii_txc_2,
+    output wire [63 : 0]  xgmii_rxd_2,
+    output wire [7  : 0]  xgmii_rxc_2,
+    output wire [1 : 0]   api_ext_command_2,
+    output wire [31 : 0]  api_ext_address_2,
+    output wire [31 : 0]  api_ext_write_data_2,
+    input wire [1 : 0]    api_ext_status_2,
+    input wire [31 : 0]   api_ext_read_data_2,
+    output wire [31:0]    gen_config_2,
+    output wire [31:0]    ntp_config_2,
+    output wire [31:0]    ntp_root_delay_2,
+    output wire [31:0]    ntp_root_disp_2,
+    output wire [31:0]    ntp_ref_id_2,
+    output wire [63:0]    ntp_ref_ts_2,
+    output wire [31:0]    ntp_rx_ofs_2,
+    output wire [31:0]    ntp_tx_ofs_2,
+    input wire [31:0]     pp_status_2,
+    input wire 	          ntp_sync_ok_2,
+    input wire            key_req_2,
+    input wire [31 : 0]   key_id_2,
+    output wire           key_ack_2,
+    output wire [255 : 0] key_2,
 
 
-                       // Port 1.
-                       input wire  [2 : 0]   xphy_config_1,
-                       output wire [4 : 0]   xphy_status_1,
-                       input wire            sfp_module_detect_n_1,
-                       input wire            sfp_signal_lost_1,
-                       input wire            sfp_tx_fault_1,
-                       output wire           sfp_tx_disable_1,
-                       input wire            xphy_rxp_1,
-                       input wire            xphy_rxn_1,
-                       output wire           xphy_txp_1,
-                       output wire           xphy_txn_1,
-                       input wire  [63 : 0]  xgmii_txd_1,
-                       input wire  [7  : 0]  xgmii_txc_1,
-                       output wire [63 : 0]  xgmii_rxd_1,
-                       output wire [7  : 0]  xgmii_rxc_1,
-                       input wire            key_req_1,
-                       input wire [31 : 0]   key_id_1,
-                       output wire           key_ack_1,
-                       output wire [255 : 0] key_1,
+    // Port 3.
+    input wire            sfp_module_detect_n_3,
+    input wire            sfp_signal_lost_3,
+    input wire            sfp_tx_fault_3,
+    output wire           sfp_tx_disable_3,
+    input wire            xphy_rxp_3,
+    input wire            xphy_rxn_3,
+    output wire           xphy_txp_3,
+    output wire           xphy_txn_3,
+    input wire [63  : 0]  xgmii_txd_3,
+    input wire [7   : 0]  xgmii_txc_3,
+    output wire [63 : 0]  xgmii_rxd_3,
+    output wire [7  : 0]  xgmii_rxc_3,
+    output wire [1 : 0]   api_ext_command_3,
+    output wire [31 : 0]  api_ext_address_3,
+    output wire [31 : 0]  api_ext_write_data_3,
+    input wire [1 : 0]    api_ext_status_3,
+    input wire [31 : 0]   api_ext_read_data_3,
+    output wire [31:0]    gen_config_3,
+    output wire [31:0]    ntp_config_3,
+    output wire [31:0]    ntp_root_delay_3,
+    output wire [31:0]    ntp_root_disp_3,
+    output wire [31:0]    ntp_ref_id_3,
+    output wire [63:0]    ntp_ref_ts_3,
+    output wire [31:0]    ntp_rx_ofs_3,
+    output wire [31:0]    ntp_tx_ofs_3,
+    input wire [31:0]     pp_status_3,
+    input wire 	          ntp_sync_ok_3,
+    input wire            key_req_3,
+    input wire [31 : 0]   key_id_3,
+    output wire           key_ack_3,
+    output wire [255 : 0] key_3,
 
 
-                       // Port 2.
-                       input wire  [2 : 0]   xphy_config_2,
-                       output wire [4 : 0]   xphy_status_2,
-                       input wire            sfp_module_detect_n_2,
-                       input wire            sfp_signal_lost_2,
-                       input wire            sfp_tx_fault_2,
-                       output wire           sfp_tx_disable_2,
-                       input wire            xphy_rxp_2,
-                       input wire            xphy_rxn_2,
-                       output wire           xphy_txp_2,
-                       output wire           xphy_txn_2,
-                       input wire  [63 : 0]  xgmii_txd_2,
-                       input wire  [7  : 0]  xgmii_txc_2,
-                       output wire [63 : 0]  xgmii_rxd_2,
-                       output wire [7  : 0]  xgmii_rxc_2,
-                       input wire            key_req_2,
-                       input wire [31 : 0]   key_id_2,
-                       output wire           key_ack_2,
-                       output wire [255 : 0] key_2,
+    input wire            PPS_INA_N,
+    input wire            PPS_INA_P,
+    output wire           PPS_OUTA,
+    input wire            TEN_MHZ_INA_N,
+    input wire            TEN_MHZ_INA_P,
+    output wire           TEN_MHZ_OUTA,
+    output wire [63 : 0]  NTP_TIMEA,
+    output wire           NTP_TIME_UPDA,
+    output wire           NTP_LED1A,
+    output wire           NTP_LED2A,
+    output wire           SYNC_OKA,
+    output wire           PLL_LOCKEDA,
 
-
-                       // Port 3.
-                       input wire  [2 : 0]   xphy_config_3,
-                       output wire [4 : 0]   xphy_status_3,
-                       input wire            sfp_module_detect_n_3,
-                       input wire            sfp_signal_lost_3,
-                       input wire            sfp_tx_fault_3,
-                       output wire           sfp_tx_disable_3,
-                       input wire            xphy_rxp_3,
-                       input wire            xphy_rxn_3,
-                       output wire           xphy_txp_3,
-                       output wire           xphy_txn_3,
-                       input wire  [63 : 0]  xgmii_txd_3,
-                       input wire  [7  : 0]  xgmii_txc_3,
-                       output wire [63 : 0]  xgmii_rxd_3,
-                       output wire [7  : 0]  xgmii_rxc_3,
-                       input wire            key_req_3,
-                       input wire [31 : 0]   key_id_3,
-                       output wire           key_ack_3,
-                       output wire [255 : 0] key_3,
-
-
-                       output wire           axi_aclk,
-                       output wire           axi_aresetn,
-
-                       output wire [383 : 0] m_axi_awaddr,
-                       output wire [35 : 0]  m_axi_awprot,
-                       output wire [11 : 0]  m_axi_awvalid,
-                       input  wire [11 : 0]  m_axi_awready,
-                       output wire [383 : 0] m_axi_wdata,
-                       output wire [47 : 0]  m_axi_wstrb,
-                       output wire [11 : 0]  m_axi_wvalid,
-                       input  wire [11 : 0]  m_axi_wready,
-                       input  wire [23 : 0]  m_axi_bresp,
-                       input  wire [11 : 0]  m_axi_bvalid,
-                       output wire [11 : 0]  m_axi_bready,
-                       output wire [383 : 0] m_axi_araddr,
-                       output wire [35 : 0]  m_axi_arprot,
-                       output wire [11 : 0]  m_axi_arvalid,
-                       input  wire [11 : 0]  m_axi_arready,
-                       input  wire [383 : 0] m_axi_rdata,
-                       input  wire [23 : 0]  m_axi_rresp,
-                       input  wire [11 : 0]  m_axi_rvalid,
-                       output wire [11 : 0]  m_axi_rready,
-
-                       input wire            PPS_INA_N,
-                       input wire            PPS_INA_P,
-                       output wire           PPS_OUTA,
-                       input wire            TEN_MHZ_INA_N,
-                       input wire            TEN_MHZ_INA_P,
-                       output wire           TEN_MHZ_OUTA,
-                       output wire [63 : 0]  NTP_TIMEA,
-                       output wire           NTP_TIME_UPDA,
-                       output wire           NTP_LED1A,
-                       output wire           NTP_LED2A,
-                       output wire           SYNC_OKA,
-                       output wire           PLL_LOCKEDA,
-
-                       input wire            PPS_INB_N,
-                       input wire            PPS_INB_P,
-                       output wire           PPS_OUTB,
-                       input wire            TEN_MHZ_INB_N,
-                       input wire            TEN_MHZ_INB_P,
-                       output wire           TEN_MHZ_OUTB,
-                       output wire [63 : 0]  NTP_TIMEB,
-                       output wire           NTP_TIME_UPDB,
-                       output wire           NTP_LED1B,
-                       output wire           NTP_LED2B,
-                       output wire           SYNC_OKB,
-                       output wire           PLL_LOCKEDB
-                      );
+    input wire            PPS_INB_N,
+    input wire            PPS_INB_P,
+    output wire           PPS_OUTB,
+    input wire            TEN_MHZ_INB_N,
+    input wire            TEN_MHZ_INB_P,
+    output wire           TEN_MHZ_OUTB,
+    output wire [63 : 0]  NTP_TIMEB,
+    output wire           NTP_TIME_UPDB,
+    output wire           NTP_LED1B,
+    output wire           NTP_LED2B,
+    output wire           SYNC_OKB,
+    output wire           PLL_LOCKEDB
+   );
 
 
   //----------------------------------------------------------------
@@ -208,12 +235,12 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   localparam AXI_NTPA    = 0;
   localparam AXI_NTPB    = 1;
-  localparam AXI_PVT     = 7;
   localparam AXI_ETHLITE = 2;
   localparam AXI_NP0     = 3;
   localparam AXI_NP1     = 4;
   localparam AXI_NP2     = 5;
   localparam AXI_NP3     = 6;
+  localparam AXI_PVT     = 7;
   localparam AXI_KEY0    = 8;
   localparam AXI_KEY1    = 9;
   localparam AXI_KEY2    = 10;
@@ -226,6 +253,11 @@ module ntps_interfaces #(
   wire mdc;
   wire mdio_in;
   wire mdio_out;
+
+  wire [4 : 0]   xphy_status_0;
+  wire [4 : 0]   xphy_status_1;
+  wire [4 : 0]   xphy_status_2;
+  wire [4 : 0]   xphy_status_3;
 
 
   //----------------------------------------------------------------
@@ -449,7 +481,7 @@ module ntps_interfaces #(
                  .xphy_refclk_n         (xphy_refclk_n),
                  .xphy_refclk_p         (xphy_refclk_p),
 
-                 .xphy_config_0         (xphy_config_0),
+                 .xphy_config_0         (gen_config_0[31 : 29]),
                  .xphy_status_0         (xphy_status_0),
                  .sfp_module_detect_n_0 (sfp_module_detect_n_0),
                  .sfp_signal_lost_0     (sfp_signal_lost_0),
@@ -464,7 +496,7 @@ module ntps_interfaces #(
                  .xgmii_rxd_0           (xgmii_rxd_0),
                  .xgmii_rxc_0           (xgmii_rxc_0),
 
-                 .xphy_config_1         (xphy_config_1),
+                 .xphy_config_1         (gen_config_1[31 : 29]),
                  .xphy_status_1         (xphy_status_1),
                  .sfp_module_detect_n_1 (sfp_module_detect_n_1),
                  .sfp_signal_lost_1     (sfp_signal_lost_1),
@@ -479,7 +511,7 @@ module ntps_interfaces #(
                  .xgmii_rxd_1           (xgmii_rxd_1),
                  .xgmii_rxc_1           (xgmii_rxc_1),
 
-                 .xphy_config_2         (xphy_config_2),
+                 .xphy_config_2         (gen_config_2[31 : 29]),
                  .xphy_status_2         (xphy_status_2),
                  .sfp_module_detect_n_2 (sfp_module_detect_n_2),
                  .sfp_signal_lost_2     (sfp_signal_lost_2),
@@ -494,7 +526,7 @@ module ntps_interfaces #(
                  .xgmii_rxd_2           (xgmii_rxd_2),
                  .xgmii_rxc_2           (xgmii_rxc_2),
 
-                 .xphy_config_3         (xphy_config_3),
+                 .xphy_config_3         (gen_config_3[31 : 29]),
                  .xphy_status_3         (xphy_status_3),
                  .sfp_module_detect_n_3 (sfp_module_detect_n_3),
                  .sfp_signal_lost_3     (sfp_signal_lost_3),
@@ -509,6 +541,190 @@ module ntps_interfaces #(
                  .xgmii_rxd_3           (xgmii_rxd_3),
                  .xgmii_rxc_3           (xgmii_rxc_3)
                  );
+
+
+  //----------------------------------------------------------------
+  // network_path_axi_slave_0_0
+  //----------------------------------------------------------------
+  network_path_axi_slave_0 network_path_axi_slave_0_0 (
+    .pp_clk         (clk156),
+    .gen_config     (gen_config_0),
+    .ntp_config     (ntp_config_0),
+    .ntp_root_delay (ntp_root_delay_0),
+    .ntp_root_disp  (ntp_root_disp_0),
+    .ntp_ref_id     (ntp_ref_id_0),
+    .ntp_ref_ts     (ntp_ref_ts_0),
+    .ntp_rx_ofs     (ntp_rx_ofs_0),
+    .ntp_tx_ofs     (ntp_tx_ofs_0),
+    .pp_status      (pp_status_0),
+    .xphy_status    ({3'h0, xphy_status_0}),
+    .ntp_sync_ok    (ntp_sync_ok_0),
+
+    // Ports for API extension.
+    .api_ext_command    (api_ext_command_0),
+    .api_ext_address    (api_ext_address_0),
+    .api_ext_write_data (api_ext_write_data_0),
+    .api_ext_status     (api_ext_status_0),
+    .api_ext_read_data  (api_ext_read_data_0),
+
+    .S_AXI_ACLK    (axi_aclk),
+    .S_AXI_ARESETN (axi_aresetn),
+    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP0 * 32) +: 32]),
+    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP0 * 1) +: 1]),
+    .S_AXI_AWREADY (m_axi_awready[(AXI_NP0 * 1) +: 1]),
+    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP0 * 32) +: 32]),
+    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP0 * 32/8) +: 32/8]),
+    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP0 * 1) +: 1]),
+    .S_AXI_WREADY  (m_axi_wready [(AXI_NP0 * 1) +: 1]),
+    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP0 * 2) +: 2]),
+    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP0 * 1) +: 1]),
+    .S_AXI_BREADY  (m_axi_bready [(AXI_NP0 * 1) +: 1]),
+    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP0 * 32) +: 32]),
+    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP0 * 1) +: 1]),
+    .S_AXI_ARREADY (m_axi_arready[(AXI_NP0 * 1) +: 1]),
+    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP0 * 32) +: 32]),
+    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP0 * 2) +: 2]),
+    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP0 * 1) +: 1]),
+    .S_AXI_RREADY  (m_axi_rready [(AXI_NP0 * 1) +: 1])
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_axi_slave_0_1
+  //----------------------------------------------------------------
+  network_path_axi_slave_0 network_path_axi_slave_0_1 (
+    .pp_clk         (clk156),
+    .gen_config     (gen_config_1),
+    .ntp_config     (ntp_config_1),
+    .ntp_root_delay (ntp_root_delay_1),
+    .ntp_root_disp  (ntp_root_disp_1),
+    .ntp_ref_id     (ntp_ref_id_1),
+    .ntp_ref_ts     (ntp_ref_ts_1),
+    .ntp_rx_ofs     (ntp_rx_ofs_1),
+    .ntp_tx_ofs     (ntp_tx_ofs_1),
+    .pp_status      (pp_status_1),
+    .xphy_status    ({3'h0, xphy_status_1}),
+    .ntp_sync_ok    (ntp_sync_ok_1),
+
+    // Ports for API extension.
+    .api_ext_command    (api_ext_command_1),
+    .api_ext_address    (api_ext_address_1),
+    .api_ext_write_data (api_ext_write_data_1),
+    .api_ext_status     (api_ext_status_1),
+    .api_ext_read_data  (api_ext_read_data_1),
+
+    .S_AXI_ACLK    (axi_aclk),
+    .S_AXI_ARESETN (axi_aresetn),
+    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP1 * 32) +: 32]),
+    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP1 * 1) +: 1]),
+    .S_AXI_AWREADY (m_axi_awready[(AXI_NP1 * 1) +: 1]),
+    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP1 * 32) +: 32]),
+    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP1 * 32/8) +: 32/8]),
+    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP1 * 1) +: 1]),
+    .S_AXI_WREADY  (m_axi_wready [(AXI_NP1 * 1) +: 1]),
+    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP1 * 2) +: 2]),
+    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP1 * 1) +: 1]),
+    .S_AXI_BREADY  (m_axi_bready [(AXI_NP1 * 1) +: 1]),
+    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP1 * 32) +: 32]),
+    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP1 * 1) +: 1]),
+    .S_AXI_ARREADY (m_axi_arready[(AXI_NP1 * 1) +: 1]),
+    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP1 * 32) +: 32]),
+    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP1 * 2) +: 2]),
+    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP1 * 1) +: 1]),
+    .S_AXI_RREADY  (m_axi_rready [(AXI_NP1 * 1) +: 1])
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_axi_slave_0_2
+  //----------------------------------------------------------------
+  network_path_axi_slave_0 network_path_axi_slave_0_2 (
+    .pp_clk         (clk156),
+    .gen_config     (gen_config_2),
+    .ntp_config     (ntp_config_2),
+    .ntp_root_delay (ntp_root_delay_2),
+    .ntp_root_disp  (ntp_root_disp_2),
+    .ntp_ref_id     (ntp_ref_id_2),
+    .ntp_ref_ts     (ntp_ref_ts_2),
+    .ntp_rx_ofs     (ntp_rx_ofs_2),
+    .ntp_tx_ofs     (ntp_tx_ofs_2),
+    .pp_status      (pp_status_2),
+    .xphy_status    ({3'h0, xphy_status_2}),
+    .ntp_sync_ok    (ntp_sync_ok_2),
+
+    // Ports for API extension.
+    .api_ext_command    (api_ext_command_2),
+    .api_ext_address    (api_ext_address_2),
+    .api_ext_write_data (api_ext_write_data_2),
+    .api_ext_status     (api_ext_status_2),
+    .api_ext_read_data  (api_ext_read_data_2),
+
+    .S_AXI_ACLK    (axi_aclk),
+    .S_AXI_ARESETN (axi_aresetn),
+    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_AWREADY (m_axi_awready[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP2 * 32/8) +: 32/8]),
+    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_WREADY  (m_axi_wready [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP2 * 2) +: 2]),
+    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_BREADY  (m_axi_bready [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_ARREADY (m_axi_arready[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP2 * 2) +: 2]),
+    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_RREADY  (m_axi_rready [(AXI_NP2 * 1) +: 1])
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_axi_slave_0_3
+  //----------------------------------------------------------------
+  network_path_axi_slave_0 network_path_axi_slave_0_3 (
+    .pp_clk         (clk156),
+    .gen_config     (gen_config_3),
+    .ntp_config     (ntp_config_3),
+    .ntp_root_delay (ntp_root_delay_3),
+    .ntp_root_disp  (ntp_root_disp_3),
+    .ntp_ref_id     (ntp_ref_id_3),
+    .ntp_ref_ts     (ntp_ref_ts_3),
+    .ntp_rx_ofs     (ntp_rx_ofs_3),
+    .ntp_tx_ofs     (ntp_tx_ofs_3),
+    .pp_status      (pp_status_3),
+    .xphy_status    ({3'h0, xphy_status_3}),
+    .ntp_sync_ok    (ntp_sync_ok_3),
+
+    // Ports for API extension.
+    .api_ext_command    (api_ext_command_3),
+    .api_ext_address    (api_ext_address_3),
+    .api_ext_write_data (api_ext_write_data_3),
+    .api_ext_status     (api_ext_status_3),
+    .api_ext_read_data  (api_ext_read_data_3),
+
+    .S_AXI_ACLK    (axi_aclk),
+    .S_AXI_ARESETN (axi_aresetn),
+    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_AWREADY (m_axi_awready[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP2 * 32/8) +: 32/8]),
+    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_WREADY  (m_axi_wready [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP2 * 2) +: 2]),
+    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_BREADY  (m_axi_bready [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_ARREADY (m_axi_arready[(AXI_NP2 * 1) +: 1]),
+    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP2 * 32) +: 32]),
+    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP2 * 2) +: 2]),
+    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP2 * 1) +: 1]),
+    .S_AXI_RREADY  (m_axi_rready [(AXI_NP2 * 1) +: 1])
+  );
 
 
   //----------------------------------------------------------------
