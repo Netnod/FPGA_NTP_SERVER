@@ -83,6 +83,10 @@ module ntps_interfaces #(
                        input wire [7   : 0]  xgmii_txc_0,
                        output wire [63 : 0]  xgmii_rxd_0,
                        output wire [7  : 0]  xgmii_rxc_0,
+                       input wire            key_req_0,
+                       input wire [31 : 0]   key_id_0,
+                       output wire           key_ack_0,
+                       output wire [255 : 0] key_0,
 
 
                        // Port 1.
@@ -100,6 +104,10 @@ module ntps_interfaces #(
                        input wire  [7  : 0]  xgmii_txc_1,
                        output wire [63 : 0]  xgmii_rxd_1,
                        output wire [7  : 0]  xgmii_rxc_1,
+                       input wire            key_req_1,
+                       input wire [31 : 0]   key_id_1,
+                       output wire           key_ack_1,
+                       output wire [255 : 0] key_1,
 
 
                        // Port 2.
@@ -117,6 +125,10 @@ module ntps_interfaces #(
                        input wire  [7  : 0]  xgmii_txc_2,
                        output wire [63 : 0]  xgmii_rxd_2,
                        output wire [7  : 0]  xgmii_rxc_2,
+                       input wire            key_req_2,
+                       input wire [31 : 0]   key_id_2,
+                       output wire           key_ack_2,
+                       output wire [255 : 0] key_2,
 
 
                        // Port 3.
@@ -134,6 +146,10 @@ module ntps_interfaces #(
                        input wire  [7  : 0]  xgmii_txc_3,
                        output wire [63 : 0]  xgmii_rxd_3,
                        output wire [7  : 0]  xgmii_rxc_3,
+                       input wire            key_req_3,
+                       input wire [31 : 0]   key_id_3,
+                       output wire           key_ack_3,
+                       output wire [255 : 0] key_3,
 
 
                        output wire           axi_aclk,
@@ -190,10 +206,18 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   // Local parameters.
   //----------------------------------------------------------------
-  localparam AXI_NTPA_INDEX    = 0;
-  localparam AXI_NTPB_INDEX    = 1;
-  localparam AXI_PVT_INDEX     = 7;
-  localparam AXI_ETHLITE_INDEX = 2;
+  localparam AXI_NTPA    = 0;
+  localparam AXI_NTPB    = 1;
+  localparam AXI_PVT     = 7;
+  localparam AXI_ETHLITE = 2;
+  localparam AXI_NP0     = 3;
+  localparam AXI_NP1     = 4;
+  localparam AXI_NP2     = 5;
+  localparam AXI_NP3     = 6;
+  localparam AXI_KEY0    = 8;
+  localparam AXI_KEY1    = 9;
+  localparam AXI_KEY2    = 10;
+  localparam AXI_KEY3    = 11;
 
 
   //----------------------------------------------------------------
@@ -253,25 +277,25 @@ module ntps_interfaces #(
     .PPS_OUT      (PPS_OUTA),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
-    .axi_araddr   (m_axi_araddr [(AXI_NTPA_INDEX * 32) +: 5]),
-    .axi_arprot   (m_axi_arprot [(AXI_NTPA_INDEX * 3) +: 3]),
-    .axi_arready  (m_axi_arready[(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_arvalid  (m_axi_arvalid[(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_awaddr   (m_axi_awaddr [(AXI_NTPA_INDEX * 32) +: 5]),
-    .axi_awprot   (m_axi_awprot [(AXI_NTPA_INDEX * 3) +: 3]),
-    .axi_awready  (m_axi_awready[(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_awvalid  (m_axi_awvalid[(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_bready   (m_axi_bready [(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_bresp    (m_axi_bresp  [(AXI_NTPA_INDEX * 2) +: 2]),
-    .axi_bvalid   (m_axi_bvalid [(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_rdata    (m_axi_rdata  [(AXI_NTPA_INDEX * 32) +: 32]),
-    .axi_rready   (m_axi_rready [(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_rresp    (m_axi_rresp  [(AXI_NTPA_INDEX * 2) +: 2]),
-    .axi_rvalid   (m_axi_rvalid [(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_wdata    (m_axi_wdata  [(AXI_NTPA_INDEX * 32) +: 32]),
-    .axi_wready   (m_axi_wready [(AXI_NTPA_INDEX * 1) +: 1]),
-    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPA_INDEX * 32/8) +: 32/8]),
-    .axi_wvalid   (m_axi_wvalid [(AXI_NTPA_INDEX * 1) +: 1]),
+    .axi_araddr   (m_axi_araddr [(AXI_NTPA * 32) +: 5]),
+    .axi_arprot   (m_axi_arprot [(AXI_NTPA * 3) +: 3]),
+    .axi_arready  (m_axi_arready[(AXI_NTPA * 1) +: 1]),
+    .axi_arvalid  (m_axi_arvalid[(AXI_NTPA * 1) +: 1]),
+    .axi_awaddr   (m_axi_awaddr [(AXI_NTPA * 32) +: 5]),
+    .axi_awprot   (m_axi_awprot [(AXI_NTPA * 3) +: 3]),
+    .axi_awready  (m_axi_awready[(AXI_NTPA * 1) +: 1]),
+    .axi_awvalid  (m_axi_awvalid[(AXI_NTPA * 1) +: 1]),
+    .axi_bready   (m_axi_bready [(AXI_NTPA * 1) +: 1]),
+    .axi_bresp    (m_axi_bresp  [(AXI_NTPA * 2) +: 2]),
+    .axi_bvalid   (m_axi_bvalid [(AXI_NTPA * 1) +: 1]),
+    .axi_rdata    (m_axi_rdata  [(AXI_NTPA * 32) +: 32]),
+    .axi_rready   (m_axi_rready [(AXI_NTPA * 1) +: 1]),
+    .axi_rresp    (m_axi_rresp  [(AXI_NTPA * 2) +: 2]),
+    .axi_rvalid   (m_axi_rvalid [(AXI_NTPA * 1) +: 1]),
+    .axi_wdata    (m_axi_wdata  [(AXI_NTPA * 32) +: 32]),
+    .axi_wready   (m_axi_wready [(AXI_NTPA * 1) +: 1]),
+    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPA * 32/8) +: 32/8]),
+    .axi_wvalid   (m_axi_wvalid [(AXI_NTPA * 1) +: 1]),
     .NTP_TIME     (NTP_TIMEA),
     .NTP_TIME_UPD (NTP_TIME_UPDA),
     .PLL_locked   (PLL_LOCKEDA),
@@ -298,25 +322,25 @@ module ntps_interfaces #(
     .PPS_OUT      (PPS_OUTB),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
-    .axi_araddr   (m_axi_araddr [(AXI_NTPB_INDEX * 32) +: 5]),
-    .axi_arprot   (m_axi_arprot [(AXI_NTPB_INDEX * 3) +: 3]),
-    .axi_arready  (m_axi_arready[(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_arvalid  (m_axi_arvalid[(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_awaddr   (m_axi_awaddr [(AXI_NTPB_INDEX * 32) +: 5]),
-    .axi_awprot   (m_axi_awprot [(AXI_NTPB_INDEX * 3) +: 3]),
-    .axi_awready  (m_axi_awready[(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_awvalid  (m_axi_awvalid[(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_bready   (m_axi_bready [(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_bresp    (m_axi_bresp  [(AXI_NTPB_INDEX * 2) +: 2]),
-    .axi_bvalid   (m_axi_bvalid [(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_rdata    (m_axi_rdata  [(AXI_NTPB_INDEX * 32) +: 32]),
-    .axi_rready   (m_axi_rready [(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_rresp    (m_axi_rresp  [(AXI_NTPB_INDEX * 2) +: 2]),
-    .axi_rvalid   (m_axi_rvalid [(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_wdata    (m_axi_wdata  [(AXI_NTPB_INDEX * 32) +: 32]),
-    .axi_wready   (m_axi_wready [(AXI_NTPB_INDEX * 1) +: 1]),
-    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPB_INDEX * 32/8) +: 32/8]),
-    .axi_wvalid   (m_axi_wvalid [(AXI_NTPB_INDEX * 1) +: 1]),
+    .axi_araddr   (m_axi_araddr [(AXI_NTPB * 32) +: 5]),
+    .axi_arprot   (m_axi_arprot [(AXI_NTPB * 3) +: 3]),
+    .axi_arready  (m_axi_arready[(AXI_NTPB * 1) +: 1]),
+    .axi_arvalid  (m_axi_arvalid[(AXI_NTPB * 1) +: 1]),
+    .axi_awaddr   (m_axi_awaddr [(AXI_NTPB * 32) +: 5]),
+    .axi_awprot   (m_axi_awprot [(AXI_NTPB * 3) +: 3]),
+    .axi_awready  (m_axi_awready[(AXI_NTPB * 1) +: 1]),
+    .axi_awvalid  (m_axi_awvalid[(AXI_NTPB * 1) +: 1]),
+    .axi_bready   (m_axi_bready [(AXI_NTPB * 1) +: 1]),
+    .axi_bresp    (m_axi_bresp  [(AXI_NTPB * 2) +: 2]),
+    .axi_bvalid   (m_axi_bvalid [(AXI_NTPB * 1) +: 1]),
+    .axi_rdata    (m_axi_rdata  [(AXI_NTPB * 32) +: 32]),
+    .axi_rready   (m_axi_rready [(AXI_NTPB * 1) +: 1]),
+    .axi_rresp    (m_axi_rresp  [(AXI_NTPB * 2) +: 2]),
+    .axi_rvalid   (m_axi_rvalid [(AXI_NTPB * 1) +: 1]),
+    .axi_wdata    (m_axi_wdata  [(AXI_NTPB * 32) +: 32]),
+    .axi_wready   (m_axi_wready [(AXI_NTPB * 1) +: 1]),
+    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPB * 32/8) +: 32/8]),
+    .axi_wvalid   (m_axi_wvalid [(AXI_NTPB * 1) +: 1]),
     .NTP_TIME     (NTP_TIMEB),
     .NTP_TIME_UPD (NTP_TIME_UPDB),
     .PLL_locked   (PLL_LOCKEDB),
@@ -349,23 +373,23 @@ module ntps_interfaces #(
     .phy_tx_clk    (1'b0),
     .s_axi_aclk    (axi_aclk),
     .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_ETHLITE_INDEX * 32) +: 13]),
-    .s_axi_arready (m_axi_arready[(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_ETHLITE_INDEX * 32) +: 13]),
-    .s_axi_awready (m_axi_awready[(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_ETHLITE_INDEX * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_ETHLITE_INDEX * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_ETHLITE_INDEX * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_ETHLITE_INDEX * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_ETHLITE_INDEX * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_ETHLITE_INDEX * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_ETHLITE_INDEX * 1) +: 1])
+    .s_axi_araddr  (m_axi_araddr [(AXI_ETHLITE * 32) +: 13]),
+    .s_axi_arready (m_axi_arready[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_arvalid (m_axi_arvalid[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_awaddr  (m_axi_awaddr [(AXI_ETHLITE * 32) +: 13]),
+    .s_axi_awready (m_axi_awready[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_awvalid (m_axi_awvalid[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_bready  (m_axi_bready [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_bresp   (m_axi_bresp  [(AXI_ETHLITE * 2) +: 2]),
+    .s_axi_bvalid  (m_axi_bvalid [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_rdata   (m_axi_rdata  [(AXI_ETHLITE * 32) +: 32]),
+    .s_axi_rready  (m_axi_rready [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_rresp   (m_axi_rresp  [(AXI_ETHLITE * 2) +: 2]),
+    .s_axi_rvalid  (m_axi_rvalid [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_wdata   (m_axi_wdata  [(AXI_ETHLITE * 32) +: 32]),
+    .s_axi_wready  (m_axi_wready [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_wstrb   (m_axi_wstrb  [(AXI_ETHLITE * 32/8) +: 32/8]),
+    .s_axi_wvalid  (m_axi_wvalid [(AXI_ETHLITE * 1) +: 1])
   );
 
 
@@ -390,23 +414,23 @@ module ntps_interfaces #(
 
     .s_axi_clk      (axi_aclk),
     .s_axi_aresetn  (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_arready  (m_axi_arready[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_awready  (m_axi_awready[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_bready   (m_axi_bready [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [(AXI_PVT_INDEX * 2) +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_rready   (m_axi_rready [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [(AXI_PVT_INDEX * 2) +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [(AXI_PVT_INDEX * 32) +: 32]),
-    .s_axi_wready   (m_axi_wready [(AXI_PVT_INDEX * 1) +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [(AXI_PVT_INDEX * 32/8) +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT_INDEX * 1) +: 1])
+    .s_axi_araddr   (m_axi_araddr [(AXI_PVT * 32) +: 32]),
+    .s_axi_arready  (m_axi_arready[(AXI_PVT * 1) +: 1]),
+    .s_axi_arvalid  (m_axi_arvalid[(AXI_PVT * 1) +: 1]),
+    .s_axi_awaddr   (m_axi_awaddr [(AXI_PVT * 32) +: 32]),
+    .s_axi_awready  (m_axi_awready[(AXI_PVT * 1) +: 1]),
+    .s_axi_awvalid  (m_axi_awvalid[(AXI_PVT * 1) +: 1]),
+    .s_axi_bready   (m_axi_bready [(AXI_PVT * 1) +: 1]),
+    .s_axi_bresp    (m_axi_bresp  [(AXI_PVT * 2) +: 2]),
+    .s_axi_bvalid   (m_axi_bvalid [(AXI_PVT * 1) +: 1]),
+    .s_axi_rdata    (m_axi_rdata  [(AXI_PVT * 32) +: 32]),
+    .s_axi_rready   (m_axi_rready [(AXI_PVT * 1) +: 1]),
+    .s_axi_rresp    (m_axi_rresp  [(AXI_PVT * 2) +: 2]),
+    .s_axi_rvalid   (m_axi_rvalid [(AXI_PVT * 1) +: 1]),
+    .s_axi_wdata    (m_axi_wdata  [(AXI_PVT * 32) +: 32]),
+    .s_axi_wready   (m_axi_wready [(AXI_PVT * 1) +: 1]),
+    .s_axi_wstrb    (m_axi_wstrb  [(AXI_PVT * 32/8) +: 32/8]),
+    .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT * 1) +: 1])
     );
 
 
@@ -485,6 +509,154 @@ module ntps_interfaces #(
                  .xgmii_rxd_3           (xgmii_rxd_3),
                  .xgmii_rxc_3           (xgmii_rxc_3)
                  );
+
+
+  //----------------------------------------------------------------
+  // keymem_0
+  // This module is here to fix the AXI bus mux/demuxing.
+  // The module will be removed since all functionality
+  // will be in the NTS design.
+  //----------------------------------------------------------------
+  keymem_top keymem_0 (
+    .key_clk       (clk156),
+    .key_req       (key_req_0),
+    .key_id        (key_id_0),
+    .key_ack       (key_ack_0),
+    .key           (key_0),
+
+    .s_axi_clk     (axi_aclk),
+    .s_axi_aresetn (axi_aresetn),
+    .s_axi_araddr  (m_axi_araddr [(AXI_KEY0 * 32) +: 15]),
+    .s_axi_arprot  (m_axi_arprot [(AXI_KEY0 * 3) +: 3]),
+    .s_axi_arready (m_axi_arready[(AXI_KEY0 * 1) +: 1]),
+    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY0 * 1) +: 1]),
+    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY0 * 32) +: 15]),
+    .s_axi_awprot  (m_axi_awprot [(AXI_KEY0 * 3) +: 3]),
+    .s_axi_awready (m_axi_awready[(AXI_KEY0 * 1) +: 1]),
+    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY0 * 1) +: 1]),
+    .s_axi_bready  (m_axi_bready [(AXI_KEY0 * 1) +: 1]),
+    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY0 * 2) +: 2]),
+    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY0 * 1) +: 1]),
+    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY0 * 32) +: 32]),
+    .s_axi_rready  (m_axi_rready [(AXI_KEY0 * 1) +: 1]),
+    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY0 * 2) +: 2]),
+    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY0 * 1) +: 1]),
+    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY0 * 32) +: 32]),
+    .s_axi_wready  (m_axi_wready [(AXI_KEY0 * 1) +: 1]),
+    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY0 * 32/8) +: 32/8]),
+    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY0 * 1) +: 1])
+   );
+
+
+  //----------------------------------------------------------------
+  // keymem_0
+  // This module is here to fix the AXI bus mux/demuxing.
+  // The module will be removed since all functionality
+  // will be in the NTS design.
+  //----------------------------------------------------------------
+  keymem_top keymem_1 (
+    .key_clk       (clk156),
+    .key_req       (key_req_1),
+    .key_id        (key_id_1),
+    .key_ack       (key_ack_1),
+    .key           (key_1),
+
+    .s_axi_clk     (axi_aclk),
+    .s_axi_aresetn (axi_aresetn),
+    .s_axi_araddr  (m_axi_araddr [(AXI_KEY1 * 32) +: 15]),
+    .s_axi_arprot  (m_axi_arprot [(AXI_KEY1 * 3) +: 3]),
+    .s_axi_arready (m_axi_arready[(AXI_KEY1 * 1) +: 1]),
+    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY1 * 1) +: 1]),
+    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY1 * 32) +: 15]),
+    .s_axi_awprot  (m_axi_awprot [(AXI_KEY1 * 3) +: 3]),
+    .s_axi_awready (m_axi_awready[(AXI_KEY1 * 1) +: 1]),
+    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY1 * 1) +: 1]),
+    .s_axi_bready  (m_axi_bready [(AXI_KEY1 * 1) +: 1]),
+    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY1 * 2) +: 2]),
+    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY1 * 1) +: 1]),
+    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY1 * 32) +: 32]),
+    .s_axi_rready  (m_axi_rready [(AXI_KEY1 * 1) +: 1]),
+    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY1 * 2) +: 2]),
+    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY1 * 1) +: 1]),
+    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY1 * 32) +: 32]),
+    .s_axi_wready  (m_axi_wready [(AXI_KEY1 * 1) +: 1]),
+    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY1 * 32/8) +: 32/8]),
+    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY1 * 1) +: 1])
+   );
+
+
+  //----------------------------------------------------------------
+  // keymem_2
+  // This module is here to fix the AXI bus mux/demuxing.
+  // The module will be removed since all functionality
+  // will be in the NTS design.
+  //----------------------------------------------------------------
+  keymem_top keymem_2 (
+    .key_clk       (clk156),
+    .key_req       (key_req_2),
+    .key_id        (key_id_2),
+    .key_ack       (key_ack_2),
+    .key           (key_2),
+
+    .s_axi_clk     (axi_aclk),
+    .s_axi_aresetn (axi_aresetn),
+    .s_axi_araddr  (m_axi_araddr [(AXI_KEY2 * 32) +: 15]),
+    .s_axi_arprot  (m_axi_arprot [(AXI_KEY2 * 3) +: 3]),
+    .s_axi_arready (m_axi_arready[(AXI_KEY2 * 1) +: 1]),
+    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY2 * 1) +: 1]),
+    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY2 * 32) +: 15]),
+    .s_axi_awprot  (m_axi_awprot [(AXI_KEY2 * 3) +: 3]),
+    .s_axi_awready (m_axi_awready[(AXI_KEY2 * 1) +: 1]),
+    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY2 * 1) +: 1]),
+    .s_axi_bready  (m_axi_bready [(AXI_KEY2 * 1) +: 1]),
+    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY2 * 2) +: 2]),
+    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY2 * 1) +: 1]),
+    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY2 * 32) +: 32]),
+    .s_axi_rready  (m_axi_rready [(AXI_KEY2 * 1) +: 1]),
+    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY2 * 2) +: 2]),
+    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY2 * 1) +: 1]),
+    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY2 * 32) +: 32]),
+    .s_axi_wready  (m_axi_wready [(AXI_KEY2 * 1) +: 1]),
+    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY2 * 32/8) +: 32/8]),
+    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY2 * 1) +: 1])
+   );
+
+
+  //----------------------------------------------------------------
+  // keymem_3
+  // This module is here to fix the AXI bus mux/demuxing.
+  // The module will be removed since all functionality
+  // will be in the NTS design.
+  //----------------------------------------------------------------
+  keymem_top keymem_3 (
+    .key_clk       (clk156),
+    .key_req       (key_req_3),
+    .key_id        (key_id_3),
+    .key_ack       (key_ack_3),
+    .key           (key_3),
+
+    .s_axi_clk     (axi_aclk),
+    .s_axi_aresetn (axi_aresetn),
+    .s_axi_araddr  (m_axi_araddr [(AXI_KEY3 * 32) +: 15]),
+    .s_axi_arprot  (m_axi_arprot [(AXI_KEY3 * 3) +: 3]),
+    .s_axi_arready (m_axi_arready[(AXI_KEY3 * 1) +: 1]),
+    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY3 * 1) +: 1]),
+    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY3 * 32) +: 15]),
+    .s_axi_awprot  (m_axi_awprot [(AXI_KEY3 * 3) +: 3]),
+    .s_axi_awready (m_axi_awready[(AXI_KEY3 * 1) +: 1]),
+    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY3 * 1) +: 1]),
+    .s_axi_bready  (m_axi_bready [(AXI_KEY3 * 1) +: 1]),
+    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY3 * 2) +: 2]),
+    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY3 * 1) +: 1]),
+    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY3 * 32) +: 32]),
+    .s_axi_rready  (m_axi_rready [(AXI_KEY3 * 1) +: 1]),
+    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY3 * 2) +: 2]),
+    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY3 * 1) +: 1]),
+    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY3 * 32) +: 32]),
+    .s_axi_wready  (m_axi_wready [(AXI_KEY3 * 1) +: 1]),
+    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY3 * 32/8) +: 32/8]),
+    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY3 * 1) +: 1])
+   );
 
 endmodule // ntps_interfaces
 

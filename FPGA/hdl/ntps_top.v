@@ -341,6 +341,10 @@ module ntps_top #(
      .xgmii_txc_0           (xgmii_txc_0),
      .xgmii_rxd_0           (xgmii_rxd_0),
      .xgmii_rxc_0           (xgmii_rxc_0),
+     .key_req_0             (key_req_0),
+     .key_id_0              (key_id_0),
+     .key_ack_0             (key_ack_0),
+     .key_0                 (key_0),
 
      .xphy_config_1         (xphy_config_1),
      .xphy_status_1         (xphy_status_1),
@@ -356,6 +360,10 @@ module ntps_top #(
      .xgmii_txc_1           (xgmii_txc_1),
      .xgmii_rxd_1           (xgmii_rxd_1),
      .xgmii_rxc_1           (xgmii_rxc_1),
+     .key_req_0             (key_req_0),
+     .key_id_0              (key_id_0),
+     .key_ack_0             (key_ack_0),
+     .key_0                 (key_0),
 
      .xphy_config_2         (xphy_config_2),
      .xphy_status_2         (xphy_status_2),
@@ -371,6 +379,10 @@ module ntps_top #(
      .xgmii_txc_2           (xgmii_txc_2),
      .xgmii_rxd_2           (xgmii_rxd_2),
      .xgmii_rxc_2           (xgmii_rxc_2),
+     .key_req_0             (key_req_0),
+     .key_id_0              (key_id_0),
+     .key_ack_0             (key_ack_0),
+     .key_0                 (key_0),
 
      .xphy_config_3         (xphy_config_3),
      .xphy_status_3         (xphy_status_3),
@@ -386,6 +398,10 @@ module ntps_top #(
      .xgmii_txc_3           (xgmii_txc_3),
      .xgmii_rxd_3           (xgmii_rxd_3),
      .xgmii_rxc_3           (xgmii_rxc_3),
+     .key_req_3             (key_req_3),
+     .key_id_3              (key_id_3),
+     .key_ack_3             (key_ack_3),
+     .key_3                 (key_3),
 
      .axi_aclk      (axi_aclk),
      .axi_aresetn   (axi_aresetn),
@@ -441,29 +457,28 @@ module ntps_top #(
   //----------------------------------------------------------------
   // network_path_shared with associated keymem.
   //----------------------------------------------------------------
-  localparam AXI_NP_SHARED = 3;
-  localparam AXI_KEY0      = 8;
+  localparam AXI_NP0  = 3;
 
   network_path_shared network_path_shared_0 (
     .s_axi_clk      (axi_aclk),
     .s_axi_aresetn  (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [(AXI_NP_SHARED * 32) +: 32]),
-    .s_axi_arready  (m_axi_arready[(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [(AXI_NP_SHARED * 32) +: 32]),
-    .s_axi_awready  (m_axi_awready[(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_bready   (m_axi_bready [(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [(AXI_NP_SHARED * 2) +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [(AXI_NP_SHARED * 32) +: 32]),
-    .s_axi_rready   (m_axi_rready [(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [(AXI_NP_SHARED * 2) +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [(AXI_NP_SHARED * 32) +: 32]),
-    .s_axi_wready   (m_axi_wready [(AXI_NP_SHARED * 1) +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [(AXI_NP_SHARED * 32/8) +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [(AXI_NP_SHARED * 1) +: 1]),
+    .s_axi_araddr   (m_axi_araddr [(AXI_NP0 * 32) +: 32]),
+    .s_axi_arready  (m_axi_arready[(AXI_NP0 * 1) +: 1]),
+    .s_axi_arvalid  (m_axi_arvalid[(AXI_NP0 * 1) +: 1]),
+    .s_axi_awaddr   (m_axi_awaddr [(AXI_NP0 * 32) +: 32]),
+    .s_axi_awready  (m_axi_awready[(AXI_NP0 * 1) +: 1]),
+    .s_axi_awvalid  (m_axi_awvalid[(AXI_NP0 * 1) +: 1]),
+    .s_axi_bready   (m_axi_bready [(AXI_NP0 * 1) +: 1]),
+    .s_axi_bresp    (m_axi_bresp  [(AXI_NP0 * 2) +: 2]),
+    .s_axi_bvalid   (m_axi_bvalid [(AXI_NP0 * 1) +: 1]),
+    .s_axi_rdata    (m_axi_rdata  [(AXI_NP0 * 32) +: 32]),
+    .s_axi_rready   (m_axi_rready [(AXI_NP0 * 1) +: 1]),
+    .s_axi_rresp    (m_axi_rresp  [(AXI_NP0 * 2) +: 2]),
+    .s_axi_rvalid   (m_axi_rvalid [(AXI_NP0 * 1) +: 1]),
+    .s_axi_wdata    (m_axi_wdata  [(AXI_NP0 * 32) +: 32]),
+    .s_axi_wready   (m_axi_wready [(AXI_NP0 * 1) +: 1]),
+    .s_axi_wstrb    (m_axi_wstrb  [(AXI_NP0 * 32/8) +: 32/8]),
+    .s_axi_wvalid   (m_axi_wvalid [(AXI_NP0 * 1) +: 1]),
 
     .ntp_time_a     (NTP_TIME_A),
     .ntp_time_upd_a (NTP_TIME_A_UPD),
@@ -472,10 +487,10 @@ module ntps_top #(
     .ntp_sync_ok_a  (SYNC_OK_A),
     .ntp_sync_ok_b  (SYNC_OK_B),
 
-    .key_req        (network_path_shared_0_key_req),
-    .key_id         (network_path_shared_0_key_id),
-    .key_ack        (keymem_top_0_key_ack),
-    .key            (keymem_top_0_key),
+    .key_req        (key_req_0),
+    .key_id         (key_id_0),
+    .key_ack        (key_ack_0),
+    .key            (key_0),
 
     .xphy_config    (xphy_config_0),
     .xphy_status    (xphy_status_0),
@@ -490,64 +505,32 @@ module ntps_top #(
   );
 
 
-  keymem_top keymem_top_0 (
-    .key           (keymem_top_0_key),
-    .key_ack       (keymem_top_0_key_ack),
-    .key_clk       (clk156),
-    .key_id        (network_path_shared_0_key_id),
-    .key_req       (network_path_shared_0_key_req),
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_KEY0 * 32) +: 15]),
-    .s_axi_arprot  (m_axi_arprot [(AXI_KEY0 * 3) +: 3]),
-    .s_axi_arready (m_axi_arready[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY0 * 32) +: 15]),
-    .s_axi_awprot  (m_axi_awprot [(AXI_KEY0 * 3) +: 3]),
-    .s_axi_awready (m_axi_awready[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY0 * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY0 * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY0 * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY0 * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY0 * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY0 * 1) +: 1])
-   );
-
-
   //----------------------------------------------------------------
-  // network_path_top_1
+  // network_path_1
   //----------------------------------------------------------------
-  network_path_top #(.AXI_NP_INDEX(4),
-                     .AXI_KM_INDEX(9)
-             )
-  network_path_top_1 (
+  localparam AXI_NP_1 = 4;
+
+  network_path network_path_1 (
     .s_axi_clk           (axi_aclk),
     .s_axi_aresetn       (axi_aresetn),
-    .s_axi_araddr        (m_axi_araddr),
-    .s_axi_arready       (m_axi_arready),
-    .s_axi_arvalid       (m_axi_arvalid),
-    .s_axi_awaddr        (m_axi_awaddr),
-    .s_axi_awready       (m_axi_awready),
-    .s_axi_awvalid       (m_axi_awvalid),
-    .s_axi_bready        (m_axi_bready),
-    .s_axi_bresp         (m_axi_bresp),
-    .s_axi_bvalid        (m_axi_bvalid),
-    .s_axi_rdata         (m_axi_rdata),
-    .s_axi_rready        (m_axi_rready),
-    .s_axi_rresp         (m_axi_rresp),
-    .s_axi_rvalid        (m_axi_rvalid),
-    .s_axi_wdata         (m_axi_wdata),
-    .s_axi_wready        (m_axi_wready),
-    .s_axi_wstrb         (m_axi_wstrb),
-    .s_axi_wvalid        (m_axi_wvalid),
-    .s_axi_arprot        (m_axi_arprot),
-    .s_axi_awprot        (m_axi_awprot),
+
+    .s_axi_awready       (s_axi_awready[(AXI_NP_1 * 1) +: 1]),
+    .s_axi_awaddr        (s_axi_awaddr [(AXI_NP_1 * 32) +: 32]),
+    .s_axi_awvalid       (s_axi_awvalid[(AXI_NP_1 * 1) +: 1]),
+    .s_axi_wready        (s_axi_wready [(AXI_NP_1 * 1) +: 1]),
+    .s_axi_wdata         (s_axi_wdata  [(AXI_NP_1 * 32) +: 32]),
+    .s_axi_wstrb         (s_axi_wstrb  [(AXI_NP_1 * 32/8) +: 32/8]),
+    .s_axi_wvalid        (s_axi_wvalid [(AXI_NP_1 * 1) +: 1]),
+    .s_axi_bvalid        (s_axi_bvalid [(AXI_NP_1 * 1) +: 1]),
+    .s_axi_bresp         (s_axi_bresp  [(AXI_NP_1 * 2) +: 2]),
+    .s_axi_bready        (s_axi_bready [(AXI_NP_1 * 1) +: 1]),
+    .s_axi_arready       (s_axi_arready[(AXI_NP_1 * 1) +: 1]),
+    .s_axi_arvalid       (s_axi_arvalid[(AXI_NP_1 * 1) +: 1]),
+    .s_axi_araddr        (s_axi_araddr [(AXI_NP_1 * 32) +: 32]),
+    .s_axi_rdata         (s_axi_rdata  [(AXI_NP_1 * 32) +: 32]),
+    .s_axi_rresp         (s_axi_rresp  [(AXI_NP_1 * 2) +: 2]),
+    .s_axi_rvalid        (s_axi_rvalid [(AXI_NP_1 * 1) +: 1]),
+    .s_axi_rready        (s_axi_rready [(AXI_NP_1 * 1) +: 1]),
 
     .ntp_time_a          (NTP_TIME_A),
     .ntp_time_b          (NTP_TIME_B),
@@ -555,6 +538,11 @@ module ntps_top #(
     .ntp_time_upd_b      (NTP_TIME_B_UPD),
     .ntp_sync_ok_a       (SYNC_OK_A),
     .ntp_sync_ok_b       (SYNC_OK_B),
+
+    .key_req             (key_req_1),
+    .key_id              (key_id_1),
+    .key_ack             (key_ack_1),
+    .key                 (key_1),
 
     .xphy_config         (xphy_config_1),
     .xphy_status         (xphy_status_1),
@@ -570,33 +558,31 @@ module ntps_top #(
 
 
   //----------------------------------------------------------------
-  // network_path_top_2
+  // network_path_2
   //----------------------------------------------------------------
-  network_path_top #(.AXI_NP_INDEX(5),
-                     .AXI_KM_INDEX(10)
-             )
-  network_path_top_2 (
+  localparam AXI_NP_2 = 5;
+
+  network_path network_path_2 (
     .s_axi_clk           (axi_aclk),
     .s_axi_aresetn       (axi_aresetn),
-    .s_axi_araddr        (m_axi_araddr),
-    .s_axi_arready       (m_axi_arready),
-    .s_axi_arvalid       (m_axi_arvalid),
-    .s_axi_awaddr        (m_axi_awaddr),
-    .s_axi_awready       (m_axi_awready),
-    .s_axi_awvalid       (m_axi_awvalid),
-    .s_axi_bready        (m_axi_bready),
-    .s_axi_bresp         (m_axi_bresp),
-    .s_axi_bvalid        (m_axi_bvalid),
-    .s_axi_rdata         (m_axi_rdata),
-    .s_axi_rready        (m_axi_rready),
-    .s_axi_rresp         (m_axi_rresp),
-    .s_axi_rvalid        (m_axi_rvalid),
-    .s_axi_wdata         (m_axi_wdata),
-    .s_axi_wready        (m_axi_wready),
-    .s_axi_wstrb         (m_axi_wstrb),
-    .s_axi_wvalid        (m_axi_wvalid),
-    .s_axi_arprot        (m_axi_arprot),
-    .s_axi_awprot        (m_axi_awprot),
+
+    .s_axi_awready       (s_axi_awready[(AXI_NP_2 * 1) +: 1]),
+    .s_axi_awaddr        (s_axi_awaddr [(AXI_NP_2 * 32) +: 32]),
+    .s_axi_awvalid       (s_axi_awvalid[(AXI_NP_2 * 1) +: 1]),
+    .s_axi_wready        (s_axi_wready [(AXI_NP_2 * 1) +: 1]),
+    .s_axi_wdata         (s_axi_wdata  [(AXI_NP_2 * 32) +: 32]),
+    .s_axi_wstrb         (s_axi_wstrb  [(AXI_NP_2 * 32/8) +: 32/8]),
+    .s_axi_wvalid        (s_axi_wvalid [(AXI_NP_2 * 1) +: 1]),
+    .s_axi_bvalid        (s_axi_bvalid [(AXI_NP_2 * 1) +: 1]),
+    .s_axi_bresp         (s_axi_bresp  [(AXI_NP_2 * 2) +: 2]),
+    .s_axi_bready        (s_axi_bready [(AXI_NP_2 * 1) +: 1]),
+    .s_axi_arready       (s_axi_arready[(AXI_NP_2 * 1) +: 1]),
+    .s_axi_arvalid       (s_axi_arvalid[(AXI_NP_2 * 1) +: 1]),
+    .s_axi_araddr        (s_axi_araddr [(AXI_NP_2 * 32) +: 32]),
+    .s_axi_rdata         (s_axi_rdata  [(AXI_NP_2 * 32) +: 32]),
+    .s_axi_rresp         (s_axi_rresp  [(AXI_NP_2 * 2) +: 2]),
+    .s_axi_rvalid        (s_axi_rvalid [(AXI_NP_2 * 1) +: 1]),
+    .s_axi_rready        (s_axi_rready [(AXI_NP_2 * 1) +: 1]),
 
     .ntp_time_a          (NTP_TIME_A),
     .ntp_time_b          (NTP_TIME_B),
@@ -604,6 +590,11 @@ module ntps_top #(
     .ntp_time_upd_b      (NTP_TIME_B_UPD),
     .ntp_sync_ok_a       (SYNC_OK_A),
     .ntp_sync_ok_b       (SYNC_OK_B),
+
+    .key_req             (key_req_2),
+    .key_id              (key_id_2),
+    .key_ack             (key_ack_2),
+    .key                 (key_2),
 
     .xphy_config         (xphy_config_2),
     .xphy_status         (xphy_status_2),
@@ -619,45 +610,43 @@ module ntps_top #(
 
 
   //----------------------------------------------------------------
-  // network_path_top_3
+  // network_path_3
   //----------------------------------------------------------------
-  network_path_top #(.AXI_NP_INDEX(6),
-                     .AXI_KM_INDEX(11)
-             )
-  network_path_top_3 (
+  localparam AXI_NP_3 = 6;
+
+  network_path network_path_3 (
     .s_axi_clk           (axi_aclk),
     .s_axi_aresetn       (axi_aresetn),
-    .s_axi_awaddr        (m_axi_awaddr),
-    .s_axi_awvalid       (m_axi_awvalid),
-    .s_axi_awready       (m_axi_awready),
 
-    .s_axi_wdata         (m_axi_wdata),
-    .s_axi_wvalid        (m_axi_wvalid),
-    .s_axi_wready        (m_axi_wready),
-
-    .s_axi_bresp         (m_axi_bresp),
-    .s_axi_bvalid        (m_axi_bvalid),
-    .s_axi_bready        (m_axi_bready),
-
-    .s_axi_araddr        (m_axi_araddr),
-    .s_axi_arvalid       (m_axi_arvalid),
-    .s_axi_arready       (m_axi_arready),
-
-    .s_axi_rdata         (m_axi_rdata),
-    .s_axi_rresp         (m_axi_rresp),
-    .s_axi_rvalid        (m_axi_rvalid),
-    .s_axi_rready        (m_axi_rready),
-
-    .s_axi_wstrb         (m_axi_wstrb),
-    .s_axi_arprot        (m_axi_arprot),
-    .s_axi_awprot        (m_axi_awprot),
+    .s_axi_awready       (s_axi_awready[(AXI_NP_3 * 1) +: 1]),
+    .s_axi_awaddr        (s_axi_awaddr [(AXI_NP_3 * 32) +: 32]),
+    .s_axi_awvalid       (s_axi_awvalid[(AXI_NP_3 * 1) +: 1]),
+    .s_axi_wready        (s_axi_wready [(AXI_NP_3 * 1) +: 1]),
+    .s_axi_wdata         (s_axi_wdata  [(AXI_NP_3 * 32) +: 32]),
+    .s_axi_wstrb         (s_axi_wstrb  [(AXI_NP_3 * 32/8) +: 32/8]),
+    .s_axi_wvalid        (s_axi_wvalid [(AXI_NP_3 * 1) +: 1]),
+    .s_axi_bvalid        (s_axi_bvalid [(AXI_NP_3 * 1) +: 1]),
+    .s_axi_bresp         (s_axi_bresp  [(AXI_NP_3 * 2) +: 2]),
+    .s_axi_bready        (s_axi_bready [(AXI_NP_3 * 1) +: 1]),
+    .s_axi_arready       (s_axi_arready[(AXI_NP_3 * 1) +: 1]),
+    .s_axi_arvalid       (s_axi_arvalid[(AXI_NP_3 * 1) +: 1]),
+    .s_axi_araddr        (s_axi_araddr [(AXI_NP_3 * 32) +: 32]),
+    .s_axi_rdata         (s_axi_rdata  [(AXI_NP_3 * 32) +: 32]),
+    .s_axi_rresp         (s_axi_rresp  [(AXI_NP_3 * 2) +: 2]),
+    .s_axi_rvalid        (s_axi_rvalid [(AXI_NP_3 * 1) +: 1]),
+    .s_axi_rready        (s_axi_rready [(AXI_NP_3 * 1) +: 1]),
 
     .ntp_time_a          (NTP_TIME_A),
-    .ntp_time_upd_a      (NTP_TIME_A_UPD),
     .ntp_time_b          (NTP_TIME_B),
+    .ntp_time_upd_a      (NTP_TIME_A_UPD),
     .ntp_time_upd_b      (NTP_TIME_B_UPD),
     .ntp_sync_ok_a       (SYNC_OK_A),
     .ntp_sync_ok_b       (SYNC_OK_B),
+
+    .key_req             (key_req_3),
+    .key_id              (key_id_3),
+    .key_ack             (key_ack_3),
+    .key                 (key_3),
 
     .xphy_config         (xphy_config_3),
     .xphy_status         (xphy_status_3),
