@@ -133,7 +133,7 @@ module ntps_interfaces #(
                        input wire  [63 : 0]  xgmii_txd_3,
                        input wire  [7  : 0]  xgmii_txc_3,
                        output wire [63 : 0]  xgmii_rxd_3,
-                       output wire [7  : 0]  xgmii_rxc_3
+                       output wire [7  : 0]  xgmii_rxc_3,
 
 
                        output wire           axi_aclk,
