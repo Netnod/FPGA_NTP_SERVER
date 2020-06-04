@@ -110,7 +110,7 @@ module network_path_top #(
   //----------------------------------------------------------------
   // Instantiations.
   //----------------------------------------------------------------
-  network_path  #(.PRTAD(1)) network_path_inst (
+  network_path network_path_inst (
     .s_axi_clk           (s_axi_clk),
     .s_axi_aresetn       (s_axi_aresetn),
 

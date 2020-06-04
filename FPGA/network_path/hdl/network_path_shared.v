@@ -89,9 +89,9 @@ module network_path_shared #(
   output wire [63  : 0] xgmii_txd,
   output wire [7   : 0] xgmii_txc,
 
-  output wire        clk156,
-  output wire        areset_clk156,
-  input wire         sys_reset
+  input wire            clk156,
+  input wire            areset_clk156,
+  input wire            sys_reset
 );
 
 

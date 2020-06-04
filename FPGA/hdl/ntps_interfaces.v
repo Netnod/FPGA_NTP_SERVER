@@ -381,10 +381,13 @@ module ntps_interfaces #(
   pvtmon_top_0 (
     .clk50          (clk50),
     .rst            (reset),
+
     .pcie_link_up   (user_link_up),
-    .pmbus_alert    (pmbus_alert),
     .pmbus_clk      (pmbus_clk),
     .pmbus_data     (pmbus_data),
+    .pmbus_control  (),
+    .pmbus_alert    (pmbus_alert),
+
     .s_axi_clk      (axi_aclk),
     .s_axi_aresetn  (axi_aresetn),
     .s_axi_araddr   (m_axi_araddr [(AXI_PVT_INDEX * 32) +: 32]),
