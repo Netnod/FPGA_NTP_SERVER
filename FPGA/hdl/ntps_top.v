@@ -471,8 +471,6 @@ module ntps_top #(
      .key_2                 (key_2),
 
      // Port 3.
-     .xphy_config_3         (xphy_config_3),
-     .xphy_status_3         (xphy_status_3),
      .sfp_module_detect_n_3 (sfp_module_detect3_n),
      .sfp_signal_lost_3     (sfp_signal_lost3),
      .sfp_tx_fault_3        (sfp_tx_fault3),
@@ -608,8 +606,6 @@ module ntps_top #(
     .ntp_sync_ok_a      (SYNC_OK_A),
     .ntp_sync_ok_b      (SYNC_OK_B),
 
-    .xphy_config        (xphy_config_1),
-    .xphy_status        (xphy_status_1),
     .xgmii_rxd          (xgmii_rxd_1),
     .xgmii_rxc          (xgmii_rxc_1),
     .xgmii_txd          (xgmii_txd_1),
@@ -653,8 +649,6 @@ module ntps_top #(
     .ntp_sync_ok_a      (SYNC_OK_A),
     .ntp_sync_ok_b      (SYNC_OK_B),
 
-    .xphy_config        (xphy_config_2),
-    .xphy_status        (xphy_status_2),
     .xgmii_rxd          (xgmii_rxd_2),
     .xgmii_rxc          (xgmii_rxc_2),
     .xgmii_txd          (xgmii_txd_2),
@@ -698,8 +692,6 @@ module ntps_top #(
     .ntp_sync_ok_a      (SYNC_OK_A),
     .ntp_sync_ok_b      (SYNC_OK_B),
 
-    .xphy_config        (xphy_config_3),
-    .xphy_status        (xphy_status_3),
     .xgmii_rxd          (xgmii_rxd_3),
     .xgmii_rxc          (xgmii_rxc_3),
     .xgmii_txd          (xgmii_txd_3),
