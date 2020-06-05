@@ -22,9 +22,6 @@ set_property DRIVE 16 [get_ports si5324_rst_n]
 set_property PACKAGE_PIN AT36 [get_ports si5324_rst_n]
 
 # Generated clock
-create_generated_clock -name clk50 -source [get_ports SYS_CLK_P] -divide_by 2 [get_pins {clk50_gen_0/clk_divide_reg[1]/Q}]
+create_generated_clock -name clk50 -source [get_ports SYS_CLK_P] -divide_by 2 [get_pins {clocks/clk50_gen_0/clk_divide_reg[1]/Q}]
 
 set_false_path -from [get_ports pcie_perst]
-
-
-
