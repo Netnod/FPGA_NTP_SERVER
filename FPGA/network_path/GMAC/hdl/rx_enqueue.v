@@ -43,11 +43,11 @@
 module rx_enqueue(
 		input wire		clk,
 		input wire		res_n,
-		
+
 		input wire [63:0]	xgmii_rxd,
 		input wire [7:0]	xgmii_rxc,
 
-		
+
 
 		output reg [63:0]	xgmii_data_in,
 		output reg [7:0]	xgmii_data_status,
@@ -81,8 +81,8 @@ reg		barrel_shift;
 
 reg [31:0]	crc32_d64;
 
-`ifdef SIMULATION 
-reg		crc_good; 
+`ifdef SIMULATION
+reg		crc_good;
 `endif
 reg		crc_clear;
 
@@ -117,14 +117,14 @@ parameter [2:0]
 
 
 
-	
+
 `ifdef ASYNC_RES
 always @(posedge clk or negedge res_n) `else
 always @(posedge clk) `endif
 begin
 	if (res_n == 1'b0) begin
 
-	
+
 		xgmii_data_in <= 64'b0;
 		xgmii_data_status <= 8'b0;
 		xgmii_rxd_d1 <= 32'b0;
@@ -158,14 +158,14 @@ begin
 		curr_byte_cnt <= 14'b0;
 		pause_frame <= 1'b0;
 
-		
+
 	end
 	else begin
 		//sm
 
 		xgmii_data_in <= rx_inc_data;
 		xgmii_data_status <= rx_inc_status;
-		
+
 
 		curr_state <= next_state;
 		curr_byte_cnt <= next_byte_cnt;
@@ -177,7 +177,7 @@ begin
 		// Look for local/remote messages on lower 4 lanes and upper
 		// 4 lanes. This is a 64-bit interface but look at each 32-bit
 		// independantly.
-		
+
 		local_fault_msg_det[1] <= (xgmii_rxd[63:32] ==
 					{`LOCAL_FAULT, 8'h0, 8'h0, `SEQUENCE} &&
 					xgmii_rxc[7:4] == 4'b0001);
@@ -196,8 +196,8 @@ begin
 
 
 
-		
-		
+
+
 		//---
 		// Rotating barrel. This function allow us to always align the start of
 		// a frame with LANE0. If frame starts in LANE4, it will be shifted 4 bytes
@@ -207,7 +207,7 @@ begin
 		xgmii_rxc_d1[7:4] <= xgmii_rxc[7:4];
 
 		if (xgmii_rxd[`LANE0] == `START && xgmii_rxc[0]) begin
-			
+
 			xgxs_rxd_barrel <= xgmii_rxd;
 			xgxs_rxc_barrel <= xgmii_rxc;
 
@@ -263,10 +263,10 @@ begin
 		end
 		else begin
 
-			crc32_d64 <= next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b0);			
+			crc32_d64 <= next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b0);
 
 		end
-		
+
 		//---
 		// Error detection
 
@@ -286,12 +286,10 @@ begin
 	end
 
 	end
-		
 
 
-always @(/*AS*/crc_rx or curr_byte_cnt or curr_state
-	or pause_frame or xgxs_rxc_barrel or xgxs_rxc_barrel_d1
-	or xgxs_rxd_barrel_x or xgxs_rxd_barrel_d1) 
+
+always @*
 begin
 
 	next_state = curr_state;
@@ -321,10 +319,10 @@ begin
 
 	next_crc_rx = crc_rx;
 	crc_clear = 1'b0;
-	`ifdef SIMULATION 
+	`ifdef SIMULATION
 	crc_good = 1'b0;
 	`endif
-	
+
 
 	next_byte_cnt = curr_byte_cnt;
 
@@ -338,10 +336,10 @@ begin
 			next_byte_cnt = 14'b0;
 			crc_clear = 1'b1;
 			next_pause_frame = 1'b0;
-		
+
 
 			// Detect the start of a frame
-			
+
 			if (xgxs_rxd_barrel_d1[`LANE0] == `START && xgxs_rxc_barrel_d1[0] &&
 				xgxs_rxd_barrel_d1[`LANE1] == `PREAMBLE && !xgxs_rxc_barrel_d1[1] &&
 				xgxs_rxd_barrel_d1[`LANE2] == `PREAMBLE && !xgxs_rxc_barrel_d1[2] &&
@@ -399,7 +397,7 @@ begin
 				//- TODO
 				if (curr_byte_cnt == 14'd0 && xgxs_rxd_barrel_d1[47:0] == `PAUSE_FRAME) begin
 
-				//rxhfifo_wen = 1'b0; 
+				//rxhfifo_wen = 1'b0;
 					next_pause_frame = 1'b1;
 				end
 
@@ -410,12 +408,12 @@ begin
 				if (curr_byte_cnt == 14'b0) begin
 					rx_inc_status[`RXSTATUS_SOP] = 1'b1;
 				end
-				
+
 				next_byte_cnt = curr_byte_cnt +
 						addmask[0] + addmask[1] + addmask[2] + addmask[3] +
 						addmask[4] + addmask[5] + addmask[6] + addmask[7];
-				
-				
+
+
 
 
 
@@ -423,16 +421,16 @@ begin
 				// Look one cycle ahead for TERMINATE in lanes 0 to 4
 				if (curr_byte_cnt + datamask[0] + datamask[1] + datamask[2] + datamask[3] +
 						datamask[4] + datamask[5] + datamask[6] + datamask[7] < 14'd64 && |(xgxs_rxc_barrel_d1 & datamask) ) begin // ethernet min. 64 byte check
-					
+
 					next_state = SM_IDLE;
 					rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
-					
-					
-					
+
+
+
 				end
 				else if (xgxs_rxd_barrel_x[`LANE4] == `TERMINATE && xgxs_rxc_barrel[4]) begin
-		
+
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					rx_inc_status[2:0] = 3'd0;
 
@@ -457,7 +455,7 @@ begin
 					rx_inc_status[2:0] = 3'd7;
 
 					if (  {xgxs_rxd_barrel_x[23:0], xgxs_rxd_barrel_d1[63:56]} !=  ~reverse_32b(next_crc32_data64_be(reverse_64b(xgxs_rxd_barrel_d1), crc32_d64, 3'b111))) begin
-						rx_inc_status[`RXSTATUS_ERR] = 1'b1;						
+						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 						`ifdef SIMULATION
 						crc_good = 1'b0;
 						`endif
@@ -470,7 +468,7 @@ begin
 					next_state = SM_IDLE;
 
 				end
-			
+
 				else if (xgxs_rxd_barrel_x[`LANE2] == `TERMINATE && xgxs_rxc_barrel[2]) begin
 
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
@@ -510,7 +508,7 @@ begin
 					next_state = SM_IDLE;
 
 				end
-			
+
 				else if (xgxs_rxd_barrel_x[`LANE0] == `TERMINATE && xgxs_rxc_barrel[0]) begin
 
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
@@ -520,7 +518,7 @@ begin
 						rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 						`ifdef SIMULATION
 						crc_good = 1'b0;
-						`endif						
+						`endif
 					end
 					`ifdef SIMULATION
 					else begin
@@ -553,7 +551,7 @@ begin
 					next_state = SM_IDLE;
 
 				end
-			
+
 				else if (xgxs_rxd_barrel_d1[`LANE6] == `TERMINATE &&
 					xgxs_rxc_barrel_d1[6]) begin
 
@@ -574,7 +572,7 @@ begin
 					next_state = SM_IDLE;
 
 				end
-			
+
 				else if (xgxs_rxd_barrel_d1[`LANE5] == `TERMINATE &&
 					xgxs_rxc_barrel_d1[5]) begin
 
@@ -602,15 +600,15 @@ begin
 					rx_inc_status[`RXSTATUS_ERR] = 1'b1;
 					rx_inc_status[`RXSTATUS_EOP] = 1'b1;
 					next_state = SM_IDLE;
-					
-				
+
+
 				end
 				`ifdef SIMULATION
 				else begin
 					crc_good = 1'b0;
 				end
 				`endif
-			
+
 			end
 		end
 
@@ -624,4 +622,3 @@ end
 
 
 endmodule
-
