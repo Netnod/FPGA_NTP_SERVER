@@ -79,6 +79,7 @@ module pcie_axi (
      .aux_reset_in         (1'b1),
      .mb_debug_sys_rst     (1'b0),
      .dcm_locked           (1'b1),
+     .mb_reset             (),
      .bus_struct_reset     (),
      .peripheral_reset     (),
      .interconnect_aresetn (interconnect_aresetn),

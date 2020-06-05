@@ -40,7 +40,7 @@
 // AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
-// Project    : Virtex-7 XT Connectivity Domain Targeted Reference Design 
+// Project    : Virtex-7 XT Connectivity Domain Targeted Reference Design
 // File       : user_registers_slave.v
 //
 //-----------------------------------------------------------------------------
@@ -59,9 +59,9 @@ module pvtmon_top #(
 )(
   // AXI lite
   input wire         s_axi_clk,
-  input wire         s_axi_aresetn, 
+  input wire         s_axi_aresetn,
   output wire        s_axi_awready,
-  input wire [31:0]  s_axi_awaddr,
+  input wire [(C_S_AXI_ADDR_WIDTH - 1) : 0] s_axi_awaddr,
   input wire         s_axi_awvalid,
   output wire        s_axi_wready,
   input wire [31:0]  s_axi_wdata,
@@ -72,13 +72,13 @@ module pvtmon_top #(
   input wire         s_axi_bready,
   output wire        s_axi_arready,
   input wire         s_axi_arvalid,
-  input wire [31:0]  s_axi_araddr,
+  input wire [C_S_AXI_ADDR_WIDTH - 1) : 0]  s_axi_araddr,
   output wire [31:0] s_axi_rdata,
   output wire [1:0]  s_axi_rresp,
   output wire        s_axi_rvalid,
-  input wire         s_axi_rready, 
+  input wire         s_axi_rready,
 
-  //- Power monitoring 
+  //- Power monitoring
   inout wire                              pmbus_clk,
   inout wire                              pmbus_data,
   output wire                             pmbus_control,
@@ -96,13 +96,13 @@ module pvtmon_top #(
   localparam BTIME = `BUILDTIME;
 `else
   localparam BTIME = 0;
-`endif 
+`endif
 
   reg  [NUM_POWER_REG*32-1:0]   power_status_reg;
   wire [NUM_POWER_REG*32-1:0]   power_status_reg_sync_s_axi_clk;
 
   // Instantiation of Axi Bus Interface S00_AXI
-  user_registers_axi_slave #( 
+  user_registers_axi_slave #(
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
     .C_S_AXI_ADDR_WIDTH (C_S_AXI_ADDR_WIDTH),
     .NUM_POWER_REG      (NUM_POWER_REG),
@@ -133,7 +133,7 @@ module pvtmon_top #(
     .S_AXI_RREADY  (s_axi_rready)
   );
 
-  
+
   reg  rst_r;
   reg  rst_int;
 
@@ -153,8 +153,8 @@ module pvtmon_top #(
 
   //- Power monitoring logic for the board
   wire        count_expired;
-  reg         ren_bram_r; 
-  reg [9:0]   reg_map_addr_r;       
+  reg         ren_bram_r;
+  reg [9:0]   reg_map_addr_r;
   reg [15:0]  timeout_count;
   reg         rd_en;
   reg [9:0]   rd_address;
@@ -175,33 +175,33 @@ module pvtmon_top #(
                ADDR_54_RAIL4  = 10'h03E;
 
   localparam   IDLE           = 0,
-               PREP_READ      = 1, 
-               READ_52_RAIL1  = 2, 
-               READ_52_RAIL2  = 3, 
-               READ_52_RAIL3  = 4, 
-               READ_52_RAIL4  = 5, 
-               READ_53_RAIL1  = 6, 
-               READ_53_RAIL2  = 7, 
-               READ_53_RAIL3  = 8, 
+               PREP_READ      = 1,
+               READ_52_RAIL1  = 2,
+               READ_52_RAIL2  = 3,
+               READ_52_RAIL3  = 4,
+               READ_52_RAIL4  = 5,
+               READ_53_RAIL1  = 6,
+               READ_53_RAIL2  = 7,
+               READ_53_RAIL3  = 8,
                READ_53_RAIL4  = 9,
-               READ_54_RAIL1  = 10, 
-               READ_54_RAIL2  = 11, 
-               READ_54_RAIL3  = 12, 
+               READ_54_RAIL1  = 10,
+               READ_54_RAIL2  = 11,
+               READ_54_RAIL3  = 12,
                READ_54_RAIL4  = 13,
-               READ_DIE_TEMP  = 14; 
- 
+               READ_DIE_TEMP  = 14;
+
   reg [3:0]    fsm_state = IDLE;
-  
+
   localparam   TERMINAL_COUNT = 'h1fff;
 
-  // 
+  //
   // Timeout counter counts 50 MHz clock cycles until a terminal count is reached
   // The counter is intended to to be used by the BRAM address assertion logic
-  // 
+  //
   always @(posedge clk50)  begin
       if(rst_int)
          timeout_count <= 0;
-      else if(timeout_count == TERMINAL_COUNT) 
+      else if(timeout_count == TERMINAL_COUNT)
          timeout_count <= 0;
       else
          timeout_count <= timeout_count+1;
@@ -221,106 +221,106 @@ module pvtmon_top #(
       case(fsm_state)
         IDLE: begin
           rd_en <= 1'b0;
-          rd_address <= 'h000;   
+          rd_address <= 'h000;
           power_status_reg[415:384] <= rd_data;
 
           if(count_expired)
             fsm_state <= PREP_READ;
           else
             fsm_state <= IDLE;
-        end        
+        end
         PREP_READ: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_52_RAIL1;   
+          rd_address <= ADDR_52_RAIL1;
           fsm_state <= READ_52_RAIL1;
-        end      
+        end
         READ_52_RAIL1: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_52_RAIL2;   
+          rd_address <= ADDR_52_RAIL2;
           fsm_state <= READ_52_RAIL2;
-        end      
+        end
         READ_52_RAIL2: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_52_RAIL3;   
+          rd_address <= ADDR_52_RAIL3;
           power_status_reg[31:0] <= rd_data;
           fsm_state <= READ_52_RAIL3;
-        end      
+        end
         READ_52_RAIL3: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_52_RAIL4;   
+          rd_address <= ADDR_52_RAIL4;
           power_status_reg[63:32] <= rd_data;
           fsm_state <= READ_52_RAIL4;
-        end      
+        end
         READ_52_RAIL4: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_53_RAIL1;   
+          rd_address <= ADDR_53_RAIL1;
           power_status_reg[95:64] <= rd_data;
           fsm_state <= READ_53_RAIL1;
-        end      
+        end
         READ_53_RAIL1: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_53_RAIL2;   
+          rd_address <= ADDR_53_RAIL2;
           power_status_reg[127:96] <= rd_data;
           fsm_state <= READ_53_RAIL2;
-        end      
+        end
         READ_53_RAIL2: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_53_RAIL3;   
+          rd_address <= ADDR_53_RAIL3;
           power_status_reg[159:128] <= rd_data;
           fsm_state <= READ_53_RAIL3;
-        end      
+        end
         READ_53_RAIL3: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_53_RAIL4;   
+          rd_address <= ADDR_53_RAIL4;
           power_status_reg[191:160] <= rd_data;
           fsm_state <= READ_53_RAIL4;
-        end      
+        end
         READ_53_RAIL4: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_54_RAIL1;   
+          rd_address <= ADDR_54_RAIL1;
           power_status_reg[223:192] <= rd_data;
           fsm_state <= READ_54_RAIL1;
-        end    
+        end
         READ_54_RAIL1: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_54_RAIL2;   
+          rd_address <= ADDR_54_RAIL2;
           power_status_reg[255:224] <= rd_data;
           fsm_state <= READ_54_RAIL2;
-        end      
+        end
         READ_54_RAIL2: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_54_RAIL3;   
+          rd_address <= ADDR_54_RAIL3;
           power_status_reg[287:256] <= rd_data;
           fsm_state <= READ_54_RAIL3;
-        end      
+        end
         READ_54_RAIL3: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_54_RAIL4;   
+          rd_address <= ADDR_54_RAIL4;
           power_status_reg[319:288] <= rd_data;
           fsm_state <= READ_54_RAIL4;
-        end      
+        end
         READ_54_RAIL4: begin
           rd_en <= 1'b1;
-          rd_address <= ADDR_DIE_TEMP;   
+          rd_address <= ADDR_DIE_TEMP;
           power_status_reg[351:320] <= rd_data;
           fsm_state <= READ_DIE_TEMP;
-        end  
+        end
         READ_DIE_TEMP: begin
           rd_en <= 1'b0;
           rd_en <= 1'b0;
-          rd_address <= 'h000;   
+          rd_address <= 'h000;
           power_status_reg[383:352] <= rd_data;
           fsm_state <= IDLE;
-        end    
+        end
         default: begin
           rd_en <= 1'b0;
-          rd_address <= 'h000;   
+          rd_address <= 'h000;
           fsm_state <= IDLE;
-        end      
+        end
       endcase
     end
   end // always @ (posedge clk50)
-  
+
   vc709_power_monitor vc709_pvt_monitor_0 (
     .pmbus_clk      (pmbus_clk),
     .pmbus_data     (pmbus_data),
@@ -343,4 +343,3 @@ module pvtmon_top #(
   );
 
 endmodule // pvtmon_top
-
