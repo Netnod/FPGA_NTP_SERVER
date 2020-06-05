@@ -61,7 +61,7 @@ module pvtmon_top #(
   input wire         s_axi_clk,
   input wire         s_axi_aresetn,
   output wire        s_axi_awready,
-  input wire [(C_S_AXI_ADDR_WIDTH - 1) : 0] s_axi_awaddr,
+  input wire [6 : 0] s_axi_awaddr,
   input wire         s_axi_awvalid,
   output wire        s_axi_wready,
   input wire [31:0]  s_axi_wdata,
@@ -72,23 +72,23 @@ module pvtmon_top #(
   input wire         s_axi_bready,
   output wire        s_axi_arready,
   input wire         s_axi_arvalid,
-  input wire [C_S_AXI_ADDR_WIDTH - 1) : 0]  s_axi_araddr,
+  input wire [6 : 0] s_axi_araddr,
   output wire [31:0] s_axi_rdata,
   output wire [1:0]  s_axi_rresp,
   output wire        s_axi_rvalid,
   input wire         s_axi_rready,
 
   //- Power monitoring
-  inout wire                              pmbus_clk,
-  inout wire                              pmbus_data,
-  output wire                             pmbus_control,
-  input wire                              pmbus_alert,
+  inout wire         pmbus_clk,
+  inout wire         pmbus_data,
+  output wire        pmbus_control,
+  input wire         pmbus_alert,
 
   // PCI link status
-  input wire                              pcie_link_up,
+  input wire         pcie_link_up,
 
-  input wire                              clk50,
-  input wire                              rst
+  input wire         clk50,
+  input wire         rst
 );
 
 // Propagate build time set by the synth_pre.tcl script
