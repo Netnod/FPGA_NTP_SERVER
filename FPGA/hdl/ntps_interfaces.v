@@ -225,6 +225,12 @@ module ntps_interfaces #(
   localparam AXI_NP3     = 6;
   localparam AXI_PVT     = 7;
 
+  // Keeping these around to be able to assign AXI busses.
+  localparam AXI_KEY0    = 8;
+  localparam AXI_KEY1    = 9;
+  localparam AXI_KEY2    = 10;
+  localparam AXI_KEY3    = 11;
+
 
   //----------------------------------------------------------------
   // Internal wires.
@@ -259,6 +265,46 @@ module ntps_interfaces #(
   wire [4 : 0] xphy_status_1;
   wire [4 : 0] xphy_status_2;
   wire [4 : 0] xphy_status_3;
+
+
+  //----------------------------------------------------------------
+  // Assignments.
+  //----------------------------------------------------------------
+  assign m_axi_awready[(AXI_KEY0 * 1) +: 1]   = 1'h0;
+  assign m_axi_wready [(AXI_KEY0 * 1) +: 1]   = 1'h0;
+  assign m_axi_bvalid [(AXI_KEY0 * 1) +: 1]   = 1'h0;
+  assign m_axi_bresp  [(AXI_KEY0 * 2) +: 2]   = 1'h0;
+  assign m_axi_arready[(AXI_KEY0 * 1) +: 1]   = 1'h0;
+  assign m_axi_rdata  [(AXI_KEY0 * 32) +: 32] = 32'h0;
+  assign m_axi_rresp  [(AXI_KEY0 * 2) +: 2]   = 2'h0;
+  assign m_axi_rvalid [(AXI_KEY0 * 1) +: 1]   = 1'h0;
+
+  assign m_axi_awready[(AXI_KEY1 * 1) +: 1]   = 1'h0;
+  assign m_axi_wready [(AXI_KEY1 * 1) +: 1]   = 1'h0;
+  assign m_axi_bvalid [(AXI_KEY1 * 1) +: 1]   = 1'h0;
+  assign m_axi_bresp  [(AXI_KEY1 * 2) +: 2]   = 1'h0;
+  assign m_axi_arready[(AXI_KEY1 * 1) +: 1]   = 1'h0;
+  assign m_axi_rdata  [(AXI_KEY1 * 32) +: 32] = 32'h0;
+  assign m_axi_rresp  [(AXI_KEY1 * 2) +: 2]   = 2'h0;
+  assign m_axi_rvalid [(AXI_KEY1 * 1) +: 1]   = 1'h0;
+
+  assign m_axi_awready[(AXI_KEY2 * 1) +: 1]   = 1'h0;
+  assign m_axi_wready [(AXI_KEY2 * 1) +: 1]   = 1'h0;
+  assign m_axi_bvalid [(AXI_KEY2 * 1) +: 1]   = 1'h0;
+  assign m_axi_bresp  [(AXI_KEY2 * 2) +: 2]   = 1'h0;
+  assign m_axi_arready[(AXI_KEY2 * 1) +: 1]   = 1'h0;
+  assign m_axi_rdata  [(AXI_KEY2 * 32) +: 32] = 32'h0;
+  assign m_axi_rresp  [(AXI_KEY2 * 2) +: 2]   = 2'h0;
+  assign m_axi_rvalid [(AXI_KEY2 * 1) +: 1]   = 1'h0;
+
+  assign m_axi_awready[(AXI_KEY3 * 1) +: 1]   = 1'h0;
+  assign m_axi_wready [(AXI_KEY3 * 1) +: 1]   = 1'h0;
+  assign m_axi_bvalid [(AXI_KEY3 * 1) +: 1]   = 1'h0;
+  assign m_axi_bresp  [(AXI_KEY3 * 2) +: 2]   = 1'h0;
+  assign m_axi_arready[(AXI_KEY3 * 1) +: 1]   = 1'h0;
+  assign m_axi_rdata  [(AXI_KEY3 * 32) +: 32] = 32'h0;
+  assign m_axi_rresp  [(AXI_KEY3 * 2) +: 2]   = 2'h0;
+  assign m_axi_rvalid [(AXI_KEY3 * 1) +: 1]   = 1'h0;
 
 
   //----------------------------------------------------------------
