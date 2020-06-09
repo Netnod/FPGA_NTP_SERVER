@@ -188,10 +188,6 @@ module ntps_top #(
   wire [7   : 0] xgmii_txc_0;
   wire [63 : 0]  xgmii_rxd_0;
   wire [7  : 0]  xgmii_rxc_0;
-  wire           key_req_0;
-  wire [31 : 0]  key_id_0;
-  wire           key_ack_0;
-  wire [255 : 0] key_0;
   wire [31:0]    gen_config_0;
   wire [31:0]    ntp_config_0;
   wire [31:0]    ntp_root_delay_0;
@@ -213,10 +209,6 @@ module ntps_top #(
   wire [7   : 0] xgmii_txc_1;
   wire [63 : 0]  xgmii_rxd_1;
   wire [7  : 0]  xgmii_rxc_1;
-  wire           key_req_1;
-  wire [31 : 0]  key_id_1;
-  wire           key_ack_1;
-  wire [255 : 0] key_1;
   wire [31:0]    gen_config_1;
   wire [31:0]    ntp_config_1;
   wire [31:0]    ntp_root_delay_1;
@@ -238,10 +230,6 @@ module ntps_top #(
   wire [7   : 0] xgmii_txc_2;
   wire [63 : 0]  xgmii_rxd_2;
   wire [7  : 0]  xgmii_rxc_2;
-  wire           key_req_2;
-  wire [31 : 0]  key_id_2;
-  wire           key_ack_2;
-  wire [255 : 0] key_2;
   wire [31:0]    gen_config_2;
   wire [31:0]    ntp_config_2;
   wire [31:0]    ntp_root_delay_2;
@@ -263,10 +251,6 @@ module ntps_top #(
   wire [7   : 0] xgmii_txc_3;
   wire [63 : 0]  xgmii_rxd_3;
   wire [7  : 0]  xgmii_rxc_3;
-  wire           key_req_3;
-  wire [31 : 0]  key_id_3;
-  wire           key_ack_3;
-  wire [255 : 0] key_3;
   wire [31:0]    gen_config_3;
   wire [31:0]    ntp_config_3;
   wire [31:0]    ntp_root_delay_3;
@@ -399,10 +383,6 @@ module ntps_top #(
      .ntp_tx_ofs_0          (ntp_tx_ofs_0),
      .pp_status_0           (pp_status_0),
      .ntp_sync_ok_0         (ntp_sync_ok_0),
-     .key_req_0             (key_req_0),
-     .key_id_0              (key_id_0),
-     .key_ack_0             (key_ack_0),
-     .key_0                 (key_0),
 
      // Port 1.
      .sfp_module_detect_n_1 (sfp_module_detect1_n),
@@ -432,10 +412,6 @@ module ntps_top #(
      .ntp_tx_ofs_1          (ntp_tx_ofs_1),
      .pp_status_1           (pp_status_1),
      .ntp_sync_ok_1         (ntp_sync_ok_1),
-     .key_req_1             (key_req_1),
-     .key_id_1              (key_id_1),
-     .key_ack_1             (key_ack_1),
-     .key_1                 (key_1),
 
      // Port 2.
      .sfp_module_detect_n_2 (sfp_module_detect2_n),
@@ -465,10 +441,6 @@ module ntps_top #(
      .ntp_tx_ofs_2          (ntp_tx_ofs_2),
      .pp_status_2           (pp_status_2),
      .ntp_sync_ok_2         (ntp_sync_ok_2),
-     .key_req_2             (key_req_2),
-     .key_id_2              (key_id_2),
-     .key_ack_2             (key_ack_2),
-     .key_2                 (key_2),
 
      // Port 3.
      .sfp_module_detect_n_3 (sfp_module_detect3_n),
@@ -498,10 +470,6 @@ module ntps_top #(
      .ntp_tx_ofs_3          (ntp_tx_ofs_3),
      .pp_status_3           (pp_status_3),
      .ntp_sync_ok_3         (ntp_sync_ok_3),
-     .key_req_3             (key_req_3),
-     .key_id_3              (key_id_3),
-     .key_ack_3             (key_ack_3),
-     .key_3                 (key_3),
 
      .PPS_INA_N             (PPS_INA_N),
      .PPS_INA_P             (PPS_INA_P),
@@ -545,10 +513,6 @@ module ntps_top #(
     .ntp_tx_ofs         (ntp_tx_ofs_0),
     .pp_status          (pp_status_0),
     .ntp_sync_ok        (ntp_sync_ok_0),
-    .key_req            (key_req_0),
-    .key_id             (key_id_0),
-    .key_ack            (key_ack_0),
-    .key                (key_0),
 
     .api_ext_command    (api_ext_command_0),
     .api_ext_address    (api_ext_address_0),
@@ -588,10 +552,6 @@ module ntps_top #(
     .ntp_tx_ofs         (ntp_tx_ofs_1),
     .pp_status          (pp_status_1),
     .ntp_sync_ok        (ntp_sync_ok_1),
-    .key_req            (key_req_1),
-    .key_id             (key_id_1),
-    .key_ack            (key_ack_1),
-    .key                (key_1),
 
     .api_ext_command    (api_ext_command_1),
     .api_ext_address    (api_ext_address_1),
@@ -631,10 +591,6 @@ module ntps_top #(
     .ntp_tx_ofs         (ntp_tx_ofs_2),
     .pp_status          (pp_status_2),
     .ntp_sync_ok        (ntp_sync_ok_2),
-    .key_req            (key_req_2),
-    .key_id             (key_id_2),
-    .key_ack            (key_ack_2),
-    .key                (key_2),
 
     .api_ext_command    (api_ext_command_2),
     .api_ext_address    (api_ext_address_2),
@@ -674,10 +630,6 @@ module ntps_top #(
     .ntp_tx_ofs         (ntp_tx_ofs_3),
     .pp_status          (pp_status_3),
     .ntp_sync_ok        (ntp_sync_ok_3),
-    .key_req            (key_req_3),
-    .key_id             (key_id_3),
-    .key_ack            (key_ack_3),
-    .key                (key_3),
 
     .api_ext_command    (api_ext_command_3),
     .api_ext_address    (api_ext_address_3),

@@ -57,11 +57,7 @@ module pp_top (
   input wire [31:0]  ntp_tx_ofs,     // TX time stamp offset
   // From clock
   input wire [63:0]  ntp_time,
-  // Key Memory
-  output wire        key_req,
-  output wire [31:0] key_id,
-  input wire         key_ack,
-  input wire [255:0] key,
+
   // MAC
   input  wire [7:0]  rx_data_valid,
   input  wire [63:0] rx_data,
@@ -82,6 +78,20 @@ module pp_top (
   wire [1004:0]    fifo_wdata;
 
   wire [31:0]      rx_status;
+
+
+  //--------------------------------------------------------------
+  // Fake key
+  // This is just to kill off the keymem and still be able to build
+  // the FPGA. Note also the dandling key_req and key_id.
+  //--------------------------------------------------------------
+  wire         key_req;
+  wire [31:0]  key_id;
+  wire         key_ack;
+  wire [255:0] key;
+
+  assign key_ack = 1'h1;
+  assign key = {8{32'hffff_ffff}};
 
 
   //--------------------------------------------------------------

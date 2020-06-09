@@ -69,11 +69,6 @@ module network_path #(
   input wire 	        ntp_sync_ok_a,
   input wire 	        ntp_sync_ok_b,
 
-  output wire 	        key_req,
-  output wire [31:0]    key_id,
-  input wire 	        key_ack,
-  input wire [255:0]    key,
-
   input wire [63 : 0]   xgmii_rxd,
   input wire [7  : 0]   xgmii_rxc,
   output wire [63  : 0] xgmii_txd,
@@ -144,10 +139,6 @@ module network_path #(
     .ntp_rx_ofs     (ntp_rx_ofs),
     .ntp_tx_ofs     (ntp_tx_ofs),
     .ntp_time       (ntp_time),
-    .key_req        (key_req),
-    .key_id         (key_id),
-    .key_ack        (key_ack),
-    .key            (key),
     .xgmii_rxd      (xgmii_rxd),
     .xgmii_rxc      (xgmii_rxc),
     .xgmii_txd      (xgmii_txd),

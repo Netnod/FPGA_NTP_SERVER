@@ -96,10 +96,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_tx_ofs_0,
     input wire [31:0]     pp_status_0,
     input wire 	          ntp_sync_ok_0,
-    input wire            key_req_0,
-    input wire [31 : 0]   key_id_0,
-    output wire           key_ack_0,
-    output wire [255 : 0] key_0,
 
     // Port 1.
     input wire            sfp_module_detect_n_1,
@@ -129,10 +125,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_tx_ofs_1,
     input wire [31:0]     pp_status_1,
     input wire 	          ntp_sync_ok_1,
-    input wire            key_req_1,
-    input wire [31 : 0]   key_id_1,
-    output wire           key_ack_1,
-    output wire [255 : 0] key_1,
 
     // Port 2.
     input wire            sfp_module_detect_n_2,
@@ -162,11 +154,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_tx_ofs_2,
     input wire [31:0]     pp_status_2,
     input wire 	          ntp_sync_ok_2,
-    input wire            key_req_2,
-    input wire [31 : 0]   key_id_2,
-    output wire           key_ack_2,
-    output wire [255 : 0] key_2,
-
 
     // Port 3.
     input wire            sfp_module_detect_n_3,
@@ -196,12 +183,8 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_tx_ofs_3,
     input wire [31:0]     pp_status_3,
     input wire 	          ntp_sync_ok_3,
-    input wire            key_req_3,
-    input wire [31 : 0]   key_id_3,
-    output wire           key_ack_3,
-    output wire [255 : 0] key_3,
 
-
+    // NTP clocks.
     input wire            PPS_INA_N,
     input wire            PPS_INA_P,
     output wire           PPS_OUTA,
@@ -241,10 +224,6 @@ module ntps_interfaces #(
   localparam AXI_NP2     = 5;
   localparam AXI_NP3     = 6;
   localparam AXI_PVT     = 7;
-  localparam AXI_KEY0    = 8;
-  localparam AXI_KEY1    = 9;
-  localparam AXI_KEY2    = 10;
-  localparam AXI_KEY3    = 11;
 
 
   //----------------------------------------------------------------
@@ -747,154 +726,6 @@ module ntps_interfaces #(
     .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP3 * 1) +: 1]),
     .S_AXI_RREADY  (m_axi_rready [(AXI_NP3 * 1) +: 1])
   );
-
-
-  //----------------------------------------------------------------
-  // keymem_0
-  // This module is here to fix the AXI bus mux/demuxing.
-  // The module will be removed since all functionality
-  // will be in the NTS design.
-  //----------------------------------------------------------------
-  keymem_top keymem_0 (
-    .key_clk       (clk156),
-    .key_req       (key_req_0),
-    .key_id        (key_id_0),
-    .key_ack       (key_ack_0),
-    .key           (key_0),
-
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_KEY0 * 32) +: 15]),
-    .s_axi_arprot  (m_axi_arprot [(AXI_KEY0 * 3) +: 3]),
-    .s_axi_arready (m_axi_arready[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY0 * 32) +: 15]),
-    .s_axi_awprot  (m_axi_awprot [(AXI_KEY0 * 3) +: 3]),
-    .s_axi_awready (m_axi_awready[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY0 * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY0 * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY0 * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY0 * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY0 * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_KEY0 * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY0 * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY0 * 1) +: 1])
-   );
-
-
-  //----------------------------------------------------------------
-  // keymem_0
-  // This module is here to fix the AXI bus mux/demuxing.
-  // The module will be removed since all functionality
-  // will be in the NTS design.
-  //----------------------------------------------------------------
-  keymem_top keymem_1 (
-    .key_clk       (clk156),
-    .key_req       (key_req_1),
-    .key_id        (key_id_1),
-    .key_ack       (key_ack_1),
-    .key           (key_1),
-
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_KEY1 * 32) +: 15]),
-    .s_axi_arprot  (m_axi_arprot [(AXI_KEY1 * 3) +: 3]),
-    .s_axi_arready (m_axi_arready[(AXI_KEY1 * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY1 * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY1 * 32) +: 15]),
-    .s_axi_awprot  (m_axi_awprot [(AXI_KEY1 * 3) +: 3]),
-    .s_axi_awready (m_axi_awready[(AXI_KEY1 * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY1 * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_KEY1 * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY1 * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY1 * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY1 * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_KEY1 * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY1 * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY1 * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY1 * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_KEY1 * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY1 * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY1 * 1) +: 1])
-   );
-
-
-  //----------------------------------------------------------------
-  // keymem_2
-  // This module is here to fix the AXI bus mux/demuxing.
-  // The module will be removed since all functionality
-  // will be in the NTS design.
-  //----------------------------------------------------------------
-  keymem_top keymem_2 (
-    .key_clk       (clk156),
-    .key_req       (key_req_2),
-    .key_id        (key_id_2),
-    .key_ack       (key_ack_2),
-    .key           (key_2),
-
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_KEY2 * 32) +: 15]),
-    .s_axi_arprot  (m_axi_arprot [(AXI_KEY2 * 3) +: 3]),
-    .s_axi_arready (m_axi_arready[(AXI_KEY2 * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY2 * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY2 * 32) +: 15]),
-    .s_axi_awprot  (m_axi_awprot [(AXI_KEY2 * 3) +: 3]),
-    .s_axi_awready (m_axi_awready[(AXI_KEY2 * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY2 * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_KEY2 * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY2 * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY2 * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY2 * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_KEY2 * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY2 * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY2 * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY2 * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_KEY2 * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY2 * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY2 * 1) +: 1])
-   );
-
-
-  //----------------------------------------------------------------
-  // keymem_3
-  // This module is here to fix the AXI bus mux/demuxing.
-  // The module will be removed since all functionality
-  // will be in the NTS design.
-  //----------------------------------------------------------------
-  keymem_top keymem_3 (
-    .key_clk       (clk156),
-    .key_req       (key_req_3),
-    .key_id        (key_id_3),
-    .key_ack       (key_ack_3),
-    .key           (key_3),
-
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_KEY3 * 32) +: 15]),
-    .s_axi_arprot  (m_axi_arprot [(AXI_KEY3 * 3) +: 3]),
-    .s_axi_arready (m_axi_arready[(AXI_KEY3 * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_KEY3 * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_KEY3 * 32) +: 15]),
-    .s_axi_awprot  (m_axi_awprot [(AXI_KEY3 * 3) +: 3]),
-    .s_axi_awready (m_axi_awready[(AXI_KEY3 * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_KEY3 * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_KEY3 * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_KEY3 * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_KEY3 * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_KEY3 * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_KEY3 * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_KEY3 * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_KEY3 * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_KEY3 * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_KEY3 * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_KEY3 * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_KEY3 * 1) +: 1])
-   );
 
 endmodule // ntps_interfaces
 

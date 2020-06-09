@@ -68,12 +68,6 @@ module network_path_shared (
   input wire 	        ntp_sync_ok_a,
   input wire 	        ntp_sync_ok_b,
 
-  // Key Memory
-  output wire           key_req,
-  output wire [31:0]    key_id,
-  input wire            key_ack,
-  input wire [255:0]    key,
-
   // Ethernet PHY.
   input wire [63 : 0]   xgmii_rxd,
   input wire [7  : 0]   xgmii_rxc,
@@ -247,10 +241,6 @@ module network_path_shared (
     .ntp_rx_ofs     (ntp_rx_ofs),
     .ntp_tx_ofs     (ntp_tx_ofs),
     .ntp_time       (ntp_time),
-    .key_req        (key_req),
-    .key_id         (key_id),
-    .key_ack        (key_ack),
-    .key            (key),
 
     .rx_data_valid  (rx_mac_data_valid),
     .rx_data        (mac_swap_bytes(rx_mac_data, rx_mac_data_valid)),

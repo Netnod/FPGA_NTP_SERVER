@@ -181,7 +181,6 @@ set files [list \
  "[file normalize "$origin_dir/../ip/ntps_top_auto_pc_0/ntps_top_auto_pc_0.xci"]"\
  "[file normalize "$origin_dir/../ip/ntps_top_auto_ds_0/ntps_top_auto_ds_0.xci"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_axi_slave.v"]"\
- "[file normalize "$origin_dir/../keymem/ip/keymem/keymem.xci"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_mac_top.v"]"\
  "[file normalize "$origin_dir/../pvtmon/pvtmon_top.v"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/pps_test.v"]"\
@@ -189,7 +188,6 @@ set files [list \
  "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_top.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_shared.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path.v"]"\
- "[file normalize "$origin_dir/../keymem/hdl/keymem_top.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\
  "[file normalize "$origin_dir/../hdl/clk50_gen.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_top.v"]"\
@@ -312,13 +310,6 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
 
-set file "$origin_dir/../keymem/ip/keymem/keymem.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
 
 # Set 'sources_1' fileset file properties for local files
 # None
@@ -431,25 +422,6 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
 set file "$origin_dir/../network_path/packet_proc/ip/pp_fifo/pp_fifo.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../keymem/ip/axi_keymem_ctrl/axi_keymem_ctrl.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../keymem/ip/axi_keymem_ctrl/axi_keymem_ctrl.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 if { ![get_property "is_locked" $file_obj] } {
