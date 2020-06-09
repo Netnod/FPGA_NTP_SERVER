@@ -37,7 +37,8 @@
 module pp_mac_top (
   input wire         areset, // async reset
   input wire         clk,
-  //
+
+  // New style API
   input wire           api_cs,
   input wire           api_we,
   input wire  [11 : 0] api_address,
@@ -47,6 +48,7 @@ module pp_mac_top (
 
   // Gen config
   input wire [23:0]  gen_config,
+
   // NTP Config
   input wire [31:0]  ntp_config,     // LI | VN | Mode | Stratum | Poll | Precision
   input wire [31:0]  ntp_root_delay, // Root Delay
@@ -55,18 +57,16 @@ module pp_mac_top (
   input wire [63:0]  ntp_ref_ts,     // Reference Timestamp
   input wire [31:0]  ntp_rx_ofs,     // RX time stamp offset
   input wire [31:0]  ntp_tx_ofs,     // TX time stamp offset
+
   // From clock
   input wire [63:0]  ntp_time,
-  // Key Memory
-  output wire        key_req,
-  output wire [31:0] key_id,
-  input wire         key_ack,
-  input wire [255:0] key,
+
   // MAC
   input wire [63:0]  xgmii_rxd,
   input wire [7:0]   xgmii_rxc,
   output wire [63:0] xgmii_txd,
   output wire [7:0]  xgmii_txc,
+
   // Status bits
   output wire [31:0] status
 );
@@ -137,10 +137,6 @@ module pp_mac_top (
     .ntp_rx_ofs     (ntp_rx_ofs),
     .ntp_tx_ofs     (ntp_tx_ofs),
     .ntp_time       (ntp_time),
-    .key_req        (key_req),
-    .key_id         (key_id),
-    .key_ack        (key_ack),
-    .key            (key),
     .rx_data_valid  (rx_mac_data_valid),
     .rx_data        (swap_bytes(rx_mac_data, rx_mac_data_valid)),
     .rx_bad_frame   (rx_mac_bad_frame),
