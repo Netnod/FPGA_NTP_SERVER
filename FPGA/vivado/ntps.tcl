@@ -213,6 +213,7 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_tx_buffer.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_verify_secure.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_dispatcher.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_dispatcher_mux.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_extractor.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_top.v"]"\
 ]
