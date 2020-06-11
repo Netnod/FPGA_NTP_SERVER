@@ -51,7 +51,7 @@ module ntp_clock_select (
   input wire 	        ntp_sync_ok_b,
 
   output wire [63:0]    ntp_time,
-  output wire 	        ntp_sync_ok
+  output wire 	        ntp_sync_ok,
 
   input wire 	        clk156,
   input wire 	        reset
