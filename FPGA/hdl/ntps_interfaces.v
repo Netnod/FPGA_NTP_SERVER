@@ -450,7 +450,7 @@ module ntps_interfaces #(
     .ntp_sync_ok_a  (ntp_sync_ok_a),
     .ntp_sync_ok_b  (ntp_sync_ok_b),
     .ntp_time       (ntp_time),
-    .ntp_sync_ok    (ntp_sync_ok)
+    .ntp_sync_ok    (ntp_sync_ok),
     .clk156         (clk156),
     .reset          (reset)
     );
