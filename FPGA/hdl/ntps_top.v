@@ -473,7 +473,7 @@ module ntps_top #(
      .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
      .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
      .TEN_MHZ_OUTA          (TEN_MHZ_OUTA),
-     .PLL_LOCKEDA           (PLL_locked_A)
+     .PLL_LOCKEDA           (PLL_locked_A),
 
      .PPS_INB_N             (PPS_INB_N),
      .PPS_INB_P             (PPS_INB_P),
