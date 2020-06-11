@@ -213,18 +213,6 @@ set files [list \
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/MD5/ip/chunk_del_md5/chunk_del_md5.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-set file "$origin_dir/../network_path/packet_proc/hdl/pp_par.v"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property "file_type" "Verilog Header" $file_obj
-
 set file "$origin_dir/../network_path/GMAC/hdl/oc_mac_crc_func.h"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
@@ -296,127 +284,10 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
 
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
 set_property "top" "ntps_top" $obj
 
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/MD5/ip/sum_del_md5/sum_del_md5.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/MD5/ip/sum_del_md5/sum_del_md5.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/SHA1/ip/chunk_del/chunk_del.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/SHA1/ip/chunk_del/chunk_del.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/SHA1/ip/sum_del/sum_del.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/SHA1/ip/sum_del/sum_del.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/ip/pp_fifo_sc/pp_fifo_sc.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/ip/pp_fifo_sc/pp_fifo_sc.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/ip/pp_fifo_ss/pp_fifo_ss.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/ip/pp_fifo_ss/pp_fifo_ss.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/ip/pp_fifo/pp_fifo.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../network_path/packet_proc/ip/pp_fifo/pp_fifo.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-if { ![get_property "is_locked" $file_obj] } {
-  set_property "synth_checkpoint_mode" "Singular" $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
@@ -433,10 +304,6 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
 
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
@@ -452,10 +319,6 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
 
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
@@ -470,10 +333,6 @@ set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
@@ -491,9 +350,6 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 
 
-# Set 'sources_1' fileset file properties for local files
-# None
-
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
@@ -509,10 +365,6 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
 
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
@@ -527,10 +379,6 @@ set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 if { ![get_property "is_locked" $file_obj] } {
   set_property "synth_checkpoint_mode" "Singular" $file_obj
 }
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
