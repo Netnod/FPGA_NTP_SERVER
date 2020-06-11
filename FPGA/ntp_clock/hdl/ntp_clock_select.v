@@ -72,7 +72,7 @@ module ntp_clock_select (
   //----------------------------------------------------------------
   // Time select and clock domain crossing
   time_sel_sync tss(
-    .areset         (sys_reset),
+    .areset         (reset),
     .clk            (clk156),
     .sel            (select),
     .ntp_time_a     (ntp_time_a),
