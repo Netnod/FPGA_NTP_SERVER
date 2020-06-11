@@ -200,7 +200,10 @@ def write32(api, base, offset, value):
     api.write(base + offset, value)
 
 def humanL(a):
-    return hex(a)[2:][:-1].decode("hex")
+    if (a == 0L):
+      return "<0>"
+    else:
+      return hex(a)[2:][:-1].decode("hex")
 
 def human32(api, base, offset):
     machine = read32(api, base, offset)
@@ -487,7 +490,7 @@ def nts_init_noncegen(api, engine):
 
 def nts_disable_keys(api, engine):
     print("Engine %d - Disable NTS keys" % engine)
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, 0 )
+    engine_write32( api, engine, API_ADDR_KEYMEM_CTRL, 0 )
 
 def nts_set_current_key(api, engine, keynum):
     print("Engine %d - Set current NTS key: %x" % (engine, keynum))
@@ -501,7 +504,7 @@ def nts_set_current_key(api, engine, keynum):
     ctrl = engine_read32( api, engine, API_ADDR_KEYMEM_CTRL )
     ctrl = ctrl & mask2
     ctrl = ctrl | k
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
+    engine_write32( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
     print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
 
 def nts_install_key_256bit(api, engine, key_index, keyid, key=[]):
@@ -522,24 +525,24 @@ def nts_install_key_256bit(api, engine, key_index, keyid, key=[]):
     ctrl = engine_read32( api, engine, API_ADDR_KEYMEM_CTRL )
     ctrl = ctrl & ~ (1<<key_index);
 
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
+    engine_write32( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
     print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
 
-    engine_write32_checkreadback( api, engine, addr_keyid, keyid )
+    engine_write32( api, engine, addr_keyid, keyid )
 
     for i in range(0, 8):
        addr = addr_key + i
        value = key[7-i]
        print(" * key[%x,%x]=engine[%x]=%x" % (key_index, i, addr, value))
-       engine_write32_checkreadback( api, engine, addr,       value ) #256bit LSB
-       engine_write32_checkreadback( api, engine, addr + 0x8, 0     ) #256bit MSB, all zeros
+       engine_write32( api, engine, addr,       value ) #256bit LSB
+       engine_write32( api, engine, addr + 0x8, 0     ) #256bit MSB, all zeros
 
    #for i in range(7, -1, -1):
    #   addr = addr_key + i
    #   print(" * key[%d]: %08x" % (i, engine_read32( api, addr )))
 
     ctrl = ctrl | (1<<key_index)
-    engine_write32_checkreadback( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
+    engine_write32( api, engine, API_ADDR_KEYMEM_CTRL, ctrl )
     print(" * key ctrl: %08x" % engine_read32( api, engine, API_ADDR_KEYMEM_CTRL ))
 
 
@@ -576,8 +579,11 @@ def ntp_auth_install_test_keys(api, engine):
     print("Engine %d - Install NTP AUTH install test keys" %  engine)
     slots = engine_read32(api, engine, API_ADDR_NTPAUTH_KEYMEM_SLOTS);
     print(" * Slots: %0d" % slots);
-    ntp_auth_install_key(api, engine, slots, 5, 0, 1, 0xbaad, [ 0xbaad4444, 0xbaad3333, 0xbaad2222, 0xbaad1111, 0xbaad0000 ])
-    ntp_auth_install_key(api, engine, slots, 7, 1, 0, 0xf00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
+    if (slots == 0):
+      print(" * WARNING: NTP AUTH support not present");
+    else:
+      ntp_auth_install_key(api, engine, slots, 5, 0, 1, 0xbaad, [ 0xbaad4444, 0xbaad3333, 0xbaad2222, 0xbaad1111, 0xbaad0000 ])
+      ntp_auth_install_key(api, engine, slots, 7, 1, 0, 0xf00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
 
 def nts_configure_ntp(api, engine, refid, rootdelay, rootdisp, tx_ofs, config):
     v_config = int(config, 16)
