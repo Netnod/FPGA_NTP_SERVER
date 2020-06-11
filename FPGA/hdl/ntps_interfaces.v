@@ -181,6 +181,8 @@ module ntps_interfaces #(
     input wire [31:0]     pp_status_3,
 
     // NTP clocks.
+    output wire [63 : 0]  ntp_time,
+
     input wire            PPS_INA_N,
     input wire            PPS_INA_P,
     output wire           PPS_OUTA,
@@ -189,7 +191,6 @@ module ntps_interfaces #(
     output wire           TEN_MHZ_OUTA,
     output wire           NTP_LED1A,
     output wire           NTP_LED2A,
-    output wire           SYNC_OKA,
     output wire           PLL_LOCKEDA,
 
     input wire            PPS_INB_N,
@@ -198,11 +199,8 @@ module ntps_interfaces #(
     input wire            TEN_MHZ_INB_N,
     input wire            TEN_MHZ_INB_P,
     output wire           TEN_MHZ_OUTB,
-    output wire [63 : 0]  NTP_TIMEB,
-    output wire           NTP_TIME_UPDB,
     output wire           NTP_LED1B,
     output wire           NTP_LED2B,
-    output wire           SYNC_OKB,
     output wire           PLL_LOCKEDB
    );
 
