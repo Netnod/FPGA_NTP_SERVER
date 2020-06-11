@@ -408,7 +408,7 @@ module ntps_top #(
      .ntp_rx_ofs_1          (ntp_rx_ofs_1),
      .ntp_tx_ofs_1          (ntp_tx_ofs_1),
      .pp_status_1           (pp_status_1),
-
+o
      // Port 2.
      .sfp_module_detect_n_2 (sfp_module_detect2_n),
      .sfp_signal_lost_2     (sfp_signal_lost2),
@@ -473,6 +473,8 @@ module ntps_top #(
      .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
      .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
      .TEN_MHZ_OUTA          (TEN_MHZ_OUTA),
+     .NTP_LED1A             (ntp_clock_topA_LED1),
+     .NTP_LED2A             (ntp_clock_topA_LED2),
      .PLL_LOCKEDA           (PLL_locked_A),
 
      .PPS_INB_N             (PPS_INB_N),
@@ -481,6 +483,8 @@ module ntps_top #(
      .TEN_MHZ_INB_N         (TEN_MHZ_INB_clk_n),
      .TEN_MHZ_INB_P         (TEN_MHZ_INB_clk_p),
      .TEN_MHZ_OUTB          (TEN_MHZ_OUTB),
+     .NTP_LED1B             (ntp_clock_topB_LED1),
+     .NTP_LED2B             (ntp_clock_topB_LED2),
      .PLL_LOCKEDB           (PLL_locked_B)
     );
 

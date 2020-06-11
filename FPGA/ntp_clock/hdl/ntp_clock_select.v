@@ -41,7 +41,7 @@
 `default_nettype none
 
 module ntp_clock_select (
-  input wire [31 : 0]   select,
+  input wire            select,
 
   input wire [63:0]     ntp_time_a,
   input wire 	        ntp_time_upd_a,
