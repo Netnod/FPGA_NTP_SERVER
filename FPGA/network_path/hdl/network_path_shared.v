@@ -59,14 +59,7 @@ module network_path_shared (
   output wire [31 : 0]  api_ext_read_data,
 
   // NTP times
-  input wire [63 : 0]   ntp_time_a,
-  input wire            ntp_time_upd_a,
-  input wire [63 : 0]   ntp_time_b,
-  input wire            ntp_time_upd_b,
-
-  // NTP SYNC status
-  input wire 	        ntp_sync_ok_a,
-  input wire 	        ntp_sync_ok_b,
+  input wire [63 : 0]   ntp_time,
 
   // Ethernet PHY.
   input wire [63 : 0]   xgmii_rxd,
@@ -104,8 +97,6 @@ module network_path_shared (
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
-  wire [63:0]  ntp_time;
-
   wire [7:0]   rx_mac_data_valid;
   wire [63:0]  rx_mac_data;
   wire         rx_mac_bad_frame;
@@ -171,27 +162,7 @@ module network_path_shared (
   //----------------------------------------------------------------
   // Assignments.
   //----------------------------------------------------------------
-  assign ntp_sync_ok = (ntp_sync_ok_a & ~gen_config[24] ) |
-                       (ntp_sync_ok_b & gen_config[24]);
-
   assign sys_aresetn = ~sys_reset;
-
-
-  //----------------------------------------------------------------
-  // tss
-  // Time select and clock domain crossing. This should have been
-  // a common function for all netwpork paths.
-  //----------------------------------------------------------------
-  time_sel_sync tss(
-    .areset         (sys_reset),
-    .clk            (clk156),
-    .sel            (gen_config[24]),
-    .ntp_time_a     (ntp_time_a),
-    .ntp_time_upd_a (ntp_time_upd_a),
-    .ntp_time_b     (ntp_time_b),
-    .ntp_time_upd_b (ntp_time_upd_b),
-    .ntp_time       (ntp_time)
-  );
 
 
   //----------------------------------------------------------------

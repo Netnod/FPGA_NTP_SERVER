@@ -164,18 +164,21 @@ set files [list \
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/oc_mac.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/ip/ntp_clock_pll/ntp_clock_pll.xci"]"\
+ "[file normalize "$origin_dir/../ntp_clock/ip/ntp_clock_ds_buf/ntp_clock_ds_buf.xci"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/pll_sync.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/hdl/pps_test.v"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_counters.v"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_axi_slave.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/hdl/pps_gen.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_top.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/hdl/time_sel_sync.v"]"\
+ "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_select.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v"]"\
- "[file normalize "$origin_dir/../network_path/hdl/time_sel_sync.v"]"\
  "[file normalize "$origin_dir/../network_path/ip/ten_gig_eth_pcs_pma_ip_shared_logic/ten_gig_eth_pcs_pma_ip_shared_logic_in_core.xci"]"\
  "[file normalize "$origin_dir/../network_path/ip/ten_gig_eth_pcs_pma_ip/ten_gig_eth_pcs_pma_ip.xci"]"\
  "[file normalize "$origin_dir/../pvtmon/pvtmon_axi_slave.v"]"\
- "[file normalize "$origin_dir/../ntp_clock/hdl/pps_gen.v"]"\
- "[file normalize "$origin_dir/../ntp_clock/ip/ntp_clock_pll/ntp_clock_pll.xci"]"\
- "[file normalize "$origin_dir/../ntp_clock/ip/ntp_clock_ds_buf/ntp_clock_ds_buf.xci"]"\
- "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock.v"]"\
  "[file normalize "$origin_dir/../ip/ntps_top_xbar_0/ntps_top_xbar_0.xci"]"\
  "[file normalize "$origin_dir/../ip/ntps_top_s00_data_fifo_0/ntps_top_s00_data_fifo_0.xci"]"\
  "[file normalize "$origin_dir/../ip/ntps_top_auto_pc_0/ntps_top_auto_pc_0.xci"]"\
@@ -183,9 +186,7 @@ set files [list \
  "[file normalize "$origin_dir/../network_path/hdl/network_path_axi_slave.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_mac_top.v"]"\
  "[file normalize "$origin_dir/../pvtmon/pvtmon_top.v"]"\
- "[file normalize "$origin_dir/../ntp_clock/hdl/pps_test.v"]"\
  "[file normalize "$origin_dir/../hdl/pcie_axi.v"]"\
- "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_top.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_shared.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\

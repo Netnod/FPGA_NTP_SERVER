@@ -165,25 +165,20 @@ module ntps_top #(
   wire             user_link_up;
 
   // Wires for NTP clocks.
+  wire [63:0]  ntp_time;
   wire         PLL_locked_A;
-  wire [63:0]  NTP_TIME_A;
-  wire         NTP_TIME_A_UPD;
   wire         ntp_clock_topA_LED1;
   wire         ntp_clock_topA_LED2;
-  wire         SYNC_OK_A;
-
   wire         PLL_locked_B;
-  wire [63:0]  NTP_TIME_B;
-  wire         NTP_TIME_B_UPD;
   wire         ntp_clock_topB_LED1;
   wire         ntp_clock_topB_LED2;
-  wire         SYNC_OK_B;
 
 
   // Shared network paths signals
   wire           areset_clk156;
   wire           clk156;
 
+  // Port 0
   wire [63  : 0] xgmii_txd_0;
   wire [7   : 0] xgmii_txc_0;
   wire [63 : 0]  xgmii_rxd_0;
@@ -205,6 +200,7 @@ module ntps_top #(
   wire [31 : 0]  api_ext_read_data_0;
 
 
+  // Port 1
   wire [63  : 0] xgmii_txd_1;
   wire [7   : 0] xgmii_txc_1;
   wire [63 : 0]  xgmii_rxd_1;
@@ -226,6 +222,7 @@ module ntps_top #(
   wire [31 : 0]  api_ext_read_data_1;
 
 
+  // Port 2
   wire [63  : 0] xgmii_txd_2;
   wire [7   : 0] xgmii_txc_2;
   wire [63 : 0]  xgmii_rxd_2;
@@ -247,6 +244,7 @@ module ntps_top #(
   wire [31 : 0]  api_ext_read_data_2;
 
 
+  // Port 3
   wire [63  : 0] xgmii_txd_3;
   wire [7   : 0] xgmii_txc_3;
   wire [63 : 0]  xgmii_rxd_3;
@@ -382,7 +380,6 @@ module ntps_top #(
      .ntp_rx_ofs_0          (ntp_rx_ofs_0),
      .ntp_tx_ofs_0          (ntp_tx_ofs_0),
      .pp_status_0           (pp_status_0),
-     .ntp_sync_ok_0         (ntp_sync_ok_0),
 
      // Port 1.
      .sfp_module_detect_n_1 (sfp_module_detect1_n),
@@ -411,7 +408,6 @@ module ntps_top #(
      .ntp_rx_ofs_1          (ntp_rx_ofs_1),
      .ntp_tx_ofs_1          (ntp_tx_ofs_1),
      .pp_status_1           (pp_status_1),
-     .ntp_sync_ok_1         (ntp_sync_ok_1),
 
      // Port 2.
      .sfp_module_detect_n_2 (sfp_module_detect2_n),
@@ -440,7 +436,6 @@ module ntps_top #(
      .ntp_rx_ofs_2          (ntp_rx_ofs_2),
      .ntp_tx_ofs_2          (ntp_tx_ofs_2),
      .pp_status_2           (pp_status_2),
-     .ntp_sync_ok_2         (ntp_sync_ok_2),
 
      // Port 3.
      .sfp_module_detect_n_3 (sfp_module_detect3_n),
@@ -469,7 +464,8 @@ module ntps_top #(
      .ntp_rx_ofs_3          (ntp_rx_ofs_3),
      .ntp_tx_ofs_3          (ntp_tx_ofs_3),
      .pp_status_3           (pp_status_3),
-     .ntp_sync_ok_3         (ntp_sync_ok_3),
+
+     .ntp_time              (ntp_time),
 
      .PPS_INA_N             (PPS_INA_N),
      .PPS_INA_P             (PPS_INA_P),
@@ -477,12 +473,7 @@ module ntps_top #(
      .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
      .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
      .TEN_MHZ_OUTA          (TEN_MHZ_OUTA),
-     .NTP_TIMEA             (NTP_TIME_A),
-     .NTP_TIME_UPDA         (NTP_TIME_A_UPD),
-     .NTP_LED1A             (ntp_clock_topA_LED1),
-     .NTP_LED2A             (ntp_clock_topA_LED2),
-     .SYNC_OKA              (SYNC_OK_A),
-     .PLL_LOCKEDA           (PLL_locked_A),
+     .PLL_LOCKEDA           (PLL_locked_A)
 
      .PPS_INB_N             (PPS_INB_N),
      .PPS_INB_P             (PPS_INB_P),
@@ -490,11 +481,6 @@ module ntps_top #(
      .TEN_MHZ_INB_N         (TEN_MHZ_INB_clk_n),
      .TEN_MHZ_INB_P         (TEN_MHZ_INB_clk_p),
      .TEN_MHZ_OUTB          (TEN_MHZ_OUTB),
-     .NTP_TIMEB             (NTP_TIME_B),
-     .NTP_TIME_UPDB         (NTP_TIME_B_UPD),
-     .NTP_LED1B             (ntp_clock_topB_LED1),
-     .NTP_LED2B             (ntp_clock_topB_LED2),
-     .SYNC_OKB              (SYNC_OK_B),
      .PLL_LOCKEDB           (PLL_locked_B)
     );
 
@@ -512,7 +498,6 @@ module ntps_top #(
     .ntp_rx_ofs         (ntp_rx_ofs_0),
     .ntp_tx_ofs         (ntp_tx_ofs_0),
     .pp_status          (pp_status_0),
-    .ntp_sync_ok        (ntp_sync_ok_0),
 
     .api_ext_command    (api_ext_command_0),
     .api_ext_address    (api_ext_address_0),
@@ -520,12 +505,7 @@ module ntps_top #(
     .api_ext_status     (api_ext_status_0),
     .api_ext_read_data  (api_ext_read_data_0),
 
-    .ntp_time_a         (NTP_TIME_A),
-    .ntp_time_upd_a     (NTP_TIME_A_UPD),
-    .ntp_time_b         (NTP_TIME_B),
-    .ntp_time_upd_b     (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a      (SYNC_OK_A),
-    .ntp_sync_ok_b      (SYNC_OK_B),
+    .ntp_time           (ntp_time),
 
     .xgmii_rxd          (xgmii_rxd_0),
     .xgmii_rxc          (xgmii_rxc_0),
@@ -559,12 +539,7 @@ module ntps_top #(
     .api_ext_status     (api_ext_status_1),
     .api_ext_read_data  (api_ext_read_data_1),
 
-    .ntp_time_a         (NTP_TIME_A),
-    .ntp_time_b         (NTP_TIME_B),
-    .ntp_time_upd_a     (NTP_TIME_A_UPD),
-    .ntp_time_upd_b     (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a      (SYNC_OK_A),
-    .ntp_sync_ok_b      (SYNC_OK_B),
+    .ntp_time           (ntp_time),
 
     .xgmii_rxd          (xgmii_rxd_1),
     .xgmii_rxc          (xgmii_rxc_1),
@@ -598,12 +573,7 @@ module ntps_top #(
     .api_ext_status     (api_ext_status_2),
     .api_ext_read_data  (api_ext_read_data_2),
 
-    .ntp_time_a         (NTP_TIME_A),
-    .ntp_time_b         (NTP_TIME_B),
-    .ntp_time_upd_a     (NTP_TIME_A_UPD),
-    .ntp_time_upd_b     (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a      (SYNC_OK_A),
-    .ntp_sync_ok_b      (SYNC_OK_B),
+    .ntp_time           (ntp_time),
 
     .xgmii_rxd          (xgmii_rxd_2),
     .xgmii_rxc          (xgmii_rxc_2),
@@ -637,12 +607,7 @@ module ntps_top #(
     .api_ext_status     (api_ext_status_3),
     .api_ext_read_data  (api_ext_read_data_3),
 
-    .ntp_time_a         (NTP_TIME_A),
-    .ntp_time_b         (NTP_TIME_B),
-    .ntp_time_upd_a     (NTP_TIME_A_UPD),
-    .ntp_time_upd_b     (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a      (SYNC_OK_A),
-    .ntp_sync_ok_b      (SYNC_OK_B),
+    .ntp_time           (ntp_time),
 
     .xgmii_rxd          (xgmii_rxd_3),
     .xgmii_rxc          (xgmii_rxc_3),

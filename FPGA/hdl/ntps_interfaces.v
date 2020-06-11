@@ -95,7 +95,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_rx_ofs_0,
     output wire [31:0]    ntp_tx_ofs_0,
     input wire [31:0]     pp_status_0,
-    input wire 	          ntp_sync_ok_0,
 
     // Port 1.
     input wire            sfp_module_detect_n_1,
@@ -124,7 +123,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_rx_ofs_1,
     output wire [31:0]    ntp_tx_ofs_1,
     input wire [31:0]     pp_status_1,
-    input wire 	          ntp_sync_ok_1,
 
     // Port 2.
     input wire            sfp_module_detect_n_2,
@@ -153,7 +151,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_rx_ofs_2,
     output wire [31:0]    ntp_tx_ofs_2,
     input wire [31:0]     pp_status_2,
-    input wire 	          ntp_sync_ok_2,
 
     // Port 3.
     input wire            sfp_module_detect_n_3,
@@ -182,7 +179,6 @@ module ntps_interfaces #(
     output wire [31:0]    ntp_rx_ofs_3,
     output wire [31:0]    ntp_tx_ofs_3,
     input wire [31:0]     pp_status_3,
-    input wire 	          ntp_sync_ok_3,
 
     // NTP clocks.
     input wire            PPS_INA_N,
@@ -191,8 +187,6 @@ module ntps_interfaces #(
     input wire            TEN_MHZ_INA_N,
     input wire            TEN_MHZ_INA_P,
     output wire           TEN_MHZ_OUTA,
-    output wire [63 : 0]  NTP_TIMEA,
-    output wire           NTP_TIME_UPDA,
     output wire           NTP_LED1A,
     output wire           NTP_LED2A,
     output wire           SYNC_OKA,
@@ -257,14 +251,22 @@ module ntps_interfaces #(
   wire [12-1:0]    m_axi_rvalid;
   wire [12-1:0]    m_axi_rready;
 
-  wire mdc;
-  wire mdio_in;
-  wire mdio_out;
+  wire             mdc;
+  wire             mdio_in;
+  wire             mdio_out;
 
-  wire [4 : 0] xphy_status_0;
-  wire [4 : 0] xphy_status_1;
-  wire [4 : 0] xphy_status_2;
-  wire [4 : 0] xphy_status_3;
+  wire [4 : 0]     xphy_status_0;
+  wire [4 : 0]     xphy_status_1;
+  wire [4 : 0]     xphy_status_2;
+  wire [4 : 0]     xphy_status_3;
+
+  wire [63 : 0]    ntp_time_a;
+  wire             ntp_time_upd_a;
+  wire             ntp_sync_ok_a;
+  wire [63 : 0]    ntp_time_b;
+  wire             ntp_time_upd_b;
+  wire             ntp_sync_ok_b;
+  wire             ntp_sync_ok;
 
 
   //----------------------------------------------------------------
@@ -375,8 +377,8 @@ module ntps_interfaces #(
     .axi_wready   (m_axi_wready [(AXI_NTPA * 1) +: 1]),
     .axi_wstrb    (m_axi_wstrb  [(AXI_NTPA * 32/8) +: 32/8]),
     .axi_wvalid   (m_axi_wvalid [(AXI_NTPA * 1) +: 1]),
-    .NTP_TIME     (NTP_TIMEA),
-    .NTP_TIME_UPD (NTP_TIME_UPDA),
+    .NTP_TIME     (ntp_time_a),
+    .NTP_TIME_UPD (ntp_time_upd_a),
     .PLL_locked   (PLL_LOCKEDA),
     .LED1         (NTP_LED1A),
     .LED2         (NTP_LED2A),
@@ -386,7 +388,7 @@ module ntps_interfaces #(
     .LED6         (),
     .LED7         (),
     .LED8         (),
-    .SYNC_OK      (SYNC_OKA),
+    .SYNC_OK      (ntp_sync_ok_a),
     .test         ()
     );
 
@@ -420,8 +422,8 @@ module ntps_interfaces #(
     .axi_wready   (m_axi_wready [(AXI_NTPB * 1) +: 1]),
     .axi_wstrb    (m_axi_wstrb  [(AXI_NTPB * 32/8) +: 32/8]),
     .axi_wvalid   (m_axi_wvalid [(AXI_NTPB * 1) +: 1]),
-    .NTP_TIME     (NTP_TIMEB),
-    .NTP_TIME_UPD (NTP_TIME_UPDB),
+    .NTP_TIME     (ntp_time_b),
+    .NTP_TIME_UPD (ntp_time_upd_b),
     .PLL_locked   (PLL_LOCKEDB),
     .LED1         (NTP_LED1B),
     .LED2         (NTP_LED2B),
@@ -431,8 +433,26 @@ module ntps_interfaces #(
     .LED6         (),
     .LED7         (),
     .LED8         (),
-    .SYNC_OK      (SYNC_OKB),
+    .SYNC_OK      (ntp_sync_ok_b),
     .test         ()
+    );
+
+
+  //----------------------------------------------------------------
+  // Common NTP clock select. Controlled by Port 0 config.
+  //----------------------------------------------------------------
+  ntp_clock_select ntp_clock_select_inst (
+    .select         (gen_config_0[24]),
+    .ntp_time_a     (ntp_time_a),
+    .ntp_time_upd_a (ntp_time_upd_a),
+    .ntp_time_b     (ntp_time_b),
+    .ntp_time_upd_b (ntp_time_upd_b),
+    .ntp_sync_ok_a  (ntp_sync_ok_a),
+    .ntp_sync_ok_b  (ntp_sync_ok_b),
+    .ntp_time       (ntp_time),
+    .ntp_sync_ok    (ntp_sync_ok)
+    .clk156         (clk156),
+    .reset          (reset)
     );
 
 
@@ -605,7 +625,7 @@ module ntps_interfaces #(
     .ntp_tx_ofs     (ntp_tx_ofs_0),
     .pp_status      (pp_status_0),
     .xphy_status    ({3'h0, xphy_status_0}),
-    .ntp_sync_ok    (ntp_sync_ok_0),
+    .ntp_sync_ok    (ntp_sync_ok),
 
     // Ports for API extension.
     .api_ext_command    (api_ext_command_0),
@@ -651,7 +671,7 @@ module ntps_interfaces #(
     .ntp_tx_ofs     (ntp_tx_ofs_1),
     .pp_status      (pp_status_1),
     .xphy_status    ({3'h0, xphy_status_1}),
-    .ntp_sync_ok    (ntp_sync_ok_1),
+    .ntp_sync_ok    (ntp_sync_ok),
 
     // Ports for API extension.
     .api_ext_command    (api_ext_command_1),
@@ -697,7 +717,7 @@ module ntps_interfaces #(
     .ntp_tx_ofs     (ntp_tx_ofs_2),
     .pp_status      (pp_status_2),
     .xphy_status    ({3'h0, xphy_status_2}),
-    .ntp_sync_ok    (ntp_sync_ok_2),
+    .ntp_sync_ok    (ntp_sync_ok),
 
     // Ports for API extension.
     .api_ext_command    (api_ext_command_2),
@@ -743,7 +763,7 @@ module ntps_interfaces #(
     .ntp_tx_ofs     (ntp_tx_ofs_3),
     .pp_status      (pp_status_3),
     .xphy_status    ({3'h0, xphy_status_3}),
-    .ntp_sync_ok    (ntp_sync_ok_3),
+    .ntp_sync_ok    (ntp_sync_ok),
 
     // Ports for API extension.
     .api_ext_command    (api_ext_command_3),
