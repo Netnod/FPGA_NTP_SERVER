@@ -135,35 +135,21 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- "[file normalize "$origin_dir/../network_path/packet_proc/SHA1/hdl/sha1_stage.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/MD5/hdl/md5_stage.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/SHA1/hdl/sha1_pipe.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/MD5/hdl/md5_pipe.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/MD5/ip/chunk_del_md5/chunk_del_md5.xci"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/SHA1/hdl/sha1.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/MD5/hdl/md5.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_par.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_sha1.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_md5.v"]"\
  "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v"]"\
+ "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/oc_mac_crc_func.h"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/oc_mac.h"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/tx_dequeue.v"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/tx_control.v"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/rx_enqueue.v"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/rx_control.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_csum.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_tx.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_rx.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_pipes.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_api.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_top.v"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/oc_mac.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v"]"\
  "[file normalize "$origin_dir/../ntp_clock/ip/ntp_clock_pll/ntp_clock_pll.xci"]"\
  "[file normalize "$origin_dir/../ntp_clock/ip/ntp_clock_ds_buf/ntp_clock_ds_buf.xci"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/pll_sync.v"]"\
@@ -175,7 +161,6 @@ set files [list \
  "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_top.v"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/time_sel_sync.v"]"\
  "[file normalize "$origin_dir/../ntp_clock/hdl/ntp_clock_select.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v"]"\
  "[file normalize "$origin_dir/../network_path/ip/ten_gig_eth_pcs_pma_ip_shared_logic/ten_gig_eth_pcs_pma_ip_shared_logic_in_core.xci"]"\
  "[file normalize "$origin_dir/../network_path/ip/ten_gig_eth_pcs_pma_ip/ten_gig_eth_pcs_pma_ip.xci"]"\
  "[file normalize "$origin_dir/../pvtmon/pvtmon_axi_slave.v"]"\
@@ -184,19 +169,19 @@ set files [list \
  "[file normalize "$origin_dir/../ip/ntps_top_auto_pc_0/ntps_top_auto_pc_0.xci"]"\
  "[file normalize "$origin_dir/../ip/ntps_top_auto_ds_0/ntps_top_auto_ds_0.xci"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_axi_slave.v"]"\
- "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_mac_top.v"]"\
  "[file normalize "$origin_dir/../pvtmon/pvtmon_top.v"]"\
  "[file normalize "$origin_dir/../hdl/pcie_axi.v"]"\
+ "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_top.v"]"\
+ "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_mac_top.v"]"\
+ "[file normalize "$origin_dir/../nts/pp_merge/src/rtl/pp_merge.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_shared.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\
  "[file normalize "$origin_dir/../hdl/clk50_gen.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_top.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_clocks.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_interfaces.v"]"\
  "[file normalize "$origin_dir/../hdl/ntps_phys.v"]"\
  "[file normalize "$origin_dir/../nts/api_extension/src/rtl/api_extension.v"]"\
- "[file normalize "$origin_dir/../nts/pp_merge/src/rtl/pp_merge.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc_entropy_core.v"]"\
  "[file normalize "$origin_dir/../nts/rosc_entropy/src/rtl/rosc.v"]"\
