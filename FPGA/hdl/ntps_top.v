@@ -408,7 +408,7 @@ module ntps_top #(
      .ntp_rx_ofs_1          (ntp_rx_ofs_1),
      .ntp_tx_ofs_1          (ntp_tx_ofs_1),
      .pp_status_1           (pp_status_1),
-o
+
      // Port 2.
      .sfp_module_detect_n_2 (sfp_module_detect2_n),
      .sfp_signal_lost_2     (sfp_signal_lost2),
