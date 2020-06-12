@@ -72,7 +72,7 @@ parameter [2:0]
 // Full status if data fifo is almost full.
 // Current packet can complete transfer since data input rate
 // matches output rate. But next packet must wait for more headroom.
-// 
+//
 
 //SM!!
 
@@ -88,7 +88,7 @@ begin
 		txdfifo_wdata_prev <= 64'b0;
 		txdfifo_wstatus_prev <= 8'b0;
 		tx_ack <= 1'b0;
-		
+
 
 	end
 	else begin
@@ -96,7 +96,7 @@ begin
 		txdfifo_wdata <= txdfifo_wdata_prev;
 		txdfifo_wdata_prev <= tx_data;
 		case (current_state)
-			
+
 		SM_IDLE: begin
 
 			txdfifo_wstatus_prev <= 8'b0;
@@ -128,7 +128,7 @@ begin
 			end
 		end
 		SM_TX: begin
-			
+
 			if(frame_cnt != 4'd0) begin
 				frame_cnt <= frame_cnt - 4'b1;
 			end
@@ -136,14 +136,14 @@ begin
 				txdfifo_wstatus_prev <= `TXSTATUS_START;
 				tx_ack <= 1'b0;
 				txdfifo_wstatus <= txdfifo_wstatus_prev;
-			end 
+			end
 			else if (tx_data_valid == 8'hFF) begin
 				txdfifo_wstatus <= txdfifo_wstatus_prev;
 				txdfifo_wstatus_prev <= `TXSTATUS_NONE;
 				txdfifo_wstatus <= txdfifo_wstatus_prev;
 				current_state <= SM_TX;
 			end
-			else if (tx_data_valid == 8'b00) begin	
+			else if (tx_data_valid == 8'b00) begin
 				txdfifo_wstatus <= `TXSTATUS_END;
 				txdfifo_wstatus_prev <= 8'b0;
 				current_state <= SM_IDLE;
@@ -172,11 +172,15 @@ begin
 				current_state <= SM_IDLE;
 			end
 		end
-			
-		endcase//- SM 
-		
+
+                default:
+                  begin
+                    // Making Vivado happy.
+                  end
+		endcase//- SM
+
 	end
 end
-		
+
 endmodule
 `default_nettype wire

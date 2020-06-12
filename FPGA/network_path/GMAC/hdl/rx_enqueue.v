@@ -69,7 +69,6 @@ reg [63:0]	xgxs_rxd_barrel;
 reg [7:0]	xgxs_rxc_barrel;
 
 reg [63:0]	xgxs_rxd_barrel_x;
-reg [7:0]	xgxs_rxc_barrel_x;
 
 reg [63:0]	xgxs_rxd_barrel_d1;
 reg [7:0]	xgxs_rxc_barrel_d1;
@@ -86,9 +85,6 @@ reg		crc_good;
 `endif
 reg		crc_clear;
 
-reg [31:0]	crc_rx;
-reg [31:0]	next_crc_rx;
-
 reg [2:0]	curr_state;
 reg [2:0]	next_state;
 
@@ -97,17 +93,8 @@ reg [13:0]	next_byte_cnt;
 
 reg		fragment_error;
 
-
-
 reg [7:0]	addmask;
 reg [7:0]	datamask;
-
-reg		pause_frame;
-reg		next_pause_frame;
-
-
-
-
 
 
 
@@ -134,7 +121,6 @@ begin
 		xgxs_rxc_barrel <= 8'b0;
 
 		xgxs_rxd_barrel_x <= 64'b0;
-		xgxs_rxc_barrel_x <= 8'b0;
 
 		xgxs_rxd_barrel_d1 <= 64'b0;
 		xgxs_rxc_barrel_d1 <= 8'b0;
@@ -146,8 +132,6 @@ begin
 
 		crc32_d64 <= 32'b0;
 
-		crc_rx <= 32'b0;
-
 		status_fragment_error_tog <= 1'b0;
 
 		status_pause_frame_rx_tog <= 1'b0;
@@ -156,7 +140,6 @@ begin
 		//sm
 		curr_state <= SM_IDLE;
 		curr_byte_cnt <= 14'b0;
-		pause_frame <= 1'b0;
 
 
 	end
@@ -169,7 +152,6 @@ begin
 
 		curr_state <= next_state;
 		curr_byte_cnt <= next_byte_cnt;
-		pause_frame <= next_pause_frame;
 
 
 		//---
@@ -242,17 +224,13 @@ begin
                 if (barrel_shift) begin
 
 			xgxs_rxd_barrel_x <= {xgmii_rxd[31:0], xgmii_rxd_d1[63:32]};
-			xgxs_rxc_barrel_x <= {xgmii_rxc[3:0], xgmii_rxc_d1[7:4]};
 
 		end
 		else begin
 
 			xgxs_rxd_barrel_x <= xgmii_rxd;
-			xgxs_rxc_barrel_x <= xgmii_rxc;
 
 		end
-		crc_rx <= next_crc_rx;
-
 		if (crc_clear) begin
 
 		// CRC is cleared at the beginning of the frame, calculate
@@ -317,7 +295,6 @@ begin
 	datamask[7] = &addmask[7:0];
 
 
-	next_crc_rx = crc_rx;
 	crc_clear = 1'b0;
 	`ifdef SIMULATION
 	crc_good = 1'b0;
@@ -328,15 +305,11 @@ begin
 
 	fragment_error = 1'b0;
 
-	next_pause_frame = pause_frame;
-
 	case (curr_state)
 
 		SM_IDLE: begin
 			next_byte_cnt = 14'b0;
 			crc_clear = 1'b1;
-			next_pause_frame = 1'b0;
-
 
 			// Detect the start of a frame
 
@@ -398,7 +371,6 @@ begin
 				if (curr_byte_cnt == 14'd0 && xgxs_rxd_barrel_d1[47:0] == `PAUSE_FRAME) begin
 
 				//rxhfifo_wen = 1'b0;
-					next_pause_frame = 1'b1;
 				end
 
 
