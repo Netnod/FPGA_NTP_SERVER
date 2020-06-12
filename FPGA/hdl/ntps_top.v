@@ -428,14 +428,6 @@ module ntps_top #(
      .api_ext_write_data_3  (api_ext_write_data_3),
      .api_ext_status_3      (api_ext_status_3),
      .api_ext_read_data_3   (api_ext_read_data_3),
-     .gen_config_3          (gen_config_3),
-     .ntp_config_3          (ntp_config_3),
-     .ntp_root_delay_3      (ntp_root_delay_3),
-     .ntp_root_disp_3       (ntp_root_disp_3),
-     .ntp_ref_id_3          (ntp_ref_id_3),
-     .ntp_ref_ts_3          (ntp_ref_ts_3),
-     .ntp_rx_ofs_3          (ntp_rx_ofs_3),
-     .ntp_tx_ofs_3          (ntp_tx_ofs_3),
 
      .ntp_time              (ntp_time),
 
