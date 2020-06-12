@@ -457,7 +457,7 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   // Ethernet lite module for MDIO control only.
   //----------------------------------------------------------------
-  ntps_top_axi_ethernetlite_0_0 mdio_ctrl_0 (
+  ntps_top_axi_ethernetlite_0_0 mdio_axi_ethernetlite_inst (
     .phy_col       (1'b0),
     .phy_crs       (1'b0),
     .phy_dv        (1'b0),
@@ -468,6 +468,11 @@ module ntps_interfaces #(
     .phy_rx_data   (4'b0),
     .phy_rx_er     (1'b0),
     .phy_tx_clk    (1'b0),
+    .phy_rst_n     (),
+    .phy_tx_en     (),
+    .phy_tx_data   (),
+    .phy_mdio_t    (),
+    .ip2intc_irpt  (),
     .s_axi_aclk    (axi_aclk),
     .s_axi_aresetn (axi_aresetn),
     .s_axi_araddr  (m_axi_araddr [(AXI_ETHLITE * 32) +: 13]),
