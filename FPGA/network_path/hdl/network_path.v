@@ -144,12 +144,12 @@ module network_path #(
     .pp_read_data(pp_api_read_data),
     .pp_ready(pp_api_ready),
 
-    .dp_cs(),
-    .dp_we(),
-    .dp_address(),
-    .dp_write_data(),
-    .dp_read_data(32'hbeefbeef),
-    .dp_ready(1'h1),
+    .merge_cs(),
+    .merge_we(),
+    .merge_address(),
+    .merge_write_data(),
+    .merge_read_data(32'hdeaddead),
+    .merge_ready(1'h1),
 
     .rosc_cs(),
     .rosc_we(),

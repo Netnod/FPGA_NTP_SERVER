@@ -50,7 +50,6 @@ module network_path_shared (
   input wire [31 : 0]   ntp_rx_ofs,
   input wire [31 : 0]   ntp_tx_ofs,
   output wire [31 : 0]  pp_status,
-  output wire 	        ntp_sync_ok,
 
   input wire [1 : 0]    api_ext_command,
   input wire [31 : 0]   api_ext_address,
@@ -169,7 +168,7 @@ module network_path_shared (
   // mac
   // 10GbMAC
   //----------------------------------------------------------------
-  oc_mac mac(
+  oc_mac oc_mac_inst(
     .res_n         (sys_aresetn),
     .tx_clk        (clk156),
     .tx_start      (tx_mac_start),
@@ -192,7 +191,7 @@ module network_path_shared (
   // Packet processing excluding MAC. For some reason the MAC
   // is outside of the packet processing in this network_path.
   //----------------------------------------------------------------
-  pp_top pp(
+  pp_top pp_top_inst(
     .areset         (sys_reset),
     .clk            (clk156),
 
@@ -256,13 +255,6 @@ module network_path_shared (
     .pp_write_data(pp_api_write_data),
     .pp_read_data(pp_api_read_data),
     .pp_ready(pp_api_ready),
-
-    .dp_cs(),
-    .dp_we(),
-    .dp_address(),
-    .dp_write_data(),
-    .dp_read_data(32'hbeefbeef),
-    .dp_ready(1'h1),
 
     .merge_cs(merge_cs),
     .merge_we(merge_we),

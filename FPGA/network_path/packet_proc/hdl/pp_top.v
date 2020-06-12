@@ -71,24 +71,28 @@ module pp_top (
   output wire [31:0] status
 );
 
-
-  //--------------------------------------------------------------
-  //--------------------------------------------------------------
-  wire             fifo_full;
-  wire             fifo_wr;
-  wire [1004:0]    fifo_wdata;
-
-  wire [31:0]      rx_status;
-
-
   //--------------------------------------------------------------
   // Stub assignments. Now we kill off the pp-functionality.
   //--------------------------------------------------------------
-  assign api_read_data = 32'h0;
-  assign api_ready     = 1'h0;
   assign tx_start      = 1'h0;
   assign tx_data_valid = 64'h0;
   assign tx_data       = 8'h0;
-  assign status        = 1'h0;
+  assign status        = 32'h0;
+
+
+  //--------------------------------------------------------------
+  // pp_api_inst.
+  // Keeping the pp_api for now to make SW happy.
+  //--------------------------------------------------------------
+  pp_api pp_api_inst(
+              .clk        (clk),
+              .areset     (areset),
+              .cs         (api_cs),
+              .we         (api_we),
+              .address    (api_address),
+              .write_data (api_write_data),
+              .read_data  (api_read_data),
+              .ready      (api_ready)
+             );
 
 endmodule // pp_top

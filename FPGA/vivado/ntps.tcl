@@ -171,6 +171,7 @@ set files [list \
  "[file normalize "$origin_dir/../network_path/hdl/network_path_axi_slave.v"]"\
  "[file normalize "$origin_dir/../pvtmon/pvtmon_top.v"]"\
  "[file normalize "$origin_dir/../hdl/pcie_axi.v"]"\
+ "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_api.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_top.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_mac_top.v"]"\
  "[file normalize "$origin_dir/../nts/pp_merge/src/rtl/pp_merge.v"]"\
