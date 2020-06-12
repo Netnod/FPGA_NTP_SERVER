@@ -45,9 +45,6 @@ module network_path #(
   parameter integer C_S_AXI_DATA_WIDTH = 32,
   parameter integer C_S_AXI_ADDR_WIDTH = 9
 )(
-
-  output wire [31 : 0]  pp_status,
-
   input wire [1 : 0]    api_ext_command,
   input wire [31 : 0]   api_ext_address,
   input wire [31 : 0]   api_ext_write_data,
@@ -94,8 +91,7 @@ module network_path #(
     .xgmii_rxd      (xgmii_rxd),
     .xgmii_rxc      (xgmii_rxc),
     .xgmii_txd      (xgmii_txd),
-    .xgmii_txc      (xgmii_txc),
-    .status         (pp_status)
+    .xgmii_txc      (xgmii_txc)
   );
 
 

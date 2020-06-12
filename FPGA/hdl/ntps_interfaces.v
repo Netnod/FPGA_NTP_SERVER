@@ -86,7 +86,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_0,
     input wire [1 : 0]    api_ext_status_0,
     input wire [31 : 0]   api_ext_read_data_0,
-    input wire [31:0]     pp_status_0,
 
     // Port 1.
     input wire            sfp_module_detect_n_1,
@@ -106,7 +105,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_1,
     input wire [1 : 0]    api_ext_status_1,
     input wire [31 : 0]   api_ext_read_data_1,
-    input wire [31:0]     pp_status_1,
 
     // Port 2.
     input wire            sfp_module_detect_n_2,
@@ -126,7 +124,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_2,
     input wire [1 : 0]    api_ext_status_2,
     input wire [31 : 0]   api_ext_read_data_2,
-    input wire [31:0]     pp_status_2,
 
     // Port 3.
     input wire            sfp_module_detect_n_3,
@@ -146,7 +143,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_3,
     input wire [1 : 0]    api_ext_status_3,
     input wire [31 : 0]   api_ext_read_data_3,
-    input wire [31:0]     pp_status_3,
 
     // NTP clocks.
     output wire [63 : 0]  ntp_time,
@@ -599,7 +595,7 @@ module ntps_interfaces #(
     .ntp_ref_ts     (),
     .ntp_rx_ofs     (),
     .ntp_tx_ofs     (),
-    .pp_status      (pp_status_0),
+    .pp_status      (32'h0),
     .xphy_status    ({3'h0, xphy_status_0}),
     .ntp_sync_ok    (ntp_sync_ok),
 
@@ -645,7 +641,7 @@ module ntps_interfaces #(
     .ntp_ref_ts     (),
     .ntp_rx_ofs     (),
     .ntp_tx_ofs     (),
-    .pp_status      (pp_status_1),
+    .pp_status      (32'h0),
     .xphy_status    ({3'h0, xphy_status_1}),
     .ntp_sync_ok    (ntp_sync_ok),
 
@@ -691,7 +687,7 @@ module ntps_interfaces #(
     .ntp_ref_ts     (),
     .ntp_rx_ofs     (),
     .ntp_tx_ofs     (),
-    .pp_status      (pp_status_2),
+    .pp_status      (32'h0),
     .xphy_status    ({3'h0, xphy_status_2}),
     .ntp_sync_ok    (ntp_sync_ok),
 
@@ -737,7 +733,7 @@ module ntps_interfaces #(
     .ntp_ref_ts     (),
     .ntp_rx_ofs     (),
     .ntp_tx_ofs     (),
-    .pp_status      (pp_status_3),
+    .pp_status      (32'h0),
     .xphy_status    ({3'h0, xphy_status_3}),
     .ntp_sync_ok    (ntp_sync_ok),
 

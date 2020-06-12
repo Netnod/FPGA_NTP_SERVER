@@ -371,7 +371,6 @@ module ntps_top #(
      .api_ext_write_data_0  (api_ext_write_data_0),
      .api_ext_status_0      (api_ext_status_0),
      .api_ext_read_data_0   (api_ext_read_data_0),
-     .pp_status_0           (pp_status_0),
 
      // Port 1.
      .sfp_module_detect_n_1 (sfp_module_detect1_n),
@@ -391,7 +390,6 @@ module ntps_top #(
      .api_ext_write_data_1  (api_ext_write_data_1),
      .api_ext_status_1      (api_ext_status_1),
      .api_ext_read_data_1   (api_ext_read_data_1),
-     .pp_status_1           (pp_status_1),
 
      // Port 2.
      .sfp_module_detect_n_2 (sfp_module_detect2_n),
@@ -411,7 +409,6 @@ module ntps_top #(
      .api_ext_write_data_2  (api_ext_write_data_2),
      .api_ext_status_2      (api_ext_status_2),
      .api_ext_read_data_2   (api_ext_read_data_2),
-     .pp_status_2           (pp_status_2),
 
      // Port 3.
      .sfp_module_detect_n_3 (sfp_module_detect3_n),
@@ -439,7 +436,6 @@ module ntps_top #(
      .ntp_ref_ts_3          (ntp_ref_ts_3),
      .ntp_rx_ofs_3          (ntp_rx_ofs_3),
      .ntp_tx_ofs_3          (ntp_tx_ofs_3),
-     .pp_status_3           (pp_status_3),
 
      .ntp_time              (ntp_time),
 
@@ -469,8 +465,6 @@ module ntps_top #(
   // network_path_shared_0.
   //----------------------------------------------------------------
   network_path_shared network_path_shared_0 (
-    .pp_status          (pp_status_0),
-
     .api_ext_command    (api_ext_command_0),
     .api_ext_address    (api_ext_address_0),
     .api_ext_write_data (api_ext_write_data_0),
@@ -494,8 +488,6 @@ module ntps_top #(
   // network_path_1
   //----------------------------------------------------------------
   network_path network_path_1 (
-    .pp_status          (pp_status_1),
-
     .api_ext_command    (api_ext_command_1),
     .api_ext_address    (api_ext_address_1),
     .api_ext_write_data (api_ext_write_data_1),
@@ -519,8 +511,6 @@ module ntps_top #(
   // network_path_2
   //----------------------------------------------------------------
   network_path network_path_2 (
-    .pp_status          (pp_status_2),
-
     .api_ext_command    (api_ext_command_2),
     .api_ext_address    (api_ext_address_2),
     .api_ext_write_data (api_ext_write_data_2),
@@ -544,8 +534,6 @@ module ntps_top #(
   // network_path_3
   //----------------------------------------------------------------
   network_path network_path_3 (
-    .pp_status          (pp_status_3),
-
     .api_ext_command    (api_ext_command_3),
     .api_ext_address    (api_ext_address_3),
     .api_ext_write_data (api_ext_write_data_3),

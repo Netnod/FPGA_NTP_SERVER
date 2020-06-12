@@ -31,7 +31,6 @@
 // Description: Top level for the complete packet processing
 //
 
-`timescale 1ns / 1ps
 `default_nettype none
 
 module pp_top (
@@ -57,10 +56,9 @@ module pp_top (
   output wire        tx_start,
   input  wire        tx_ack,
   output wire [7:0]  tx_data_valid,
-  output wire [63:0] tx_data,
-  // Status bits
-  output wire [31:0] status
+  output wire [63:0] tx_data
 );
+
 
   //--------------------------------------------------------------
   // Stub assignments. Now we kill off the pp-functionality.
@@ -68,7 +66,6 @@ module pp_top (
   assign tx_start      = 1'h0;
   assign tx_data_valid = 64'h0;
   assign tx_data       = 8'h0;
-  assign status        = 32'h0;
 
 
   //--------------------------------------------------------------

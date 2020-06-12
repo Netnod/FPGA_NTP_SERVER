@@ -70,10 +70,7 @@ module pp_mac_top (
   input wire [63:0]  xgmii_rxd,
   input wire [7:0]   xgmii_rxc,
   output wire [63:0] xgmii_txd,
-  output wire [7:0]  xgmii_txc,
-
-  // Status bits
-  output wire [31:0] status
+  output wire [7:0]  xgmii_txc
 );
 
 
@@ -163,9 +160,7 @@ module pp_mac_top (
     .tx_start       (tx_mac_start),
     .tx_ack         (tx_mac_ack),
     .tx_data_valid  (tx_mac_data_valid),
-    .tx_data        (tx_mac_data),
-
-    .status         (status)
+    .tx_data        (tx_mac_data)
   );
 
 endmodule // pp_mac_top

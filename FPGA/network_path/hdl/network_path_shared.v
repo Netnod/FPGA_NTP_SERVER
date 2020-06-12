@@ -41,8 +41,6 @@
 `default_nettype none
 
 module network_path_shared (
-  output wire [31 : 0]  pp_status,
-
   input wire [1 : 0]    api_ext_command,
   input wire [31 : 0]   api_ext_address,
   input wire [31 : 0]   api_ext_write_data,
@@ -178,6 +176,7 @@ module network_path_shared (
     .xgmii_txd     (xgmii_txd)
   );
 
+
   //----------------------------------------------------------------
   // pp
   // Packet processing excluding MAC. For some reason the MAC
@@ -204,9 +203,7 @@ module network_path_shared (
     .tx_start       (pp_mactx_start),
     .tx_ack         (pp_mactx_ack),
     .tx_data_valid  (pp_mactx_data_valid),
-    .tx_data        (pp_mactx_data),
-
-    .status         (pp_status)
+    .tx_data        (pp_mactx_data)
   );
 
 
