@@ -371,14 +371,6 @@ module ntps_top #(
      .api_ext_write_data_0  (api_ext_write_data_0),
      .api_ext_status_0      (api_ext_status_0),
      .api_ext_read_data_0   (api_ext_read_data_0),
-     .gen_config_0          (gen_config_0),
-     .ntp_config_0          (ntp_config_0),
-     .ntp_root_delay_0      (ntp_root_delay_0),
-     .ntp_root_disp_0       (ntp_root_disp_0),
-     .ntp_ref_id_0          (ntp_ref_id_0),
-     .ntp_ref_ts_0          (ntp_ref_ts_0),
-     .ntp_rx_ofs_0          (ntp_rx_ofs_0),
-     .ntp_tx_ofs_0          (ntp_tx_ofs_0),
      .pp_status_0           (pp_status_0),
 
      // Port 1.
@@ -399,14 +391,6 @@ module ntps_top #(
      .api_ext_write_data_1  (api_ext_write_data_1),
      .api_ext_status_1      (api_ext_status_1),
      .api_ext_read_data_1   (api_ext_read_data_1),
-     .gen_config_1          (gen_config_1),
-     .ntp_config_1          (ntp_config_1),
-     .ntp_root_delay_1      (ntp_root_delay_1),
-     .ntp_root_disp_1       (ntp_root_disp_1),
-     .ntp_ref_id_1          (ntp_ref_id_1),
-     .ntp_ref_ts_1          (ntp_ref_ts_1),
-     .ntp_rx_ofs_1          (ntp_rx_ofs_1),
-     .ntp_tx_ofs_1          (ntp_tx_ofs_1),
      .pp_status_1           (pp_status_1),
 
      // Port 2.
@@ -427,14 +411,6 @@ module ntps_top #(
      .api_ext_write_data_2  (api_ext_write_data_2),
      .api_ext_status_2      (api_ext_status_2),
      .api_ext_read_data_2   (api_ext_read_data_2),
-     .gen_config_2          (gen_config_2),
-     .ntp_config_2          (ntp_config_2),
-     .ntp_root_delay_2      (ntp_root_delay_2),
-     .ntp_root_disp_2       (ntp_root_disp_2),
-     .ntp_ref_id_2          (ntp_ref_id_2),
-     .ntp_ref_ts_2          (ntp_ref_ts_2),
-     .ntp_rx_ofs_2          (ntp_rx_ofs_2),
-     .ntp_tx_ofs_2          (ntp_tx_ofs_2),
      .pp_status_2           (pp_status_2),
 
      // Port 3.
@@ -493,14 +469,6 @@ module ntps_top #(
   // network_path_shared_0.
   //----------------------------------------------------------------
   network_path_shared network_path_shared_0 (
-    .gen_config         (gen_config_0),
-    .ntp_config         (ntp_config_0),
-    .ntp_root_delay     (ntp_root_delay_0),
-    .ntp_root_disp      (ntp_root_disp_0),
-    .ntp_ref_id         (ntp_ref_id_0),
-    .ntp_ref_ts         (ntp_ref_ts_0),
-    .ntp_rx_ofs         (ntp_rx_ofs_0),
-    .ntp_tx_ofs         (ntp_tx_ofs_0),
     .pp_status          (pp_status_0),
 
     .api_ext_command    (api_ext_command_0),
@@ -526,16 +494,7 @@ module ntps_top #(
   // network_path_1
   //----------------------------------------------------------------
   network_path network_path_1 (
-    .gen_config         (gen_config_1),
-    .ntp_config         (ntp_config_1),
-    .ntp_root_delay     (ntp_root_delay_1),
-    .ntp_root_disp      (ntp_root_disp_1),
-    .ntp_ref_id         (ntp_ref_id_1),
-    .ntp_ref_ts         (ntp_ref_ts_1),
-    .ntp_rx_ofs         (ntp_rx_ofs_1),
-    .ntp_tx_ofs         (ntp_tx_ofs_1),
     .pp_status          (pp_status_1),
-    .ntp_sync_ok        (ntp_sync_ok_1),
 
     .api_ext_command    (api_ext_command_1),
     .api_ext_address    (api_ext_address_1),
@@ -560,16 +519,7 @@ module ntps_top #(
   // network_path_2
   //----------------------------------------------------------------
   network_path network_path_2 (
-    .gen_config         (gen_config_2),
-    .ntp_config         (ntp_config_2),
-    .ntp_root_delay     (ntp_root_delay_2),
-    .ntp_root_disp      (ntp_root_disp_2),
-    .ntp_ref_id         (ntp_ref_id_2),
-    .ntp_ref_ts         (ntp_ref_ts_2),
-    .ntp_rx_ofs         (ntp_rx_ofs_2),
-    .ntp_tx_ofs         (ntp_tx_ofs_2),
     .pp_status          (pp_status_2),
-    .ntp_sync_ok        (ntp_sync_ok_2),
 
     .api_ext_command    (api_ext_command_2),
     .api_ext_address    (api_ext_address_2),
@@ -594,16 +544,7 @@ module ntps_top #(
   // network_path_3
   //----------------------------------------------------------------
   network_path network_path_3 (
-    .gen_config         (gen_config_3),
-    .ntp_config         (ntp_config_3),
-    .ntp_root_delay     (ntp_root_delay_3),
-    .ntp_root_disp      (ntp_root_disp_3),
-    .ntp_ref_id         (ntp_ref_id_3),
-    .ntp_ref_ts         (ntp_ref_ts_3),
-    .ntp_rx_ofs         (ntp_rx_ofs_3),
-    .ntp_tx_ofs         (ntp_tx_ofs_3),
     .pp_status          (pp_status_3),
-    .ntp_sync_ok        (ntp_sync_ok_3),
 
     .api_ext_command    (api_ext_command_3),
     .api_ext_address    (api_ext_address_3),

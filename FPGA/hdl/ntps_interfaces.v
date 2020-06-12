@@ -86,14 +86,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_0,
     input wire [1 : 0]    api_ext_status_0,
     input wire [31 : 0]   api_ext_read_data_0,
-    output wire [31:0]    gen_config_0,
-    output wire [31:0]    ntp_config_0,
-    output wire [31:0]    ntp_root_delay_0,
-    output wire [31:0]    ntp_root_disp_0,
-    output wire [31:0]    ntp_ref_id_0,
-    output wire [63:0]    ntp_ref_ts_0,
-    output wire [31:0]    ntp_rx_ofs_0,
-    output wire [31:0]    ntp_tx_ofs_0,
     input wire [31:0]     pp_status_0,
 
     // Port 1.
@@ -114,14 +106,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_1,
     input wire [1 : 0]    api_ext_status_1,
     input wire [31 : 0]   api_ext_read_data_1,
-    output wire [31:0]    gen_config_1,
-    output wire [31:0]    ntp_config_1,
-    output wire [31:0]    ntp_root_delay_1,
-    output wire [31:0]    ntp_root_disp_1,
-    output wire [31:0]    ntp_ref_id_1,
-    output wire [63:0]    ntp_ref_ts_1,
-    output wire [31:0]    ntp_rx_ofs_1,
-    output wire [31:0]    ntp_tx_ofs_1,
     input wire [31:0]     pp_status_1,
 
     // Port 2.
@@ -142,14 +126,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_2,
     input wire [1 : 0]    api_ext_status_2,
     input wire [31 : 0]   api_ext_read_data_2,
-    output wire [31:0]    gen_config_2,
-    output wire [31:0]    ntp_config_2,
-    output wire [31:0]    ntp_root_delay_2,
-    output wire [31:0]    ntp_root_disp_2,
-    output wire [31:0]    ntp_ref_id_2,
-    output wire [63:0]    ntp_ref_ts_2,
-    output wire [31:0]    ntp_rx_ofs_2,
-    output wire [31:0]    ntp_tx_ofs_2,
     input wire [31:0]     pp_status_2,
 
     // Port 3.
@@ -170,14 +146,6 @@ module ntps_interfaces #(
     output wire [31 : 0]  api_ext_write_data_3,
     input wire [1 : 0]    api_ext_status_3,
     input wire [31 : 0]   api_ext_read_data_3,
-    output wire [31:0]    gen_config_3,
-    output wire [31:0]    ntp_config_3,
-    output wire [31:0]    ntp_root_delay_3,
-    output wire [31:0]    ntp_root_disp_3,
-    output wire [31:0]    ntp_ref_id_3,
-    output wire [63:0]    ntp_ref_ts_3,
-    output wire [31:0]    ntp_rx_ofs_3,
-    output wire [31:0]    ntp_tx_ofs_3,
     input wire [31:0]     pp_status_3,
 
     // NTP clocks.
@@ -252,6 +220,11 @@ module ntps_interfaces #(
   wire             mdc;
   wire             mdio_in;
   wire             mdio_out;
+
+  wire [31 : 0]    gen_config_0;
+  wire [31 : 0]    gen_config_1;
+  wire [31 : 0]    gen_config_2;
+  wire [31 : 0]    gen_config_3;
 
   wire [4 : 0]     xphy_status_0;
   wire [4 : 0]     xphy_status_1;
@@ -619,13 +592,13 @@ module ntps_interfaces #(
   network_path_axi_slave network_path_axi_slave_0 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_0),
-    .ntp_config     (ntp_config_0),
-    .ntp_root_delay (ntp_root_delay_0),
-    .ntp_root_disp  (ntp_root_disp_0),
-    .ntp_ref_id     (ntp_ref_id_0),
-    .ntp_ref_ts     (ntp_ref_ts_0),
-    .ntp_rx_ofs     (ntp_rx_ofs_0),
-    .ntp_tx_ofs     (ntp_tx_ofs_0),
+    .ntp_config     (),
+    .ntp_root_delay (),
+    .ntp_root_disp  (),
+    .ntp_ref_id     (),
+    .ntp_ref_ts     (),
+    .ntp_rx_ofs     (),
+    .ntp_tx_ofs     (),
     .pp_status      (pp_status_0),
     .xphy_status    ({3'h0, xphy_status_0}),
     .ntp_sync_ok    (ntp_sync_ok),
@@ -665,13 +638,13 @@ module ntps_interfaces #(
   network_path_axi_slave network_path_axi_slave_1 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_1),
-    .ntp_config     (ntp_config_1),
-    .ntp_root_delay (ntp_root_delay_1),
-    .ntp_root_disp  (ntp_root_disp_1),
-    .ntp_ref_id     (ntp_ref_id_1),
-    .ntp_ref_ts     (ntp_ref_ts_1),
-    .ntp_rx_ofs     (ntp_rx_ofs_1),
-    .ntp_tx_ofs     (ntp_tx_ofs_1),
+    .ntp_config     (),
+    .ntp_root_delay (),
+    .ntp_root_disp  (),
+    .ntp_ref_id     (),
+    .ntp_ref_ts     (),
+    .ntp_rx_ofs     (),
+    .ntp_tx_ofs     (),
     .pp_status      (pp_status_1),
     .xphy_status    ({3'h0, xphy_status_1}),
     .ntp_sync_ok    (ntp_sync_ok),
@@ -711,13 +684,13 @@ module ntps_interfaces #(
   network_path_axi_slave network_path_axi_slave_2 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_2),
-    .ntp_config     (ntp_config_2),
-    .ntp_root_delay (ntp_root_delay_2),
-    .ntp_root_disp  (ntp_root_disp_2),
-    .ntp_ref_id     (ntp_ref_id_2),
-    .ntp_ref_ts     (ntp_ref_ts_2),
-    .ntp_rx_ofs     (ntp_rx_ofs_2),
-    .ntp_tx_ofs     (ntp_tx_ofs_2),
+    .ntp_config     (),
+    .ntp_root_delay (),
+    .ntp_root_disp  (),
+    .ntp_ref_id     (),
+    .ntp_ref_ts     (),
+    .ntp_rx_ofs     (),
+    .ntp_tx_ofs     (),
     .pp_status      (pp_status_2),
     .xphy_status    ({3'h0, xphy_status_2}),
     .ntp_sync_ok    (ntp_sync_ok),
@@ -757,13 +730,13 @@ module ntps_interfaces #(
   network_path_axi_slave network_path_axi_slave_3 (
     .pp_clk         (clk156),
     .gen_config     (gen_config_3),
-    .ntp_config     (ntp_config_3),
-    .ntp_root_delay (ntp_root_delay_3),
-    .ntp_root_disp  (ntp_root_disp_3),
-    .ntp_ref_id     (ntp_ref_id_3),
-    .ntp_ref_ts     (ntp_ref_ts_3),
-    .ntp_rx_ofs     (ntp_rx_ofs_3),
-    .ntp_tx_ofs     (ntp_tx_ofs_3),
+    .ntp_config     (),
+    .ntp_root_delay (),
+    .ntp_root_disp  (),
+    .ntp_ref_id     (),
+    .ntp_ref_ts     (),
+    .ntp_rx_ofs     (),
+    .ntp_tx_ofs     (),
     .pp_status      (pp_status_3),
     .xphy_status    ({3'h0, xphy_status_3}),
     .ntp_sync_ok    (ntp_sync_ok),

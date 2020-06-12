@@ -35,8 +35,8 @@
 `default_nettype none
 
 module pp_top (
-  input wire         areset, // async reset
-  input wire         clk,
+  input wire           areset, // async reset
+  input wire           clk,
 
   input wire           api_cs,
   input wire           api_we,
@@ -45,24 +45,15 @@ module pp_top (
   output wire [31 : 0] api_read_data,
   output wire          api_ready,
 
-  // Gen config
-  input wire [23:0]  gen_config,
-  // NTP Config
-  input wire [31:0]  ntp_config,     // LI | VN | Mode | Stratum | Poll | Precision
-  input wire [31:0]  ntp_root_delay, // Root Delay
-  input wire [31:0]  ntp_root_disp,  // Root Dispersion
-  input wire [31:0]  ntp_ref_id,     // Reference ID
-  input wire [63:0]  ntp_ref_ts,     // Reference Timestamp
-  input wire [31:0]  ntp_rx_ofs,     // RX time stamp offset
-  input wire [31:0]  ntp_tx_ofs,     // TX time stamp offset
   // From clock
-  input wire [63:0]  ntp_time,
+  input wire [63:0]    ntp_time,
 
   // MAC
   input  wire [7:0]  rx_data_valid,
   input  wire [63:0] rx_data,
   input  wire        rx_bad_frame,
   input  wire        rx_good_frame,
+
   output wire        tx_start,
   input  wire        tx_ack,
   output wire [7:0]  tx_data_valid,

@@ -45,16 +45,8 @@ module network_path #(
   parameter integer C_S_AXI_DATA_WIDTH = 32,
   parameter integer C_S_AXI_ADDR_WIDTH = 9
 )(
-  input wire [31 : 0]   gen_config,
-  input wire [31 : 0]   ntp_config,
-  input wire [31 : 0]   ntp_root_delay,
-  input wire [31 : 0]   ntp_root_disp,
-  input wire [31 : 0]   ntp_ref_id,
-  input wire [63 : 0]   ntp_ref_ts,
-  input wire [31 : 0]   ntp_rx_ofs,
-  input wire [31 : 0]   ntp_tx_ofs,
+
   output wire [31 : 0]  pp_status,
-  output wire 	        ntp_sync_ok,
 
   input wire [1 : 0]    api_ext_command,
   input wire [31 : 0]   api_ext_address,
@@ -98,14 +90,6 @@ module network_path #(
     .api_write_data (pp_api_write_data),
     .api_read_data  (pp_api_read_data),
     .api_ready      (pp_api_ready),
-    .gen_config     (gen_config[23:0]),
-    .ntp_config     (ntp_config),
-    .ntp_root_delay (ntp_root_delay),
-    .ntp_root_disp  (ntp_root_disp),
-    .ntp_ref_id     (ntp_ref_id),
-    .ntp_ref_ts     (ntp_ref_ts),
-    .ntp_rx_ofs     (ntp_rx_ofs),
-    .ntp_tx_ofs     (ntp_tx_ofs),
     .ntp_time       (ntp_time),
     .xgmii_rxd      (xgmii_rxd),
     .xgmii_rxc      (xgmii_rxc),
