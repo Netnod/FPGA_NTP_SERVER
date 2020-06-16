@@ -302,12 +302,12 @@ module ntps_top #(
   assign LED6  = ntp_clock_topB_LED2;
   assign LED7  = user_link_up;
 
+
   //----------------------------------------------------------------
-  // Clock buffers, clock tree insertions.
-  // These must be at the  top to make Vivado happy.
+  // Clock tree input buffers.
+  // These must be in the top level module to make Vivado happy.
   //----------------------------------------------------------------
   // pcie_clk clock tree input buffer.
-  // IBUF_DS_ODIV2 is unused and left dangling.
   ntps_top_util_ds_buf0_0 util_ds_buf_0 (
      .IBUF_DS_N     (PCIE_CLK_N),
      .IBUF_DS_P     (PCIE_CLK_P),
@@ -325,21 +325,25 @@ module ntps_top #(
   );
 
 
+  // Clock tree input buffer for NTP clock A.
   ntp_clock_ds_buf ds_buf_0 (
     .IBUF_DS_N	(PPS_INA_N),
     .IBUF_DS_P	(PPS_INA_P),
     .IBUF_OUT	(PPS_INA)
   );
 
+
+  // Clock tree insput buffer for NTP clock B.
   ntp_clock_ds_buf ds_buf_1 (
     .IBUF_DS_N	(PPS_INB_N),
     .IBUF_DS_P	(PPS_INB_P),
     .IBUF_OUT	(PPS_INB)
   );
 
+
   //----------------------------------------------------------------
   // ntps_clocks
-  // clock generators, clock control and clock tree allocations.
+  // clock generators, clock control.
   //----------------------------------------------------------------
   ntps_clocks clocks(
                      .reset         (reset),
