@@ -44,13 +44,7 @@
 module ntps_clocks(
                    input wire  reset,
 
-                   input wire  pcie_clk_n,
-                   input wire  pcie_clk_p,
-                   output wire pcie_clk,
-
-                   input wire  sys_clk_n,
-                   input wire  sys_clk_p,
-                   output wire sys_clk,
+                   input wire  sys_clk,
                    output wire clk50,
 
                    inout wire  i2c_clk,
@@ -66,26 +60,6 @@ module ntps_clocks(
   //----------------------------------------------------------------
   // Instantiations.
   //----------------------------------------------------------------
-
-  // pcie_clk clock tree input buffer.
-  // IBUF_DS_ODIV2 is unused and left dangling.
-  ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
-     .IBUF_DS_N     (pcie_clk_n),
-     .IBUF_DS_P     (pcie_clk_p),
-     .IBUF_DS_ODIV2 (),
-     .IBUF_OUT      (pcie_clk)
-  );
-
-
-  // 200 MHz System clock from external source.
-  // sys_clk clock tree input buffer.
-  ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
-     .IBUF_DS_N  (sys_clk_n),
-     .IBUF_DS_P  (sys_clk_p),
-     .IBUF_OUT   (sys_clk)
-  );
-
-
   // 50 MHz clock generator sys_clk / 4.
   // Instantiates a BUFG.
   clk50_gen clk50_gen_0 (

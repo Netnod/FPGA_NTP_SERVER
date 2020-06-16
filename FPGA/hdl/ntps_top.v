@@ -156,6 +156,10 @@ module ntps_top #(
   wire clk50;
   wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
 
+  // Wires for NTP clocks.
+  wire PPS_INA;
+  wire PPS_INB;
+
 
   // Wires for pps_test.
   wire test_PPS_OUT;
@@ -298,6 +302,40 @@ module ntps_top #(
   assign LED6  = ntp_clock_topB_LED2;
   assign LED7  = user_link_up;
 
+  //----------------------------------------------------------------
+  // Clock buffers, clock tree insertions.
+  // These must be at the  top to make Vivado happy.
+  //----------------------------------------------------------------
+  // pcie_clk clock tree input buffer.
+  // IBUF_DS_ODIV2 is unused and left dangling.
+  ntps_top_util_ds_buf0_0 util_ds_buf_0 (
+     .IBUF_DS_N     (PCIE_CLK_N),
+     .IBUF_DS_P     (PCIE_CLK_P),
+     .IBUF_DS_ODIV2 (),
+     .IBUF_OUT      (pcie_clk)
+  );
+
+
+  // 200 MHz System clock from external source.
+  // sys_clk clock tree input buffer.
+  ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
+     .IBUF_DS_N  (SYS_CLK_N),
+     .IBUF_DS_P  (SYS_CLK_P),
+     .IBUF_OUT   (sys_clk)
+  );
+
+
+  ntp_clock_ds_buf ds_buf_0 (
+    .IBUF_DS_N	(PPS_INA_N),
+    .IBUF_DS_P	(PPS_INA_P),
+    .IBUF_OUT	(PPS_INA)
+  );
+
+  ntp_clock_ds_buf ds_buf_1 (
+    .IBUF_DS_N	(PPS_INB_N),
+    .IBUF_DS_P	(PPS_INB_P),
+    .IBUF_OUT	(PPS_INB)
+  );
 
   //----------------------------------------------------------------
   // ntps_clocks
@@ -431,8 +469,7 @@ module ntps_top #(
 
      .ntp_time              (ntp_time),
 
-     .PPS_INA_N             (PPS_INA_N),
-     .PPS_INA_P             (PPS_INA_P),
+     .PPS_INA               (PPS_INA),
      .PPS_OUTA              (PPS_OUTA),
      .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
      .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
@@ -441,8 +478,7 @@ module ntps_top #(
      .NTP_LED2A             (ntp_clock_topA_LED2),
      .PLL_LOCKEDA           (PLL_locked_A),
 
-     .PPS_INB_N             (PPS_INB_N),
-     .PPS_INB_P             (PPS_INB_P),
+     .PPS_INB               (PPS_INB),
      .PPS_OUTB              (PPS_OUTB),
      .TEN_MHZ_INB_N         (TEN_MHZ_INB_clk_n),
      .TEN_MHZ_INB_P         (TEN_MHZ_INB_clk_p),

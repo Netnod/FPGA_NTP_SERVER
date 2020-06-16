@@ -41,8 +41,7 @@ module ntp_clock_top (
   input  wire        TEN_MHZ_IN_N,
   input  wire        TEN_MHZ_IN_P,
   output wire        TEN_MHZ_OUT,
-  input  wire        PPS_IN_N,
-  input  wire        PPS_IN_P,
+  input  wire        PPS_IN,
   output wire        PPS_OUT,
   input  wire        axi_aclk,
   input  wire        axi_aresetn,
@@ -82,7 +81,6 @@ module ntp_clock_top (
 
   //----------------------------------------------------------------
   //----------------------------------------------------------------
-  wire PPS_IN;
   wire clk128;  // Multiplied clock
   wire pll_psclk;
   wire pll_psen;
@@ -93,15 +91,6 @@ module ntp_clock_top (
   //----------------------------------------------------------------
   //----------------------------------------------------------------
   assign test = PPS_IN;
-
-
-  //----------------------------------------------------------------
-  //----------------------------------------------------------------
-  ntp_clock_ds_buf ds_buf_0 (
-    .IBUF_DS_N	(PPS_IN_N),
-    .IBUF_DS_P	(PPS_IN_P),
-    .IBUF_OUT	(PPS_IN)
-  );
 
 
   //----------------------------------------------------------------
