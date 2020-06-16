@@ -347,11 +347,6 @@ module ntps_top #(
   //----------------------------------------------------------------
   ntps_clocks clocks(
                      .reset         (reset),
-                     .pcie_clk_n    (PCIE_CLK_N),
-                     .pcie_clk_p    (PCIE_CLK_P),
-                     .pcie_clk      (pcie_clk),
-                     .sys_clk_n     (SYS_CLK_N),
-                     .sys_clk_p     (SYS_CLK_P),
                      .sys_clk       (sys_clk),
                      .clk50         (clk50),
                      .i2c_clk       (i2c_clk),
