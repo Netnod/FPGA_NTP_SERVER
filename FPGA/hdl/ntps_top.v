@@ -308,7 +308,7 @@ module ntps_top #(
   // These must be in the top level module to make Vivado happy.
   //----------------------------------------------------------------
   // pcie_clk clock tree input buffer.
-  ntps_top_util_ds_buf0_0 util_ds_buf_0 (
+  ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
      .IBUF_DS_N     (PCIE_CLK_N),
      .IBUF_DS_P     (PCIE_CLK_P),
      .IBUF_DS_ODIV2 (),
