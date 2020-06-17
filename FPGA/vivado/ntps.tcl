@@ -203,6 +203,7 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dpge.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dp2w.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/memory_ctrl.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/ctrl_gre.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/icmp.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/ntp_auth.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_api.v"]"\
