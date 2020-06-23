@@ -161,12 +161,12 @@ module network_path_shared (
   oc_mac oc_mac_inst(
     .res_n         (sys_aresetn),
     .tx_clk        (clk156),
-    .tx_start      (tx_mac_start),
-    .tx_data       (tx_mac_data),
-    .tx_data_valid (tx_mac_data_valid),
+    .tx_start      (nts_mactx_start),
+    .tx_data       (nts_mactx_data),
+    .tx_data_valid (nts_mactx_data_valid),
     .xgmii_rxd     (xgmii_rxd),
     .xgmii_rxc     (xgmii_rxc),
-    .tx_ack        (tx_mac_ack),
+    .tx_ack        (nts_mactx_ack),
     .rx_clk        (clk156),
     .rx_bad_frame  (rx_mac_bad_frame),
     .rx_good_frame (rx_mac_good_frame),
@@ -277,38 +277,6 @@ module network_path_shared (
     .i_api_dispatcher_address(p0_nts_address_reg),
     .i_api_dispatcher_write_data(p0_nts_write_data_reg),
     .o_api_dispatcher_read_data(nts_read_data)
-  );
-
-
-  //----------------------------------------------------------------
-  // pp_merge
-  // Note that mask doesn't work for pp_data since it is already
-  // swapped (is not needed anyway).
-  //----------------------------------------------------------------
-  pp_merge merge (
-    .clk(clk156),
-    .areset(areset_clk156),
-
-    .cs         ( p0_merge_cs_reg          ),
-    .we         ( p0_merge_we_reg          ),
-    .address    ( p0_merge_address_reg     ),
-    .write_data ( p0_merge_write_data_reg  ),
-    .read_data  ( merge_read_data          ),
-
-    .pp_start       (pp_mactx_start),
-    .pp_ack         (pp_mactx_ack),
-    .pp_data_valid  (pp_mactx_data_valid),
-    .pp_data        (mac_swap_bytes(pp_mactx_data, 8'hff)),
-
-    .nts_start      (nts_mactx_start),
-    .nts_ack        (nts_mactx_ack),
-    .nts_data_valid (nts_mactx_data_valid),
-    .nts_data       (nts_mactx_data),
-
-    .mac_start      (tx_mac_start),
-    .mac_ack        (tx_mac_ack),
-    .mac_data_valid (tx_mac_data_valid),
-    .mac_data       (tx_mac_data)
   );
 
 
