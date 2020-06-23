@@ -1,39 +1,43 @@
+//======================================================================
+//
+// npts_interfaces.v
+// -----------------
+// AXI slave used for control and supervision of the network paths.
+//
+//
+// Author: Rolf Andersson (rolf@mechanicalmen.se)
 //
 // Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
+// modification, are permitted provided that the following conditions
+// are met:
 //
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
 //
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with the
+//    distribution.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 //
-//
-// Author: Rolf Andersson (rolf@mechanicalmen.se)
-//
-// Design Name: FPGA NTP Server
-// Module Name: network_path_axi_slave
-// Description: control registers for AXI slave
-//
+//======================================================================
 
 `default_nettype none
-
-`timescale 1 ns / 1 ps
 
 module network_path_axi_slave #(
   // Width of S_AXI data bus
@@ -228,14 +232,14 @@ module network_path_axi_slave #(
         end
       end else begin
         for (sts_index=0; sts_index < NCNT; sts_index=sts_index+1) begin
-          slv_reg[CNT_OFS+sts_index] = new_status_cnt[sts_index];
+          slv_reg[CNT_OFS+sts_index] <= new_status_cnt[sts_index];
         end
-        slv_reg[XOFS] = xphy_status_axi;
+        slv_reg[XOFS] <= xphy_status_axi;
       end // else: !if(slv_reg_wren)
 
       // Clear laser enable if sync is lost
       if (ntp_sync_ok_axi == 1'b0) begin
-	slv_reg[0][29] = 1'b0;
+	slv_reg[0][29] <= 1'b0;
       end
 
     end // else: !if( S_AXI_ARESETN == 1'b0 )
@@ -334,9 +338,9 @@ module network_path_axi_slave #(
     end
   end // always @ ( posedge S_AXI_ACLK )
 
+
   //------------------------------------------------------------------------------------
   // AXI clock domain version of network control/status
-
   // Outputs
   wire [31:0]  gen_config_axi;
   wire [31:0]  ntp_config_axi;
@@ -405,4 +409,9 @@ module network_path_axi_slave #(
   end
 
 endmodule // network_path_axi_slave
+
 `default_nettype wire
+
+//======================================================================
+// EOF npts_interfaces.v
+//======================================================================

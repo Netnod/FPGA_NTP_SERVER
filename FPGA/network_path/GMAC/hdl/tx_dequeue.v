@@ -46,7 +46,7 @@ module tx_dequeue(
 	input wire		res_n,
 	input wire [63:0]	txdfifo_rdata,
 	input wire [7:0]	txdfifo_rstatus,
-	
+
 	output reg [63:0]	xgmii_txd,
 	output reg [7:0]	xgmii_txc);
 
@@ -134,9 +134,8 @@ begin
 
 		txhfifo_wdata_d1 <= 64'b0;
 
-
-
-
+                crc32_d64 <= 32'h0;
+                crc32_tx  <= 32'h0;
 
 		xgxs_txd <= {8{`IDLE}};
 		xgxs_txc <= 8'hff;
@@ -145,7 +144,7 @@ begin
 
 
 		txhfifo_wdata <= 64'b0;
-		txhfifo_wstatus <= 8'b0; 
+		txhfifo_wstatus <= 8'b0;
 
 		byte_cnt <= 14'b0;
 
@@ -200,14 +199,14 @@ begin
 
 		//---
 		// Reset byte count on SOP
-		
+
 
 
 		if (next_txhfifo_wstatus[`TXSTATUS_SOP]) begin
 			byte_cnt <= 14'd8;
 		end
 		else if (next_txhfifo_wstatus[`TXSTATUS_VALID]) begin
-			byte_cnt <= byte_cnt + 14'd8; 
+			byte_cnt <= byte_cnt + 14'd8;
 		end
 
 
@@ -224,7 +223,7 @@ begin
 
 		if (txhfifo_wstatus[`TXSTATUS_VALID] && txhfifo_wstatus[`TXSTATUS_EOP]) begin
 
-			
+
 			crc32_tx <= ~reverse_32b(next_crc32_data64_be(reverse_64b(txhfifo_wdata), crc32_d64, txhfifo_wstatus[2:0]));
 
 
@@ -248,14 +247,14 @@ end
 	next_xgxs_txd = {8{`IDLE}};
 	next_xgxs_txc = 8'hff;
 
-	
+
 
 
 	case (curr_state_enc)
 
 		SM_PREAMBLE: begin
 
-			// On reading SOP 
+			// On reading SOP
 
 			if (txhfifo_wstatus[`TXSTATUS_SOP] && txhfifo_wstatus[`TXSTATUS_VALID]) begin
 
@@ -285,7 +284,7 @@ end
 			// transition to next state.
 
 			if (txhfifo_wstatus[`TXSTATUS_EOP]) begin
-				
+
 				next_state_enc = SM_EOP;
 
 			end
@@ -305,7 +304,7 @@ end
 			next_eop[5] = txhfifo_wstatus[2:0] == 3'd6;
 			next_eop[6] = txhfifo_wstatus[2:0] == 3'd7;
 			next_eop[7] = txhfifo_wstatus[2:0] == 3'd0;
-				
+
 		end
 
 		SM_EOP:
@@ -315,7 +314,7 @@ end
 			// of EOP read from fifo. Also insert CRC read from control fifo.
 
 			if (eop[0]) begin
-				next_xgxs_txd = {{2{`IDLE}}, `TERMINATE, 
+				next_xgxs_txd = {{2{`IDLE}}, `TERMINATE,
 						crc32_tx[31:0], txhfifo_wdata_d1[7:0]};
 				next_xgxs_txc = 8'b11100000;
 			end
@@ -434,7 +433,7 @@ always @(/*AS*//*crc32_d64 or txhfifo_wen or txhfifo_wstatus*/ *) begin
     else begin
         crc_data = crc32_d64;
     end
-    
+
 end
 
 
@@ -450,7 +449,7 @@ always @(/*AS*//*byte_cnt or curr_state_pad or txdfifo_rdata
 
 	next_txhfifo_wdata = txdfifo_rdata;
 	next_txhfifo_wstatus = txdfifo_rstatus;
-	
+
 
 	case (curr_state_pad)
 
@@ -463,7 +462,7 @@ always @(/*AS*//*byte_cnt or curr_state_pad or txdfifo_rdata
               // On EOP, decide if padding is required for this packet.
 
 			if (txdfifo_rstatus[`TXSTATUS_EOP]) begin
-		
+
 				if (byte_cnt < 14'd56) begin
 					next_txhfifo_wstatus = `TXSTATUS_NONE;
 					next_state_pad = SM_PAD_PAD;
@@ -476,7 +475,7 @@ always @(/*AS*//*byte_cnt or curr_state_pad or txdfifo_rdata
 
 					// Pad up to LANE3, keep the other 4 bytes for crc that will
 					// be inserted by dequeue engine.
-					
+
 					next_txhfifo_wstatus[2:0] = 3'd4;
 
 					// Pad end bytes with zeros.
@@ -488,10 +487,10 @@ always @(/*AS*//*byte_cnt or curr_state_pad or txdfifo_rdata
 					if (txdfifo_rstatus[2:0] == 3'd3)
 						next_txhfifo_wdata[31:24] = 8'b0;
 				end
-                  
+
 
 			end
-        
+
 		end
 
 	end
@@ -501,11 +500,11 @@ always @(/*AS*//*byte_cnt or curr_state_pad or txdfifo_rdata
           //---
           // Pad packet to 64 bytes by writting zeros to holding fifo.
 
-         
+
 
 		next_txhfifo_wdata = 64'b0;
 		next_txhfifo_wstatus = `TXSTATUS_NONE;
-		
+
 		if (byte_cnt == 14'd56) begin
 
 			// Pad up to LANE3, keep the other 4 bytes for crc that will
@@ -531,4 +530,3 @@ end
 
 
 endmodule
-

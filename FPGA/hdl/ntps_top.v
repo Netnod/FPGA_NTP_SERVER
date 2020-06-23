@@ -1,826 +1,278 @@
+//======================================================================
 //
-// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS) 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
-// modification, are permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// ntps_top.v
+// ----------
+// Top level module for the NTP, NTS FPGA design.
 //
 //
 // Author: Rolf Andersson (rolf@mechanicalmen.se)
 //
-// Design Name: FPGA NTP Server
-// Module Name: ntps_top
-// Description: Top level of the whole FPGA
-// 
+// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS)
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with the
+//    distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+//======================================================================
 
-`timescale 1ns / 1ps
 `default_nettype none
 
 module ntps_top #(
-  parameter BUILD_INFO = 0,
-  parameter GIT_HASH = 0
-) (
-  input wire        reset,
+                  parameter BUILD_INFO = 0,
+                  parameter GIT_HASH   = 0
+                 )
+  (
+   input wire        reset,
 
-  input wire        SYS_CLK_N,
-  input wire        SYS_CLK_P,
+   input wire        SYS_CLK_N,
+   input wire        SYS_CLK_P,
 
-  input wire        PPS_INA_N,
-  input wire        PPS_INA_P,
-  input wire        PPS_INB_N,
-  input wire        PPS_INB_P,
-  input wire        TEN_MHZ_INA_clk_n,
-  input wire        TEN_MHZ_INA_clk_p,
-  input wire        TEN_MHZ_INB_clk_n,
-  input wire        TEN_MHZ_INB_clk_p,
-  output wire       TEN_MHZ_OUTA,
-  output wire       TEN_MHZ_OUTB,
-  output wire       PPS_OUTA,
-  output wire       PPS_OUTB,
+   input wire        PPS_INA_N,
+   input wire        PPS_INA_P,
+   input wire        PPS_INB_N,
+   input wire        PPS_INB_P,
+   input wire        TEN_MHZ_INA_clk_n,
+   input wire        TEN_MHZ_INA_clk_p,
+   input wire        TEN_MHZ_INB_clk_n,
+   input wire        TEN_MHZ_INB_clk_p,
+   output wire       TEN_MHZ_OUTA,
+   output wire       TEN_MHZ_OUTB,
+   output wire       PPS_OUTA,
+   output wire       PPS_OUTB,
 
-  input wire        PCIE_CLK_N,
-  input wire        PCIE_CLK_P,
-  input wire        pcie_perst,
+   input wire        PCIE_CLK_N,
+   input wire        PCIE_CLK_P,
+   input wire        pcie_perst,
 
-  input wire [7:0]  pci_exp_rxn,
-  input wire [7:0]  pci_exp_rxp,
-  output wire [7:0] pci_exp_txn,
-  output wire [7:0] pci_exp_txp,
+   input wire [7:0]  pci_exp_rxn,
+   input wire [7:0]  pci_exp_rxp,
+   output wire [7:0] pci_exp_txn,
+   output wire [7:0] pci_exp_txp,
 
-  input wire        pmbus_alert,
-  inout wire        pmbus_clk,
-  inout wire        pmbus_data,
+   input wire        pmbus_alert,
+   inout wire        pmbus_clk,
+   inout wire        pmbus_data,
 
-  inout wire        i2c_clk,
-  inout wire        i2c_data,
-  output wire       i2c_mux_rst_n,
-  output wire       si5324_rst_n,
+   inout wire        i2c_clk,
+   inout wire        i2c_data,
+   output wire       i2c_mux_rst_n,
+   output wire       si5324_rst_n,
 
-  input wire        xphy_refclk_n,
-  input wire        xphy_refclk_p,
+   input wire        xphy_refclk_n,
+   input wire        xphy_refclk_p,
 
-  input wire        xphy0_rxn,
-  input wire        xphy0_rxp,
-  output wire       xphy0_txn,
-  output wire       xphy0_txp,
-  input wire        xphy1_rxn,
-  input wire        xphy1_rxp,
-  output wire       xphy1_txn,
-  output wire       xphy1_txp,
-  input wire        xphy2_rxn,
-  input wire        xphy2_rxp,
-  output wire       xphy2_txn,
-  output wire       xphy2_txp,
-  input wire        xphy3_rxn,
-  input wire        xphy3_rxp,
-  output wire       xphy3_txn,
-  output wire       xphy3_txp,
+   input wire        xphy0_rxn,
+   input wire        xphy0_rxp,
+   output wire       xphy0_txn,
+   output wire       xphy0_txp,
+   input wire        xphy1_rxn,
+   input wire        xphy1_rxp,
+   output wire       xphy1_txn,
+   output wire       xphy1_txp,
+   input wire        xphy2_rxn,
+   input wire        xphy2_rxp,
+   output wire       xphy2_txn,
+   output wire       xphy2_txp,
+   input wire        xphy3_rxn,
+   input wire        xphy3_rxp,
+   output wire       xphy3_txn,
+   output wire       xphy3_txp,
 
-  input wire        sfp_module_detect0_n,
-  input wire        sfp_module_detect1_n,
-  input wire        sfp_module_detect2_n,
-  input wire        sfp_module_detect3_n,
-  input wire        sfp_signal_lost0,
-  input wire        sfp_signal_lost1,
-  input wire        sfp_signal_lost2,
-  input wire        sfp_signal_lost3,
-  output wire       sfp_tx_disable0,
-  output wire       sfp_tx_disable1,
-  output wire       sfp_tx_disable2,
-  output wire       sfp_tx_disable3,
-  input wire        sfp_tx_fault0,
-  input wire        sfp_tx_fault1,
-  input wire        sfp_tx_fault2,
-  input wire        sfp_tx_fault3,
+   input wire        sfp_module_detect0_n,
+   input wire        sfp_module_detect1_n,
+   input wire        sfp_module_detect2_n,
+   input wire        sfp_module_detect3_n,
+   input wire        sfp_signal_lost0,
+   input wire        sfp_signal_lost1,
+   input wire        sfp_signal_lost2,
+   input wire        sfp_signal_lost3,
+   output wire       sfp_tx_disable0,
+   output wire       sfp_tx_disable1,
+   output wire       sfp_tx_disable2,
+   output wire       sfp_tx_disable3,
+   input wire        sfp_tx_fault0,
+   input wire        sfp_tx_fault1,
+   input wire        sfp_tx_fault2,
+   input wire        sfp_tx_fault3,
 
-  output wire       HEAD2,
-  output wire       HEAD4,
-  output wire       HEAD6,
-  output wire       HEAD8,
-  output wire       HEAD10,
-  output wire       HEAD12,
-  output wire       HEAD14,
-  output wire       HEAD16,
-  output wire       HEAD18,
-  output wire       HEAD20,
-  output wire       HEAD22,
-  output wire       HEAD24,
-  output wire       HEAD26,
-  output wire       HEAD28,
-  output wire       HEAD30,
-  output wire       HEAD32,
-  output wire       HEAD34,
-  output wire       HEAD36,
+   output wire       HEAD2,
+   output wire       HEAD4,
+   output wire       HEAD6,
+   output wire       HEAD8,
+   output wire       HEAD10,
+   output wire       HEAD12,
+   output wire       HEAD14,
+   output wire       HEAD16,
+   output wire       HEAD18,
+   output wire       HEAD20,
+   output wire       HEAD22,
+   output wire       HEAD24,
+   output wire       HEAD26,
+   output wire       HEAD28,
+   output wire       HEAD30,
+   output wire       HEAD32,
+   output wire       HEAD34,
+   output wire       HEAD36,
 
-  output wire       LED0,
-  output wire       LED1,
-  output wire       LED2,
-  output wire       LED3,
-  output wire       LED4,
-  output wire       LED5,
-  output wire       LED6,
-  output wire       LED7
- );
+   output wire       LED0,
+   output wire       LED1,
+   output wire       LED2,
+   output wire       LED3,
+   output wire       LED4,
+   output wire       LED5,
+   output wire       LED6,
+   output wire       LED7
+  );
 
-  // Single ended internal clocks
 
+  //----------------------------------------------------------------
+  // Wires.
+  //----------------------------------------------------------------
+  // Wires for clocks.
   wire pcie_clk;       // 100Mhz PCI express clock
-  wire sys_clk;        // 200Mhz System clock
-  wire clk50;          // sys_clk/4
+  wire sys_clk;
+  wire clk50;
   wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
-  
-  ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
-     .IBUF_DS_N  (PCIE_CLK_N),
-     .IBUF_DS_P  (PCIE_CLK_P),
-     .IBUF_OUT   (pcie_clk)
-  );
 
-  ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
-     .IBUF_DS_N  (SYS_CLK_N),
-     .IBUF_DS_P  (SYS_CLK_P),
-     .IBUF_OUT   (sys_clk)
-  );
+  // Wires for NTP clocks.
+  wire PPS_INA;
+  wire PPS_INB;
 
-  // 50MHz clock generator
-  clk50_gen clk50_gen_0 (
-     .clk200     (sys_clk),
-     .clk50      (clk50)
-  );
 
-  // Control of the external 10Gb ethernet clock generator
-  
-  clock_control clock_control_0 (
-     .clk50         (clk50),
-     .rst           (reset),
-     .i2c_clk       (i2c_clk),
-     .i2c_data      (i2c_data),
-     .i2c_mux_rst_n (i2c_mux_rst_n),
-     .si5324_rst_n  (si5324_rst_n)
-  );
-
-  //-----------------------------------------------------------------------------------------------------------//
-  // PCIe to AXI subsystem, note the aggregated outputs
-
-  wire             axi_aresetn;
-  wire             user_link_up;
-  
-  wire [384-1:0]   m_axi_awaddr;
-  wire [36-1:0]    m_axi_awprot;
-  wire [12-1:0]    m_axi_awvalid;
-  wire [12-1:0]    m_axi_awready;
-  wire [384-1:0]   m_axi_wdata;
-  wire [384/8-1:0] m_axi_wstrb;
-  wire [12-1:0]    m_axi_wvalid;
-  wire [12-1:0]    m_axi_wready;
-  wire [24-1:0]    m_axi_bresp;
-  wire [12-1:0]    m_axi_bvalid;
-  wire [12-1:0]    m_axi_bready;
-  wire [384-1:0]   m_axi_araddr;
-  wire [36-1:0]    m_axi_arprot;
-  wire [12-1:0]    m_axi_arvalid;
-  wire [12-1:0]    m_axi_arready;
-  wire [384-1:0]   m_axi_rdata;
-  wire [24-1:0]    m_axi_rresp;
-  wire [12-1:0]    m_axi_rvalid;
-  wire [12-1:0]    m_axi_rready;
-  
- pcie_axi pcie_axi_0 (
-  .reset         (reset),
-  .pcie_perst    (pcie_perst),
-  .pcie_clk      (pcie_clk),
-  .pci_exp_rxn   (pci_exp_rxn),
-  .pci_exp_rxp   (pci_exp_rxp),
-  .pci_exp_txn   (pci_exp_txn),
-  .pci_exp_txp	 (pci_exp_txp),
-  .axi_aresetn	 (axi_aresetn),
-  .axi_aclk	 (axi_aclk),
-  .m_axi_awaddr	 (m_axi_awaddr),
-  .m_axi_awprot	 (m_axi_awprot),
-  .m_axi_awvalid (m_axi_awvalid),
-  .m_axi_awready (m_axi_awready),
-  .m_axi_wdata	 (m_axi_wdata),
-  .m_axi_wstrb	 (m_axi_wstrb),
-  .m_axi_wvalid	 (m_axi_wvalid),
-  .m_axi_wready	 (m_axi_wready),
-  .m_axi_bresp	 (m_axi_bresp),
-  .m_axi_bvalid	 (m_axi_bvalid),
-  .m_axi_bready	 (m_axi_bready),
-  .m_axi_araddr	 (m_axi_araddr),
-  .m_axi_arprot	 (m_axi_arprot),
-  .m_axi_arvalid (m_axi_arvalid),
-  .m_axi_arready (m_axi_arready),
-  .m_axi_rdata	 (m_axi_rdata),
-  .m_axi_rresp	 (m_axi_rresp),
-  .m_axi_rvalid	 (m_axi_rvalid),
-  .m_axi_rready	 (m_axi_rready),
-  .user_link_up  (user_link_up)
-);
-
-  //-----------------------------------------------------------------------------------------------------------//
-  // NTP clocks
-  
-  wire         PLL_locked_A;
-  wire [63:0]  NTP_TIME_A;
-  wire         NTP_TIME_A_UPD;
-  wire         ntp_clock_topA_LED1;
-  wire         ntp_clock_topA_LED2;
-  wire         SYNC_OK_A;
-
-  ntp_clock_top ntp_clock_topA (
-    .reset            (reset),
-    .axi_aclk         (axi_aclk),
-    .axi_aresetn      (axi_aresetn),
-    .axi_araddr       (m_axi_araddr [0*32 +: 5]),
-    .axi_arprot       (m_axi_arprot [0*3 +: 3]),
-    .axi_arready      (m_axi_arready[0*1 +: 1]),
-    .axi_arvalid      (m_axi_arvalid[0*1 +: 1]),
-    .axi_awaddr       (m_axi_awaddr [0*32 +: 5]),
-    .axi_awprot       (m_axi_awprot [0*3 +: 3]),
-    .axi_awready      (m_axi_awready[0*1 +: 1]),
-    .axi_awvalid      (m_axi_awvalid[0*1 +: 1]),
-    .axi_bready       (m_axi_bready [0*1 +: 1]),
-    .axi_bresp        (m_axi_bresp  [0*2 +: 2]),
-    .axi_bvalid       (m_axi_bvalid [0*1 +: 1]),
-    .axi_rdata        (m_axi_rdata  [0*32 +: 32]),
-    .axi_rready       (m_axi_rready [0*1 +: 1]),
-    .axi_rresp        (m_axi_rresp  [0*2 +: 2]),
-    .axi_rvalid       (m_axi_rvalid [0*1 +: 1]),
-    .axi_wdata        (m_axi_wdata  [0*32 +: 32]),
-    .axi_wready       (m_axi_wready [0*1 +: 1]),
-    .axi_wstrb        (m_axi_wstrb  [0*32/8 +: 32/8]),
-    .axi_wvalid       (m_axi_wvalid [0*1 +: 1]),
-    .PPS_IN_N         (PPS_INA_N),
-    .PPS_IN_P         (PPS_INA_P),
-    .PPS_OUT          (PPS_OUTA),
-    .TEN_MHZ_IN_N     (TEN_MHZ_INA_clk_n),
-    .TEN_MHZ_IN_P     (TEN_MHZ_INA_clk_p),
-    .TEN_MHZ_OUT      (TEN_MHZ_OUTA),
-    .PLL_locked       (PLL_locked_A),
-    .NTP_TIME         (NTP_TIME_A),
-    .NTP_TIME_UPD     (NTP_TIME_A_UPD),
-    .LED1             (ntp_clock_topA_LED1),
-    .LED2             (ntp_clock_topA_LED2),
-    .SYNC_OK          (SYNC_OK_A)
-  );
-
-  wire         PLL_locked_B;
-  wire [63:0]  NTP_TIME_B;
-  wire         NTP_TIME_B_UPD;
-  wire         ntp_clock_topB_LED1;
-  wire         ntp_clock_topB_LED2;
-  wire         SYNC_OK_B;
-   
-  ntp_clock_top ntp_clock_topB (
-    .reset            (reset),
-    .axi_aclk         (axi_aclk),
-    .axi_aresetn      (axi_aresetn),
-    .axi_araddr       (m_axi_araddr [1*32 +: 5]),
-    .axi_arprot       (m_axi_arprot [1*3 +: 3]),
-    .axi_arready      (m_axi_arready[1*1 +: 1]),
-    .axi_arvalid      (m_axi_arvalid[1*1 +: 1]),
-    .axi_awaddr       (m_axi_awaddr [1*32 +: 5]),
-    .axi_awprot       (m_axi_awprot [1*3 +: 3]),
-    .axi_awready      (m_axi_awready[1*1 +: 1]),
-    .axi_awvalid      (m_axi_awvalid[1*1 +: 1]),
-    .axi_bready       (m_axi_bready [1*1 +: 1]),
-    .axi_bresp        (m_axi_bresp  [1*2 +: 2]),
-    .axi_bvalid       (m_axi_bvalid [1*1 +: 1]),
-    .axi_rdata        (m_axi_rdata  [1*32 +: 32]),
-    .axi_rready       (m_axi_rready [1*1 +: 1]),
-    .axi_rresp        (m_axi_rresp  [1*2 +: 2]),
-    .axi_rvalid       (m_axi_rvalid [1*1 +: 1]),
-    .axi_wdata        (m_axi_wdata  [1*32 +: 32]),
-    .axi_wready       (m_axi_wready [1*1 +: 1]),
-    .axi_wstrb        (m_axi_wstrb  [1*32/8 +: 32/8]),
-    .axi_wvalid       (m_axi_wvalid [1*1 +: 1]),
-    .PPS_IN_N         (PPS_INB_N),
-    .PPS_IN_P         (PPS_INB_P),
-    .PPS_OUT          (PPS_OUTB),
-    .TEN_MHZ_IN_N     (TEN_MHZ_INB_clk_n),
-    .TEN_MHZ_IN_P     (TEN_MHZ_INB_clk_p),
-    .TEN_MHZ_OUT      (TEN_MHZ_OUTB),
-    .PLL_locked       (PLL_locked_B),
-    .NTP_TIME         (NTP_TIME_B),
-    .NTP_TIME_UPD     (NTP_TIME_B_UPD),
-    .LED1             (ntp_clock_topB_LED1),
-    .LED2             (ntp_clock_topB_LED2),
-    .SYNC_OK          (SYNC_OK_B)
-  );
-
-  //-----------------------------------------------------------------------------------------------------------//
-  // Network paths
-
-   
-  // Shared MDIO signals
-  wire         phy_mdc;
-  wire         phy_mdio_o;
-  wire         mdio_mux_0_mdio_out;
-
-  // Shared network paths signals
-  wire         areset_clk156;
-  wire         clk156;
-  wire         gtrxreset;
-  wire         gttxreset;
-  wire         qplllock;
-  wire         qplloutclk;
-  wire         qplloutrefclk;
-  wire         reset_counter_done;
-  wire         txuserrdy;
-  wire         txusrclk;
-  wire         txusrclk2;
-
-  wire [31:0]  network_path_shared_0_key_id;
-  wire         network_path_shared_0_key_req;
-  wire         network_path_shared_0_mdio_out;
-  wire         network_path_shared_0_mdio_tri;
-  wire [255:0] keymem_top_0_key;
-  wire         keymem_top_0_key_ack;
-
-  network_path_shared #(.PRTAD(0)) network_path_shared_0 (
-    .areset_clk156      (areset_clk156),
-    .clk156             (clk156),
-    .gtrxreset          (gtrxreset),
-    .gttxreset          (gttxreset),
-    .key                (keymem_top_0_key),
-    .key_ack            (keymem_top_0_key_ack),
-    .key_id             (network_path_shared_0_key_id),
-    .key_req            (network_path_shared_0_key_req),
-    .mdc                (phy_mdc),
-    .mdio_in            (phy_mdio_o),
-    .mdio_out           (network_path_shared_0_mdio_out),
-    .mdio_tri           (network_path_shared_0_mdio_tri),
-    .module_detect_n    (sfp_module_detect0_n),
-    .ntp_time_a         (NTP_TIME_A),
-    .ntp_time_b         (NTP_TIME_B),
-    .ntp_time_upd_a     (NTP_TIME_A_UPD),
-    .ntp_time_upd_b     (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a      (SYNC_OK_A),							  
-    .ntp_sync_ok_b      (SYNC_OK_B),							  
-    .qplllock           (qplllock),
-    .qplloutclk         (qplloutclk),
-    .qplloutrefclk      (qplloutrefclk),
-    .reset_counter_done (reset_counter_done),
-    .s_axi_clk          (axi_aclk),
-    .s_axi_aresetn      (axi_aresetn),
-    .s_axi_araddr       (m_axi_araddr [3*32 +: 32]),
-    .s_axi_arready      (m_axi_arready[3*1 +: 1]),
-    .s_axi_arvalid      (m_axi_arvalid[3*1 +: 1]),
-    .s_axi_awaddr       (m_axi_awaddr [3*32 +: 32]),
-    .s_axi_awready      (m_axi_awready[3*1 +: 1]),
-    .s_axi_awvalid      (m_axi_awvalid[3*1 +: 1]),
-    .s_axi_bready       (m_axi_bready [3*1 +: 1]),
-    .s_axi_bresp        (m_axi_bresp  [3*2 +: 2]),
-    .s_axi_bvalid       (m_axi_bvalid [3*1 +: 1]),
-    .s_axi_rdata        (m_axi_rdata  [3*32 +: 32]),
-    .s_axi_rready       (m_axi_rready [3*1 +: 1]),
-    .s_axi_rresp        (m_axi_rresp  [3*2 +: 2]),
-    .s_axi_rvalid       (m_axi_rvalid [3*1 +: 1]),
-    .s_axi_wdata        (m_axi_wdata  [3*32 +: 32]),
-    .s_axi_wready       (m_axi_wready [3*1 +: 1]),
-    .s_axi_wstrb        (m_axi_wstrb  [3*32/8 +: 32/8]),
-    .s_axi_wvalid       (m_axi_wvalid [3*1 +: 1]),
- 
-    .signal_lost        (sfp_signal_lost0),
-    .sim_speedup_control(1'b0),
-    .sys_reset          (reset),
-    .tx_disable         (sfp_tx_disable0),
-    .tx_fault           (sfp_tx_fault0),
-    .txuserrdy          (txuserrdy),
-    .txusrclk           (txusrclk),
-    .txusrclk2          (txusrclk2),
-    .xphy_refclk_n      (xphy_refclk_n),
-    .xphy_refclk_p      (xphy_refclk_p),
-    .xphy_rxn           (xphy0_rxn),
-    .xphy_rxp           (xphy0_rxp),
-    .xphy_txn           (xphy0_txn),
-    .xphy_txp           (xphy0_txp)
-  );
-      
-  keymem_top keymem_top_0 (
-    .key           (keymem_top_0_key),
-    .key_ack       (keymem_top_0_key_ack),
-    .key_clk       (clk156),
-    .key_id        (network_path_shared_0_key_id),
-    .key_req       (network_path_shared_0_key_req),
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [8*32 +: 15]),
-    .s_axi_arprot  (m_axi_arprot [8*3 +: 3]),
-    .s_axi_arready (m_axi_arready[8*1 +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[8*1 +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [8*32 +: 15]),
-    .s_axi_awprot  (m_axi_awprot [8*3 +: 3]),
-    .s_axi_awready (m_axi_awready[8*1 +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[8*1 +: 1]),
-    .s_axi_bready  (m_axi_bready [8*1 +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [8*2 +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [8*1 +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [8*32 +: 32]),
-    .s_axi_rready  (m_axi_rready [8*1 +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [8*2 +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [8*1 +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [8*32 +: 32]),
-    .s_axi_wready  (m_axi_wready [8*1 +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [8*32/8 +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [8*1 +: 1])
-  );
-
-  wire [31:0]  network_path_1_key_id;
-  wire         network_path_1_key_req;
-  wire         network_path_1_mdio_out;
-  wire         network_path_1_mdio_tri;
-  wire [255:0] keymem_top_1_key;
-  wire         keymem_top_1_key_ack;
-
-  network_path  #(.PRTAD(1)) network_path_1 (
-    .areset_clk156      (areset_clk156),
-    .clk156             (clk156),
-    .gtrxreset          (gtrxreset),
-    .gttxreset          (gttxreset),
-    .key                (keymem_top_1_key),
-    .key_ack            (keymem_top_1_key_ack),
-    .key_id             (network_path_1_key_id),
-    .key_req            (network_path_1_key_req),
-    .mdc                (phy_mdc),
-    .mdio_in            (phy_mdio_o),
-    .mdio_out           (network_path_1_mdio_out),
-    .mdio_tri           (network_path_1_mdio_tri),
-    .module_detect_n    (sfp_module_detect1_n),
-    .ntp_time_a         (NTP_TIME_A),
-    .ntp_time_b         (NTP_TIME_B),
-    .ntp_time_upd_a     (NTP_TIME_A_UPD),
-    .ntp_time_upd_b     (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a      (SYNC_OK_A),							  
-    .ntp_sync_ok_b      (SYNC_OK_B),							  
-    .qplllock           (qplllock),
-    .qplloutclk         (qplloutclk),
-    .qplloutrefclk      (qplloutrefclk),
-    .reset_counter_done (reset_counter_done),
-    .s_axi_clk          (axi_aclk),
-    .s_axi_aresetn      (axi_aresetn),
-    .s_axi_araddr       (m_axi_araddr [4*32 +: 32]),
-    .s_axi_arready      (m_axi_arready[4*1 +: 1]),
-    .s_axi_arvalid      (m_axi_arvalid[4*1 +: 1]),
-    .s_axi_awaddr       (m_axi_awaddr [4*32 +: 32]),
-    .s_axi_awready      (m_axi_awready[4*1 +: 1]),
-    .s_axi_awvalid      (m_axi_awvalid[4*1 +: 1]),
-    .s_axi_bready       (m_axi_bready [4*1 +: 1]),
-    .s_axi_bresp        (m_axi_bresp  [4*2 +: 2]),
-    .s_axi_bvalid       (m_axi_bvalid [4*1 +: 1]),
-    .s_axi_rdata        (m_axi_rdata  [4*32 +: 32]),
-    .s_axi_rready       (m_axi_rready [4*1 +: 1]),
-    .s_axi_rresp        (m_axi_rresp  [4*2 +: 2]),
-    .s_axi_rvalid       (m_axi_rvalid [4*1 +: 1]),
-    .s_axi_wdata        (m_axi_wdata  [4*32 +: 32]),
-    .s_axi_wready       (m_axi_wready [4*1 +: 1]),
-    .s_axi_wstrb        (m_axi_wstrb  [4*32/8 +: 32/8]),
-    .s_axi_wvalid       (m_axi_wvalid [4*1 +: 1]),
-    .signal_lost        (sfp_signal_lost1),
-    .sim_speedup_control(1'b0),
-    .sys_reset          (reset),
-    .tx_disable         (sfp_tx_disable1),
-    .tx_fault           (sfp_tx_fault1),
-    .txuserrdy          (txuserrdy),
-    .txusrclk           (txusrclk),
-    .txusrclk2          (txusrclk2),
-    .xphy_rxn           (xphy1_rxn),
-    .xphy_rxp           (xphy1_rxp),
-    .xphy_txn           (xphy1_txn),
-    .xphy_txp           (xphy1_txp)
-  );
-
-  keymem_top keymem_top_1 (
-    .key           (keymem_top_1_key),
-    .key_ack       (keymem_top_1_key_ack),
-    .key_clk       (clk156),
-    .key_id        (network_path_1_key_id),
-    .key_req       (network_path_1_key_req),
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [9*32 +: 15]),
-    .s_axi_arprot  (m_axi_arprot [9*3 +: 3]),
-    .s_axi_arready (m_axi_arready[9*1 +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[9*1 +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [9*32 +: 15]),
-    .s_axi_awprot  (m_axi_awprot [9*3 +: 3]),
-    .s_axi_awready (m_axi_awready[9*1 +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[9*1 +: 1]),
-    .s_axi_bready  (m_axi_bready [9*1 +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [9*2 +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [9*1 +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [9*32 +: 32]),
-    .s_axi_rready  (m_axi_rready [9*1 +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [9*2 +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [9*1 +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [9*32 +: 32]),
-    .s_axi_wready  (m_axi_wready [9*1 +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [9*32/8 +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [9*1 +: 1])
-  );
-
-  wire [31:0]  network_path_2_key_id;
-  wire         network_path_2_key_req;
-  wire         network_path_2_mdio_out;
-  wire         network_path_2_mdio_tri;
-  wire [255:0] keymem_top_2_key;
-  wire         keymem_top_2_key_ack;
-
-  network_path  #(.PRTAD(2)) network_path_2 (
-    .areset_clk156       (areset_clk156),
-    .clk156              (clk156),
-    .gtrxreset           (gtrxreset),
-    .gttxreset           (gttxreset),
-    .key                 (keymem_top_2_key),
-    .key_ack             (keymem_top_2_key_ack),
-    .key_id              (network_path_2_key_id),
-    .key_req             (network_path_2_key_req),
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_2_mdio_out),
-    .mdio_tri            (network_path_2_mdio_tri),
-    .module_detect_n     (sfp_module_detect2_n),
-    .ntp_time_a          (NTP_TIME_A),
-    .ntp_time_b          (NTP_TIME_B),
-    .ntp_time_upd_a      (NTP_TIME_A_UPD),
-    .ntp_time_upd_b      (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a       (SYNC_OK_A),							  
-    .ntp_sync_ok_b       (SYNC_OK_B),							  
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
-    .s_axi_clk           (axi_aclk),
-    .s_axi_aresetn       (axi_aresetn),
-    .s_axi_araddr        (m_axi_araddr [5*32 +: 32]),
-    .s_axi_arready       (m_axi_arready[5*1 +: 1]),
-    .s_axi_arvalid       (m_axi_arvalid[5*1 +: 1]),
-    .s_axi_awaddr        (m_axi_awaddr [5*32 +: 32]),
-    .s_axi_awready       (m_axi_awready[5*1 +: 1]),
-    .s_axi_awvalid       (m_axi_awvalid[5*1 +: 1]),
-    .s_axi_bready        (m_axi_bready [5*1 +: 1]),
-    .s_axi_bresp         (m_axi_bresp  [5*2 +: 2]),
-    .s_axi_bvalid        (m_axi_bvalid [5*1 +: 1]),
-    .s_axi_rdata         (m_axi_rdata  [5*32 +: 32]),
-    .s_axi_rready        (m_axi_rready [5*1 +: 1]),
-    .s_axi_rresp         (m_axi_rresp  [5*2 +: 2]),
-    .s_axi_rvalid        (m_axi_rvalid [5*1 +: 1]),
-    .s_axi_wdata         (m_axi_wdata  [5*32 +: 32]),
-    .s_axi_wready        (m_axi_wready [5*1 +: 1]),
-    .s_axi_wstrb         (m_axi_wstrb  [5*32/8 +: 32/8]),
-    .s_axi_wvalid        (m_axi_wvalid [5*1 +: 1]),
-    .signal_lost         (sfp_signal_lost2),
-    .sim_speedup_control (1'b0),
-    .sys_reset           (reset),
-    .tx_disable          (sfp_tx_disable2),
-    .tx_fault            (sfp_tx_fault2),
-    .txuserrdy           (txuserrdy),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
-    .xphy_rxn            (xphy2_rxn),
-    .xphy_rxp            (xphy2_rxp),
-    .xphy_txn            (xphy2_txn),
-    .xphy_txp            (xphy2_txp)
-  );
-
-  keymem_top keymem_top_2 (
-    .key           (keymem_top_2_key),
-    .key_ack       (keymem_top_2_key_ack),
-    .key_clk       (clk156),
-    .key_id        (network_path_2_key_id),
-    .key_req       (network_path_2_key_req),
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [10*32 +: 15]),
-    .s_axi_arprot  (m_axi_arprot [10*3 +: 3]),
-    .s_axi_arready (m_axi_arready[10*1 +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[10*1 +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [10*32 +: 15]),
-    .s_axi_awprot  (m_axi_awprot [10*3 +: 3]),
-    .s_axi_awready (m_axi_awready[10*1 +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[10*1 +: 1]),
-    .s_axi_bready  (m_axi_bready [10*1 +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [10*2 +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [10*1 +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [10*32 +: 32]),
-    .s_axi_rready  (m_axi_rready [10*1 +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [10*2 +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [10*1 +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [10*32 +: 32]),
-    .s_axi_wready  (m_axi_wready [10*1 +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [10*32/8 +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [10*1 +: 1])
-  );
-
-  wire [31:0]  network_path_3_key_id;
-  wire         network_path_3_key_req;
-  wire         network_path_3_mdio_out;
-  wire         network_path_3_mdio_tri;
-
-  wire [255:0] keymem_top_3_key;
-  wire         keymem_top_3_key_ack;
-
-  network_path  #(.PRTAD(3)) network_path_3 (
-    .areset_clk156       (areset_clk156),
-    .clk156              (clk156),
-    .gtrxreset           (gtrxreset),
-    .gttxreset           (gttxreset),
-    .key                 (keymem_top_3_key),
-    .key_ack             (keymem_top_3_key_ack),
-    .key_id              (network_path_3_key_id),
-    .key_req             (network_path_3_key_req),
-    .mdc                 (phy_mdc),
-    .mdio_in             (phy_mdio_o),
-    .mdio_out            (network_path_3_mdio_out),
-    .mdio_tri            (network_path_3_mdio_tri),
-    .module_detect_n     (sfp_module_detect3_n),
-    .ntp_time_a          (NTP_TIME_A),
-    .ntp_time_b          (NTP_TIME_B),
-    .ntp_time_upd_a      (NTP_TIME_A_UPD),
-    .ntp_time_upd_b      (NTP_TIME_B_UPD),
-    .ntp_sync_ok_a       (SYNC_OK_A),							  
-    .ntp_sync_ok_b       (SYNC_OK_B),							  
-    .qplllock            (qplllock),
-    .qplloutclk          (qplloutclk),
-    .qplloutrefclk       (qplloutrefclk),
-    .reset_counter_done  (reset_counter_done),
-    .s_axi_clk           (axi_aclk),
-    .s_axi_aresetn       (axi_aresetn),
-    .s_axi_araddr        (m_axi_araddr [6*32 +: 32]),
-    .s_axi_arready       (m_axi_arready[6*1 +: 1]),
-    .s_axi_arvalid       (m_axi_arvalid[6*1 +: 1]),
-    .s_axi_awaddr        (m_axi_awaddr [6*32 +: 32]),
-    .s_axi_awready       (m_axi_awready[6*1 +: 1]),
-    .s_axi_awvalid       (m_axi_awvalid[6*1 +: 1]),
-    .s_axi_bready        (m_axi_bready [6*1 +: 1]),
-    .s_axi_bresp         (m_axi_bresp  [6*2 +: 2]),
-    .s_axi_bvalid        (m_axi_bvalid [6*1 +: 1]),
-    .s_axi_rdata         (m_axi_rdata  [6*32 +: 32]),
-    .s_axi_rready        (m_axi_rready [6*1 +: 1]),
-    .s_axi_rresp         (m_axi_rresp  [6*2 +: 2]),
-    .s_axi_rvalid        (m_axi_rvalid [6*1 +: 1]),
-    .s_axi_wdata         (m_axi_wdata  [6*32 +: 32]),
-    .s_axi_wready        (m_axi_wready [6*1 +: 1]),
-    .s_axi_wstrb         (m_axi_wstrb  [6*32/8 +: 32/8]),
-    .s_axi_wvalid        (m_axi_wvalid [6*1 +: 1]),
-    .signal_lost         (sfp_signal_lost3),
-    .sim_speedup_control (1'b0),
-    .sys_reset           (reset),
-    .tx_disable          (sfp_tx_disable3),
-    .tx_fault            (sfp_tx_fault3),
-    .txuserrdy           (txuserrdy),
-    .txusrclk            (txusrclk),
-    .txusrclk2           (txusrclk2),
-    .xphy_rxn            (xphy3_rxn),
-    .xphy_rxp            (xphy3_rxp),
-    .xphy_txn            (xphy3_txn),
-    .xphy_txp            (xphy3_txp)
-  );
-
-  keymem_top keymem_top_3 (
-    .key           (keymem_top_3_key),
-    .key_ack       (keymem_top_3_key_ack),
-    .key_clk       (clk156),
-    .key_id        (network_path_3_key_id),
-    .key_req       (network_path_3_key_req),
-    .s_axi_clk     (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [11*32 +: 15]),
-    .s_axi_arprot  (m_axi_arprot [11*3 +: 3]),
-    .s_axi_arready (m_axi_arready[11*1 +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[11*1 +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [11*32 +: 15]),
-    .s_axi_awprot  (m_axi_awprot [11*3 +: 3]),
-    .s_axi_awready (m_axi_awready[11*1 +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[11*1 +: 1]),
-    .s_axi_bready  (m_axi_bready [11*1 +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [11*2 +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [11*1 +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [11*32 +: 32]),
-    .s_axi_rready  (m_axi_rready [11*1 +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [11*2 +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [11*1 +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [11*32 +: 32]),
-    .s_axi_wready  (m_axi_wready [11*1 +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [11*32/8 +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [11*1 +: 1])
-  );
-
-  // Merge mdio outputs from network paths
-  mdio_mux mdio_mux_0 (
-    .mdio_out   (mdio_mux_0_mdio_out),
-    .mdio_out_0 (network_path_shared_0_mdio_out),
-    .mdio_out_1 (network_path_1_mdio_out),
-    .mdio_out_2 (network_path_2_mdio_out),
-    .mdio_out_3 (network_path_3_mdio_out),
-    .mdio_tri_0 (network_path_shared_0_mdio_tri),
-    .mdio_tri_1 (network_path_1_mdio_tri),
-    .mdio_tri_2 (network_path_2_mdio_tri),
-    .mdio_tri_3 (network_path_3_mdio_tri)
-  );
-
-  //-----------------------------------------------------------------------------------------------------------//
-  // Ethernet lite module for MDIO control only 
-  
-  ntps_top_axi_ethernetlite_0_0 mdio_ctrl_0 (
-    .phy_col       (1'b0),
-    .phy_crs       (1'b0),
-    .phy_dv        (1'b0),
-    .phy_mdc       (phy_mdc),
-    .phy_mdio_i    (mdio_mux_0_mdio_out),
-    .phy_mdio_o    (phy_mdio_o),
-    .phy_rx_clk    (1'b0),
-    .phy_rx_data   (4'b0),
-    .phy_rx_er     (1'b0),
-    .phy_tx_clk    (1'b0),
-    .s_axi_aclk    (axi_aclk),
-    .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [2*32 +: 13]),
-    .s_axi_arready  (m_axi_arready[2*1 +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[2*1 +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [2*32 +: 13]),
-    .s_axi_awready  (m_axi_awready[2*1 +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[2*1 +: 1]),
-    .s_axi_bready   (m_axi_bready [2*1 +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [2*2 +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [2*1 +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [2*32 +: 32]),
-    .s_axi_rready   (m_axi_rready [2*1 +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [2*2 +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [2*1 +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [2*32 +: 32]),
-    .s_axi_wready   (m_axi_wready [2*1 +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [2*32/8 +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [2*1 +: 1])
-  );
-
-  //-----------------------------------------------------------------------------------------------------------//
-  // Status registers for Power and Temp
-  
-  pvtmon_top #(
-    .BUILD_INFO(BUILD_INFO),
-    .GIT_HASH(GIT_HASH)
-  ) pvtmon_top_0 (
-    .clk50          (clk50),
-    .rst            (reset),
-    .pcie_link_up   (user_link_up),
-    .pmbus_alert    (pmbus_alert),
-    .pmbus_clk      (pmbus_clk),
-    .pmbus_data     (pmbus_data),
-    .s_axi_clk      (axi_aclk),
-    .s_axi_aresetn  (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [7*32 +: 32]),
-    .s_axi_arready  (m_axi_arready[7*1 +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[7*1 +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [7*32 +: 32]),
-    .s_axi_awready  (m_axi_awready[7*1 +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[7*1 +: 1]),
-    .s_axi_bready   (m_axi_bready [7*1 +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [7*2 +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [7*1 +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [7*32 +: 32]),
-    .s_axi_rready   (m_axi_rready [7*1 +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [7*2 +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [7*1 +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [7*32 +: 32]),
-    .s_axi_wready   (m_axi_wready [7*1 +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [7*32/8 +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [7*1 +: 1])
-  );
-
-  //-----------------------------------------------------------------------------------------------------------//
-  // Test pulse and clock output signals
-
+  // Wires for pps_test.
   wire test_PPS_OUT;
   wire test_TEN_MHZ_OUT;
 
-  pps_test pps_test_0 (
-    .areset       (reset),
-    .clk_in       (sys_clk),
-    .PPS_OUT      (test_PPS_OUT),
-    .TEN_MHZ_OUT  (test_TEN_MHZ_OUT)
-  );
+  // Wires for PCI-AXI:
+  wire             user_link_up;
 
-  //-----------------------------------------------------------------------------------------------------------//
-  // Debug pins
+  // Wires for NTP clocks.
+  wire [63:0]  ntp_time;
+  wire         PLL_locked_A;
+  wire         ntp_clock_topA_LED1;
+  wire         ntp_clock_topA_LED2;
+  wire         PLL_locked_B;
+  wire         ntp_clock_topB_LED1;
+  wire         ntp_clock_topB_LED2;
 
+
+  // Shared network paths signals
+  wire           areset_clk156;
+  wire           clk156;
+
+  // Port 0
+  wire [63  : 0] xgmii_txd_0;
+  wire [7   : 0] xgmii_txc_0;
+  wire [63 : 0]  xgmii_rxd_0;
+  wire [7  : 0]  xgmii_rxc_0;
+  wire [31:0]    gen_config_0;
+  wire [31:0]    ntp_config_0;
+  wire [31:0]    ntp_root_delay_0;
+  wire [31:0]    ntp_root_disp_0;
+  wire [31:0]    ntp_ref_id_0;
+  wire [63:0]    ntp_ref_ts_0;
+  wire [31:0]    ntp_rx_ofs_0;
+  wire [31:0]    ntp_tx_ofs_0;
+  wire [31:0]    pp_status_0;
+  wire 	         ntp_sync_ok_0;
+  wire [1 : 0]   api_ext_command_0;
+  wire [31 : 0]  api_ext_address_0;
+  wire [31 : 0]  api_ext_write_data_0;
+  wire [1 : 0]   api_ext_status_0;
+  wire [31 : 0]  api_ext_read_data_0;
+
+
+  // Port 1
+  wire [63  : 0] xgmii_txd_1;
+  wire [7   : 0] xgmii_txc_1;
+  wire [63 : 0]  xgmii_rxd_1;
+  wire [7  : 0]  xgmii_rxc_1;
+  wire [31:0]    gen_config_1;
+  wire [31:0]    ntp_config_1;
+  wire [31:0]    ntp_root_delay_1;
+  wire [31:0]    ntp_root_disp_1;
+  wire [31:0]    ntp_ref_id_1;
+  wire [63:0]    ntp_ref_ts_1;
+  wire [31:0]    ntp_rx_ofs_1;
+  wire [31:0]    ntp_tx_ofs_1;
+  wire [31:0]    pp_status_1;
+  wire 	         ntp_sync_ok_1;
+  wire [1 : 0]   api_ext_command_1;
+  wire [31 : 0]  api_ext_address_1;
+  wire [31 : 0]  api_ext_write_data_1;
+  wire [1 : 0]   api_ext_status_1;
+  wire [31 : 0]  api_ext_read_data_1;
+
+
+  // Port 2
+  wire [63  : 0] xgmii_txd_2;
+  wire [7   : 0] xgmii_txc_2;
+  wire [63 : 0]  xgmii_rxd_2;
+  wire [7  : 0]  xgmii_rxc_2;
+  wire [31:0]    gen_config_2;
+  wire [31:0]    ntp_config_2;
+  wire [31:0]    ntp_root_delay_2;
+  wire [31:0]    ntp_root_disp_2;
+  wire [31:0]    ntp_ref_id_2;
+  wire [63:0]    ntp_ref_ts_2;
+  wire [31:0]    ntp_rx_ofs_2;
+  wire [31:0]    ntp_tx_ofs_2;
+  wire [31:0]    pp_status_2;
+  wire 	         ntp_sync_ok_2;
+  wire [1 : 0]   api_ext_command_2;
+  wire [31 : 0]  api_ext_address_2;
+  wire [31 : 0]  api_ext_write_data_2;
+  wire [1 : 0]   api_ext_status_2;
+  wire [31 : 0]  api_ext_read_data_2;
+
+
+  // Port 3
+  wire [63  : 0] xgmii_txd_3;
+  wire [7   : 0] xgmii_txc_3;
+  wire [63 : 0]  xgmii_rxd_3;
+  wire [7  : 0]  xgmii_rxc_3;
+  wire [31:0]    gen_config_3;
+  wire [31:0]    ntp_config_3;
+  wire [31:0]    ntp_root_delay_3;
+  wire [31:0]    ntp_root_disp_3;
+  wire [31:0]    ntp_ref_id_3;
+  wire [63:0]    ntp_ref_ts_3;
+  wire [31:0]    ntp_rx_ofs_3;
+  wire [31:0]    ntp_tx_ofs_3;
+  wire [31:0]    pp_status_3;
+  wire 	         ntp_sync_ok_3;
+  wire [1 : 0]   api_ext_command_3;
+  wire [31 : 0]  api_ext_address_3;
+  wire [31 : 0]  api_ext_write_data_3;
+  wire [1 : 0]   api_ext_status_3;
+  wire [31 : 0]  api_ext_read_data_3;
+
+
+  //----------------------------------------------------------------
+  // Pin Assignments.
+  //----------------------------------------------------------------
   assign HEAD2  = test_TEN_MHZ_OUT;
   assign HEAD4  = 1'b0;
   assign HEAD6  = 1'b0;
@@ -850,6 +302,287 @@ module ntps_top #(
   assign LED6  = ntp_clock_topB_LED2;
   assign LED7  = user_link_up;
 
+
+  //----------------------------------------------------------------
+  // Clock tree input buffers.
+  // These must be in the top level module to make Vivado happy.
+  //----------------------------------------------------------------
+  // pcie_clk clock tree input buffer.
+  ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
+     .IBUF_DS_N     (PCIE_CLK_N),
+     .IBUF_DS_P     (PCIE_CLK_P),
+     .IBUF_DS_ODIV2 (),
+     .IBUF_OUT      (pcie_clk)
+  );
+
+
+  // 200 MHz System clock from external source.
+  // sys_clk clock tree input buffer.
+  ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
+     .IBUF_DS_N  (SYS_CLK_N),
+     .IBUF_DS_P  (SYS_CLK_P),
+     .IBUF_OUT   (sys_clk)
+  );
+
+
+  // Clock tree input buffer for NTP clock A.
+  ntp_clock_ds_buf ds_buf_0 (
+    .IBUF_DS_N	(PPS_INA_N),
+    .IBUF_DS_P	(PPS_INA_P),
+    .IBUF_OUT	(PPS_INA)
+  );
+
+
+  // Clock tree insput buffer for NTP clock B.
+  ntp_clock_ds_buf ds_buf_1 (
+    .IBUF_DS_N	(PPS_INB_N),
+    .IBUF_DS_P	(PPS_INB_P),
+    .IBUF_OUT	(PPS_INB)
+  );
+
+
+  //----------------------------------------------------------------
+  // ntps_clocks
+  // clock generators, clock control.
+  //----------------------------------------------------------------
+  ntps_clocks clocks(
+                     .reset         (reset),
+                     .sys_clk       (sys_clk),
+                     .clk50         (clk50),
+                     .i2c_clk       (i2c_clk),
+                     .i2c_data      (i2c_data),
+                     .i2c_mux_rst_n (i2c_mux_rst_n),
+                     .si5324_rst_n  (si5324_rst_n),
+                     .PPS_OUT       (test_PPS_OUT),
+                     .TEN_MHZ_OUT   (test_TEN_MHZ_OUT)
+                     );
+
+
+  //----------------------------------------------------------------
+  // ntps_interfaces.
+  // All external/physical interfaces including pci-axi bridge
+  // and NTP clocks.
+  //----------------------------------------------------------------
+  ntps_interfaces #(
+                    .BUILD_INFO(BUILD_INFO),
+                    .GIT_HASH(GIT_HASH)
+                   )
+ ntps_interfaces_0 (
+     .reset                 (reset),
+
+     .pcie_perst            (pcie_perst),
+     .pcie_clk              (pcie_clk),
+     .pci_exp_rxn           (pci_exp_rxn),
+     .pci_exp_rxp           (pci_exp_rxp),
+     .pci_exp_txn           (pci_exp_txn),
+     .pci_exp_txp           (pci_exp_txp),
+
+     .user_link_up          (user_link_up),
+
+     .clk50                 (clk50),
+     .pmbus_alert           (pmbus_alert),
+     .pmbus_clk             (pmbus_clk),
+     .pmbus_data            (pmbus_data),
+
+     .clk156                (clk156),
+     .areset_clk156         (areset_clk156),
+
+     .xphy_refclk_n         (xphy_refclk_n),
+     .xphy_refclk_p         (xphy_refclk_p),
+
+     // Port 0.
+     .sfp_module_detect_n_0 (sfp_module_detect0_n),
+     .sfp_signal_lost_0     (sfp_signal_lost0),
+     .sfp_tx_fault_0        (sfp_tx_fault0),
+     .sfp_tx_disable_0      (sfp_tx_disable0),
+     .xphy_rxp_0            (xphy0_rxp),
+     .xphy_rxn_0            (xphy0_rxn),
+     .xphy_txp_0            (xphy0_txp),
+     .xphy_txn_0            (xphy0_txn),
+     .xgmii_txd_0           (xgmii_txd_0),
+     .xgmii_txc_0           (xgmii_txc_0),
+     .xgmii_rxd_0           (xgmii_rxd_0),
+     .xgmii_rxc_0           (xgmii_rxc_0),
+     .api_ext_command_0     (api_ext_command_0),
+     .api_ext_address_0     (api_ext_address_0),
+     .api_ext_write_data_0  (api_ext_write_data_0),
+     .api_ext_status_0      (api_ext_status_0),
+     .api_ext_read_data_0   (api_ext_read_data_0),
+
+     // Port 1.
+     .sfp_module_detect_n_1 (sfp_module_detect1_n),
+     .sfp_signal_lost_1     (sfp_signal_lost1),
+     .sfp_tx_fault_1        (sfp_tx_fault1),
+     .sfp_tx_disable_1      (sfp_tx_disable1),
+     .xphy_rxp_1            (xphy1_rxp),
+     .xphy_rxn_1            (xphy1_rxn),
+     .xphy_txp_1            (xphy1_txp),
+     .xphy_txn_1            (xphy1_txn),
+     .xgmii_txd_1           (xgmii_txd_1),
+     .xgmii_txc_1           (xgmii_txc_1),
+     .xgmii_rxd_1           (xgmii_rxd_1),
+     .xgmii_rxc_1           (xgmii_rxc_1),
+     .api_ext_command_1     (api_ext_command_1),
+     .api_ext_address_1     (api_ext_address_1),
+     .api_ext_write_data_1  (api_ext_write_data_1),
+     .api_ext_status_1      (api_ext_status_1),
+     .api_ext_read_data_1   (api_ext_read_data_1),
+
+     // Port 2.
+     .sfp_module_detect_n_2 (sfp_module_detect2_n),
+     .sfp_signal_lost_2     (sfp_signal_lost2),
+     .sfp_tx_fault_2        (sfp_tx_fault2),
+     .sfp_tx_disable_2      (sfp_tx_disable2),
+     .xphy_rxp_2            (xphy2_rxp),
+     .xphy_rxn_2            (xphy2_rxn),
+     .xphy_txp_2            (xphy2_txp),
+     .xphy_txn_2            (xphy2_txn),
+     .xgmii_txd_2           (xgmii_txd_2),
+     .xgmii_txc_2           (xgmii_txc_2),
+     .xgmii_rxd_2           (xgmii_rxd_2),
+     .xgmii_rxc_2           (xgmii_rxc_2),
+     .api_ext_command_2     (api_ext_command_2),
+     .api_ext_address_2     (api_ext_address_2),
+     .api_ext_write_data_2  (api_ext_write_data_2),
+     .api_ext_status_2      (api_ext_status_2),
+     .api_ext_read_data_2   (api_ext_read_data_2),
+
+     // Port 3.
+     .sfp_module_detect_n_3 (sfp_module_detect3_n),
+     .sfp_signal_lost_3     (sfp_signal_lost3),
+     .sfp_tx_fault_3        (sfp_tx_fault3),
+     .sfp_tx_disable_3      (sfp_tx_disable3),
+     .xphy_rxp_3            (xphy3_rxp),
+     .xphy_rxn_3            (xphy3_rxn),
+     .xphy_txp_3            (xphy3_txp),
+     .xphy_txn_3            (xphy3_txn),
+     .xgmii_txd_3           (xgmii_txd_3),
+     .xgmii_txc_3           (xgmii_txc_3),
+     .xgmii_rxd_3           (xgmii_rxd_3),
+     .xgmii_rxc_3           (xgmii_rxc_3),
+     .api_ext_command_3     (api_ext_command_3),
+     .api_ext_address_3     (api_ext_address_3),
+     .api_ext_write_data_3  (api_ext_write_data_3),
+     .api_ext_status_3      (api_ext_status_3),
+     .api_ext_read_data_3   (api_ext_read_data_3),
+
+     .ntp_time              (ntp_time),
+
+     .PPS_INA               (PPS_INA),
+     .PPS_OUTA              (PPS_OUTA),
+     .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
+     .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
+     .TEN_MHZ_OUTA          (TEN_MHZ_OUTA),
+     .NTP_LED1A             (ntp_clock_topA_LED1),
+     .NTP_LED2A             (ntp_clock_topA_LED2),
+     .PLL_LOCKEDA           (PLL_locked_A),
+
+     .PPS_INB               (PPS_INB),
+     .PPS_OUTB              (PPS_OUTB),
+     .TEN_MHZ_INB_N         (TEN_MHZ_INB_clk_n),
+     .TEN_MHZ_INB_P         (TEN_MHZ_INB_clk_p),
+     .TEN_MHZ_OUTB          (TEN_MHZ_OUTB),
+     .NTP_LED1B             (ntp_clock_topB_LED1),
+     .NTP_LED2B             (ntp_clock_topB_LED2),
+     .PLL_LOCKEDB           (PLL_locked_B)
+    );
+
+
+  //----------------------------------------------------------------
+  // network_path_shared_0.
+  //----------------------------------------------------------------
+  network_path_shared network_path_shared_0 (
+    .api_ext_command    (api_ext_command_0),
+    .api_ext_address    (api_ext_address_0),
+    .api_ext_write_data (api_ext_write_data_0),
+    .api_ext_status     (api_ext_status_0),
+    .api_ext_read_data  (api_ext_read_data_0),
+
+    .ntp_time           (ntp_time),
+
+    .xgmii_rxd          (xgmii_rxd_0),
+    .xgmii_rxc          (xgmii_rxc_0),
+    .xgmii_txd          (xgmii_txd_0),
+    .xgmii_txc          (xgmii_txc_0),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+    .sys_reset          (reset)
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_1
+  //----------------------------------------------------------------
+  network_path network_path_1 (
+    .api_ext_command    (api_ext_command_1),
+    .api_ext_address    (api_ext_address_1),
+    .api_ext_write_data (api_ext_write_data_1),
+    .api_ext_status     (api_ext_status_1),
+    .api_ext_read_data  (api_ext_read_data_1),
+
+    .ntp_time           (ntp_time),
+
+    .xgmii_rxd          (xgmii_rxd_1),
+    .xgmii_rxc          (xgmii_rxc_1),
+    .xgmii_txd          (xgmii_txd_1),
+    .xgmii_txc          (xgmii_txc_1),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+    .sys_reset          (reset)
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_2
+  //----------------------------------------------------------------
+  network_path network_path_2 (
+    .api_ext_command    (api_ext_command_2),
+    .api_ext_address    (api_ext_address_2),
+    .api_ext_write_data (api_ext_write_data_2),
+    .api_ext_status     (api_ext_status_2),
+    .api_ext_read_data  (api_ext_read_data_2),
+
+    .ntp_time           (ntp_time),
+
+    .xgmii_rxd          (xgmii_rxd_2),
+    .xgmii_rxc          (xgmii_rxc_2),
+    .xgmii_txd          (xgmii_txd_2),
+    .xgmii_txc          (xgmii_txc_2),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+    .sys_reset          (reset)
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_3
+  //----------------------------------------------------------------
+  network_path network_path_3 (
+    .api_ext_command    (api_ext_command_3),
+    .api_ext_address    (api_ext_address_3),
+    .api_ext_write_data (api_ext_write_data_3),
+    .api_ext_status     (api_ext_status_3),
+    .api_ext_read_data  (api_ext_read_data_3),
+
+    .ntp_time           (ntp_time),
+
+    .xgmii_rxd          (xgmii_rxd_3),
+    .xgmii_rxc          (xgmii_rxc_3),
+    .xgmii_txd          (xgmii_txd_3),
+    .xgmii_txc          (xgmii_txc_3),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+    .sys_reset          (reset)
+  );
+
 endmodule // ntps_top
 
 `default_nettype wire
+
+//======================================================================
+// EOF ntps_top.v
+//======================================================================

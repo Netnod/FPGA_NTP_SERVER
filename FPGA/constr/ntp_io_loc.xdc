@@ -104,13 +104,13 @@ set_property IOSTANDARD LVCMOS18 [get_ports HEAD34]
 set_property PACKAGE_PIN L41 [get_ports HEAD36]
 set_property IOSTANDARD LVCMOS18 [get_ports HEAD36]
 
-set_input_delay  -clock [get_clocks -of_objects [get_pins ntp_clock_topA/pll_0/clk_out2]] 7.000 PPS_INA_P
-set_input_delay  -clock [get_clocks -of_objects [get_pins ntp_clock_topA/pll_0/clk_out2]] 7.000 PPS_INA_N
-set_output_delay -clock [get_clocks -of_objects [get_pins ntp_clock_topA/pll_0/clk_out2]] 0.000 PPS_OUTA
+set_input_delay  -clock [get_clocks -of_objects [get_pins ntps_interfaces_0/ntp_clock_topA/pll_0/clk_out2]] 7.000 PPS_INA_P
+set_input_delay  -clock [get_clocks -of_objects [get_pins ntps_interfaces_0/ntp_clock_topA/pll_0/clk_out2]] 7.000 PPS_INA_N
+set_output_delay -clock [get_clocks -of_objects [get_pins ntps_interfaces_0/ntp_clock_topA/pll_0/clk_out2]] 0.000 PPS_OUTA
 
-set_input_delay  -clock [get_clocks -of_objects [get_pins ntp_clock_topB/pll_0/clk_out2]] 7.000 PPS_INB_P
-set_input_delay  -clock [get_clocks -of_objects [get_pins ntp_clock_topB/pll_0/clk_out2]] 7.000 PPS_INB_N
-set_output_delay -clock [get_clocks -of_objects [get_pins ntp_clock_topB/pll_0/clk_out2]] 0.000 PPS_OUTB
+set_input_delay  -clock [get_clocks -of_objects [get_pins ntps_interfaces_0/ntp_clock_topB/pll_0/clk_out2]] 7.000 PPS_INB_P
+set_input_delay  -clock [get_clocks -of_objects [get_pins ntps_interfaces_0/ntp_clock_topB/pll_0/clk_out2]] 7.000 PPS_INB_N
+set_output_delay -clock [get_clocks -of_objects [get_pins ntps_interfaces_0/ntp_clock_topB/pll_0/clk_out2]] 0.000 PPS_OUTB
 
 set_property IOB TRUE [get_ports PPS_OUTA]
 set_property IOB TRUE [get_ports PPS_OUTB]
@@ -118,8 +118,3 @@ set_property IOB TRUE [get_ports PPS_INA*]
 set_property IOB TRUE [get_ports PPS_INB*]
 
 # EOF
-
-
-
-
-

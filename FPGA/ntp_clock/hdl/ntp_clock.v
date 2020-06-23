@@ -1,37 +1,39 @@
-//
-// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS) 
+//======================================================================
+// Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without 
-// modification, are permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in
+//    the documentation and/or other materials provided with
+//    the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 //
 // Author: Rolf Andersson (rolf@mechanicalmen.se)
 //
 // Design Name: FPGA NTP Server
 // Module Name: ntp_clock
 // Description: NTP clock
-// 
+//======================================================================
 
-`timescale 1 ns / 1 ps
 `default_nettype none
 
 module ntp_clock # (
@@ -64,7 +66,7 @@ module ntp_clock # (
    output wire          LED6,
    output wire          LED7,
    output wire          LED8,
-   
+
    output wire          SYNC_OK,
 
    // Ports of Axi Slave Bus Interface
@@ -91,27 +93,48 @@ module ntp_clock # (
    input wire                            axi_rready
  );
 
-  wire               pps_reset;
-  wire               pll_sync_ok;
-  wire [9:0]         pll_sync_status;
-  wire [31:0]        new_second;
-  wire               second_set;
-  wire               second_set_done;
-  wire [31:0]        leap_second;
-  wire               leap_set;
-  wire               leap_set_done;
-  wire               leap_inc;       
+  //----------------------------------------------------------------
+  //----------------------------------------------------------------
+  wire        pps_reset;
+  wire        pll_sync_ok;
+  wire [9:0]  pll_sync_status;
+  wire [31:0] new_second;
+  wire        second_set;
+  wire        second_set_done;
+  wire [31:0] leap_second;
+  wire        leap_set;
+  wire        leap_set_done;
+  wire        leap_inc;
+  wire [63:0] NTP_TIME_sync;
 
-  wire [63:0]        NTP_TIME_sync;
 
-  // clock domain crossing for NTP time, there will be a delay that will be negligible compared to SW latency
-  synchronizer_vector #(.DATA_WIDTH(64)) sync_time (.data_in(NTP_TIME), .old_clk(clk128), .new_clk(axi_aclk), .data_out(NTP_TIME_sync)); 
+  //----------------------------------------------------------------
+  //----------------------------------------------------------------
+  assign PLL_SYNC_STATUS = pll_sync_status;
+  assign SYNC_OK = pll_sync_ok;
 
+
+  //----------------------------------------------------------------
+  // clock domain crossing for NTP time, there will be a delay that
+  // will be negligible compared to SW latency
+  //----------------------------------------------------------------
+  synchronizer_vector #(.DATA_WIDTH(64))
+  sync_time (
+             .data_in(NTP_TIME),
+             .old_clk(clk128),
+             .new_clk(axi_aclk),
+             .data_out(NTP_TIME_sync)
+             );
+
+
+  //----------------------------------------------------------------
   // Instantiation of Axi Bus Interface AXI
-  ntp_clock_axi_slave # ( 
+  //----------------------------------------------------------------
+  ntp_clock_axi_slave # (
     .C_S_AXI_DATA_WIDTH (C_AXI_DATA_WIDTH),
     .C_S_AXI_ADDR_WIDTH (C_AXI_ADDR_WIDTH)
-  ) ntp_clock_axi_slave_0 (
+  )
+  ntp_clock_axi_slave_0 (
     .S_AXI_ACLK      (axi_aclk),
     .S_AXI_ARESETN   (axi_aresetn),
     .S_AXI_AWADDR    (axi_awaddr),
@@ -144,8 +167,8 @@ module ntp_clock # (
     .leap_second     (leap_second),
     .leap_set        (leap_set),
     .leap_set_done   (leap_set_done),
-    .leap_inc        (leap_inc),       
-    
+    .leap_inc        (leap_inc),
+
     .LED1            (LED1),
     .LED2            (LED2),
     .LED3            (LED3),
@@ -156,13 +179,16 @@ module ntp_clock # (
     .LED8            (LED8)
   );
 
+
+  //----------------------------------------------------------------
+  //----------------------------------------------------------------
   wire pps_pre;
-  
+
   pll_sync pll_sync_inst0 (
     .areset          (areset),
     .clk128          (clk128),
-    .PPS_IN          (PPS_IN),                              
-    .PPS_PRE         (pps_pre),                            
+    .PPS_IN          (PPS_IN),
+    .PPS_PRE         (pps_pre),
     .PPS_OUT         (PPS_OUT),
     .PPS_RESET       (pps_reset),
     .pll_locked      (pll_locked),
@@ -174,9 +200,13 @@ module ntp_clock # (
     .SYNC_STATUS     (pll_sync_status)
   );
 
+
+  //----------------------------------------------------------------
+  // NTP counters.
+  //----------------------------------------------------------------
   wire [63:0] ntp_time;
   wire        ntp_time_upd;
-  
+
   ntp_counters ntp_counters_inst0 (
     .areset          (areset),
     .ntp_clk         (clk128),
@@ -193,19 +223,26 @@ module ntp_clock # (
     .pps_pre         (pps_pre)
   );
 
-  // Throttle down data rate so network paths can catch them
+
+  //----------------------------------------------------------------
+  // Throttle down data rate to allow the network
+  // paths can catch them.
+  //----------------------------------------------------------------
   always @(posedge clk128, posedge areset) begin
     if (areset == 1'b1) begin
+      NTP_TIME     <=  64'h0;
       NTP_TIME_UPD <= 1'b0;
+
     end else if (ntp_time_upd) begin
       NTP_TIME     <=  ntp_time;
       NTP_TIME_UPD <= ~NTP_TIME_UPD;
     end
   end
-  
-  assign PLL_SYNC_STATUS = pll_sync_status;
-  assign SYNC_OK = pll_sync_ok;
-   
+
 endmodule
+
 `default_nettype wire
 
+//======================================================================
+// EOF ntp_clock.v
+//======================================================================
