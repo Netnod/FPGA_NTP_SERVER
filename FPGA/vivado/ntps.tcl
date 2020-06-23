@@ -174,7 +174,6 @@ set files [list \
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_api.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_top.v"]"\
  "[file normalize "$origin_dir/../network_path/packet_proc/hdl/pp_mac_top.v"]"\
- "[file normalize "$origin_dir/../nts/pp_merge/src/rtl/pp_merge.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path_shared.v"]"\
  "[file normalize "$origin_dir/../network_path/hdl/network_path.v"]"\
  "[file normalize "$origin_dir/../hdl/clk50_gen.v"]"\
