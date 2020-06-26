@@ -112,7 +112,7 @@ module network_path_shared (
   // Wires for connecting modules to the api_extension.
   wire          pp_api_cs;
   wire          pp_api_we;
-  wire [11 : 0] pp_api_address;
+  wire [23 : 0] pp_api_address;
   wire [31 : 0] pp_api_write_data;
   wire [31 : 0] pp_api_read_data;
   wire          pp_api_ready;
@@ -123,7 +123,7 @@ module network_path_shared (
   wire [31 : 0] rosc_read_data;
   wire          nts_cs;
   wire          nts_we;
-  wire [11 : 0] nts_address;
+  wire [23 : 0] nts_address;
   wire [31 : 0] nts_write_data;
   wire [31 : 0] nts_read_data;
   wire          merge_cs;
@@ -188,7 +188,7 @@ module network_path_shared (
 
     .api_cs         (pp_api_cs),
     .api_we         (pp_api_we),
-    .api_address    (pp_api_address),
+    .api_address    (pp_api_address[11 : 0]),
     .api_write_data (pp_api_write_data),
     .api_read_data  (pp_api_read_data),
     .api_ready      (pp_api_ready),
@@ -236,6 +236,13 @@ module network_path_shared (
     .pp_write_data(pp_api_write_data),
     .pp_read_data(pp_api_read_data),
     .pp_ready(pp_api_ready),
+
+    .dp_cs(),
+    .dp_we(),
+    .dp_address(),
+    .dp_write_data(),
+    .dp_read_data(32'hdeaddead),
+    .dp_ready(1'h1),
 
     .merge_cs(merge_cs),
     .merge_we(merge_we),
@@ -339,7 +346,7 @@ module network_path_shared (
 
     p0_nts_cs_reg         <= nts_cs;
     p0_nts_we_reg         <= nts_we;
-    p0_nts_address_reg    <= nts_address;
+    p0_nts_address_reg    <= nts_address[11 : 0];
     p0_nts_write_data_reg <= nts_write_data;
     p1_nts_read_data_reg  <= nts_read_data;
   end
