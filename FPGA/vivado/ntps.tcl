@@ -203,6 +203,8 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dpge.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/bram_dp2w.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/memory/memory_ctrl.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/ctrl_gre.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/icmp.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/ntp_auth.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_api.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_engine.v"]"\
@@ -212,6 +214,8 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_tx_buffer.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_verify_secure.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_dispatcher.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_dispatcher_mux.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/preprocessor.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_extractor.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_top.v"]"\
 ]

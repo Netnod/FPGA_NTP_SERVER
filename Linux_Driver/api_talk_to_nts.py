@@ -148,6 +148,12 @@ API_ADDR_PARSER_ERROR_CAUSE  = API_ADDR_PARSER_BASE + 0x15
 API_ADDR_PARSER_MAC_CTRL     = API_ADDR_PARSER_BASE + 0x30
 API_ADDR_PARSER_IPV4_CTRL    = API_ADDR_PARSER_BASE + 0x31
 API_ADDR_PARSER_IPV6_CTRL    = API_ADDR_PARSER_BASE + 0x32
+API_ADDR_GRE_DST_MAC_MSB     = API_ADDR_PARSER_BASE + 0x33
+API_ADDR_GRE_DST_MAC_LSB     = API_ADDR_PARSER_BASE + 0x34
+API_ADDR_GRE_DST_IP          = API_ADDR_PARSER_BASE + 0x35
+API_ADDR_GRE_SRC_MAC_MSB     = API_ADDR_PARSER_BASE + 0x36
+API_ADDR_GRE_SRC_MAC_LSB     = API_ADDR_PARSER_BASE + 0x37
+API_ADDR_GRE_SRC_IP          = API_ADDR_PARSER_BASE + 0x39
 API_ADDR_PARSER_MAC_0        = API_ADDR_PARSER_BASE + 0x40
 API_ADDR_PARSER_MAC_1        = API_ADDR_PARSER_BASE + 0x42
 API_ADDR_PARSER_MAC_2        = API_ADDR_PARSER_BASE + 0x44
@@ -168,6 +174,7 @@ API_ADDR_PARSER_IPV6_4       = API_ADDR_PARSER_BASE + 0x70
 API_ADDR_PARSER_IPV6_5       = API_ADDR_PARSER_BASE + 0x74
 API_ADDR_PARSER_IPV6_6       = API_ADDR_PARSER_BASE + 0x78
 API_ADDR_PARSER_IPV6_7       = API_ADDR_PARSER_BASE + 0x7C
+
 
 API_ADDR_NTPAUTH_KEYMEM_BASE          = 0x300;
 API_ADDR_NTPAUTH_KEYMEM_NAME0         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x00
@@ -337,7 +344,7 @@ def check_nts_extractor_apis(api):
     print("   - Transmitted (packets): %d (dec)" % read64(api, EXTRACTOR_BASE, API_EXTRACTOR_ADDR_PACKETS))
 
 def check_nts_engine_apis(api, engine):
-    print("ENGINE %x:" % engine);
+    print("ENGINE %d:" % engine);
     print("  - Cores:")
     print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_ENGINE_NAME0), engine_human32(api, engine, API_ADDR_ENGINE_VERSION)))
     print("   - Core:  %s %s" % (engine_human64(api, engine, API_ADDR_CLOCK_NAME0), engine_human32(api, engine, API_ADDR_ENGINE_VERSION)))
@@ -380,6 +387,17 @@ def check_nts_engine_apis(api, engine):
     print("    - Error Cause:   0x%0x" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_CAUSE))
     print("    - Error Counter: %0d" % engine_read32(api, engine, API_ADDR_PARSER_ERROR_COUNT))
     print("")
+
+def init_gre(api, engine, gre_dst_mac, gre_dst_ip, gre_src_mac, gre_src_ip):
+    print("Engine %d - init GRE" % engine)
+    dst_mac = int(gre_dst_mac.replace(":","",5), 16)
+    src_mac = int(gre_src_mac.replace(":","",5), 16)
+    dst_ip = int(netaddr.IPAddress(gre_dst_ip))
+    src_ip = int(netaddr.IPAddress(gre_src_ip))
+    engine_write64( api, engine, API_ADDR_GRE_DST_MAC_MSB, dst_mac);
+    engine_write32( api, engine, API_ADDR_GRE_DST_IP, dst_ip)
+    engine_write64( api, engine, API_ADDR_GRE_SRC_MAC_MSB, src_mac);
+    engine_write32( api, engine, API_ADDR_GRE_SRC_IP, src_ip)
 
 def init_arp(api, engine):
     print("Engine %d - init ARP" % engine)
@@ -632,7 +650,7 @@ def parser_configure_helper ( e, d, bit, value ):
     else:
       raise Exception("WARNING: configuration argument {} is not a proper boolean, valid values: {}".format(value, disable_words + enable_words))
 
-def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5, ntp_sha1 ):
+def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5, ntp_sha1, gre ):
     enable_bits = 0
     disable_bits = 0
 
@@ -641,6 +659,7 @@ def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5, ntp_sha1 ):
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 2, ntp)
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 3, ntp_md5)
     (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 4, ntp_sha1)
+    (enable_bits, disable_bits) = parser_configure_helper( enable_bits, disable_bits, 5, gre)
 
     print("Engine %d - configuring parser" % engine)
     print("  * enable  bits: %08x" % enable_bits )
@@ -656,12 +675,17 @@ def parser_configure( api, engine, csum_verify, nts, ntp, ntp_md5, ntp_sha1 ):
 if __name__=="__main__":
     dump = False
     human = True
+    gre_dst_mac = "FF:FF:FF:FF:FF:FF"
+    gre_dst_ip = "192.168.40.1"
+    gre_src_mac = "CF:CE:CD:CC:CB:CA"
+    gre_src_ip = "192.168.40.99"
     ntp_refid = 'PPS'
     ntp_rootdelay = '1'
     ntp_rootdisp = '2'
     ntp_tx_ofs = '3'
     ntp_config = '00000000'
     parser_ctrl_csum_verify = None
+    parser_ctrl_gre = None
     parser_ctrl_nts = None
     parser_ctrl_ntp = None
     parser_ctrl_ntp_md5 = None
@@ -674,11 +698,16 @@ if __name__=="__main__":
         'dump',
         'nohuman',
         'nosetup',
+        'gre_dst_ip=',
+        'gre_dst_mac=',
+        'gre_src_ip=',
+        'gre_src_mac=',
         'parser_ctrl_csum_verify=',
-        'parser_ctrl_nts=',
+        'parser_ctrl_gre=',
         'parser_ctrl_ntp=',
         'parser_ctrl_ntp_md5=',
         'parser_ctrl_ntp_sha1=',
+        'parser_ctrl_nts=',
         'ntp_config=',
         'ntp_refid=',
         'ntp_rootdisp=',
@@ -690,15 +719,20 @@ if __name__=="__main__":
       if (opt == '--dump'): dump = True
       if (opt == '--nohuman'): human = False
       if (opt == '--nosetup'): setup = False
+      if (opt == '--gre_dst_ip'): gre_dst_ip = arg
+      if (opt == '--gre_dst_mac'): gre_dst_mac = arg
+      if (opt == '--gre_src_ip'): gre_src_ip = arg
+      if (opt == '--gre_src_mac'): gre_src_mac = arg
       if (opt == '--ntp_config'): ntp_config = arg
       if (opt == '--ntp_refid'): ntp_refid = arg
       if (opt == '--ntp_rootdisp'): ntp_rootdisp = arg
       if (opt == '--ntp_tx_ofs'): ntp_tx_ofs = arg
       if (opt == '--parser_ctrl_csum_verify'): parser_ctrl_csum_verify = arg
+      if (opt == '--parser_ctrl_gre'): parser_ctrl_gre = arg
+      if (opt == '--parser_ctrl_ntp'): parser_ctrl_ntp = arg
+      if (opt == '--parser_ctrl_ntp_md5'): parser_ctrl_ntp_md5 = arg
+      if (opt == '--parser_ctrl_ntp_sha1'): parser_ctrl_ntp_sha1 = arg
       if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
-      if (opt == '--parser_ctrl_ntp'): parser_ctrl_ntp = arg;
-      if (opt == '--parser_ctrl_ntp_md5'): parser_ctrl_ntp_md5 = arg;
-      if (opt == '--parser_ctrl_ntp_sha1'): parser_ctrl_ntp_sha1 = arg;
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
 
@@ -720,12 +754,13 @@ if __name__=="__main__":
     if (setup):
       for engine in range(0, engines):
         init_arp(api, engine)
+        init_gre(api, engine, gre_dst_mac, gre_dst_ip, gre_src_mac, gre_src_ip)
         nts_configure_ntp(api, engine, ntp_refid, ntp_rootdelay, ntp_rootdisp, ntp_tx_ofs, ntp_config)
         nts_disable_keys(api, engine)
         nts_init_noncegen(api, engine)
         nts_install_test_keys(api, engine)
         ntp_auth_install_test_keys(api, engine)
-        parser_configure(api, engine, parser_ctrl_csum_verify,  parser_ctrl_nts, parser_ctrl_ntp, parser_ctrl_ntp_md5, parser_ctrl_ntp_sha1)
+        parser_configure(api, engine, parser_ctrl_csum_verify, parser_ctrl_nts, parser_ctrl_ntp, parser_ctrl_ntp_md5, parser_ctrl_ntp_sha1, parser_ctrl_gre)
       for engine in range(0, engines):
         nts_engine_enable(api, engine)
       nts_dispatcher_enable(api)
