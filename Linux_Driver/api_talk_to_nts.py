@@ -693,10 +693,13 @@ if __name__=="__main__":
     reset_api_dispatcher = False
     reset_api_extractor = False
     setup = True
+    install_keys = []
+    activate_key = None
 
     options, remainder = getopt.getopt(sys.argv[1:], '', [
         'dump',
         'nohuman',
+        'setup',
         'nosetup',
         'gre_dst_ip=',
         'gre_dst_mac=',
@@ -713,11 +716,14 @@ if __name__=="__main__":
         'ntp_rootdisp=',
         'ntp_tx_ofs=',
         'reset-api-dispatcher',
-        'reset-api-extractor'
+        'reset-api-extractor',
+        'install-key=',
+        'activate-key=',
       ])
     for opt, arg in options:
       if (opt == '--dump'): dump = True
       if (opt == '--nohuman'): human = False
+      if (opt == '--setup'): setup = True
       if (opt == '--nosetup'): setup = False
       if (opt == '--gre_dst_ip'): gre_dst_ip = arg
       if (opt == '--gre_dst_mac'): gre_dst_mac = arg
@@ -735,6 +741,30 @@ if __name__=="__main__":
       if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
+      if (opt == '--install-key'):
+          parts = arg.split(',')
+          print "install key", parts
+          print(len(parts[2]))
+          if (len(parts) != 3):
+              print "Usage: --install-key=slot,id,data"
+              sys.exit(1)
+
+          if (parts[0] not in [ '0', '1', '2', '3' ]):
+              print "--install-key slot must be 0..3"
+              sys.exit(1)
+
+          if (len(parts[1]) != 8):
+              print "--install-key id must be 32 bits"
+              sys.exit(1)
+
+          if (len(parts[2]) != 64):
+              print "--install-key data must be 256 bits"
+              sys.exit(1)
+
+          install_keys.append((
+              int(parts[0]), int(parts[1],16),
+              [ int(parts[2][i:i+8],16) for i in range(0,64,8) ]))
+      if (opt == '--activate-key'): activate_key = int(arg)
 
     path = network_path(0)
     api = api_extension(path)
@@ -770,6 +800,14 @@ if __name__=="__main__":
 
     if (reset_api_extractor):
       nts_reset_extractor_api(api)
+
+    for keyslot, keyid, keydata in install_keys:
+        for engine in range(0, engines):
+            nts_install_key_256bit(api, engine, keyslot, keyid, keydata)
+
+    if (activate_key is not None):
+        for engine in range(0, engines):
+            nts_set_current_key(api, engine, activate_key)
 
     if (human):
       check_nts_dispatcher_apis(api)
