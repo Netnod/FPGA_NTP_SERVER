@@ -9,7 +9,6 @@ import datetime
 import netaddr
 import sys
 
-
 #-------------------------------------------------------------------
 def check_version_board():
     print("Checking build information about the FPGA and reading board temp.")
@@ -28,6 +27,135 @@ def check_version_board():
     print("FPGA Die temperature is " + str(die_temp) + "C.")
     print("")
 
+def setup_clocks():
+    print("Setting up the NTP clocks.")
+
+    # Clock A
+    aa = ntp_clock('A')
+
+    aa.get_fracs()
+    aa.get_secs()
+
+    # Set NTP clock time to system clock
+    diff = datetime.datetime.utcnow() - datetime.datetime(1900, 1, 1, 0, 0, 0)
+    timestamp = diff.days*24*60*60+diff.seconds+1
+    aa.set_secs(timestamp)
+
+    # Clock B
+    bb = ntp_clock('B')
+    bb.get_fracs()
+    bb.get_secs()
+
+    # Set NTP clock time to system clock
+    diff = datetime.datetime.utcnow() - datetime.datetime(1900, 1, 1, 0, 0, 0)
+    timestamp = diff.days*24*60*60+diff.seconds+1
+    bb.set_secs(timestamp)
+
+    # Check the clocks plls
+    for i in range(3):
+        print("pll_status A:0x%08x B:0x%08x" %
+              (aa.read(aa.pll_status), bb.read(bb.pll_status)))
+        time.sleep(0.1)
+    print("")
+
+def check_apis(apis):
+    print("Checking APIs")
+    for i in range(len(apis)):
+        api = apis[i]
+        print("API %d Name and version:" % i)
+        print("NAME0:   0x%08x" % api.read(0x00000000))
+        print("NAME1:   0x%08x" % api.read(0x00000001))
+        print("VERSION: 0x%08x" % api.read(0x00000002))
+        print("")
+    print("")
+
+    print("Testing read and write access using the sum.")
+    api0 = apis[0]
+    # For API0 we want to test that we can read and write.
+    a = random.randrange(1<<32)
+    b = random.randrange(1<<32)
+
+    api0.write(0x00000010, a)
+    api0.write(0x00000011, b)
+
+    # Read back and compare with expected values.
+    ra = api0.read(0x00000010)
+    rb = api0.read(0x00000011)
+    rc = api0.read(0x00000012)
+    print("0x%08x + 0x%08x = 0x%08x" % (ra, rb, rc))
+    print("")
+
+def check_pp_apis(apis):
+    print("Checking access to APIs in PP")
+    for i in range(len(apis)):
+        api = apis[i]
+        print("API %d Name and version:" % i)
+        print("NAME0:   0x%08x" % api.read(0x10000000))
+        print("NAME1:   0x%08x" % api.read(0x10000001))
+        print("VERSION: 0x%08x" % api.read(0x10000002))
+        print("")
+    print("")
+
+def setup_network_paths(paths):
+    print("Setting up network paths")
+    diff = datetime.datetime.utcnow() - datetime.datetime(1900, 1, 1, 0, 0, 0)
+    timestamp = diff.days*24*60*60+diff.seconds+1
+
+    for i in range(4):
+        path = paths[i]
+        config = (path.ntp4_en | path.arp_en | path.ping4_en | path.trcrt4_en |
+                  path.ntp6_en | path.nd_en | path.ping6_en | path.trcrt6_en |
+                  path.a_clock |
+                  path.mac_check |
+                  path.ip_check |
+                  path.tx_en |
+                  path.s10GB_LR)
+        path.write(path.gen_config, config)
+        print "PATH %d: gen_config 0x%08x" % (i, config)
+
+        path.write(path.ntp_config, (-18 & 0xff)*path.precision)
+        path.write(path.ntp_root_delay, 0)   # TBD
+        path.write(path.ntp_root_disp, 2)
+        path.write(path.ntp_ref_id,  (ord('P') << 24) + (ord('P') << 16) + (ord('S') << 8))
+        path.write(path.ntp_ref_ts_0, 0)
+        path.write(path.ntp_ref_ts_1, timestamp)
+        path.write(path.ntp_rx_ofs, 0)
+        path.write(path.ntp_tx_ofs, 0)
+
+        time.sleep(1)
+
+        # Check path PHY status.
+        for i in range(4):
+            path = network_path(i)
+            print "XPHY %d status: 0x%08x" % (i, path.read(path.xphy_status))
+    print("")
+
+#-------------------------------------------------------------------
+# Access the ROSC and then dump loads of entropy for testing.
+#-------------------------------------------------------------------
+def test_entropy(num_words, ent_file):
+    from struct import pack
+
+    path0 = network_path(0)
+    api0 = api_extension(path0)
+
+    print("Testing the entropy source in API0")
+    print("Name and version of rosc_entropy core:")
+    print("NAME0:   0x%08x" % api0.read(0xfe000000))
+    print("NAME1:   0x%08x" % api0.read(0xfe000001))
+    print("VERSION: 0x%08x" % api0.read(0xfe000002))
+    print("")
+
+    print("Extracting %d words to file %s" % (num_words, ent_file))
+    with open(ent_file, "wb") as fp:
+        for i in range(num_words):
+            while api0.read(0xfe000009) == 0:
+                time.sleep(0.001)
+            ent = api0.read(0xfe000020)
+            fp.write(pack(">I", ent))
+            if (i % 1000 == 0):
+                print("entropy word %d: 0x%08x" % (i, ent))
+    print("Extraction done.\n")
 
 #-------------------------------------------------------------------
 DISPATCHER_BASE = 0x20000000
@@ -693,6 +821,7 @@ if __name__=="__main__":
     reset_api_dispatcher = False
     reset_api_extractor = False
     setup = True
+    opt_test_entropy = 0
     install_keys = []
     activate_key = None
 
@@ -717,6 +846,7 @@ if __name__=="__main__":
         'ntp_tx_ofs=',
         'reset-api-dispatcher',
         'reset-api-extractor',
+        'test-entropy=',
         'install-key=',
         'activate-key=',
       ])
@@ -741,6 +871,7 @@ if __name__=="__main__":
       if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
       if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
       if (opt == '--reset-api-extractor'): reset_api_extractor = True
+      if (opt == '--test-entropy'): opt_test_entropy = int(arg)
       if (opt == '--install-key'):
           parts = arg.split(',')
           print "install key", parts
@@ -766,8 +897,16 @@ if __name__=="__main__":
               [ int(parts[2][i:i+8],16) for i in range(0,64,8) ]))
       if (opt == '--activate-key'): activate_key = int(arg)
 
-    path = network_path(0)
-    api = api_extension(path)
+      paths = []
+      apis = []
+      for i in range(4):
+          t_path = network_path(i)
+          paths.append(t_path)
+          t_api = api_extension(t_path)
+          apis.append(t_api)
+
+    path = paths[0]
+    api = apis[0]
 
     if (dump):
       dump_nts_dispatcher_api(api)
@@ -779,7 +918,17 @@ if __name__=="__main__":
         dump_nts_engine_api(api, engine)
 
     if (human):
+
        check_version_board()
+       check_apis(apis)
+       check_pp_apis(apis)
+
+    if (setup):
+        setup_clocks()
+        setup_network_paths(paths)
+
+    if (opt_test_entropy):
+        test_entropy(opt_test_entropy, "ent_data.bin")
 
     if (setup):
       for engine in range(0, engines):
