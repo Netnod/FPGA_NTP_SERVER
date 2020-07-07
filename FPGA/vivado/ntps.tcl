@@ -217,6 +217,8 @@ set files [list \
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_dispatcher_mux.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/preprocessor.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_extractor.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_extractor_tx.v"]"\
+ "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_extractor_mux.v"]"\
  "[file normalize "$origin_dir/../nts/nts-poc-verilog/src/rtl/nts_top.v"]"\
 ]
 add_files -norecurse -fileset $obj $files
