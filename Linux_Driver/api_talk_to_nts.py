@@ -897,13 +897,13 @@ if __name__=="__main__":
               [ int(parts[2][i:i+8],16) for i in range(0,64,8) ]))
       if (opt == '--activate-key'): activate_key = int(arg)
 
-      paths = []
-      apis = []
-      for i in range(4):
-          t_path = network_path(i)
-          paths.append(t_path)
-          t_api = api_extension(t_path)
-          apis.append(t_api)
+    paths = []
+    apis = []
+    for i in range(4):
+        t_path = network_path(i)
+        paths.append(t_path)
+        t_api = api_extension(t_path)
+        apis.append(t_api)
 
     path = paths[0]
     api = apis[0]
