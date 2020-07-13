@@ -24,5 +24,9 @@
 //#define FPGA_REGISTER_SIZE           (4*8)    // There are eight registers, and each is 4 bytes wide.
 
 #define MAGIX 'X' << 24  // Create unique IOTCL number sequence
+#define MAGI0 '0' << 24  // Create unique IOTCL number sequence
+#define MAGI1 '1' << 24  // Create unique IOTCL number sequence
+#define MAGI2 '2' << 24  // Create unique IOTCL number sequence
+#define MAGIE 'E' << 24  // Create unique IOTCL number sequence
 #define PIOW   1  << 23  // Port Write
 

@@ -47,6 +47,31 @@ MODULE_LICENSE("Dual BSD/GPL");
 #define HAVE_IRQ    0x02               // Interupt
 #define HAVE_KREG   0x04               // Kernel registration
 
+#define NET_PATH_AXI_BASE   0x2000
+#define NET_PATH_OFS        0x1000
+
+#define NTS_API_COMMAND     (70*4)
+#define NTS_API_STATUS      (71*4)
+#define NTS_API_ADDRESS     (72*4)
+#define NTS_API_WRITE_DATA  (73*4)
+#define NTS_API_READ_DATA   (74*4)
+
+#define DISPATCHER_BASE 0x20000000
+
+#define NTS_COMMAND_IDLE    0x0
+#define NTS_COMMAND_READ    0x1
+#define NTS_COMMAND_WRITE   0x3
+
+#define NTS_STATUS_BUSY     0x0
+#define NTS_STATUS_READY    0x1
+
+#define API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR    0x50
+#define API_DISPATCHER_ADDR_BUS_STATUS         0x51
+#define API_DISPATCHER_ADDR_BUS_DATA           0x52
+
+#define ENGINE_BUS_READ     0x55
+#define ENGINE_BUS_WRITE    0xAA
+
 int             gDrvrMajor = 0;      // Major number not dynamic.
 unsigned int    gStatFlags = 0x00;     // Status flags used for cleanup.
 unsigned long   gBaseHdwr;             // Base register address (Hardware address)
@@ -71,6 +96,10 @@ typedef struct cfgwrite {
 	int reg;
 	int value;
 } cfgwr;
+
+struct xpcie_data {
+  struct mutex mutex;
+};
 
 //-----------------------------------------------------------------------------
 // Prototypes
@@ -100,6 +129,15 @@ u32  XPCIe_WriteCfgReg (u32 byte, u32 value);
  ****************************************************************************/
 int XPCIe_Open(struct inode *inode, struct file *filp)
 {
+  struct xpcie_data *dev;
+
+  dev = kzalloc(sizeof(struct xpcie_data), GFP_KERNEL);
+  if (!dev)
+    return -ENOMEM;
+  mutex_init(&dev->mutex);
+
+  filp->private_data = dev;
+
     //MOD_INC_USE_COUNT;
     printk("%s: Open: module opened\n",gDrvrName);
     return SUCCESS;
@@ -122,6 +160,7 @@ int XPCIe_Open(struct inode *inode, struct file *filp)
  ****************************************************************************/
 int XPCIe_Release(struct inode *inode, struct file *filp)
 {
+  kfree(filp->private_data);
     //MOD_DEC_USE_COUNT;
     printk("%s: Release: module released\n",gDrvrName);
     return(SUCCESS);
@@ -194,6 +233,126 @@ ssize_t XPCIe_Read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 	return (0);
 }
 
+static int XPCIe_Write_API(u32 port, u32 reg, u32 val)
+{
+  u32 offs = NET_PATH_AXI_BASE + port * NET_PATH_OFS;
+  unsigned long timeout = jiffies + HZ / 10;
+  int ret = 0;
+  int n = 0;
+  
+  XPCIe_WriteReg(offs + NTS_API_ADDRESS, reg);
+  XPCIe_WriteReg(offs + NTS_API_WRITE_DATA, val);
+  XPCIe_WriteReg(offs + NTS_API_COMMAND, NTS_COMMAND_WRITE);
+  while (1) {
+    if (XPCIe_ReadReg(offs + NTS_API_STATUS) & NTS_STATUS_READY)
+      break;
+    n += 1;
+    if (time_after(jiffies, timeout)) {
+      ret = -EIO;
+      break;
+    }
+    schedule();
+  }
+  XPCIe_WriteReg(offs + NTS_API_COMMAND, NTS_COMMAND_IDLE);
+  // printk(KERN_INFO "XPCIe_Write_API: n=%d\n", n);
+
+  return ret;
+}
+
+static int XPCIe_Read_API(u32 port, u32 reg, u32 *val)
+{
+      u32 offs = NET_PATH_AXI_BASE + port * NET_PATH_OFS;
+      unsigned long timeout = jiffies + HZ / 10;
+      int ret = 0;
+      int n;
+
+      XPCIe_WriteReg(offs + NTS_API_ADDRESS, reg);
+      XPCIe_WriteReg(offs + NTS_API_COMMAND, NTS_COMMAND_READ);
+      n = 0;
+      while (1) {
+	if (XPCIe_ReadReg(offs + NTS_API_STATUS) & NTS_STATUS_READY)
+	  break;
+	n += 1;
+	if (time_after(jiffies, timeout)) {
+	  ret = -EIO;
+	  break;
+	}
+	schedule();
+      }
+      // printk(KERN_INFO "XPCIe_Read_API: n=%d\n", n);
+      *val = XPCIe_ReadReg(offs + NTS_API_READ_DATA);  
+      XPCIe_WriteReg(offs + NTS_API_COMMAND, NTS_COMMAND_IDLE);
+
+      return ret;
+}
+
+static int XPCIe_Write_Engine(u32 port, u32 engine, u32 reg, u32 val)
+{
+  u32 cmd_addr = (engine << 20) | (ENGINE_BUS_WRITE<<12) | reg;
+  unsigned long timeout = jiffies + HZ / 10;
+  int ret = 0;
+
+  ret = XPCIe_Write_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR, cmd_addr);
+  if (ret)
+    goto out;
+  ret = XPCIe_Write_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_DATA, val);
+  if (ret)
+    goto out;
+  ret = XPCIe_Write_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_STATUS, 1);
+  if (ret)
+    goto out;
+
+  while (1) {
+    u32 status;
+    ret = XPCIe_Read_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_STATUS, &status);
+    if (ret)
+      goto out;
+    if (!status)
+      break;
+    if (time_after(jiffies, timeout)) {
+      ret = -EIO;
+      goto out;
+    }
+    schedule();
+  }
+
+ out:
+  return ret;
+}
+
+static int XPCIe_Read_Engine(u32 port, u32 engine, u32 reg, u32 *val)
+{
+  u32 cmd_addr = (engine << 20) | (ENGINE_BUS_READ<<12) | reg;
+  unsigned long timeout = jiffies + HZ / 10;
+  int ret = 0;
+
+  ret = XPCIe_Write_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_ID_CMD_ADDR, cmd_addr);
+  if (ret)
+    goto out;
+  ret = XPCIe_Write_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_STATUS, 1);
+  if (ret)
+    goto out;
+
+  while (1) {
+    u32 status;
+    ret = XPCIe_Read_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_STATUS, &status);
+    if (ret)
+      goto out;
+    if (!status)
+      break;
+    if (time_after(jiffies, timeout)) {
+      ret = -EIO;
+      goto out;
+    }
+    schedule();
+  }
+
+  ret = XPCIe_Read_API(port, DISPATCHER_BASE + API_DISPATCHER_ADDR_BUS_DATA, val);
+
+ out:
+  return ret;
+}
+
 /***************************************************************************
  * Name:        XPCIe_Ioctl
  *
@@ -214,47 +373,79 @@ ssize_t XPCIe_Read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
  ****************************************************************************/
 long XPCIe_Ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
-    u32 regx;
     int ret = SUCCESS;
     int wr = cmd & PIOW;
-    int offs = cmd & (BUF_SIZE-1);
+    struct xpcie_data *dev = filp->private_data;
     
-    if ((cmd & 0xff000000) != MAGIX)    return -EINVAL;
-    if ((cmd & 0x003fffff) >= BUF_SIZE) return -EINVAL;
+    if ((cmd & 0xff000000) == MAGIX) {
+      u32 regx;
+      u32 offs = cmd & (BUF_SIZE-1);
 
-    if (wr) {
-      // Write Port
-      if (!access_ok(VERIFY_READ, (void __user *)arg, sizeof(arg))) return -EFAULT;
-      XPCIe_WriteReg(offs, arg);
-    } else {
-      // Read Port
-      regx = XPCIe_ReadReg(offs);  
-      if (copy_to_user((void *)arg, &regx, sizeof(regx))) return -EFAULT ;
+      if ((cmd & 0x003fffff) >= BUF_SIZE)
+	return -EINVAL;
+
+      if (wr) {
+	// Write Port
+	XPCIe_WriteReg(offs, arg);
+      } else {
+	// Read Port
+	regx = XPCIe_ReadReg(offs);  
+	if (copy_to_user((void *)arg, &regx, sizeof(regx)))
+	  return -EFAULT ;
+      }
+    } else if ((cmd & 0xff000000) == MAGI0 ||
+	       (cmd & 0xff000000) == MAGI1 ||
+	       (cmd & 0xff000000) == MAGI2) {
+      u32 port = (cmd >> 20) & 3;
+      u32 reg = cmd & 0xfffff;
+
+      if ((cmd & 0xff000000) == MAGI1)
+	reg += 0x10000000;
+      else if ((cmd & 0xff000000) == MAGI2)
+	reg += 0x20000000;
+
+      if (wr) {
+	mutex_lock(&dev->mutex);
+	ret = XPCIe_Write_API(port, reg, arg);
+	mutex_unlock(&dev->mutex);
+      } else {
+	u32 regx;
+
+	mutex_lock(&dev->mutex);
+	ret = XPCIe_Read_API(port, reg, &regx);
+	mutex_unlock(&dev->mutex);
+
+	if (!ret && copy_to_user((void *)arg, &regx, sizeof(regx)))
+	  return -EFAULT;
+      }
+    } else if ((cmd & 0xff000000) == MAGIE) {
+      u32 port = (cmd >> 20) & 3;
+      u32 engine = (cmd >> 12) & 0xff;
+      u32 reg = cmd & 0xfff;
+
+      if (wr) {
+	mutex_lock(&dev->mutex);
+	ret = XPCIe_Write_Engine(port, engine, reg, arg);
+	mutex_unlock(&dev->mutex);
+      } else {
+	u32 regx;
+
+	mutex_lock(&dev->mutex);
+	ret = XPCIe_Read_Engine(port, engine, reg, &regx);
+	mutex_unlock(&dev->mutex);
+
+	if (!ret && copy_to_user((void *)arg, &regx, sizeof(regx)))
+	  return -EFAULT;
+      }
     }
-
-      /*    // Note dangerous stuff below 
-    } else if (cmd == RDREG) {                 // Read: Any FPGA Reg.  Added generic functionality so all register can be read
-      regx = XPCIe_ReadReg(*(u32 *)arg);  
-      *((u32 *)arg) = regx; 
-    } else if (cmd == RDCFGREG) {              // Read: Any CFG Reg.  Added generic functionality so all register can be read
-      regx = XPCIe_ReadCfgReg(*(u32 *)arg);  
-      *((u32 *)arg) = regx; 
-    } else if (cmd == WRREG) {                 // Write: Any FPGA Reg.  Added generic functionality so all register can be read
-      	XPCIe_WriteReg((*(regwr *)arg).reg,(*(regwr *)arg).value);
-#if 0
-	printk(KERN_WARNING"%d: Write Register.\n", (*(regwr *)arg).reg);
-	printk(KERN_WARNING"%d: Write Value\n", (*(regwr *)arg).value);
-#endif
-    } else if (cmd == WRCFGREG) {                 // Write: Any CFG Reg.  Added generic functionality so all register can be read
-      	regx = XPCIe_WriteCfgReg((*(cfgwr *)arg).reg,(*(cfgwr *)arg).value);
-#if 0
-	printk(KERN_WARNING"%d: Write Register.\n", (*(cfgwr *)arg).reg);
-	printk(KERN_WARNING"%d: Write Value\n", (*(cfgwr *)arg).value);
-#endif
-      */
+    else {
+      printk(KERN_INFO "invalid ioctl 0x%08x\n", cmd);
+      return -EINVAL;
+    }
 
     return ret;
 }
+
 struct file_operations XPCIe_Intf = {
     read:           XPCIe_Read,
     write:          XPCIe_Write,
@@ -312,6 +503,7 @@ static void XPCIe_exit(void)
 static int XPCIe_init(void)
 {
     int ret = -EIO;
+    int i;
 
     gDev = pci_get_device (PCI_VENDOR_ID_XILINX, PCI_DEVICE_ID_XILINX_PCIE, gDev);
     if (NULL == gDev) {
@@ -417,6 +609,11 @@ static int XPCIe_init(void)
 
     printk("%s driver is loaded\n", gDrvrName);
 
+    for (i = 0; i < 4; i++) {
+      u32 offs = NET_PATH_AXI_BASE + i * NET_PATH_OFS;
+      XPCIe_WriteReg(offs + NTS_API_COMMAND, NTS_COMMAND_IDLE);
+    }
+
   return 0;
 
  out:
@@ -439,14 +636,14 @@ u32 XPCIe_ReadReg (u32 dw_offset)
 {
     u32 ret = 0;
     ret = readl(gBaseVirt + (dw_offset));
-    printk(KERN_INFO"%s: XPCIe_RedReg: reg %d have been read with %08x ...\n", gDrvrName, dw_offset, ret);
+    // printk(KERN_INFO"%s: XPCIe_RedReg: reg %d have been read with %08x ...\n", gDrvrName, dw_offset, ret);
     return ret; 
 }
 
 void XPCIe_WriteReg (u32 dw_offset, u32 val)
 {
     writel(val, (gBaseVirt + (dw_offset)));
-    printk(KERN_INFO"%s: XPCIe_WriteReg: reg %d have been written with %08x ...\n", gDrvrName, dw_offset, val);
+    // printk(KERN_INFO"%s: XPCIe_WriteReg: reg %d have been written with %08x ...\n", gDrvrName, dw_offset, val);
 }
 
 u32 XPCIe_ReadCfgReg (u32 byte)
@@ -461,7 +658,7 @@ u32 XPCIe_ReadCfgReg (u32 byte)
 
 u32 XPCIe_WriteCfgReg (u32 byte, u32 val) {
     if (pci_write_config_dword(gDev, byte, val) < 0) {
-        printk("%s: XPCIe_Read Device Control: Reading PCI interface failed.",gDrvrName);
+      printk("%s: XPCIe_Read Device Control: Reading PCI interface failed.",gDrvrName);
         return (-1);
     }
     return 1;
