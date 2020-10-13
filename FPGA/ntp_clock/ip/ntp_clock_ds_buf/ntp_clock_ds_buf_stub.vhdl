@@ -1,10 +1,10 @@
--- Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
+-- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
--- Tool Version: Vivado v.2015.2 (lin64) Build 1266856 Fri Jun 26 16:35:25 MDT 2015
--- Date        : Thu Sep 26 15:21:08 2019
--- Host        : fpga01-fg.sth.netnod.se running 64-bit CentOS Linux release 7.7.1908 (Core)
+-- Tool Version: Vivado v.2019.2 (lin64) Build 2708876 Wed Nov  6 21:39:14 MST 2019
+-- Date        : Tue Oct 13 14:16:57 2020
+-- Host        : fpga01-fg.sth.netnod.se running 64-bit CentOS Linux release 7.6.2003 (Core)
 -- Command     : write_vhdl -force -mode synth_stub
---               /home/wingel/work/FPGA_NTP_INTERNAL/FPGA_NTP_SERVER/FPGA/ntp_clock/ip/ntp_clock_ds_buf/ntp_clock_ds_buf_stub.vhdl
+--               /home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/ntp_clock/ip/ntp_clock_ds_buf/ntp_clock_ds_buf_stub.vhdl
 -- Design      : ntp_clock_ds_buf
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7vx690tffg1761-2
@@ -27,6 +27,6 @@ attribute black_box_pad_pin : string;
 attribute syn_black_box of stub : architecture is true;
 attribute black_box_pad_pin of stub : architecture is "IBUF_DS_P[0:0],IBUF_DS_N[0:0],IBUF_OUT[0:0]";
 attribute x_core_info : string;
-attribute x_core_info of stub : architecture is "util_ds_buf,Vivado 2015.2";
+attribute x_core_info of stub : architecture is "util_ds_buf,Vivado 2019.2";
 begin
 end;
