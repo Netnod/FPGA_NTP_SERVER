@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2019 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -47,14 +47,11 @@
 -- DO NOT MODIFY THIS FILE.
 
 -- IP VLNV: xilinx.com:ip:util_ds_buf:2.1
--- IP Revision: 0
+-- IP Revision: 21
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
-
-LIBRARY util_ds_buf_v2_01_a;
-USE util_ds_buf_v2_01_a.util_ds_buf;
 
 ENTITY ntps_top_util_ds_buf_0_0 IS
   PORT (
@@ -66,17 +63,20 @@ ENTITY ntps_top_util_ds_buf_0_0 IS
 END ntps_top_util_ds_buf_0_0;
 
 ARCHITECTURE ntps_top_util_ds_buf_0_0_arch OF ntps_top_util_ds_buf_0_0 IS
-  ATTRIBUTE DowngradeIPIdentifiedWarnings : string;
+  ATTRIBUTE DowngradeIPIdentifiedWarnings : STRING;
   ATTRIBUTE DowngradeIPIdentifiedWarnings OF ntps_top_util_ds_buf_0_0_arch: ARCHITECTURE IS "yes";
-
   COMPONENT util_ds_buf IS
     GENERIC (
       C_BUF_TYPE : STRING;
-      C_SIZE : INTEGER
+      C_SIZE : INTEGER;
+      C_BUFGCE_DIV : INTEGER;
+      C_BUFG_GT_SYNC : INTEGER;
+      C_SIM_DEVICE : STRING
     );
     PORT (
       IBUF_DS_P : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       IBUF_DS_N : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      IBUF_DS_CEB : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       IBUF_OUT : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
       IBUF_DS_ODIV2 : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
       OBUF_IN : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
@@ -87,33 +87,55 @@ ARCHITECTURE ntps_top_util_ds_buf_0_0_arch OF ntps_top_util_ds_buf_0_0 IS
       IOBUF_IO_T : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       IOBUF_IO_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       IOBUF_IO_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+      IOBUF_IO_IO : INOUT STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFG_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFG_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFGCE_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFGCE_CE : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFGCE_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFH_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFGCE_CLR : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFH_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFHCE_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
       BUFHCE_CE : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
-      BUFHCE_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0)
+      BUFHCE_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFG_GT_I : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFG_GT_CE : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFG_GT_CEMASK : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFG_GT_CLR : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFG_GT_CLRMASK : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+      BUFG_GT_DIV : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+      BUFG_GT_O : OUT STD_LOGIC_VECTOR(0 DOWNTO 0)
     );
   END COMPONENT util_ds_buf;
   ATTRIBUTE X_CORE_INFO : STRING;
-  ATTRIBUTE X_CORE_INFO OF ntps_top_util_ds_buf_0_0_arch: ARCHITECTURE IS "util_ds_buf,Vivado 2015.2";
+  ATTRIBUTE X_CORE_INFO OF ntps_top_util_ds_buf_0_0_arch: ARCHITECTURE IS "util_ds_buf,Vivado 2019.2";
   ATTRIBUTE CHECK_LICENSE_TYPE : STRING;
   ATTRIBUTE CHECK_LICENSE_TYPE OF ntps_top_util_ds_buf_0_0_arch : ARCHITECTURE IS "ntps_top_util_ds_buf_0_0,util_ds_buf,{}";
   ATTRIBUTE CORE_GENERATION_INFO : STRING;
-  ATTRIBUTE CORE_GENERATION_INFO OF ntps_top_util_ds_buf_0_0_arch: ARCHITECTURE IS "ntps_top_util_ds_buf_0_0,util_ds_buf,{x_ipProduct=Vivado 2015.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=util_ds_buf,x_ipVersion=2.1,x_ipCoreRevision=0,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_BUF_TYPE=ibufdsgte2,C_SIZE=1}";
+  ATTRIBUTE CORE_GENERATION_INFO OF ntps_top_util_ds_buf_0_0_arch: ARCHITECTURE IS "ntps_top_util_ds_buf_0_0,util_ds_buf,{x_ipProduct=Vivado 2019.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=util_ds_buf,x_ipVersion=2.1,x_ipCoreRevision=21,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_BUF_TYPE=ibufdsgte2,C_SIZE=1,C_BUFGCE_DIV=1,C_BUFG_GT_SYNC=0,C_SIM_DEVICE=VERSAL_AI_CORE_ES1}";
+  ATTRIBUTE X_INTERFACE_INFO : STRING;
+  ATTRIBUTE X_INTERFACE_PARAMETER : STRING;
+  ATTRIBUTE X_INTERFACE_PARAMETER OF IBUF_DS_ODIV2: SIGNAL IS "XIL_INTERFACENAME IBUF_DS_ODIV2, FREQ_HZ 100000000, PHASE 0.000, INSERT_VIP 0";
+  ATTRIBUTE X_INTERFACE_INFO OF IBUF_DS_ODIV2: SIGNAL IS "xilinx.com:signal:clock:1.0 IBUF_DS_ODIV2 CLK";
+  ATTRIBUTE X_INTERFACE_PARAMETER OF IBUF_OUT: SIGNAL IS "XIL_INTERFACENAME IBUF_OUT, FREQ_HZ 100000000, PHASE 0.000, INSERT_VIP 0";
+  ATTRIBUTE X_INTERFACE_INFO OF IBUF_OUT: SIGNAL IS "xilinx.com:signal:clock:1.0 IBUF_OUT CLK";
+  ATTRIBUTE X_INTERFACE_INFO OF IBUF_DS_N: SIGNAL IS "xilinx.com:interface:diff_clock:1.0 CLK_IN_D CLK_N";
+  ATTRIBUTE X_INTERFACE_PARAMETER OF IBUF_DS_P: SIGNAL IS "XIL_INTERFACENAME CLK_IN_D, BOARD.ASSOCIATED_PARAM DIFF_CLK_IN_BOARD_INTERFACE, CAN_DEBUG false, FREQ_HZ 100000000";
+  ATTRIBUTE X_INTERFACE_INFO OF IBUF_DS_P: SIGNAL IS "xilinx.com:interface:diff_clock:1.0 CLK_IN_D CLK_P";
 BEGIN
   U0 : util_ds_buf
     GENERIC MAP (
       C_BUF_TYPE => "ibufdsgte2",
-      C_SIZE => 1
+      C_SIZE => 1,
+      C_BUFGCE_DIV => 1,
+      C_BUFG_GT_SYNC => 0,
+      C_SIM_DEVICE => "VERSAL_AI_CORE_ES1"
     )
     PORT MAP (
       IBUF_DS_P => IBUF_DS_P,
       IBUF_DS_N => IBUF_DS_N,
+      IBUF_DS_CEB => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
       IBUF_OUT => IBUF_OUT,
       IBUF_DS_ODIV2 => IBUF_DS_ODIV2,
       OBUF_IN => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
@@ -123,7 +145,14 @@ BEGIN
       BUFGCE_I => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
       BUFGCE_CE => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
       BUFH_I => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFGCE_CLR => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
       BUFHCE_I => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
-      BUFHCE_CE => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1))
+      BUFHCE_CE => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFG_GT_I => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFG_GT_CE => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFG_GT_CEMASK => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFG_GT_CLR => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFG_GT_CLRMASK => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 1)),
+      BUFG_GT_DIV => STD_LOGIC_VECTOR(TO_UNSIGNED(0, 3))
     );
 END ntps_top_util_ds_buf_0_0_arch;
