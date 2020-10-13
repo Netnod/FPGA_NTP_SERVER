@@ -1,3 +1,4 @@
+
 # file: ntp_clock_pll_ooc.xdc
 # 
 # (c) Copyright 2008 - 2013 Xilinx, Inc. All rights reserved.
@@ -54,4 +55,5 @@
 # Clock Period Constraints                                 #
 ############################################################
 # Differential clock only needs one constraint
-#create_clock -period 100.0 [get_ports clk_in1_p]
+#create_clock -period 100.000 [get_ports clk_in1_p]
+

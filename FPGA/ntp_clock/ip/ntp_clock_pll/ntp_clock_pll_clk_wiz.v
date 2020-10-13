@@ -1,3 +1,4 @@
+
 // file: ntp_clock_pll.v
 // 
 // (c) Copyright 2008 - 2013 Xilinx, Inc. All rights reserved.
@@ -55,8 +56,8 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// CLK_OUT1____10.000______0.000______50.0______924.807____919.522
-// CLK_OUT2___128.000______0.000______50.0______625.455____919.522
+// clk_out1__10.00000______0.000______50.0______924.807____919.522
+// clk_out2__128.00000______0.000______50.0______625.455____919.522
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -66,9 +67,8 @@
 `timescale 1ps/1ps
 
 module ntp_clock_pll_clk_wiz 
+
  (// Clock in ports
-  input         clk_in1_p,
-  input         clk_in1_n,
   // Clock out ports
   output        clk_out1,
   output        clk_out2,
@@ -79,15 +79,19 @@ module ntp_clock_pll_clk_wiz
   output        psdone,
   // Status and control signals
   input         reset,
-  output        locked
+  output        locked,
+  input         clk_in1_p,
+  input         clk_in1_n
  );
-
   // Input buffering
   //------------------------------------
+wire clk_in1_ntp_clock_pll;
+wire clk_in2_ntp_clock_pll;
   IBUFDS clkin1_ibufgds
    (.O  (clk_in1_ntp_clock_pll),
     .I  (clk_in1_p),
     .IB (clk_in1_n));
+
 
 
 
@@ -97,6 +101,15 @@ module ntp_clock_pll_clk_wiz
   // Instantiation of the MMCM PRIMITIVE
   //    * Unused inputs are tied off
   //    * Unused outputs are labeled unused
+
+  wire        clk_out1_ntp_clock_pll;
+  wire        clk_out2_ntp_clock_pll;
+  wire        clk_out3_ntp_clock_pll;
+  wire        clk_out4_ntp_clock_pll;
+  wire        clk_out5_ntp_clock_pll;
+  wire        clk_out6_ntp_clock_pll;
+  wire        clk_out7_ntp_clock_pll;
+
   wire [15:0] do_unused;
   wire        drdy_unused;
   wire        locked_int;
@@ -133,7 +146,7 @@ module ntp_clock_pll_clk_wiz
     .CLKOUT1_PHASE        (0.000),
     .CLKOUT1_DUTY_CYCLE   (0.500),
     .CLKOUT1_USE_FINE_PS  ("TRUE"),
-    .CLKIN1_PERIOD        (100.0))
+    .CLKIN1_PERIOD        (100.000))
   mmcm_adv_inst
     // Output clocks
    (
@@ -175,17 +188,20 @@ module ntp_clock_pll_clk_wiz
     .CLKFBSTOPPED        (clkfbstopped_unused),
     .PWRDWN              (1'b0),
     .RST                 (reset_high));
-
   assign reset_high = reset; 
 
   assign locked = locked_int;
-
-  // Output buffering
+// Clock Monitor clock assigning
+//--------------------------------------
+ // Output buffering
   //-----------------------------------
 
   BUFG clkf_buf
    (.O (clkfbout_buf_ntp_clock_pll),
     .I (clkfbout_ntp_clock_pll));
+
+
+
 
 
 

@@ -1,3 +1,4 @@
+
 // file: ntp_clock_pll.v
 // 
 // (c) Copyright 2008 - 2013 Xilinx, Inc. All rights reserved.
@@ -55,8 +56,8 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// CLK_OUT1____10.000______0.000______50.0______924.807____919.522
-// CLK_OUT2___128.000______0.000______50.0______625.455____919.522
+// clk_out1__10.00000______0.000______50.0______924.807____919.522
+// clk_out2__128.00000______0.000______50.0______625.455____919.522
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -65,13 +66,10 @@
 
 `timescale 1ps/1ps
 
-(* CORE_GENERATION_INFO = "ntp_clock_pll,clk_wiz_v5_1,{component_name=ntp_clock_pll,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=true,use_inclk_switchover=false,use_dyn_reconfig=false,enable_axi=0,feedback_source=FDBK_AUTO,PRIMITIVE=MMCM,num_out_clk=2,clkin1_period=100.0,clkin2_period=10.0,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,feedback_type=SINGLE,CLOCK_MGR_TYPE=NA,manual_override=false}" *)
+(* CORE_GENERATION_INFO = "ntp_clock_pll,clk_wiz_v6_0_4_0_0,{component_name=ntp_clock_pll,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=true,use_inclk_switchover=false,use_dyn_reconfig=false,enable_axi=0,feedback_source=FDBK_AUTO,PRIMITIVE=MMCM,num_out_clk=2,clkin1_period=100.000,clkin2_period=10.0,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,feedback_type=SINGLE,CLOCK_MGR_TYPE=NA,manual_override=false}" *)
 
 module ntp_clock_pll 
  (
- // Clock in ports
-  input         clk_in1_p,
-  input         clk_in1_n,
   // Clock out ports
   output        clk_out1,
   output        clk_out2,
@@ -82,14 +80,14 @@ module ntp_clock_pll
   output        psdone,
   // Status and control signals
   input         reset,
-  output        locked
+  output        locked,
+ // Clock in ports
+  input         clk_in1_p,
+  input         clk_in1_n
  );
 
   ntp_clock_pll_clk_wiz inst
   (
- // Clock in ports
-  .clk_in1_p(clk_in1_p),
-  .clk_in1_n(clk_in1_n),
   // Clock out ports  
   .clk_out1(clk_out1),
   .clk_out2(clk_out2),
@@ -100,7 +98,10 @@ module ntp_clock_pll
   .psdone(psdone),
   // Status and control signals               
   .reset(reset), 
-  .locked(locked)            
+  .locked(locked),
+ // Clock in ports
+  .clk_in1_p(clk_in1_p),
+  .clk_in1_n(clk_in1_n)
   );
 
 endmodule

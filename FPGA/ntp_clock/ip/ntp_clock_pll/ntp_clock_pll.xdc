@@ -1,3 +1,4 @@
+
 # file: ntp_clock_pll.xdc
 # 
 # (c) Copyright 2008 - 2013 Xilinx, Inc. All rights reserved.
@@ -52,8 +53,8 @@
 # commented constraints can be used in the top level xdc 
 #----------------------------------------------------------------
 # Differential clock only needs one constraint
-create_clock -period 100.0 [get_ports clk_in1_p]
+create_clock -period 100.000 [get_ports clk_in1_p]
 set_input_jitter [get_clocks -of_objects [get_ports clk_in1_p]] 1.0
 
 
-
+set_property PHASESHIFT_MODE WAVEFORM [get_cells -hierarchical *adv*]
