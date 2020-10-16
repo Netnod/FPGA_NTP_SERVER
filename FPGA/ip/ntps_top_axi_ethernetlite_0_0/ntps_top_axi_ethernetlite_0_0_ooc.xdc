@@ -10,9 +10,9 @@
 #list of all the clock needed for AXI Ethernetlite core
 
 create_clock -name s_axi_aclk -period 8.000 [get_ports s_axi_aclk]
-set_property HD.CLK_SRC BUFGCTRL_X0Y0 [get_ports s_axi_aclk]
+##set_property HD.CLK_SRC BUFGCTRL_X0Y0 [get_ports s_axi_aclk]
 
 create_clock -period 40 [get_ports phy_tx_clk] 
 create_clock -period 40 [get_ports phy_rx_clk] 
-set_property HD.CLK_SRC BUFGCTRL_X0Y1 [get_ports phy_tx_clk]
-set_property HD.CLK_SRC BUFGCTRL_X0Y2 [get_ports phy_rx_clk]
+##set_property HD.CLK_SRC BUFGCTRL_X0Y1 [get_ports phy_tx_clk]
+##set_property HD.CLK_SRC BUFGCTRL_X0Y2 [get_ports phy_rx_clk]
