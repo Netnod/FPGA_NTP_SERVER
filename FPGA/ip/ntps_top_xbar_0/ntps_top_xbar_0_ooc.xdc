@@ -1,4 +1,4 @@
-# (c) Copyright 2012-2019 Xilinx, Inc. All rights reserved.
+# (c) Copyright 2012-2020 Xilinx, Inc. All rights reserved.
 # 
 # This file contains confidential and proprietary information
 # of Xilinx, Inc. and is protected under U.S. and
@@ -53,6 +53,5 @@
 
 
 create_clock -period 8 -name aclk [get_ports aclk]
-set_property HD.CLK_SRC BUFGCTRL_X0Y0 [get_ports aclk]
 
 
