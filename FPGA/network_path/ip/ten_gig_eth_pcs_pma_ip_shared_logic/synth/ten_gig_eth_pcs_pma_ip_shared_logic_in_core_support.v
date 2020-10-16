@@ -114,6 +114,7 @@ module ten_gig_eth_pcs_pma_ip_shared_logic_in_core_support
   // Signal declarations
   wire coreclk;
   wire txoutclk;
+  wire rxrecclk_out_int;
   wire qplloutclk;
   wire qplloutrefclk;
   wire qplllock;

@@ -85,13 +85,19 @@ module  ten_gig_eth_pcs_pma_ip_shared_logic_in_core_shared_clock_and_reset
   wire refclk_p_buffed;
   wire refclk_n_buffed;
 
-  IBUF refclk_p_buf
-  (.I(refclk_p),
-   .O(refclk_p_buffed));
+  IBUF #(
+   .IBUF_LOW_PWR ("FALSE") 
+  ) refclk_p_buf (
+   .I(refclk_p),
+   .O(refclk_p_buffed)
+  );
 
-  IBUF refclk_n_buf
-  (.I(refclk_n),
-   .O(refclk_n_buffed));
+  IBUF #(
+   .IBUF_LOW_PWR ("FALSE") 
+  ) refclk_n_buf (
+   .I(refclk_n),
+   .O(refclk_n_buffed)
+  );
   IBUFDS_GTE2 ibufds_inst
   (
       .O     (refclk),
@@ -186,7 +192,6 @@ module  ten_gig_eth_pcs_pma_ip_shared_logic_in_core_shared_clock_and_reset
      else
        txuserrdy <= qplllock_txusrclk2;
   end
-
 
 endmodule
 
