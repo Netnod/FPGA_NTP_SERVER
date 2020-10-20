@@ -73,13 +73,16 @@ set_multicycle_path -hold 1 -from [get_cells * -hierarchical -filter {NAME =~ *m
 set_max_delay -from [get_cells -hierarchical -filter {NAME =~ *elastic*rd_truegray_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_cells -hierarchical -filter {NAME =~ *elastic*rag_writesync0_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -datapath_only 6.400
 set_max_delay -from [get_cells -hierarchical -filter {NAME =~ *elastic*wr_gray_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_cells -hierarchical -filter {NAME =~ *elastic*wr_gray_rdclk0_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -datapath_only 3.100
 set_max_delay -from [get_cells -hierarchical -filter {NAME =~ *elastic*rd_lastgray_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_cells -hierarchical -filter {NAME =~ *elastic*rd_lastgray_wrclk0_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -datapath_only 6.400
+set_false_path -from [get_pins -of [get_cells -of [all_fanin -flat [get_pins -of [get_cells -hier -filter {NAME =~ *asynch_fifo_i/dp_ram_i/rd_data_reg*}] -filter {NAME =~ *D}]]  -filter {is_sequential == 1 && NAME =~ "*ten_gig_disti_ram*"}] -filter {NAME =~ *CLK}]  -to [get_cells -hier -filter {NAME =~ *asynch_fifo_i/dp_ram_i/rd_data_reg*}]
 set_max_delay -from [get_cells -hierarchical -filter {NAME =~ *txrate*rd_truegray_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_cells -hierarchical -filter {NAME =~ *txrate*rag_writesync0_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -datapath_only 3.100
 set_max_delay -from [get_cells -hierarchical -filter {NAME =~ *txrate*wr_gray_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_cells -hierarchical -filter {NAME =~ *txrate*wr_gray_rdclk0_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -datapath_only 6.400
 set_max_delay -from [get_cells -hierarchical -filter {NAME =~ *txrate*rd_lastgray_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_cells -hierarchical -filter {NAME =~ *txrate*rd_lastgray_wrclk0_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -datapath_only 3.100
 
 # Set false paths and max delays between clock domain crossing reset regs
 set_false_path -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *sync1_r_reg[0]}] -filter {NAME =~ *D}]
-set_false_path -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *resyncs*d1_reg}] -filter {NAME =~ *D}]
+#set_false_path -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *resyncs*d1_reg}] -filter {NAME =~ *D}]
+#set_max_delay -datapath_only -from [get_cells -hier -filter {NAME =~ *pcs_reset_core_reg_reg}] -to [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_resets_resyncs_i/d1_reg}] 3.100
+set_max_delay -from [get_cells -of [all_fanin -flat [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *resyncs*d1_reg}] -filter {NAME =~ *D}]] -filter {IS_SEQUENTIAL=="1" && NAME !~ "*resyncs*d1_reg"}] -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *resyncs*d1_reg}] -filter {NAME =~ *D}] 3.100 -datapath_only
 set_false_path -from [get_cells -hierarchical -filter {(PRIMITIVE_SUBGROUP =~ gt || PRIMITIVE_SUBGROUP =~ GT)}] -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *sync1_r_reg[0]}] -filter {NAME =~ *D}]
 set_false_path -from [get_cells -hierarchical -filter {NAME =~ *cable_*pull_reset_reg}] -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *sync1_r_reg[0]}] -filter {NAME =~ *D}]
 # False paths for async reset removal synchronizers
@@ -93,7 +96,7 @@ set_false_path -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME 
 
 # Max delays to control skew into coherent synchronizers
 set_max_delay -datapath_only -from [get_clocks -of_objects [get_ports refclk_p]] -to [get_pins -of_objects [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_timer_125us_resync/*synchc_inst*d1_reg}] -filter {NAME =~ *D}] 6.400
-set_max_delay -datapath_only -from [get_clocks -of_objects [get_ports refclk_p]] -to [get_pins -of_objects [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_resyncs_i/*synchc_inst*d1_reg}] -filter {NAME =~ *D}] 6.400
+#set_max_delay -datapath_only -from [get_clocks -of_objects [get_ports refclk_p]] -to [get_pins -of_objects [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_resyncs_i/*synchc_inst*d1_reg}] -filter {NAME =~ *D}] 6.400
 
 # DRP clock crossing logic
 set_max_delay -datapath_only -from [get_cells -hierarchical -filter {NAME =~ *drp_ipif_i*synch_*d_reg_reg* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}] -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *drp_ipif_i*synch_*q_reg*}] -filter {NAME =~ *D || NAME =~ *R || NAME =~ *S}] 3.100

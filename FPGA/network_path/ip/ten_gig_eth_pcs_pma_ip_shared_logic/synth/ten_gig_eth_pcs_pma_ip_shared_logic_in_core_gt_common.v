@@ -95,6 +95,7 @@ module  ten_gig_eth_pcs_pma_ip_shared_logic_in_core_gt_common # (
     wire            tied_to_vcc_i;
     wire    [63:0]  tied_to_vcc_vec_i;
 
+
 //********************************* Main Body of Code**************************
 
     assign tied_to_ground_i             = 1'b0;
@@ -131,7 +132,7 @@ module  ten_gig_eth_pcs_pma_ip_shared_logic_in_core_gt_common # (
 
            //----------------COMMON BLOCK Attributes---------------
             .BIAS_CFG                               (64'h0000040000001050),
-            .COMMON_CFG                             (32'h0000001C),
+            .COMMON_CFG                             (32'h0000005C),
             .QPLL_CFG                               (27'h04801C7),
             .QPLL_CLKOUT_CFG                        (4'b1111),
             .QPLL_COARSE_FREQ_OVRD                  (6'b010000),
@@ -194,11 +195,13 @@ module  ten_gig_eth_pcs_pma_ip_shared_logic_in_core_gt_common # (
         .BGBYPASSB                      (tied_to_vcc_i),
         .BGMONITORENB                   (tied_to_vcc_i),
         .BGPDB                          (tied_to_vcc_i),
-        .BGRCALOVRD                     (5'b00000),
+        .BGRCALOVRD                     (5'b11111),
         .PMARSVD                        (8'b00000000),
         .RCALENB                        (tied_to_vcc_i)
 
     );
+
+
 
 
 

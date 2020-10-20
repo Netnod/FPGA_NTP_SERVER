@@ -75,6 +75,6 @@ module ten_gig_eth_pcs_pma_ip_shared_logic_in_core_ff_synchronizer #(
   end    
   
   always @(posedge clk) begin
-    data_out = sync1_r[C_NUM_SYNC_REGS-1];
+    data_out <= sync1_r[C_NUM_SYNC_REGS-1];
   end    
 endmodule
