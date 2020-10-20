@@ -58,5 +58,7 @@
 # to match the target frequencies. 
 # This constraints file is not used in normal top-down synthesis (the default flow of Vivado)
 #
-create_clock -name axi_aclk -period 8 [get_ports axi_aclk]
+create_clock -name sys_clk -period 10 [get_ports refclk]
+# 100/125/250 MHz
 create_clock -name axi_ctl_aclk -period 8 [get_ports axi_ctl_aclk]
+	

@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_clock.v
-// Version    : 4.0
+// Version    : 4.2
 
 //----------------------------------------------------------------------------//
 //  Filename     :  ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_clock.v
@@ -66,16 +66,17 @@
 module ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_clock #
 (
 
-    parameter PCIE_ASYNC_EN      = "FALSE",                 // PCIe async enable
-    parameter PCIE_TXBUF_EN      = "FALSE",                 // PCIe TX buffer enable for Gen1/Gen2 only
-    parameter PCIE_CLK_SHARING_EN= "FALSE",                 // Enable Clock Sharing
-    parameter PCIE_LANE          = 1,                       // PCIe number of lanes
-    parameter PCIE_LINK_SPEED    = 3,                       // PCIe link speed 
-    parameter PCIE_REFCLK_FREQ   = 0,                       // PCIe reference clock frequency
-    parameter PCIE_USERCLK1_FREQ = 2,                       // PCIe user clock 1 frequency
-    parameter PCIE_USERCLK2_FREQ = 2,                       // PCIe user clock 2 frequency
-    parameter PCIE_OOBCLK_MODE   = 1,                       // PCIe oob clock mode
-    parameter PCIE_DEBUG_MODE    = 0                        // PCIe Debug mode
+    parameter PCIE_ASYNC_EN              = "FALSE",     // PCIe async enable
+    parameter PCIE_TXBUF_EN              = "FALSE",     // PCIe TX buffer enable for Gen1/Gen2 only
+    parameter PCIE_CLK_SHARING_EN        = "FALSE",     // Enable Clock Sharing
+    parameter PCIE_LANE                  = 1,           // PCIe number of lanes
+    parameter PCIE_LINK_SPEED            = 3,           // No longer used to indicate link speed - Static value at 3
+    parameter PL_LINK_CAP_MAX_LINK_SPEED = 4,           // PCIe link speed; 1=Gen1; 2=Gen2; 4=Gen3
+    parameter PCIE_REFCLK_FREQ           = 0,           // PCIe reference clock frequency
+    parameter PCIE_USERCLK1_FREQ         = 2,           // PCIe user clock 1 frequency
+    parameter PCIE_USERCLK2_FREQ         = 2,           // PCIe user clock 2 frequency
+    parameter PCIE_OOBCLK_MODE           = 1,           // PCIe oob clock mode
+    parameter PCIE_DEBUG_MODE            = 0            // PCIe Debug mode
     
 )
 
@@ -551,7 +552,7 @@ endgenerate
 
 
 //---------- Generate 2nd Stage Buffers ----------------------------------------
-generate if ((PCIE_LINK_SPEED == 3) && (PCIE_ASYNC_EN == "TRUE")) 
+generate if ((PL_LINK_CAP_MAX_LINK_SPEED == 4) && (PCIE_ASYNC_EN == "TRUE")) 
 
     begin : second_stage_buf
 

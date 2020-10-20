@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_bram_7vx_8k.v
-// Version    : 4.0
+// Version    : 4.2
 //----------------------------------------------------------------------------//
 // Project      : Virtex-7 FPGA Gen3 Integrated Block for PCI Express         //
 // Filename     : ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_bram_7vx_8k.v                                          //

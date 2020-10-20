@@ -53,12 +53,14 @@
 // Version    : $IpVersion 
 //-----------------------------------------------------------------------------
 
+`timescale 1ns / 1ps
 (* DowngradeIPIdentifiedWarnings = "yes" *)
-module axi4mm_register_slice_wrap
-(
+module axi4mm_register_slice_wrap #(
+   parameter C_AXI_ID_WIDTH = 4
+) (
  input  wire           aclk,
  input  wire           aresetn,
- output wire [3   : 0] s_axi_rid,
+ output wire [C_AXI_ID_WIDTH-1   : 0] s_axi_rid,
  output wire [255 : 0] s_axi_rdata,
  output wire [1   : 0] s_axi_rresp,
  output wire           s_axi_rlast,
@@ -72,7 +74,7 @@ module axi4mm_register_slice_wrap
  output wire           m_axi_rready
  );
   
-  assign s_axi_rid = 4'b0; 
+  assign s_axi_rid = {C_AXI_ID_WIDTH{1'b0}}; 
   assign s_axi_rdata = 256'b0; 
   assign s_axi_rresp = 2'b0; 
   assign s_axi_rlast = 1'b0; 

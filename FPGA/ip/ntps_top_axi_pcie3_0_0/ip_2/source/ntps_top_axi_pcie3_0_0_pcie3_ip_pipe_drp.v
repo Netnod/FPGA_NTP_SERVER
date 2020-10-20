@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_drp.v
-// Version    : 4.0
+// Version    : 4.2
 //----------------------------------------------------------------------------//
 //  Filename     :  ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_drp.v
 //  Description  :  PIPE DRP Module for 7 Series Transceiver
@@ -246,6 +246,10 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_drp #
     localparam          GEN3_PMA_RSV_A_GTH        = 16'b0000000000001000;  // 16'h0008
     localparam          GEN3_PMA_RSV_B_GTH        = 16'b0000000000000000;  // 16'h0000   
     //---------- 
+    //	    RX_CDR_CFG	Description
+    // (1)	83'h0_0020_07FE_2000_C208_8018	Default for separate REFCLK applications
+    // (2)	83'h0_0020_07FE_2000_C220_0018	4x faster CDR bandwidth to improve Gen1 margin for separate REFCLK applications
+    //
     localparam          GEN3_RXCDR_CFG_A_GTX      = 16'h0080;              // 16'h0080
     localparam          GEN3_RXCDR_CFG_B_GTX      = 16'h1010;              // 16'h1010
     localparam          GEN3_RXCDR_CFG_C_GTX      = 16'h0BFF;              // 16'h0BFF

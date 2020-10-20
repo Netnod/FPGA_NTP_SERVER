@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_gt_top.v
-// Version    : 4.0
+// Version    : 4.2
 //----------------------------------------------------------------------------//
 
 //----------------------------------------------------------------------------//
@@ -86,7 +86,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_gt_top #
 (
   parameter               TCQ                        = 100,
   parameter               PL_LINK_CAP_MAX_LINK_WIDTH = 8,      // 1 - x1 , 2 - x2 , 4 - x4 , 8 - x8
-  parameter               PL_LINK_CAP_MAX_LINK_SPEED = 3,      // 1 - Gen 1 , 2 - Gen 2 , 3 - Gen 3
+  parameter               PL_LINK_CAP_MAX_LINK_SPEED = 4,      // 1 - Gen 1 , 2 - Gen 2 , 4 - Gen 3
   parameter               REF_CLK_FREQ               = 0,      // 0 - 100 MHz , 1 - 125 MHz , 2 - 250 MHz
   //  USER_CLK[1/2]_FREQ        : 0 = Disable user clock
   //                                : 1 =  31.25 MHz
@@ -570,7 +570,8 @@ ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_wrapper #(
     .PCIE_CHAN_BOND_EN        ( PCIE_CHAN_BOND_EN ),
     .PCIE_USE_MODE            ( PCIE_USE_MODE ),
     .PCIE_LPM_DFE             ( PCIE_LPM_DFE ),
-    .PCIE_LINK_SPEED          ( PCIE_LINK_SPEED ),
+    .PCIE_LINK_SPEED          ( PCIE_LINK_SPEED ),              // No longer used to indicate link speed - Static value at 3
+    .PL_LINK_CAP_MAX_LINK_SPEED ( PL_LINK_CAP_MAX_LINK_SPEED ), // PCIe link speed; 1=Gen1; 2=Gen2; 4=Gen3
     .PCIE_LANE                ( PL_LINK_CAP_MAX_LINK_WIDTH ),
     .PCIE_REFCLK_FREQ         ( REF_CLK_FREQ ),
     .TX_MARGIN_FULL_0         (TX_MARGIN_FULL_0),                          // 1000 mV
