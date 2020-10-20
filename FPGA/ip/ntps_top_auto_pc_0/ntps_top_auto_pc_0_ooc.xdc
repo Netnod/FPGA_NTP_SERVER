@@ -1,5 +1,4 @@
-################################################################################
-# (c) Copyright 2013 Xilinx, Inc. All rights reserved.
+# (c) Copyright 2012-2020 Xilinx, Inc. All rights reserved.
 # 
 # This file contains confidential and proprietary information
 # of Xilinx, Inc. and is protected under U.S. and
@@ -44,7 +43,15 @@
 # 
 # THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 # PART OF THIS FILE AT ALL TIMES.
+# 
+# DO NOT MODIFY THIS FILE.
+# #########################################################
 #
-################################################################################
-create_clock -period 100.0 -name aclk [get_ports aclk]
+# This XDC is used only in OOC mode for synthesis, implementation
+#
+# #########################################################
+
+
+create_clock -period 100 -name aclk [get_ports aclk]
+
 
