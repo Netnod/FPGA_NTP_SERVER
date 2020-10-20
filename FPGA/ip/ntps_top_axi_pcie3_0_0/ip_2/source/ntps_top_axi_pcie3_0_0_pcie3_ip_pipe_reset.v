@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_reset.v
-// Version    : 4.0
+// Version    : 4.2
 //----------------------------------------------------------------------------//
 //  Filename     :  ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_reset.v
 //  Description  :  PIPE Reset Module for 7 Series Transceiver

@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx.v
-// Version    : 4.0
+// Version    : 4.2
 //----------------------------------------------------------------------------//
 // Project      : Virtex-7 FPGA Gen3 Integrated Block for PCI Express         //
 // Filename     : <CoreName>_pcie_3_0_7vx.v                                   //
@@ -115,7 +115,7 @@
 
 module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   parameter integer TCQ = 100,
-  parameter         component_name = "pcie3_7x_v4_0",
+  parameter         component_name = "pcie3_7x_v4_3_6",
   // The following parameters can be changed to configure the link to a different width/speed.
   // See Product Guide for details: Table "Data Width and Clock Frequency Settings for the Client Interfaces"
   parameter  [2:0]  PL_LINK_CAP_MAX_LINK_SPEED = 3'h4, // Maximum Link Speed
@@ -310,9 +310,9 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   parameter  [3:0]  PF0_LTR_CAP_VER = 4'h1,
   parameter  [7:0]  PF0_MSIX_CAP_NEXTPTR = 8'h00,
   parameter integer PF0_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  PF0_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         PF0_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer PF0_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  PF0_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         PF0_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  PF0_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer PF0_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  PF0_MSI_CAP_NEXTPTR = 8'h00,
@@ -411,9 +411,9 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   parameter  [2:0]  PF1_INTERRUPT_PIN = 3'h1,
   parameter  [7:0]  PF1_MSIX_CAP_NEXTPTR = 8'h00,
   parameter integer PF1_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  PF1_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         PF1_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer PF1_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  PF1_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         PF1_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  PF1_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer PF1_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  PF1_MSI_CAP_NEXTPTR = 8'h00,
@@ -489,7 +489,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   parameter integer PL_N_FTS_GEN3 = 255,
   parameter         PL_UPSTREAM_FACING = "TRUE",
   parameter [15:0]  PM_ASPML0S_TIMEOUT = 16'h05DC,
-  parameter [19:0]  PM_ASPML1_ENTRY_DELAY = 20'h00ABE,
+  parameter [19:0]  PM_ASPML1_ENTRY_DELAY = 20'h01D4C,
   parameter         PM_ENABLE_SLOT_POWER_CAPTURE = "TRUE",
   parameter [31:0]  PM_L1_REENTRY_DELAY = 32'h000061A8,
   parameter [19:0]  PM_PME_SERVICE_TIMEOUT_DELAY = 20'h186A0,
@@ -529,54 +529,54 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   parameter         TL_TAG_MGMT_ENABLE = "TRUE",
   parameter  [7:0]  VF0_CAPABILITY_POINTER = 8'h50,
   parameter integer VF0_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  VF0_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         VF0_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer VF0_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  VF0_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         VF0_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  VF0_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer VF0_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  VF0_PM_CAP_ID = 8'h01,
   parameter  [7:0]  VF0_PM_CAP_NEXTPTR = 8'h00,
   parameter  [2:0]  VF0_PM_CAP_VER_ID = 3'h3,
   parameter integer VF1_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  VF1_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         VF1_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer VF1_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  VF1_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         VF1_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  VF1_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer VF1_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  VF1_PM_CAP_ID = 8'h01,
   parameter  [7:0]  VF1_PM_CAP_NEXTPTR = 8'h00,
   parameter  [2:0]  VF1_PM_CAP_VER_ID = 3'h3,
   parameter integer VF2_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  VF2_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         VF2_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer VF2_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  VF2_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         VF2_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  VF2_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer VF2_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  VF2_PM_CAP_ID = 8'h01,
   parameter  [7:0]  VF2_PM_CAP_NEXTPTR = 8'h00,
   parameter  [2:0]  VF2_PM_CAP_VER_ID = 3'h3,
   parameter integer VF3_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  VF3_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         VF3_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer VF3_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  VF3_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         VF3_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  VF3_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer VF3_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  VF3_PM_CAP_ID = 8'h01,
   parameter  [7:0]  VF3_PM_CAP_NEXTPTR = 8'h00,
   parameter  [2:0]  VF3_PM_CAP_VER_ID = 3'h3,
   parameter integer VF4_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  VF4_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         VF4_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer VF4_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  VF4_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         VF4_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  VF4_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer VF4_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  VF4_PM_CAP_ID = 8'h01,
   parameter  [7:0]  VF4_PM_CAP_NEXTPTR = 8'h00,
   parameter  [2:0]  VF4_PM_CAP_VER_ID = 3'h3,
   parameter integer VF5_MSIX_CAP_PBA_BIR = 0,
-  parameter [28:0]  VF5_MSIX_CAP_PBA_OFFSET = 29'h00000050,
+  parameter         VF5_MSIX_CAP_PBA_OFFSET = 29'h00000050,
   parameter integer VF5_MSIX_CAP_TABLE_BIR = 0,
-  parameter [28:0]  VF5_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
+  parameter         VF5_MSIX_CAP_TABLE_OFFSET = 29'h00000040,
   parameter [10:0]  VF5_MSIX_CAP_TABLE_SIZE = 11'h000,
   parameter integer VF5_MSI_CAP_MULTIMSGCAP = 0,
   parameter  [7:0]  VF5_PM_CAP_ID = 8'h01,
@@ -611,7 +611,11 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   parameter         EXT_PIPE_INTERFACE = "FALSE",
   parameter         POWER_DOWN = "FALSE",
   parameter         PCIE_ASYNC_EN = "FALSE",
-  parameter         DEV_PORT_TYPE = 0
+  parameter         DEV_PORT_TYPE = 0,
+  parameter         ENABLE_JTAG_DBG = "FALSE",
+  parameter         MULT_PF_DES     = "FALSE",
+  parameter         DBG_DESCRAMBLE_EN = "TRUE",
+  parameter         WIN10_INTEROP = "FALSE" 
 
 )  (
 
@@ -658,7 +662,6 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   output                                      pipe_gen3_out,
 
   // Shared Logic External GT COMMON  
-
   input  [11:0]                               qpll_drp_crscode,
   input  [17:0]                               qpll_drp_fsm,
   input  [1:0]                                qpll_drp_done,
@@ -674,6 +677,8 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   output                                      qpll_drp_gen3,
   output                                      qpll_drp_start,
 
+  // Status
+  output                                      mmcm_lock,
 
 //----------------------------------------------------------------------------------------------------------------//
   // 3. AXI Interface                                                                                               //
@@ -878,7 +883,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
 
   input wire                                 sys_clk,
   input wire                                 sys_reset,
-  input					                     pipe_mmcm_rst_n,
+  input					     pipe_mmcm_rst_n,
 
 //--------------TRANSCEIVER_DEBUG---------------------------------
 
@@ -934,6 +939,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   output  [PL_LINK_CAP_MAX_LINK_WIDTH-1:0]     pipe_debug_9, 
   output  [31:0]                               pipe_debug,
 
+  input                                        free_run_clock,
 //---- PIPE Ports to Core Top Level for PIPE Mode Simulation with 3rd Party IP/BFM/Xilinx BFM ------------------------
   input   [25:0]                               common_commands_in,
   input   [83:0]                               pipe_rx_0_sigs,
@@ -945,15 +951,15 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   input   [83:0]                               pipe_rx_6_sigs,
   input   [83:0]                               pipe_rx_7_sigs,
                          
-  output  [16:0]                               common_commands_out,
-  output  [69:0]                               pipe_tx_0_sigs,
-  output  [69:0]                               pipe_tx_1_sigs,
-  output  [69:0]                               pipe_tx_2_sigs,
-  output  [69:0]                               pipe_tx_3_sigs,
-  output  [69:0]                               pipe_tx_4_sigs,
-  output  [69:0]                               pipe_tx_5_sigs,
-  output  [69:0]                               pipe_tx_6_sigs,
-  output  [69:0]                               pipe_tx_7_sigs,
+  output  [25:0]                               common_commands_out,
+  output  [83:0]                               pipe_tx_0_sigs,
+  output  [83:0]                               pipe_tx_1_sigs,
+  output  [83:0]                               pipe_tx_2_sigs,
+  output  [83:0]                               pipe_tx_3_sigs,
+  output  [83:0]                               pipe_tx_4_sigs,
+  output  [83:0]                               pipe_tx_5_sigs,
+  output  [83:0]                               pipe_tx_6_sigs,
+  output  [83:0]                               pipe_tx_7_sigs,
 
   //--------------Channel DRP---------------------------------
   output                                       ext_ch_gt_drpclk,
@@ -1041,6 +1047,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   wire         rec_clk;
   wire         pipe_clk;
   wire         core_clk;
+  wire         phy_rdy;
 
   wire [15:0]  cfg_vend_id        = PF0_VENDOR_ID;
   wire [15:0]  cfg_dev_id         = PF0_DEVICE_ID;
@@ -1313,6 +1320,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   wire  [31:0] pipe_rx7_data;
 
   wire   [7:0] pipe_rx_syncdone;
+  wire         PIPE_GEN3_OUT_wire;
 
   wire         sys_or_hot_rst;
   wire         user_lnk_up_int;
@@ -1371,6 +1379,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   wire   [1:0]            pcie_tfc_nph_av_wire;
   wire   [1:0]            pcie_tfc_npd_av_wire;
   wire   [3:0]            pcie_rq_seq_num_wire;
+  wire                    pcie_tfc_np_pl_empty_wire;
   wire                    pcie_rq_seq_num_vld_wire;
   wire   [7:0]            cfg_fc_ph_wire;
   wire   [7:0]            cfg_fc_nph_wire;
@@ -1416,7 +1425,6 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   wire   [2:0]            cfg_fc_sel_cplr;
   wire                    pcie_cq_np_req_cplr;
   wire                    m_axis_rc_tready_cplr;
-  wire                    mmcm_lock;
 
   // user_app_rdy signals which control the issolation muxes
   wire                         user_app_rdy_req;
@@ -1663,9 +1671,9 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   .PF0_LTR_CAP_VER                                      ( PF0_LTR_CAP_VER ),
   .PF0_MSIX_CAP_NEXTPTR                                 ( PF0_MSIX_CAP_NEXTPTR ),
   .PF0_MSIX_CAP_PBA_BIR                                 ( PF0_MSIX_CAP_PBA_BIR ),
-  .PF0_MSIX_CAP_PBA_OFFSET                              ( PF0_MSIX_CAP_PBA_OFFSET ),
+  .PF0_MSIX_CAP_PBA_OFFSET                              ( {3'b000,PF0_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .PF0_MSIX_CAP_TABLE_BIR                               ( PF0_MSIX_CAP_TABLE_BIR ),
-  .PF0_MSIX_CAP_TABLE_OFFSET                            ( PF0_MSIX_CAP_TABLE_OFFSET ),
+  .PF0_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,PF0_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .PF0_MSIX_CAP_TABLE_SIZE                              ( PF0_MSIX_CAP_TABLE_SIZE ),
   .PF0_MSI_CAP_MULTIMSGCAP                              ( PF0_MSI_CAP_MULTIMSGCAP ),
   .PF0_MSI_CAP_NEXTPTR                                  ( PF0_MSI_CAP_NEXTPTR ),
@@ -1763,9 +1771,9 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   .PF1_INTERRUPT_PIN                                    ( PF1_INTERRUPT_PIN ),
   .PF1_MSIX_CAP_NEXTPTR                                 ( PF1_MSIX_CAP_NEXTPTR ),
   .PF1_MSIX_CAP_PBA_BIR                                 ( PF1_MSIX_CAP_PBA_BIR ),
-  .PF1_MSIX_CAP_PBA_OFFSET                              ( PF1_MSIX_CAP_PBA_OFFSET ),
+  .PF1_MSIX_CAP_PBA_OFFSET                              ( {3'b000,PF1_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .PF1_MSIX_CAP_TABLE_BIR                               ( PF1_MSIX_CAP_TABLE_BIR ),
-  .PF1_MSIX_CAP_TABLE_OFFSET                            ( PF1_MSIX_CAP_TABLE_OFFSET ),
+  .PF1_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,PF1_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .PF1_MSIX_CAP_TABLE_SIZE                              ( PF1_MSIX_CAP_TABLE_SIZE ),
   .PF1_MSI_CAP_MULTIMSGCAP                              ( PF1_MSI_CAP_MULTIMSGCAP ),
   .PF1_MSI_CAP_NEXTPTR                                  ( PF1_MSI_CAP_NEXTPTR ),
@@ -1886,54 +1894,54 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   .TL_TAG_MGMT_ENABLE                                   ( TL_TAG_MGMT_ENABLE ),
   .VF0_CAPABILITY_POINTER                               ( VF0_CAPABILITY_POINTER ),
   .VF0_MSIX_CAP_PBA_BIR                                 ( VF0_MSIX_CAP_PBA_BIR ),
-  .VF0_MSIX_CAP_PBA_OFFSET                              ( VF0_MSIX_CAP_PBA_OFFSET ),
+  .VF0_MSIX_CAP_PBA_OFFSET                              ( {3'b000,VF0_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .VF0_MSIX_CAP_TABLE_BIR                               ( VF0_MSIX_CAP_TABLE_BIR ),
-  .VF0_MSIX_CAP_TABLE_OFFSET                            ( VF0_MSIX_CAP_TABLE_OFFSET ),
+  .VF0_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,VF0_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .VF0_MSIX_CAP_TABLE_SIZE                              ( VF0_MSIX_CAP_TABLE_SIZE ),
   .VF0_MSI_CAP_MULTIMSGCAP                              ( VF0_MSI_CAP_MULTIMSGCAP ),
   .VF0_PM_CAP_ID                                        ( VF0_PM_CAP_ID ),
   .VF0_PM_CAP_NEXTPTR                                   ( VF0_PM_CAP_NEXTPTR ),
   .VF0_PM_CAP_VER_ID                                    ( VF0_PM_CAP_VER_ID ),
   .VF1_MSIX_CAP_PBA_BIR                                 ( VF1_MSIX_CAP_PBA_BIR ),
-  .VF1_MSIX_CAP_PBA_OFFSET                              ( VF1_MSIX_CAP_PBA_OFFSET ),
+  .VF1_MSIX_CAP_PBA_OFFSET                              ( {3'b000,VF1_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .VF1_MSIX_CAP_TABLE_BIR                               ( VF1_MSIX_CAP_TABLE_BIR ),
-  .VF1_MSIX_CAP_TABLE_OFFSET                            ( VF1_MSIX_CAP_TABLE_OFFSET ),
+  .VF1_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,VF1_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .VF1_MSIX_CAP_TABLE_SIZE                              ( VF1_MSIX_CAP_TABLE_SIZE ),
   .VF1_MSI_CAP_MULTIMSGCAP                              ( VF1_MSI_CAP_MULTIMSGCAP ),
   .VF1_PM_CAP_ID                                        ( VF1_PM_CAP_ID ),
   .VF1_PM_CAP_NEXTPTR                                   ( VF1_PM_CAP_NEXTPTR ),
   .VF1_PM_CAP_VER_ID                                    ( VF1_PM_CAP_VER_ID ),
   .VF2_MSIX_CAP_PBA_BIR                                 ( VF2_MSIX_CAP_PBA_BIR ),
-  .VF2_MSIX_CAP_PBA_OFFSET                              ( VF2_MSIX_CAP_PBA_OFFSET ),
+  .VF2_MSIX_CAP_PBA_OFFSET                              ( {3'b000,VF2_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .VF2_MSIX_CAP_TABLE_BIR                               ( VF2_MSIX_CAP_TABLE_BIR ),
-  .VF2_MSIX_CAP_TABLE_OFFSET                            ( VF2_MSIX_CAP_TABLE_OFFSET ),
+  .VF2_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,VF2_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .VF2_MSIX_CAP_TABLE_SIZE                              ( VF2_MSIX_CAP_TABLE_SIZE ),
   .VF2_MSI_CAP_MULTIMSGCAP                              ( VF2_MSI_CAP_MULTIMSGCAP ),
   .VF2_PM_CAP_ID                                        ( VF2_PM_CAP_ID ),
   .VF2_PM_CAP_NEXTPTR                                   ( VF2_PM_CAP_NEXTPTR ),
   .VF2_PM_CAP_VER_ID                                    ( VF2_PM_CAP_VER_ID ),
   .VF3_MSIX_CAP_PBA_BIR                                 ( VF3_MSIX_CAP_PBA_BIR ),
-  .VF3_MSIX_CAP_PBA_OFFSET                              ( VF3_MSIX_CAP_PBA_OFFSET ),
+  .VF3_MSIX_CAP_PBA_OFFSET                              ( {3'b000,VF3_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .VF3_MSIX_CAP_TABLE_BIR                               ( VF3_MSIX_CAP_TABLE_BIR ),
-  .VF3_MSIX_CAP_TABLE_OFFSET                            ( VF3_MSIX_CAP_TABLE_OFFSET ),
+  .VF3_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,VF3_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .VF3_MSIX_CAP_TABLE_SIZE                              ( VF3_MSIX_CAP_TABLE_SIZE ),
   .VF3_MSI_CAP_MULTIMSGCAP                              ( VF3_MSI_CAP_MULTIMSGCAP ),
   .VF3_PM_CAP_ID                                        ( VF3_PM_CAP_ID ),
   .VF3_PM_CAP_NEXTPTR                                   ( VF3_PM_CAP_NEXTPTR ),
   .VF3_PM_CAP_VER_ID                                    ( VF3_PM_CAP_VER_ID ),
   .VF4_MSIX_CAP_PBA_BIR                                 ( VF4_MSIX_CAP_PBA_BIR ),
-  .VF4_MSIX_CAP_PBA_OFFSET                              ( VF4_MSIX_CAP_PBA_OFFSET ),
+  .VF4_MSIX_CAP_PBA_OFFSET                              ( {3'b000,VF4_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .VF4_MSIX_CAP_TABLE_BIR                               ( VF4_MSIX_CAP_TABLE_BIR ),
-  .VF4_MSIX_CAP_TABLE_OFFSET                            ( VF4_MSIX_CAP_TABLE_OFFSET ),
+  .VF4_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,VF4_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .VF4_MSIX_CAP_TABLE_SIZE                              ( VF4_MSIX_CAP_TABLE_SIZE ),
   .VF4_MSI_CAP_MULTIMSGCAP                              ( VF4_MSI_CAP_MULTIMSGCAP ),
   .VF4_PM_CAP_ID                                        ( VF4_PM_CAP_ID ),
   .VF4_PM_CAP_NEXTPTR                                   ( VF4_PM_CAP_NEXTPTR ),
   .VF4_PM_CAP_VER_ID                                    ( VF4_PM_CAP_VER_ID ),
   .VF5_MSIX_CAP_PBA_BIR                                 ( VF5_MSIX_CAP_PBA_BIR ),
-  .VF5_MSIX_CAP_PBA_OFFSET                              ( VF5_MSIX_CAP_PBA_OFFSET ),
+  .VF5_MSIX_CAP_PBA_OFFSET                              ( {3'b000,VF5_MSIX_CAP_PBA_OFFSET[28:3]} ),
   .VF5_MSIX_CAP_TABLE_BIR                               ( VF5_MSIX_CAP_TABLE_BIR ),
-  .VF5_MSIX_CAP_TABLE_OFFSET                            ( VF5_MSIX_CAP_TABLE_OFFSET ),
+  .VF5_MSIX_CAP_TABLE_OFFSET                            ( {3'b000,VF5_MSIX_CAP_TABLE_OFFSET[28:3]} ),
   .VF5_MSIX_CAP_TABLE_SIZE                              ( VF5_MSIX_CAP_TABLE_SIZE ),
   .VF5_MSI_CAP_MULTIMSGCAP                              ( VF5_MSI_CAP_MULTIMSGCAP ),
   .VF5_PM_CAP_ID                                        ( VF5_PM_CAP_ID ),
@@ -1944,6 +1952,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
   .INTERFACE_SPEED                                      ( INTERFACE_SPEED ),
   .COMPLETION_SPACE                                     ( COMPLETION_SPACE )
 ) pcie_top_i (
+
   .core_clk                                             ( core_clk ),                     // I
 
   .rec_clk                                              ( rec_clk ),                      // I
@@ -2777,7 +2786,9 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
     .PIPE_PCLK_SEL_OUT                                  ( pipe_pclk_sel_out ),
     .PIPE_GEN3_OUT                                      ( PIPE_GEN3_OUT_wire ),
 
-    //----------TRANSCEIVER DEBUG EOU------------------
+    //--------------------------------------------------------------------------
+    //  GT Debug Ports
+    //--------------------------------------------------------------------------
     .ext_ch_gt_drpclk                                     (ext_ch_gt_drpclk),
     .ext_ch_gt_drpaddr                                    (ext_ch_gt_drpaddr),
     .ext_ch_gt_drpen                                      (ext_ch_gt_drpen),
@@ -2785,7 +2796,7 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
     .ext_ch_gt_drpwe                                      (ext_ch_gt_drpwe),
     .ext_ch_gt_drpdo                                      (ext_ch_gt_drpdo),
     .ext_ch_gt_drprdy                                     (ext_ch_gt_drprdy),
- 
+
     //---------- PRBS/Loopback Ports -----------------------
     .PIPE_TXPRBSSEL                                      ( pipe_txprbssel ),
     .PIPE_RXPRBSSEL                                      ( pipe_rxprbssel ),
@@ -2851,15 +2862,15 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
     .POWERDOWN                (powerdown)
 );
      assign pipe_gen3_out = 1'b0;
-    assign common_commands_out = 17'b0;
-    assign pipe_tx_0_sigs      = 70'b0;
-    assign pipe_tx_1_sigs      = 70'b0;
-    assign pipe_tx_2_sigs      = 70'b0;
-    assign pipe_tx_3_sigs      = 70'b0;
-    assign pipe_tx_4_sigs      = 70'b0;
-    assign pipe_tx_5_sigs      = 70'b0;
-    assign pipe_tx_6_sigs      = 70'b0;
-    assign pipe_tx_7_sigs      = 70'b0;
+    assign common_commands_out = 26'b0;
+    assign pipe_tx_0_sigs      = 84'b0;
+    assign pipe_tx_1_sigs      = 84'b0;
+    assign pipe_tx_2_sigs      = 84'b0;
+    assign pipe_tx_3_sigs      = 84'b0;
+    assign pipe_tx_4_sigs      = 84'b0;
+    assign pipe_tx_5_sigs      = 84'b0;
+    assign pipe_tx_6_sigs      = 84'b0;
+    assign pipe_tx_7_sigs      = 84'b0;
 
 
     // Assign as passthrough if not tandem configuration
@@ -2969,5 +2980,25 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pcie_3_0_7vx # (
     // Generate user_lnk_up
     assign user_lnk_up = user_lnk_up_int;
   //----------------------------------------------------------------------------------------------------------------//
+
+//////////////////////////////////////////////////STORE_LTSSM/////////////////////////////////////////////////////////
+  (* mark_debug *) wire store_ltssm;
+  reg   [5:0] ltssm_reg0 = 6'b0;
+  reg   [5:0] ltssm_reg1 = 6'b0;
+  reg   [5:0] ltssm_reg2 = 6'b0; 
+
+  always@ (posedge user_clk)
+  begin
+    ltssm_reg0          <= cfg_ltssm_state;
+    ltssm_reg1          <= ltssm_reg0;
+    ltssm_reg2          <= ltssm_reg1;
+  end
+
+  assign store_ltssm     = (ltssm_reg2 != cfg_ltssm_state) ? 1'b1 : 1'b0; 
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 endmodule
 

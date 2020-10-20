@@ -50,7 +50,7 @@
 ##
 ## Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 ## File       : ntps_top_axi_pcie3_0_0_pcie3_ip-PCIE_X0Y1.xdc
-## Version    : 4.0
+## Version    : 4.2
 #
 ###############################################################################
 # User Time Names / User Time Groups / Time Specs
@@ -118,7 +118,7 @@ set_property LOC RAMB36_X12Y51 [get_cells {pcie_top_i/pcie_7vx_i/pcie_bram_7vx_i
 # Timing Constraints
 ###############################################################################
 #
-create_clock -period 10 [get_pins {gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gth_channel.gthe2_channel_i/TXOUTCLK}]
+create_clock -name txoutclk_x0y1 -period 10 [get_pins {gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gth_channel.gthe2_channel_i/TXOUTCLK}]
 
 
 create_generated_clock -name clk_125mhz_x0y1 [get_pins gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/mmcm_i/CLKOUT0]
@@ -134,22 +134,25 @@ create_generated_clock -name clk_250mhz_mux_x0y1 \
 set_clock_groups -name pcieclkmux_x0y1 -physically_exclusive -group clk_125mhz_mux_x0y1 -group clk_250mhz_mux_x0y1
 set_false_path -to [get_pins {gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/S0}]
 set_false_path -to [get_pins {gt_top_i/pipe_wrapper_i/pipe_clock_int.pipe_clock_i/pclk_i1_bufgctrl.pclk_i1/S1}]
+#
 
 #------------------------------------------------------------------------------
 # Asynchronous Pins
 #------------------------------------------------------------------------------
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/RXELECIDLE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/RXCDRLOCK}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/TXPHALIGNDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/TXPHINITDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/CPLLLOCK}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/RXPMARESETDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/RXPHALIGNDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/RXSYNCDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/TXDLYSRESETDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/TXSYNCDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/RXDLYSRESETDONE}]
-set_false_path -through [get_pins -hierarchical -filter {NAME=~*/QPLLLOCK}]
+
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~RXELECIDLE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~RXCDRLOCK} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~TXPHALIGNDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~TXPHINITDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~CPLLLOCK} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~RXPMARESETDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~RXPHALIGNDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~TXDLYSRESETDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~TXSYNCDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~RXSYNCDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~RXDLYSRESETDONE} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
+
+set_false_path -through [get_pins -filter {REF_PIN_NAME=~QPLLLOCK} -of_objects [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ IO.gt.* }]]
 #
 ###############################################################################
 # Physical Constraints

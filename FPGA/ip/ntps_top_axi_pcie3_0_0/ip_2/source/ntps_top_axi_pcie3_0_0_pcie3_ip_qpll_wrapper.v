@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_qpll_wrapper.v
-// Version    : 4.0
+// Version    : 4.2
 
 `timescale 1ns / 1ps
 
@@ -268,7 +268,7 @@ else if (PCIE_GT_DEVICE == "GTH")
     
         //---------- MISC ------------------------------------------------------
         .BIAS_CFG	                      (64'h0000040000001050),                 // Optimized for GES
-        .COMMON_CFG	                    (32'h0000001C),                                // 
+        .COMMON_CFG	                    (32'h0000005C),                                // 
         .RCAL_CFG                       ( 2'b00),                               // GTH new
         .RSVD_ATTR0                     (16'd0),                                // GTH
         .RSVD_ATTR1                     (16'd0)                                 // GTH    

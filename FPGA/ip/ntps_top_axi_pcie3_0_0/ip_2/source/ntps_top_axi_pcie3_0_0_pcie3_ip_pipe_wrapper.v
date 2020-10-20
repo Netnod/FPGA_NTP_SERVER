@@ -50,7 +50,7 @@
 //
 // Project    : Virtex-7 FPGA Gen3 Integrated Block for PCI Express
 // File       : ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_wrapper.v
-// Version    : 4.0
+// Version    : 4.2
 //----------------------------------------------------------------------------//
 //  Filename     :  ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_wrapper.v
 //  Description  :  PIPE Wrapper for 7 Series Transceiver
@@ -170,7 +170,8 @@ module ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_wrapper #
     parameter PCIE_CHAN_BOND_EN             = "FALSE",      // PCIe channel bonding enable for Gen1/Gen2 only
     parameter PCIE_USE_MODE                 = "2.1",        // PCIe use mode
     parameter PCIE_LPM_DFE                  = "LPM",        // PCIe LPM or DFE mode for Gen1/Gen2 only
-    parameter PCIE_LINK_SPEED               = 2,            // PCIe link speed 
+    parameter PCIE_LINK_SPEED               = 3,            // No longer used to indicate link speed - Static value at 3
+    parameter PL_LINK_CAP_MAX_LINK_SPEED    = 2,
     parameter PCIE_LANE                     = 8,   // PCIe number of lanes
     parameter PCIE_REFCLK_FREQ              = 0,   // PCIe reference clock frequency
     parameter TX_MARGIN_FULL_0              = 7'b1001111,   // 1000 mV
@@ -660,15 +661,16 @@ generate
         ntps_top_axi_pcie3_0_0_pcie3_ip_pipe_clock #
         (
 
-            .PCIE_ASYNC_EN                  (PCIE_ASYNC_EN),        // PCIe async enable
-            .PCIE_TXBUF_EN                  (PCIE_TXBUF_EN),        // PCIe TX buffer enable for Gen1/Gen2 only
-            .PCIE_LANE                      (PCIE_LANE),            // PCIe number of lanes
-            .PCIE_LINK_SPEED                (PCIE_LINK_SPEED),      // PCIe link speed
-            .PCIE_REFCLK_FREQ               (PCIE_REFCLK_FREQ),     // PCIe reference clock frequency
-            .PCIE_USERCLK1_FREQ             (PCIE_USERCLK1_FREQ),   // PCIe user clock 1 frequency
-            .PCIE_USERCLK2_FREQ             (PCIE_USERCLK2_FREQ),   // PCIe user clock 2 frequency
-            .PCIE_OOBCLK_MODE               (PCIE_OOBCLK_MODE),     // PCIe OOB clock mode
-            .PCIE_DEBUG_MODE                (PCIE_DEBUG_MODE)       // PCIe debug mode
+            .PCIE_ASYNC_EN                  (PCIE_ASYNC_EN),              // PCIe async enable
+            .PCIE_TXBUF_EN                  (PCIE_TXBUF_EN),              // PCIe TX buffer enable for Gen1/Gen2 only
+            .PCIE_LANE                      (PCIE_LANE),                  // PCIe number of lanes
+            .PCIE_LINK_SPEED                (PCIE_LINK_SPEED),            // No longer used to indicate link speed - Static value at 3
+            .PL_LINK_CAP_MAX_LINK_SPEED     (PL_LINK_CAP_MAX_LINK_SPEED), // PCIe link speed; 1=Gen1; 2=Gen2; 4=Gen3
+            .PCIE_REFCLK_FREQ               (PCIE_REFCLK_FREQ),           // PCIe reference clock frequency
+            .PCIE_USERCLK1_FREQ             (PCIE_USERCLK1_FREQ),         // PCIe user clock 1 frequency
+            .PCIE_USERCLK2_FREQ             (PCIE_USERCLK2_FREQ),         // PCIe user clock 2 frequency
+            .PCIE_OOBCLK_MODE               (PCIE_OOBCLK_MODE),           // PCIe OOB clock mode
+            .PCIE_DEBUG_MODE                (PCIE_DEBUG_MODE)             // PCIe debug mode
 
         )
         pipe_clock_i
