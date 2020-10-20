@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2019 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -48,11 +48,12 @@
 
 
 // IP VLNV: xilinx.com:ip:axi_data_fifo:2.1
-// IP Revision: 4
+// IP Revision: 19
 
-(* X_CORE_INFO = "axi_data_fifo_v2_1_axi_data_fifo,Vivado 2015.2" *)
-(* CHECK_LICENSE_TYPE = "ntps_top_s00_data_fifo_0,axi_data_fifo_v2_1_axi_data_fifo,{}" *)
-(* CORE_GENERATION_INFO = "ntps_top_s00_data_fifo_0,axi_data_fifo_v2_1_axi_data_fifo,{x_ipProduct=Vivado 2015.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=axi_data_fifo,x_ipVersion=2.1,x_ipCoreRevision=4,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_FAMILY=virtex7,C_AXI_PROTOCOL=2,C_AXI_ID_WIDTH=1,C_AXI_ADDR_WIDTH=32,C_AXI_DATA_WIDTH=32,C_AXI_SUPPORTS_USER_SIGNALS=0,C_AXI_AWUSER_WIDTH=1,C_AXI_ARUSER_WIDTH=1,C_AXI_WUSER_WIDTH=1,C_AXI_RUSER_WIDTH=1,C_AXI_BUSER_WIDTH=1,C_AXI_WRITE_FIFO_DEPTH=512,C_AXI_WRITE_FIFO_TYPE=bram,C_AXI_WRITE_FIFO_DELAY=1,C_AXI_READ_FIFO_DEPTH=512,C_AXI_READ_FIFO_TYPE=bram,C_AXI_READ_FIFO_DELAY=1}" *)
+(* X_CORE_INFO = "axi_data_fifo_v2_1_19_axi_data_fifo,Vivado 2019.2" *)
+(* CHECK_LICENSE_TYPE = "ntps_top_s00_data_fifo_0,axi_data_fifo_v2_1_19_axi_data_fifo,{}" *)
+(* CORE_GENERATION_INFO = "ntps_top_s00_data_fifo_0,axi_data_fifo_v2_1_19_axi_data_fifo,{x_ipProduct=Vivado 2019.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=axi_data_fifo,x_ipVersion=2.1,x_ipCoreRevision=19,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_FAMILY=virtex7,C_AXI_PROTOCOL=2,C_AXI_ID_WIDTH=1,C_AXI_ADDR_WIDTH=32,C_AXI_DATA_WIDTH=32,C_AXI_SUPPORTS_USER_SIGNALS=0,C_AXI_AWUSER_WIDTH=1,C_AXI_ARUSER_WIDTH=1,C_AXI_WUSER_WIDTH=1,C_AXI_RUSER_WIDTH=1,C_AXI_BUSER_WIDTH=1,C_AXI_WRITE_FIFO_DEPTH=512,C_AXI_WRITE_FIFO_TYPE=b\
+ram,C_AXI_WRITE_FIFO_DELAY=1,C_AXI_READ_FIFO_DEPTH=512,C_AXI_READ_FIFO_TYPE=bram,C_AXI_READ_FIFO_DELAY=1}" *)
 (* DowngradeIPIdentifiedWarnings = "yes" *)
 module ntps_top_s00_data_fifo_0 (
   aclk,
@@ -97,8 +98,10 @@ module ntps_top_s00_data_fifo_0 (
   m_axi_rready
 );
 
+(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK, FREQ_HZ 10000000, PHASE 0.000, INSERT_VIP 0" *)
 (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK CLK" *)
 input wire aclk;
+(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST, POLARITY ACTIVE_LOW, INSERT_VIP 0" *)
 (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST RST" *)
 input wire aresetn;
 (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI AWADDR" *)
@@ -137,6 +140,8 @@ output wire [31 : 0] s_axi_rdata;
 output wire [1 : 0] s_axi_rresp;
 (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI RVALID" *)
 output wire s_axi_rvalid;
+(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, DATA_WIDTH 32, PROTOCOL AXI4LITE, FREQ_HZ 100000000, ID_WIDTH 0, ADDR_WIDTH 32, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, READ_WRITE_MODE READ_WRITE, HAS_BURST 0, HAS_LOCK 0, HAS_PROT 1, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, HAS_WSTRB 1, HAS_BRESP 1, HAS_RRESP 1, SUPPORTS_NARROW_BURST 0, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1, MAX_BURST_LENGTH 1, PHASE 0.000, NUM_READ_THREADS 1, NUM_WRITE_THREADS 1, RUSER_BITS_PER_BYTE 0, WUSER\
+_BITS_PER_BYTE 0, INSERT_VIP 0" *)
 (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI RREADY" *)
 input wire s_axi_rready;
 (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI AWADDR" *)
@@ -175,10 +180,12 @@ input wire [31 : 0] m_axi_rdata;
 input wire [1 : 0] m_axi_rresp;
 (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI RVALID" *)
 input wire m_axi_rvalid;
+(* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXI, DATA_WIDTH 32, PROTOCOL AXI4LITE, FREQ_HZ 100000000, ID_WIDTH 0, ADDR_WIDTH 32, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, READ_WRITE_MODE READ_WRITE, HAS_BURST 0, HAS_LOCK 0, HAS_PROT 1, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, HAS_WSTRB 1, HAS_BRESP 1, HAS_RRESP 1, SUPPORTS_NARROW_BURST 0, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1, MAX_BURST_LENGTH 1, PHASE 0.000, NUM_READ_THREADS 1, NUM_WRITE_THREADS 1, RUSER_BITS_PER_BYTE 0, WUSER\
+_BITS_PER_BYTE 0, INSERT_VIP 0" *)
 (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI RREADY" *)
 output wire m_axi_rready;
 
-  axi_data_fifo_v2_1_axi_data_fifo #(
+  axi_data_fifo_v2_1_19_axi_data_fifo #(
     .C_FAMILY("virtex7"),
     .C_AXI_PROTOCOL(2),
     .C_AXI_ID_WIDTH(1),
@@ -203,7 +210,7 @@ output wire m_axi_rready;
     .s_axi_awaddr(s_axi_awaddr),
     .s_axi_awlen(8'H00),
     .s_axi_awsize(3'H0),
-    .s_axi_awburst(2'H0),
+    .s_axi_awburst(2'H1),
     .s_axi_awlock(1'H0),
     .s_axi_awcache(4'H0),
     .s_axi_awprot(s_axi_awprot),
@@ -228,7 +235,7 @@ output wire m_axi_rready;
     .s_axi_araddr(s_axi_araddr),
     .s_axi_arlen(8'H00),
     .s_axi_arsize(3'H0),
-    .s_axi_arburst(2'H0),
+    .s_axi_arburst(2'H1),
     .s_axi_arlock(1'H0),
     .s_axi_arcache(4'H0),
     .s_axi_arprot(s_axi_arprot),
