@@ -1,3 +1,4 @@
+
 // file: ntps_top_clk_wiz_0_1.v
 // 
 // (c) Copyright 2008 - 2013 Xilinx, Inc. All rights reserved.
@@ -55,8 +56,8 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// CLK_OUT1___100.000______0.000______50.0______114.523_____97.786
-// CLK_OUT2____10.000______0.000______50.0______181.846_____97.786
+// clk_out1__100.00000______0.000______50.0______136.686____105.461
+// clk_out2__10.00000______0.000______50.0______215.046____105.461
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -66,21 +67,24 @@
 `timescale 1ps/1ps
 
 module ntps_top_clk_wiz_0_1_clk_wiz 
+
  (// Clock in ports
-  input         clk_in1,
   // Clock out ports
   output        clk_out1,
   output        clk_out2,
   // Status and control signals
   input         reset,
-  output        locked
+  output        locked,
+  input         clk_in1
  );
-
   // Input buffering
   //------------------------------------
+wire clk_in1_ntps_top_clk_wiz_0_1;
+wire clk_in2_ntps_top_clk_wiz_0_1;
   BUFG clkin1_bufg
    (.O (clk_in1_ntps_top_clk_wiz_0_1),
     .I (clk_in1));
+
 
 
 
@@ -90,6 +94,15 @@ module ntps_top_clk_wiz_0_1_clk_wiz
   // Instantiation of the MMCM PRIMITIVE
   //    * Unused inputs are tied off
   //    * Unused outputs are labeled unused
+
+  wire        clk_out1_ntps_top_clk_wiz_0_1;
+  wire        clk_out2_ntps_top_clk_wiz_0_1;
+  wire        clk_out3_ntps_top_clk_wiz_0_1;
+  wire        clk_out4_ntps_top_clk_wiz_0_1;
+  wire        clk_out5_ntps_top_clk_wiz_0_1;
+  wire        clk_out6_ntps_top_clk_wiz_0_1;
+  wire        clk_out7_ntps_top_clk_wiz_0_1;
+
   wire [15:0] do_unused;
   wire        drdy_unused;
   wire        psdone_unused;
@@ -109,16 +122,17 @@ module ntps_top_clk_wiz_0_1_clk_wiz
   PLLE2_ADV
   #(.BANDWIDTH            ("OPTIMIZED"),
     .COMPENSATION         ("ZHOLD"),
-    .DIVCLK_DIVIDE        (1),
-    .CLKFBOUT_MULT        (4),
+    .STARTUP_WAIT         ("FALSE"),
+    .DIVCLK_DIVIDE        (2),
+    .CLKFBOUT_MULT        (9),
     .CLKFBOUT_PHASE       (0.000),
-    .CLKOUT0_DIVIDE       (8),
+    .CLKOUT0_DIVIDE       (9),
     .CLKOUT0_PHASE        (0.000),
     .CLKOUT0_DUTY_CYCLE   (0.500),
-    .CLKOUT1_DIVIDE       (80),
+    .CLKOUT1_DIVIDE       (90),
     .CLKOUT1_PHASE        (0.000),
     .CLKOUT1_DUTY_CYCLE   (0.500),
-    .CLKIN1_PERIOD        (5.0))
+    .CLKIN1_PERIOD        (5.000))
   plle2_adv_inst
     // Output clocks
    (
@@ -147,17 +161,20 @@ module ntps_top_clk_wiz_0_1_clk_wiz
     .LOCKED              (locked_int),
     .PWRDWN              (1'b0),
     .RST                 (reset_high));
-
   assign reset_high = reset; 
 
   assign locked = locked_int;
-
-  // Output buffering
+// Clock Monitor clock assigning
+//--------------------------------------
+ // Output buffering
   //-----------------------------------
 
   BUFG clkf_buf
    (.O (clkfbout_buf_ntps_top_clk_wiz_0_1),
     .I (clkfbout_ntps_top_clk_wiz_0_1));
+
+
+
 
 
 
