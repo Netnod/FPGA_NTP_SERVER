@@ -54,8 +54,8 @@
 
 `timescale 1ps / 1ps
 
-(* CORE_GENERATION_INFO = "ten_gig_eth_pcs_pma_ip,ten_gig_eth_pcs_pma_v6_0,{x_ipProduct=Vivado 2015.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=ten_gig_eth_pcs_pma,x_ipVersion=6.0,x_ipCoreRevision=1,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,x_ipLicense=ten_gig_eth_pcs_pma_basekr@2015.04(design_linking),c_family=virtex7,c_component_name=ten_gig_eth_pcs_pma_ip,c_has_mdio=true,c_has_fec=false,c_has_an=false,c_is_kr=false,c_is_32bit=false,c_no_ebuff=false,c_gttype=1,c_1588=0,c_gtif_width=32,c_speed10_25=10,c_sub_core_name=ten_gig_eth_pcs_pma_ip_gt,c_gt_loc=X0Y0,c_refclk=clk0,c_refclkrate=156,c_dclkrate=156}" *)
-(* X_CORE_INFO = "ten_gig_eth_pcs_pma_v6_0,Vivado 2015.2" *)
+(* CORE_GENERATION_INFO = "ten_gig_eth_pcs_pma_ip,ten_gig_eth_pcs_pma_v6_0_16,{x_ipProduct=Vivado 2019.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=ten_gig_eth_pcs_pma,x_ipVersion=6.0,x_ipCoreRevision=16,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,c_family=virtex7,c_component_name=ten_gig_eth_pcs_pma_ip,c_has_mdio=true,c_has_fec=false,c_has_an=false,c_is_kr=false,c_is_32bit=false,c_no_ebuff=false,c_gttype=1,c_1588=0,c_gtif_width=32,c_speed10_25=10,c_sub_core_name=ten_gig_eth_pcs_pma_ip_gt,c_gt_loc=X0Y0,c_refclk=clk0,c_refclkrate=156,c_dclkrate=156,x_ipLicense=ten_gig_eth_pcs_pma_basekr@2015.04(design_linking)}" *)
+(* X_CORE_INFO = "ten_gig_eth_pcs_pma_v6_0_16,Vivado 2019.2" *)
 (* DowngradeIPIdentifiedWarnings="yes" *)
 module ten_gig_eth_pcs_pma_ip
   (

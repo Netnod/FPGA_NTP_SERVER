@@ -49,14 +49,14 @@ set txusrclk2name [get_clocks -of_objects [get_ports txusrclk2]]
 set dclkname [get_clocks -of_objects [get_ports dclk]]
 
 set_false_path -from $coreclkname -to [get_cells -hierarchical -filter {NAME =~ *ratefifo*dp_ram_i*rd_data* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}]
-set RXOUTCLK_OUT [get_clocks -of  [get_pins -of_objects [get_cells * -hierarchical -filter {REF_NAME=~ GTHE2_CHANNEL}] -filter {NAME =~ *RXOUTCLK}]]
+set RXOUTCLK_OUT [get_clocks -of  [get_pins -of_objects [get_cells * -hierarchical -filter {REF_NAME=~ GTHE2_CHANNEL}] -filter {NAME =~ *RXOUTCLK}] -include_generated_clocks]
 
 #The following path refers to registers in front of the DP RAM in the rx elastic buffer async fifo
-set_false_path -from $RXOUTCLK_OUT -to [get_cells -hierarchical -filter {NAME =~ *elastic_buffer*dp_ram_i*rd_data* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}]
+#set_false_path -from $RXOUTCLK_OUT -to [get_cells -hierarchical -filter {NAME =~ *elastic_buffer*dp_ram_i*rd_data* && (PRIMITIVE_SUBGROUP =~ flop || PRIMITIVE_SUBGROUP =~ SDR)}]
 
 
 # Max delays to control skew into coherent synchronizers
 set_max_delay -datapath_only -from $coreclkname -to [get_pins -of_objects [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_timer_125us_resync/*synchc_inst*d1_reg}] -filter {NAME =~ *D}] 6.400
-set_max_delay -datapath_only -from $coreclkname -to [get_pins -of_objects [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_resyncs_i/*synchc_inst*d1_reg}] -filter {NAME =~ *D}] 6.400
+#set_max_delay -datapath_only -from $coreclkname -to [get_pins -of_objects [get_cells -hier -filter {NAME =~ *coreclk_rxusrclk2_resyncs_i/*synchc_inst*d1_reg}] -filter {NAME =~ *D}] 6.400
 set_max_delay -datapath_only -from $coreclkname -to [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ *drp_ipif_i*synch_*q_reg*}] -filter {NAME =~ *D || NAME =~ *R || NAME =~ *S}] 3.100
 

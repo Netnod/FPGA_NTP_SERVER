@@ -128,8 +128,10 @@ module ten_gig_eth_pcs_pma_ip_block
   wire rxoutclk;
   wire rxusrclk;
   wire rxusrclk2;
-  wire gt0_gtrxreset_i;
-  wire gt0_gttxreset_i;
+  wire gt0_gtrxreset_c;
+  wire gt0_gttxreset_c;
+  reg  gt0_gtrxreset_i;
+  reg  gt0_gttxreset_i;
   wire gt0_txpcsreset_i;
   wire gt0_rxpcsreset_i;
 
@@ -137,9 +139,11 @@ module ten_gig_eth_pcs_pma_ip_block
   wire tx_prbs31_en;
 
   reg pma_resetout_reg = 1'b0;
-  wire pma_resetout_rising;
+  reg pma_resetout_rising;
+  reg cable_pull_rising = 1'b0;
+  reg cable_pull_falling = 1'b0;
   reg pcs_resetout_reg = 1'b0;
-  wire pcs_resetout_rising;
+  reg pcs_resetout_rising = 1'b0;
 
 
   wire pma_resetout;
@@ -148,6 +152,7 @@ module ten_gig_eth_pcs_pma_ip_block
   wire dclk_reset;
 
   wire [7:0] core_status_i;
+  wire cable_pull;
 
   // Aid the detection of a cable/board being pulled
   wire cable_pull_reset_rising_reg;
@@ -194,11 +199,18 @@ module ten_gig_eth_pcs_pma_ip_block
 
   wire qplllock_int = qplllock;
 
-  reg gt0_txresetdone_reg = 1'b0;
-  reg gt0_rxresetdone_reg = 1'b0;
+  reg gt0_txresetdone_reg     = 1'b0;
+  reg gt0_txresetdone_reg1    = 1'b0;
+(* dont_touch = "yes" *) 
+  reg gt0_rxresetdone_reg     = 1'b0;
+(* dont_touch = "yes" *) 
+  reg gt0_rxresetdone_reg_dup = 1'b0;
+  reg gt0_rxresetdone_reg1    = 1'b0;
 
 
 
+  wire cable_pull_coreclk_sync;
+  reg  cable_pull_reg;
 
   wire gtrxreset_coreclk;
   wire qplllock_coreclk;
@@ -209,14 +221,13 @@ module ten_gig_eth_pcs_pma_ip_block
   wire txreset_txusrclk2;
   wire rxreset_rxusrclk2;
   wire areset_rxusrclk2;
-  wire areset_txusrclk2;
   wire pma_resetout_rising_rxusrclk2;
   wire resetdone;
 
 
 
 
-  assign rxrecclk_out = rxusrclk2;
+  assign rxrecclk_out = rxoutclk;
 
 
   // Local clocking/reset block
@@ -245,7 +256,7 @@ module ten_gig_eth_pcs_pma_ip_block
      .rxusrclk2(rxusrclk2)
     );
 
-  ten_gig_eth_pcs_pma_v6_0 #(
+  ten_gig_eth_pcs_pma_v6_0_16 #(
       .C_HAS_MDIO                  (1'b1),
       .C_HAS_FEC                   (1'b0),
       .C_HAS_AN                    (1'b0),
@@ -286,6 +297,7 @@ module ten_gig_eth_pcs_pma_ip_block
       .status_vector(),
       .core_status(core_status_i),
       .pma_pmd_type(pma_pmd_type),
+      .cable_pull(cable_pull),
       .gt_latclk                   (1'b0),
       .txphy_async_gb_latency      (),
       .lfreset                     (1'b0),
@@ -391,12 +403,17 @@ module ten_gig_eth_pcs_pma_ip_block
 
   always @(posedge txusrclk2)
   begin
-    gt0_txresetdone_reg <= gt0_txresetdone_i && qplllock_txusrclk2;
+    gt0_txresetdone_reg  <= gt0_txresetdone_i && qplllock_txusrclk2;
+//To resolve CDC-11 Critical Fan-out from launch flop to destination clock 
+    gt0_txresetdone_reg1 <= gt0_txresetdone_reg;
   end
   
   always @(posedge rxusrclk2)
   begin
-    gt0_rxresetdone_reg <= gt0_rxresetdone_i && qplllock_rxusrclk2;
+    gt0_rxresetdone_reg     <= gt0_rxresetdone_i && qplllock_rxusrclk2;
+//To resolve CDC-11 Critical Fan-out from launch flop to destination clock 
+    gt0_rxresetdone_reg_dup <= gt0_rxresetdone_i && qplllock_rxusrclk2;
+    gt0_rxresetdone_reg1    <= gt0_rxresetdone_reg;
   end
 
 
@@ -411,7 +428,7 @@ module ten_gig_eth_pcs_pma_ip_block
   gt0_txresetdone_i_sync_i
     (
      .clk(coreclk),
-     .data_in(gt0_txresetdone_reg),
+     .data_in(gt0_txresetdone_reg1),
      .data_out(gt0_txresetdone_i_reg)
     );
 
@@ -421,7 +438,7 @@ module ten_gig_eth_pcs_pma_ip_block
   gt0_rxresetdone_i_sync_i
     (
      .clk(coreclk),
-     .data_in(gt0_rxresetdone_reg),
+     .data_in(gt0_rxresetdone_reg1),
      .data_out(gt0_rxresetdone_i_reg)
     );
 
@@ -527,7 +544,7 @@ module ten_gig_eth_pcs_pma_ip_block
   gt0_rxresetdone_i_reg_rxusrclk2_sync_i
     (
      .clk(rxusrclk2),
-     .data_in(gt0_rxresetdone_reg),
+     .data_in(gt0_rxresetdone_reg_dup),
      .data_out(gt0_rxresetdone_i_reg_rxusrclk2)
     );
 
@@ -567,7 +584,6 @@ module ten_gig_eth_pcs_pma_ip_block
   assign core_status = core_status_i;
 
 
-
   always @(posedge coreclk)
   begin
     if(areset_coreclk)
@@ -575,8 +591,57 @@ module ten_gig_eth_pcs_pma_ip_block
     else
       pma_resetout_reg <= pma_resetout;
   end
+  ten_gig_eth_pcs_pma_ip_ff_synchronizer
+    #(
+      .C_NUM_SYNC_REGS(5))
+  cable_pull_coreclk_sync_i 
+    (
+     .clk(coreclk),
+     .data_in(cable_pull),
+     .data_out(cable_pull_coreclk_sync)
+    );
 
-  assign pma_resetout_rising = pma_resetout && !pma_resetout_reg;
+  always @(posedge coreclk)
+  begin
+    if(areset_coreclk)
+      cable_pull_reg <= 1'b0;
+    else
+      cable_pull_reg <= cable_pull_coreclk_sync;
+  end
+
+  always @(posedge coreclk)
+  begin
+    if(areset_coreclk)
+      pma_resetout_rising <= 1'b0;
+    else
+      if (pma_resetout == 1'b1 && pma_resetout_reg == 1'b0)
+         pma_resetout_rising <= 1'b1;
+      else
+         pma_resetout_rising <= 1'b0;
+  end
+
+  always @(posedge coreclk)
+  begin
+    if(areset_coreclk)
+      cable_pull_rising <= 1'b0;
+    else
+      if (cable_pull_coreclk_sync == 1'b1 && cable_pull_reg == 1'b0)
+         cable_pull_rising <= 1'b1;
+      else
+         cable_pull_rising <= 1'b0;
+  end
+
+  always @(posedge coreclk)
+  begin
+    if(areset_coreclk)
+      cable_pull_falling <= 1'b0;
+    else
+      if (cable_pull_coreclk_sync == 1'b0 && cable_pull_reg == 1'b1)
+         cable_pull_falling <= 1'b1;
+      else
+         cable_pull_falling <= 1'b0;
+  end
+
 
   always @(posedge coreclk)
   begin
@@ -586,7 +651,16 @@ module ten_gig_eth_pcs_pma_ip_block
       pcs_resetout_reg <= pcs_resetout;
   end
 
-  assign pcs_resetout_rising = pcs_resetout && !pcs_resetout_reg;
+  always @(posedge coreclk)
+  begin
+    if(areset_coreclk)
+      pcs_resetout_rising <= 1'b0;
+    else
+      if (pcs_resetout == 1'b1 && pcs_resetout_reg == 1'b0)
+         pcs_resetout_rising <= 1'b1;
+      else
+         pcs_resetout_rising <= 1'b0;
+  end
 
 
   // Sync the sig_det signal to the coreclk domain
@@ -609,18 +683,25 @@ module ten_gig_eth_pcs_pma_ip_block
       master_watchdog <= master_watchdog - 1;
   end
 
-  always @(master_watchdog)
+  always @(posedge coreclk)
   begin
     if (master_watchdog == 0)
-      master_watchdog_barking = 1'b1;
+      master_watchdog_barking <= 1'b1;
     else
-      master_watchdog_barking = 1'b0;
+      master_watchdog_barking <= 1'b0;
   end
 
+
   // Incorporate the pma_resetout_rising and cable_pull/unpull_reset_rising bits generated in code below.
-  assign  gt0_gtrxreset_i = (gtrxreset_coreclk || !qplllock_coreclk || pma_resetout_rising || !signal_detect_coreclk || master_watchdog_barking ||
-                             cable_pull_reset_rising_reg || cable_unpull_reset_rising_reg) && reset_counter_done;
-  assign  gt0_gttxreset_i = (gttxreset || !qplllock_coreclk || pma_resetout_rising) && reset_counter_done;
+  assign  gt0_gtrxreset_c = (gtrxreset_coreclk || !qplllock_coreclk || pma_resetout_rising || !signal_detect_coreclk || master_watchdog_barking ||
+                             cable_pull_reset_rising_reg || cable_unpull_reset_rising_reg || cable_pull_rising || cable_pull_falling) && reset_counter_done;
+  assign  gt0_gttxreset_c = (gttxreset || !qplllock_coreclk || pma_resetout_rising) && reset_counter_done;
+
+  always @(posedge coreclk)
+  begin
+      gt0_gtrxreset_i <= gt0_gtrxreset_c;
+      gt0_gttxreset_i <= gt0_gttxreset_c;
+  end
 
   assign  gt0_rxpcsreset_i = pcs_resetout_rising;
   assign  gt0_txpcsreset_i = pcs_resetout_rising;
