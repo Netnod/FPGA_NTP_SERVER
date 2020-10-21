@@ -1,0 +1,63 @@
+#-----------------------------------------------------------
+# Vivado v2019.2 (64-bit)
+# SW Build 2708876 on Wed Nov  6 21:39:14 MST 2019
+# IP Build 2700528 on Thu Nov  7 00:09:20 MST 2019
+# Start of session at: Fri Oct  9 15:53:52 2020
+# Process ID: 24410
+# Current directory: /home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/ip/ntps_top_util_ds_buf_0_0
+# Command line: vivado
+# Log file: /home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/ip/ntps_top_util_ds_buf_0_0/vivado.log
+# Journal file: /home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/ip/ntps_top_util_ds_buf_0_0/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/vivado/ntps/ntps.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2019.2/data/ip'.
+WARNING: [IP_Flow 19-2162] IP 'ten_gig_eth_pcs_pma_ip' is locked:
+* IP definition '10G Ethernet PCS/PMA (10GBASE-R/KR) (6.0)' for IP 'ten_gig_eth_pcs_pma_ip' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ten_gig_eth_pcs_pma_ip_shared_logic_in_core' is locked:
+* IP definition '10G Ethernet PCS/PMA (10GBASE-R/KR) (6.0)' for IP 'ten_gig_eth_pcs_pma_ip_shared_logic_in_core' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_axi_ethernetlite_0_0' is locked:
+* IP definition 'AXI EthernetLite (3.0)' for IP 'ntps_top_axi_ethernetlite_0_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntp_clock_pll' is locked:
+* IP definition 'Clocking Wizard (5.1)' for IP 'ntp_clock_pll' (customized with software release 2015.2) has a newer major version in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_xbar_0' is locked:
+* IP definition 'AXI Crossbar (2.1)' for IP 'ntps_top_xbar_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_s00_data_fifo_0' is locked:
+* IP definition 'AXI Data FIFO (2.1)' for IP 'ntps_top_s00_data_fifo_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_auto_pc_0' is locked:
+* IP definition 'AXI Protocol Converter (2.1)' for IP 'ntps_top_auto_pc_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_auto_ds_0' is locked:
+* IP definition 'AXI Data Width Converter (2.1)' for IP 'ntps_top_auto_ds_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_axi_pcie3_0_0' is locked:
+* IP definition 'AXI Bridge for PCI Express Gen3 Subsystem (1.1)' for IP 'ntps_top_axi_pcie3_0_0' (customized with software release 2015.2) has a newer major version in the IP Catalog. * IP 'ntps_top_axi_pcie3_0_0' contains one or more locked subcores.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_rst_axi_pcie3_0_250M_0' is locked:
+* IP definition 'Processor System Reset (5.0)' for IP 'ntps_top_rst_axi_pcie3_0_250M_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_clk_wiz_0_1' is locked:
+* IP definition 'Clocking Wizard (5.1)' for IP 'ntps_top_clk_wiz_0_1' (customized with software release 2015.2) has a newer major version in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntp_clock_ds_buf' is locked:
+* IP definition 'Utility Buffer (2.1)' for IP 'ntp_clock_ds_buf' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_util_ds_buf_0_3' is locked:
+* IP definition 'Utility Buffer (2.1)' for IP 'ntps_top_util_ds_buf_0_3' (customized with software release 2015.2) has a different revision in the IP Catalog.
+WARNING: [IP_Flow 19-2162] IP 'ntps_top_util_ds_buf_0_0' is locked:
+* IP definition 'Utility Buffer (2.1)' for IP 'ntps_top_util_ds_buf_0_0' (customized with software release 2015.2) has a different revision in the IP Catalog.
+open_project: Time (s): cpu = 00:00:13 ; elapsed = 00:00:15 . Memory (MB): peak = 6747.984 ; gain = 195.965 ; free physical = 7109 ; free virtual = 24813
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 
+upgrade_ip -vlnv xilinx.com:ip:util_ds_buf:2.1 [get_ips  ntps_top_util_ds_buf_0_0] -log ip_upgrade.log
+Upgrading 'ntps_top_util_ds_buf_0_0'
+INFO: [IP_Flow 19-3422] Upgraded ntps_top_util_ds_buf_0_0 (Utility Buffer 2.1) from revision 0 to revision 21
+WARNING: [IP_Flow 19-4697] Upgrade has added interface 'CLK_IN_D' (xilinx.com:interface:diff_clock:1.0)
+WARNING: [IP_Flow 19-4697] Upgrade has added interface 'IBUF_DS_ODIV2' (xilinx.com:signal:clock:1.0)
+WARNING: [IP_Flow 19-4697] Upgrade has added interface 'IBUF_OUT' (xilinx.com:signal:clock:1.0)
+WARNING: [IP_Flow 19-3670] Detected external interface differences while upgrading 'ntps_top_util_ds_buf_0_0'.
+INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'ntps_top_util_ds_buf_0_0'...
+CRITICAL WARNING: [Coretcl 2-1279] The upgrade of 'ntps_top_util_ds_buf_0_0' has identified issues that may require user intervention. Please review the upgrade log '/home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/vivado/ntps/ip_upgrade.log', and verify that the upgraded IP is correctly configured.
+INFO: [Coretcl 2-1525] Wrote upgrade log to '/home/joachim/Sandbox/repos/FPGA_NTP_SERVER/FPGA/vivado/ntps/ip_upgrade.log'.
+export_ip_user_files -of_objects [get_ips ntps_top_util_ds_buf_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+exit
+INFO: [Common 17-206] Exiting Vivado at Fri Oct  9 16:09:28 2020...

@@ -1,0 +1,129 @@
+2019.2
+* Version 2.1 Revision 21
+* added support for C_SIM_DEVICE for versal family unisim primitives
+2019.2
+* Version 2.1 Revision 20
+* added support for BUFG_GT_SYNC for BUFG_GT primitive
+2019.1
+* Version 2.1 Revision 19
+* added support for virtexuplusHBM device for primitives IBUFDSGTE, BUFGCE, BUFGCE_DIV and BUFG_GT
+2019.1
+* Version 2.1 Revision 18
+* added SIM_DEVICE generic map for BUFGCE, BUFGCE_DIV,BUFG_GT
+2019.1
+* Version 2.1 Revision 17
+* added optional port BUFGCE_CLR for BUFGCE_DIV to keep all clocks in phase
+2019.1
+* Version 2.1 Revision 16
+* create constraint file when board interface is used
+2019.1
+* Version 2.1 Revision 15
+* updated to versal devices
+2019.1
+* Version 2.1 Revision 14
+* added an optional input port with a default driver connecting to CEB pin of IBUFDS_GTE5 primitive   
+2019.1
+* Version 2.1 Revision 13
+* Do not propagate empty PHASE from INPUT frequency pins
+2018.3
+* Version 2.1 Revision 12
+* Compute output clock frequency for BUFG_GT and BUFGCE_DIV primitives and update on output pin
+* For BUFG_GT, user has to update the C_BUFGCE_DIV parameter to reflect input clock devision factor so that output pin shows the divided clock frequency 
+
+2018.3
+* Version 2.1 Revision 11
+* Added support for C_BUF_TYPE=BUFGCE_DIV primitive with divider(C_BUFGCE_DIV) customization  
+
+2018.2
+* Version 2.1 Revision 9
+* Fixed issue with ports in create_clock constraint in the implmentation xdc  
+
+2018.1
+* Version 2.1 Revision 8
+* Extended parameter C_BUF_TYPE range to include "IOBUF" and also sub type IBUFDSGTE5
+* Added a new inout port IOBUF_IO_IO enabled with new C_BUF_TYPE value "IOBUF"
+* Extended the enablement of ports IOBUF_IO_T, IOBUF_IO_I, IOBUF_IO_O for C_BUF_TYPE = "IOBUF" as well
+* Added ttcl file for conditional hdl expansion for newly added C_BUF_TYPE ranges (IBUFDSGTE5 and IOBUF) for synth and simulation file groups
+* Removed existing vhd file from synth/simulation groups 
+
+2016.3
+* Version 2.1 Revision 6
+* Fixed issue related to parameter propagation
+* Changed port type from undef to clock for some of input pins and output pins
+
+2015.4
+* Version 2.1 Revision 5
+* Adding support for Ultrascale Plus devices(kintexuplus, virtexuplus, zynquplus).
+* When block is configured as IBUFDSGTE, for Ultrascale Plus devices, IBUFDS_GTE4 primitive will be generated. 
+
+2015.3
+* Version 2.1 Revision 4
+* add board support
+* add CLK_IN_D interface pin when buf_type is IBUFDS/IBUFDSGTE and buf_size is 1
+
+2015.1
+* Version 2.1
+* Version update from 2.0 to 2.1.
+* Display name updated to 'Utility Buffer'.
+* Adding a new output port IBUF_DS_ODIV2 when the block is configured as IBUFDSGTE.
+
+2014.4
+* Version 2.0
+* Version update from 1.0 to 2.0. Changed the port ordering 
+* from (0 to C_SIZE - 1) to (C_SIZE - 1 downto 0)
+
+2014.3
+ * Version 1.0
+ * Revision upgrade from 3 to 4: Adding device support
+ * for Ultrascale devices without modifying customer
+ * deliverables for existing devices.
+ * Modifying model-parameter C_BUF_TYPE's values.
+
+
+ (c) Copyright 2012 - 2014 Xilinx, Inc. All rights reserved.
+
+ This file contains confidential and proprietary information
+ of Xilinx, Inc. and is protected under U.S. and
+ international copyright and other intellectual property
+ laws.
+
+ DISCLAIMER
+ This disclaimer is not a license and does not grant any
+ rights to the materials distributed herewith. Except as
+ otherwise provided in a valid license issued to you by
+ Xilinx, and to the maximum extent permitted by applicable
+ law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+ WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+ AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+ BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+ INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+ (2) Xilinx shall not be liable (whether in contract or tort,
+       including negligence, or under any other theory of
+       liability) for any loss or damage of any kind or nature
+ related to, arising under or in connection with these
+ materials, including for any direct, or any indirect,
+ special, incidental, or consequential loss or damage
+ (including loss of data, profits, goodwill, or any type of
+  loss or damage suffered as a result of any action brought
+  by a third party) even if such damage or loss was
+ reasonably foreseeable or Xilinx had been advised of the
+ possibility of the same.
+
+ CRITICAL APPLICATIONS
+ Xilinx products are not designed or intended to be fail-
+ safe, or for use in any application requiring fail-safe
+ performance, such as life-support or safety devices or
+ systems, Class III medical devices, nuclear facilities,
+ applications related to the deployment of airbags, or any
+ other applications that could lead to death, personal
+ injury, or severe property or environmental damage
+ (individually and collectively, "Critical
+  Applications"). Customer assumes the sole risk and
+ liability of any use of Xilinx products in Critical
+ Applications, subject only to applicable laws and
+ regulations governing limitations on product liability.
+
+ THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+ PART OF THIS FILE AT ALL TIMES.
+
+
