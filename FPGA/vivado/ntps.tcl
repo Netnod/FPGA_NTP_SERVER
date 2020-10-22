@@ -1,5 +1,4 @@
-#
-# Vivado (TM) v2019.1 (64-bit)
+#****************************************************************************************
 #
 # ntps.tcl: Tcl script for re-creating project 'ntps'
 #
@@ -9,103 +8,6 @@
 # This file contains the Vivado Tcl commands for re-creating the project to the state*
 # when this script was generated. In order to re-create the project, please source this
 # file in the Vivado Tcl Shell.
-#
-# * Note that the runs in the created project will be configured the same way as the
-#   original project, however they will not be launched automatically. To regenerate the
-#   run results please launch the synthesis/implementation runs as needed.
-#
-#*****************************************************************************************
-# NOTE: In order to use this script for source control purposes, please make sure that the
-#       following files are added to the source control system:-
-#
-# 1. This project restoration tcl script (ntps.tcl) that was generated.
-#
-# 2. The following source(s) files that were local or imported into the original project.
-#    (Please see the '$orig_proj_dir' and '$origin_dir' variable setting below at the start of the script)
-#
-#    <none>
-#
-# 3. The following remote source files that were added to the original project:-
-#
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/SHA1/hdl/sha1_stage.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/MD5/hdl/md5_stage.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/SHA1/hdl/sha1_pipe.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/MD5/hdl/md5_pipe.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/MD5/ip/chunk_del_md5/chunk_del_md5.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/SHA1/hdl/sha1.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/MD5/hdl/md5.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_par.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_sha1.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_md5.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/oc_mac_crc_func.h"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/oc_mac.h"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/tx_dequeue.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/tx_control.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/rx_enqueue.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/rx_control.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_csum.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_tx.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_rx.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_pipes.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_top.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/GMAC/hdl/oc_mac.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/pll_sync.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/ntp_counters.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/ntp_clock_axi_slave.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/hdl/time_sel_sync.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/ip/ten_gig_eth_pcs_pma_ip_shared_logic/ten_gig_eth_pcs_pma_ip_shared_logic_in_core.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/ip/ten_gig_eth_pcs_pma_ip/ten_gig_eth_pcs_pma_ip.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/pvtmon/pvtmon_axi_slave.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/pps_gen.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/ip/ntp_clock_pll/ntp_clock_pll.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/ip/ntp_clock_ds_buf/ntp_clock_ds_buf.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/ntp_clock.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_xbar_0/ntps_top_xbar_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_s00_data_fifo_0/ntps_top_s00_data_fifo_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_auto_pc_0/ntps_top_auto_pc_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_auto_ds_0/ntps_top_auto_ds_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/hdl/network_path_axi_slave.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/keymem/ip/keymem/keymem.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/hdl/pp_mac_top.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/pvtmon/pvtmon_top.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/pps_test.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/hdl/pcie_axi.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/hdl/ntp_clock_top.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/hdl/network_path_shared.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/hdl/network_path.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/hdl/mdio_mux.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/keymem/hdl/keymem_top.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/hdl/clk50_gen.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/hdl/ntps_top.v"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/MD5/ip/sum_del_md5/sum_del_md5.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/SHA1/ip/chunk_del/chunk_del.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/SHA1/ip/sum_del/sum_del.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/ip/pp_fifo_sc/pp_fifo_sc.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/ip/pp_fifo_ss/pp_fifo_ss.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/network_path/packet_proc/ip/pp_fifo/pp_fifo.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/keymem/ip/axi_keymem_ctrl/axi_keymem_ctrl.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_axi_pcie3_0_0/ntps_top_axi_pcie3_0_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_rst_axi_pcie3_0_250M_0/ntps_top_rst_axi_pcie3_0_250M_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_axi_ethernetlite_0_0/ntps_top_axi_ethernetlite_0_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_util_ds_buf_0_0/ntps_top_util_ds_buf_0_0.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ip/ntps_top_util_ds_buf_0_3/ntps_top_util_ds_buf_0_3.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/ntp_clock/ip/ntps_top_clk_wiz_0_1/ntps_top_clk_wiz_0_1.xci"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/ntps_top_constr.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/clock_control.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/v7_xt_xgemac_xphy.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/ntp_io_loc.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/clock_groups.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/debug.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/network_path_except.xdc"
-#    "/home/rolf/ntp_proj/trunk/FPGA/constr/clock_cross.xdc"
 #
 #*****************************************************************************************
 
