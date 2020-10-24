@@ -6,6 +6,9 @@ set_property PACKAGE_PIN H19 [get_ports SYS_CLK_P]
 
 create_clock -period 5.000 -name SYS_CLK -waveform {0.000 2.500} [get_ports SYS_CLK_P]
 
+set_property PACKAGE_PIN AV35 [get_ports pcie_perst]
+set_property IOSTANDARD LVCMOS18 [get_ports pcie_perst]
+
 set_property PACKAGE_PIN AM39 [get_ports LED0]
 set_property IOSTANDARD LVCMOS18 [get_ports LED0]
 set_property PACKAGE_PIN AN39 [get_ports LED1]
