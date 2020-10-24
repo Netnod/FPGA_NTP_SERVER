@@ -1,0 +1,7 @@
+*~
+*.log
+*.cache
+*.hw
+*.runs
+*.sim
+*.srcs
