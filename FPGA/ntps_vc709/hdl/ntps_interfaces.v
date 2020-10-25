@@ -41,6 +41,7 @@
 `default_nettype none
 
 module ntps_interfaces #(
+                         parameter NUM_SLAVES = 8,
                          parameter BUILD_INFO = 0,
                          parameter GIT_HASH   = 0
                          )
@@ -191,25 +192,25 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   wire             axi_aresetn;
   wire             axi_aclk;
-  wire [384-1:0]   m_axi_awaddr;
-  wire [36-1:0]    m_axi_awprot;
-  wire [12-1:0]    m_axi_awvalid;
-  wire [12-1:0]    m_axi_awready;
-  wire [384-1:0]   m_axi_wdata;
-  wire [384/8-1:0] m_axi_wstrb;
-  wire [12-1:0]    m_axi_wvalid;
-  wire [12-1:0]    m_axi_wready;
-  wire [24-1:0]    m_axi_bresp;
-  wire [12-1:0]    m_axi_bvalid;
-  wire [12-1:0]    m_axi_bready;
-  wire [384-1:0]   m_axi_araddr;
-  wire [36-1:0]    m_axi_arprot;
-  wire [12-1:0]    m_axi_arvalid;
-  wire [12-1:0]    m_axi_arready;
-  wire [384-1:0]   m_axi_rdata;
-  wire [24-1:0]    m_axi_rresp;
-  wire [12-1:0]    m_axi_rvalid;
-  wire [12-1:0]    m_axi_rready;
+  wire [NUM_SLAVES*32-1:0]   m_axi_awaddr;
+  wire [NUM_SLAVES*3-1:0]    m_axi_awprot;
+  wire [NUM_SLAVES-1:0]      m_axi_awvalid;
+  wire [NUM_SLAVES-1:0]      m_axi_awready;
+  wire [NUM_SLAVES*32-1:0]   m_axi_wdata;
+  wire [NUM_SLAVES*32/8-1:0] m_axi_wstrb;
+  wire [NUM_SLAVES-1:0]      m_axi_wvalid;
+  wire [NUM_SLAVES-1:0]      m_axi_wready;
+  wire [NUM_SLAVES*2-1:0]    m_axi_bresp;
+  wire [NUM_SLAVES-1:0]      m_axi_bvalid;
+  wire [NUM_SLAVES-1:0]      m_axi_bready;
+  wire [NUM_SLAVES*32-1:0]   m_axi_araddr;
+  wire [NUM_SLAVES*3-1:0]    m_axi_arprot;
+  wire [NUM_SLAVES-1:0]      m_axi_arvalid;
+  wire [NUM_SLAVES-1:0]      m_axi_arready;
+  wire [NUM_SLAVES*32-1:0]   m_axi_rdata;
+  wire [NUM_SLAVES*2-1:0]    m_axi_rresp;
+  wire [NUM_SLAVES-1:0]      m_axi_rvalid;
+  wire [NUM_SLAVES-1:0]      m_axi_rready;
 
   wire             mdc;
   wire             mdio_in;
@@ -235,49 +236,12 @@ module ntps_interfaces #(
 
 
   //----------------------------------------------------------------
-  // Assignments.
-  //----------------------------------------------------------------
-  assign m_axi_awready[(AXI_KEY0 * 1) +: 1]   = 1'h0;
-  assign m_axi_wready [(AXI_KEY0 * 1) +: 1]   = 1'h0;
-  assign m_axi_bvalid [(AXI_KEY0 * 1) +: 1]   = 1'h0;
-  assign m_axi_bresp  [(AXI_KEY0 * 2) +: 2]   = 1'h0;
-  assign m_axi_arready[(AXI_KEY0 * 1) +: 1]   = 1'h0;
-  assign m_axi_rdata  [(AXI_KEY0 * 32) +: 32] = 32'h0;
-  assign m_axi_rresp  [(AXI_KEY0 * 2) +: 2]   = 2'h0;
-  assign m_axi_rvalid [(AXI_KEY0 * 1) +: 1]   = 1'h0;
-
-  assign m_axi_awready[(AXI_KEY1 * 1) +: 1]   = 1'h0;
-  assign m_axi_wready [(AXI_KEY1 * 1) +: 1]   = 1'h0;
-  assign m_axi_bvalid [(AXI_KEY1 * 1) +: 1]   = 1'h0;
-  assign m_axi_bresp  [(AXI_KEY1 * 2) +: 2]   = 1'h0;
-  assign m_axi_arready[(AXI_KEY1 * 1) +: 1]   = 1'h0;
-  assign m_axi_rdata  [(AXI_KEY1 * 32) +: 32] = 32'h0;
-  assign m_axi_rresp  [(AXI_KEY1 * 2) +: 2]   = 2'h0;
-  assign m_axi_rvalid [(AXI_KEY1 * 1) +: 1]   = 1'h0;
-
-  assign m_axi_awready[(AXI_KEY2 * 1) +: 1]   = 1'h0;
-  assign m_axi_wready [(AXI_KEY2 * 1) +: 1]   = 1'h0;
-  assign m_axi_bvalid [(AXI_KEY2 * 1) +: 1]   = 1'h0;
-  assign m_axi_bresp  [(AXI_KEY2 * 2) +: 2]   = 1'h0;
-  assign m_axi_arready[(AXI_KEY2 * 1) +: 1]   = 1'h0;
-  assign m_axi_rdata  [(AXI_KEY2 * 32) +: 32] = 32'h0;
-  assign m_axi_rresp  [(AXI_KEY2 * 2) +: 2]   = 2'h0;
-  assign m_axi_rvalid [(AXI_KEY2 * 1) +: 1]   = 1'h0;
-
-  assign m_axi_awready[(AXI_KEY3 * 1) +: 1]   = 1'h0;
-  assign m_axi_wready [(AXI_KEY3 * 1) +: 1]   = 1'h0;
-  assign m_axi_bvalid [(AXI_KEY3 * 1) +: 1]   = 1'h0;
-  assign m_axi_bresp  [(AXI_KEY3 * 2) +: 2]   = 1'h0;
-  assign m_axi_arready[(AXI_KEY3 * 1) +: 1]   = 1'h0;
-  assign m_axi_rdata  [(AXI_KEY3 * 32) +: 32] = 32'h0;
-  assign m_axi_rresp  [(AXI_KEY3 * 2) +: 2]   = 2'h0;
-  assign m_axi_rvalid [(AXI_KEY3 * 1) +: 1]   = 1'h0;
-
-
-  //----------------------------------------------------------------
   // PCI-AXI instantiation.
   //----------------------------------------------------------------
-  pcie_axi pcie_axi_0 (
+  pcie_axi #(
+			.NUM_SLAVES(NUM_SLAVES)
+			)
+   pcie_axi_0 (
     .reset         (reset),
     .pcie_perst    (pcie_perst),
     .pcie_clk      (pcie_clk),

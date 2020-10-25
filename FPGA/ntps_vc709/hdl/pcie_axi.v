@@ -36,7 +36,10 @@
 
 `default_nettype none
 
-module pcie_axi (
+module pcie_axi #(
+		  parameter NUM_SLAVES = 8
+		  )
+   (
   input  wire         reset,
   input  wire         pcie_perst,
   input  wire         pcie_clk,
@@ -46,26 +49,26 @@ module pcie_axi (
   output wire [7:0]   pci_exp_txp,
   output wire         axi_aresetn,
   output wire         axi_aclk,
-  output wire [383:0] m_axi_awaddr,
-  output wire [35:0]  m_axi_awprot,
-  output wire [11:0]  m_axi_awvalid,
-  input  wire [11:0]  m_axi_awready,
-  output wire [383:0] m_axi_wdata,
-  output wire [47:0]  m_axi_wstrb,
-  output wire [11:0]  m_axi_wvalid,
-  input  wire [11:0]  m_axi_wready,
-  input  wire [23:0]  m_axi_bresp,
-  input  wire [11:0]  m_axi_bvalid,
-  output wire [11:0]  m_axi_bready,
-  output wire [383:0] m_axi_araddr,
-  output wire [35:0]  m_axi_arprot,
-  output wire [11:0]  m_axi_arvalid,
-  input  wire [11:0]  m_axi_arready,
-  input  wire [383:0] m_axi_rdata,
-  input  wire [23:0]  m_axi_rresp,
-  input  wire [11:0]  m_axi_rvalid,
-  output wire [11:0]  m_axi_rready,
-  output wire         user_link_up
+  output wire [NUM_SLAVES*32-1:0]   m_axi_awaddr,
+  output wire [NUM_SLAVES*3-1:0]    m_axi_awprot,
+  output wire [NUM_SLAVES-1:0]      m_axi_awvalid,
+  input wire  [NUM_SLAVES-1:0]      m_axi_awready,
+  output wire [NUM_SLAVES*32-1:0]   m_axi_wdata,
+  output wire [NUM_SLAVES*32/8-1:0] m_axi_wstrb,
+  output wire [NUM_SLAVES-1:0]      m_axi_wvalid,
+  input wire  [NUM_SLAVES-1:0]      m_axi_wready,
+  input wire  [NUM_SLAVES*2-1:0]    m_axi_bresp,
+  input wire  [NUM_SLAVES-1:0]      m_axi_bvalid,
+  output wire [NUM_SLAVES-1:0]      m_axi_bready,
+  output wire [NUM_SLAVES*32-1:0]   m_axi_araddr,
+  output wire [NUM_SLAVES*3-1:0]    m_axi_arprot,
+  output wire [NUM_SLAVES-1:0]      m_axi_arvalid,
+  input wire  [NUM_SLAVES-1:0]      m_axi_arready,
+  input wire  [NUM_SLAVES*32-1:0]   m_axi_rdata,
+  input wire  [NUM_SLAVES*2-1:0]    m_axi_rresp,
+  input wire  [NUM_SLAVES-1:0]      m_axi_rvalid,
+  output wire [NUM_SLAVES-1:0]      m_axi_rready,
+  output wire 	      user_link_up
 );
 
   //----------------------------------------------------------------
@@ -467,25 +470,25 @@ module pcie_axi (
 
 
   // Crossbar, note the aggregated outputs
-  wire [384-1:0]   xbar_axi_awaddr;
-  wire [36-1:0]    xbar_axi_awprot;
-  wire [12-1:0]    xbar_axi_awvalid;
-  wire [12-1:0]    xbar_axi_awready;
-  wire [384-1:0]   xbar_axi_wdata;
-  wire [384/8-1:0] xbar_axi_wstrb;
-  wire [12-1:0]    xbar_axi_wvalid;
-  wire [12-1:0]    xbar_axi_wready;
-  wire [24-1:0]    xbar_axi_bresp;
-  wire [12-1:0]    xbar_axi_bvalid;
-  wire [12-1:0]    xbar_axi_bready;
-  wire [384-1:0]   xbar_axi_araddr;
-  wire [36-1:0]    xbar_axi_arprot;
-  wire [12-1:0]    xbar_axi_arvalid;
-  wire [12-1:0]    xbar_axi_arready;
-  wire [384-1:0]   xbar_axi_rdata;
-  wire [24-1:0]    xbar_axi_rresp;
-  wire [12-1:0]    xbar_axi_rvalid;
-  wire [12-1:0]    xbar_axi_rready;
+  wire [NUM_SLAVES*32-1:0]   xbar_axi_awaddr;
+  wire [NUM_SLAVES*3-1:0]    xbar_axi_awprot;
+  wire [NUM_SLAVES-1:0]      xbar_axi_awvalid;
+  wire [NUM_SLAVES-1:0]      xbar_axi_awready;
+  wire [NUM_SLAVES*32-1:0]   xbar_axi_wdata;
+  wire [NUM_SLAVES*32/8-1:0] xbar_axi_wstrb;
+  wire [NUM_SLAVES-1:0]      xbar_axi_wvalid;
+  wire [NUM_SLAVES-1:0]      xbar_axi_wready;
+  wire [NUM_SLAVES*2-1:0]    xbar_axi_bresp;
+  wire [NUM_SLAVES-1:0]      xbar_axi_bvalid;
+  wire [NUM_SLAVES-1:0]      xbar_axi_bready;
+  wire [NUM_SLAVES*32-1:0]   xbar_axi_araddr;
+  wire [NUM_SLAVES*3-1:0]    xbar_axi_arprot;
+  wire [NUM_SLAVES-1:0]      xbar_axi_arvalid;
+  wire [NUM_SLAVES-1:0]      xbar_axi_arready;
+  wire [NUM_SLAVES*32-1:0]   xbar_axi_rdata;
+  wire [NUM_SLAVES*2-1:0]    xbar_axi_rresp;
+  wire [NUM_SLAVES-1:0]      xbar_axi_rvalid;
+  wire [NUM_SLAVES-1:0]      xbar_axi_rready;
 
   ntps_top_xbar_0 xbar (
     .aclk          (axi_aclk),
