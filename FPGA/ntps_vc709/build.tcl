@@ -15,11 +15,6 @@ puts "build_info $build_info"
 set_property generic "GIT_HASH=32'h$git_hash BUILD_INFO=32'h[format %08x $build_info]" [current_fileset]
 puts [get_property generic [current_fileset]]
 
-generate_target all [get_files "*.xci"]
-
-export_ip_user_files -of_objects [get_files "*.xci"] -no_script -sync
-#  -force -quiet
-
 update_compile_order -fileset sources_1
 
 # Synthesize project
