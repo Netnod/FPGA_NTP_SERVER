@@ -134,6 +134,7 @@ module pvtmon_top #(
   );
 
 
+/*
   reg  rst_r;
   reg  rst_int;
 
@@ -332,6 +333,7 @@ module pvtmon_top #(
     .cpu_rst        (rst_int),
     .clk50          (clk50)
   );
+*/
 
   synchronizer_vector #(
     .DATA_WIDTH   ((NUM_POWER_REG*32))

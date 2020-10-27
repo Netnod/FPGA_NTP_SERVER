@@ -41,20 +41,21 @@
 `default_nettype none
 
 module ntps_interfaces #(
+			 parameter NUM_PCIE_LANES = 16,
                          parameter NUM_SLAVES = 8,
                          parameter BUILD_INFO = 0,
                          parameter GIT_HASH   = 0
                          )
   (
-    input wire            reset,
+   input wire                  reset,
 
-    // PCI-AXI interface and bridge.
-    input wire            pcie_perst,
-    input wire            pcie_clk,
-    input wire [7:0]      pci_exp_rxn,
-    input wire [7:0]      pci_exp_rxp,
-    output wire [7:0]     pci_exp_txn,
-    output wire [7:0]     pci_exp_txp,
+   input wire 		       pcie_perst,
+   input wire 		       pcie_clk,
+   input wire 		       pcie_clk_gt,
+   output wire [NUM_PCIE_LANES-1:0] pci_exp_txp,
+   output wire [NUM_PCIE_LANES-1:0] pci_exp_txn,
+   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxp,
+   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxn,
 
     output wire           user_link_up,
 
@@ -239,16 +240,22 @@ module ntps_interfaces #(
   // PCI-AXI instantiation.
   //----------------------------------------------------------------
   pcie_axi #(
-			.NUM_SLAVES(NUM_SLAVES)
-			)
-   pcie_axi_0 (
-    .reset         (reset),
-    .pcie_perst    (pcie_perst),
-    .pcie_clk      (pcie_clk),
-    .pci_exp_rxn   (pci_exp_rxn),
-    .pci_exp_rxp   (pci_exp_rxp),
-    .pci_exp_txn   (pci_exp_txn),
-    .pci_exp_txp   (pci_exp_txp),
+	     .NUM_PCIE_LANES(NUM_PCIE_LANES),
+	     .NUM_SLAVES(NUM_SLAVES)
+	     )
+  pcie_axi_0 (
+    .reset                 (reset),
+
+    // PCIe signals
+    .pcie_perst            (pcie_perst),
+    .pcie_clk              (pcie_clk),
+    .pcie_clk_gt           (pcie_clk_gt),
+    .pci_exp_rxn           (pci_exp_rxn),
+    .pci_exp_rxp           (pci_exp_rxp),
+    .pci_exp_txn           (pci_exp_txn),
+    .pci_exp_txp           (pci_exp_txp),
+
+    // AXI bus
     .axi_aresetn   (axi_aresetn),
     .axi_aclk      (axi_aclk),
     .m_axi_awaddr  (m_axi_awaddr),
@@ -274,7 +281,8 @@ module ntps_interfaces #(
    );
 
 
-  //----------------------------------------------------------------
+/*
+   //----------------------------------------------------------------
   // NTP clocks.
   //----------------------------------------------------------------
   ntp_clock_top ntp_clock_topA (
@@ -363,7 +371,7 @@ module ntps_interfaces #(
     .SYNC_OK      (ntp_sync_ok_b),
     .test         ()
     );
-
+*/
 
   //----------------------------------------------------------------
   // Common NTP clock select. Controlled by Port 0 config.
@@ -464,7 +472,7 @@ module ntps_interfaces #(
     .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT * 1) +: 1])
     );
 
-
+/*
   //----------------------------------------------------------------
   // Ethernet PHYs.
   //----------------------------------------------------------------
@@ -540,7 +548,7 @@ module ntps_interfaces #(
                  .xgmii_rxd_3           (xgmii_rxd_3),
                  .xgmii_rxc_3           (xgmii_rxc_3)
                  );
-
+*/
 
   //----------------------------------------------------------------
   // network_path_axi_slave_0

@@ -119,7 +119,7 @@ module ntps_phys (
                   output wire [7  : 0] xgmii_rxc_3
                   );
 
-
+/*
   //----------------------------------------------------------------
   // Internal wires.
   //----------------------------------------------------------------
@@ -566,6 +566,7 @@ module ntps_phys (
 
     .sim_speedup_control (1'h0)
   );
+*/
 
 endmodule // ntps_phys
 

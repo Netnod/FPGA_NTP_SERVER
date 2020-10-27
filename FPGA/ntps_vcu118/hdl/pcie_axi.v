@@ -37,16 +37,24 @@
 `default_nettype none
 
 module pcie_axi #(
+		  parameter NUM_PCIE_LANES = 16,
 		  parameter NUM_SLAVES = 8
 		  )
    (
-  input  wire         reset,
-  input  wire         pcie_perst,
-  input  wire         pcie_clk,
-  input  wire [7:0]   pci_exp_rxn,
-  input  wire [7:0]   pci_exp_rxp,
-  output wire [7:0]   pci_exp_txn,
-  output wire [7:0]   pci_exp_txp,
+  input wire                   reset,
+  input wire 		       pcie_perst,
+
+  input wire 		       pcie_clk,
+  input wire 		       pcie_clk_gt,
+   
+  input wire 		       clk_300MHz_p,
+  input wire 		       clk_300MHz_n,
+
+  output wire [NUM_PCIE_LANES-1:0] pci_exp_txp,
+  output wire [NUM_PCIE_LANES-1:0] pci_exp_txn,
+  input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxp,
+  input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxn,
+   
   output wire         axi_aresetn,
   output wire         axi_aclk,
   output wire [NUM_SLAVES*32-1:0]   m_axi_awaddr,
@@ -89,7 +97,6 @@ module pcie_axi #(
      .peripheral_aresetn   (axi_aresetn)
   );
 
-
   //----------------------------------------------------------------
   // PCIe AXI bridge
   //----------------------------------------------------------------
@@ -129,79 +136,88 @@ module pcie_axi #(
   wire [31:0]  pcie_axi_wstrb;
   wire         pcie_axi_wvalid;
 
-  ntps_top_axi_pcie3_0_0 axi_pcie3_0 (
-    .sys_rst_n         (pcie_perst),
-    .user_link_up      (user_link_up),
-    .axi_ctl_aclk      (axi_aclk),
-    .intx_msi_request  (1'b0),
-    .msi_vector_num    (5'b0),
-    .m_axi_awready     (pcie_axi_awready),
-    .m_axi_wready      (pcie_axi_wready),
-    .m_axi_bid         (pcie_axi_bid),
-    .m_axi_bresp       (pcie_axi_bresp),
-    .m_axi_bvalid      (pcie_axi_bvalid),
-    .m_axi_arready     (pcie_axi_arready),
-    .m_axi_rid         (pcie_axi_rid),
-    .m_axi_rdata       (pcie_axi_rdata),
-    .m_axi_ruser       ({32{1'B0}}),
-    .m_axi_rresp       (pcie_axi_rresp),
-    .m_axi_rlast       (pcie_axi_rlast),
-    .m_axi_rvalid      (pcie_axi_rvalid),
-    .pci_exp_rxp       (pci_exp_rxp),
-    .pci_exp_rxn       (pci_exp_rxn),
-    .refclk            (pcie_clk),
-    .s_axi_ctl_awaddr  (32'b0),
-    .s_axi_ctl_awvalid (1'b0),
-    .s_axi_ctl_wdata   (32'b0),
-    .s_axi_ctl_wstrb   (4'b0),
-    .s_axi_ctl_wvalid  (1'b0),
-    .s_axi_ctl_bready  (1'b0),
-    .s_axi_ctl_araddr  (32'b0),
-    .s_axi_ctl_arvalid (1'b0),
-    .s_axi_ctl_rready  (1'b0),
-    .axi_aclk          (axi_aclk),
-    .axi_aresetn       (),
-    .interrupt_out     (),
-    .intx_msi_grant    (),
-    .msi_enable        (),
-    .msi_vector_width  (),
-    .m_axi_awid        (pcie_axi_awid),
-    .m_axi_awaddr      (pcie_axi_awaddr),
-    .m_axi_awlen       (pcie_axi_awlen),
-    .m_axi_awsize      (pcie_axi_awsize),
-    .m_axi_awburst     (pcie_axi_awburst),
-    .m_axi_awprot      (pcie_axi_awprot),
-    .m_axi_awvalid     (pcie_axi_awvalid),
-    .m_axi_awlock      (pcie_axi_awlock),
-    .m_axi_awcache     (pcie_axi_awcache),
-    .m_axi_wdata       (pcie_axi_wdata),
-    .m_axi_wuser       (),
-    .m_axi_wstrb       (pcie_axi_wstrb),
-    .m_axi_wlast       (pcie_axi_wlast),
-    .m_axi_wvalid      (pcie_axi_wvalid),
-    .m_axi_bready      (pcie_axi_bready),
-    .m_axi_arid        (pcie_axi_arid),
-    .m_axi_araddr      (pcie_axi_araddr),
-    .m_axi_arlen       (pcie_axi_arlen),
-    .m_axi_arsize      (pcie_axi_arsize),
-    .m_axi_arburst     (pcie_axi_arburst),
-    .m_axi_arprot      (pcie_axi_arprot),
-    .m_axi_arvalid     (pcie_axi_arvalid),
-    .m_axi_arlock      (pcie_axi_arlock),
-    .m_axi_arcache     (pcie_axi_arcache),
-    .m_axi_rready      (pcie_axi_rready),
-    .pci_exp_txp       (pci_exp_txp),
-    .pci_exp_txn       (pci_exp_txn),
-    .s_axi_ctl_awready (),
-    .s_axi_ctl_wready  (),
-    .s_axi_ctl_bresp   (),
-    .s_axi_ctl_bvalid  (),
-    .s_axi_ctl_arready (),
-    .s_axi_ctl_rdata   (),
-    .s_axi_ctl_rresp   (),
-    .s_axi_ctl_rvalid  ()
-  );
+ntps_top_xdma_0 xdma_0 (
+  // PCIe bus		
+  .sys_rst_n(pcie_perst),                 // input wire sys_rst_n
+  .sys_clk(pcie_clk),                     // input wire sys_clk
+  .sys_clk_gt(pcie_clk_gt),               // input wire sys_clk_gt
+  .pci_exp_txp(pci_exp_txp),              // output wire [15 : 0] pci_exp_txp
+  .pci_exp_txn(pci_exp_txn),              // output wire [15 : 0] pci_exp_txn
+  .pci_exp_rxp(pci_exp_rxp),              // input wire [15 : 0] pci_exp_rxp
+  .pci_exp_rxn(pci_exp_rxn),              // input wire [15 : 0] pci_exp_rxn
 
+  // AXI resets and clock			
+  .axi_aclk(axi_aclk),                    // output wire axi_aclk
+  .axi_aresetn(),                         // output wire axi_aresetn
+  .axi_ctl_aresetn(),                     // output wire axi_ctl_aresetn
+
+  // AXI master			
+  .m_axib_awid(pcie_axi_awid),            // output wire [3 : 0] m_axib_awid
+  .m_axib_awaddr(pcie_axi_awaddr),        // output wire [31 : 0] m_axib_awaddr
+  .m_axib_awlen(pcie_axi_awlen),          // output wire [7 : 0] m_axib_awlen
+  .m_axib_awsize(pcie_axi_awsize),        // output wire [2 : 0] m_axib_awsize
+  .m_axib_awburst(pcie_axi_awburst),      // output wire [1 : 0] m_axib_awburst
+  .m_axib_awprot(pcie_axi_awprot),        // output wire [2 : 0] m_axib_awprot
+  .m_axib_awvalid(pcie_axi_awvalid),      // output wire m_axib_awvalid
+  .m_axib_awready(pcie_axi_awready),      // input wire m_axib_awready
+  .m_axib_awlock(pcie_axi_awlock),        // output wire m_axib_awlock
+  .m_axib_awcache(pcie_axi_awcache),      // output wire [3 : 0] m_axib_awcache
+  .m_axib_wdata(pcie_axi_wdata),          // output wire [255 : 0] m_axib_wdata
+  .m_axib_wstrb(pcie_axi_wstrb),          // output wire [31 : 0] m_axib_wstrb
+  .m_axib_wlast(pcie_axi_wlast),          // output wire m_axib_wlast
+  .m_axib_wvalid(pcie_axi_wvalid),        // output wire m_axib_wvalid
+  .m_axib_wready(pcie_axi_wready),        // input wire m_axib_wready
+  .m_axib_bid(pcie_axi_bid),              // input wire [3 : 0] m_axib_bid
+  .m_axib_bresp(pcie_axi_bresp),          // input wire [1 : 0] m_axib_bresp
+  .m_axib_bvalid(pcie_axi_bvalid),        // input wire m_axib_bvalid
+  .m_axib_bready(pcie_axi_bready),        // output wire m_axib_bready
+  .m_axib_arid(pcie_axi_arid),            // output wire [3 : 0] m_axib_arid
+  .m_axib_araddr(pcie_axi_araddr),        // output wire [31 : 0] m_axib_araddr
+  .m_axib_arlen(pcie_axi_arlen),          // output wire [7 : 0] m_axib_arlen
+  .m_axib_arsize(pcie_axi_arsize),        // output wire [2 : 0] m_axib_arsize
+  .m_axib_arburst(pcie_axi_arburst),      // output wire [1 : 0] m_axib_arburst
+  .m_axib_arprot(pcie_axi_arprot),        // output wire [2 : 0] m_axib_arprot
+  .m_axib_arvalid(pcie_axi_arvalid),      // output wire m_axib_arvalid
+  .m_axib_arready(pcie_axi_arready),      // input wire m_axib_arready
+  .m_axib_arlock(pcie_axi_arlock),        // output wire m_axib_arlock
+  .m_axib_arcache(pcie_axi_arcache),      // output wire [3 : 0] m_axib_arcache
+  .m_axib_rid(pcie_axi_rid),              // input wire [3 : 0] m_axib_rid
+  .m_axib_rdata(pcie_axi_rdata),          // input wire [255 : 0] m_axib_rdata
+  .m_axib_rresp(pcie_axi_rresp),          // input wire [1 : 0] m_axib_rresp
+  .m_axib_rlast(pcie_axi_rlast),          // input wire m_axib_rlast
+  .m_axib_rvalid(pcie_axi_rvalid),        // input wire m_axib_rvalid
+  .m_axib_rready(pcie_axi_rready),        // output wire m_axib_rready
+
+  // AXI slave
+  .s_axil_awaddr(32'b0),        // input wire [31 : 0] s_axil_awaddr
+  .s_axil_awprot(3'b0),        // input wire [2 : 0] s_axil_awprot
+  .s_axil_awvalid(1'b0),      // input wire s_axil_awvalid
+  .s_axil_awready(),      // output wire s_axil_awready
+  .s_axil_wdata(32'b0),          // input wire [31 : 0] s_axil_wdata
+  .s_axil_wstrb(4'b0),          // input wire [3 : 0] s_axil_wstrb
+  .s_axil_wvalid(1'b0),        // input wire s_axil_wvalid
+  .s_axil_wready(),        // output wire s_axil_wready
+  .s_axil_bvalid(),        // output wire s_axil_bvalid
+  .s_axil_bresp(),          // output wire [1 : 0] s_axil_bresp
+  .s_axil_bready(1'b0),        // input wire s_axil_bready
+  .s_axil_araddr(32'b0),        // input wire [31 : 0] s_axil_araddr
+  .s_axil_arprot(3'b0),        // input wire [2 : 0] s_axil_arprot
+  .s_axil_arvalid(1'b0),      // input wire s_axil_arvalid
+  .s_axil_arready(),      // output wire s_axil_arready
+  .s_axil_rdata(),          // output wire [31 : 0] s_axil_rdata
+  .s_axil_rresp(),          // output wire [1 : 0] s_axil_rresp
+  .s_axil_rvalid(),        // output wire s_axil_rvalid
+  .s_axil_rready(1'b0),        // input wire s_axil_rready
+
+  .cfg_ltssm_state(),                     // output wire [5 : 0] cfg_ltssm_state
+  .user_lnk_up(user_link_up),             // output wire user_lnk_up
+
+  .usr_irq_req(1'b0),                     // input wire [0 : 0] usr_irq_req
+  .usr_irq_ack(),                         // output wire [0 : 0] usr_irq_ack
+  .msi_enable(),                          // output wire msi_enable
+  .msi_vector_width(),                    // output wire [2 : 0] msi_vector_width
+  .interrupt_out()                        // output wire interrupt_out
+);
 
   //----------------------------------------------------------------
   // axi interconnections

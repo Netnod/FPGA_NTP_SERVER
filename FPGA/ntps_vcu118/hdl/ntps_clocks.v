@@ -69,7 +69,7 @@ module ntps_clocks(
 
 
   // Control of the external 10Gb ethernet clock generator
-  clock_control clock_control_0 (
+/*  clock_control clock_control_0 (
      .clk50         (clk50),
      .rst           (reset),
      .i2c_clk       (i2c_clk),
@@ -77,7 +77,7 @@ module ntps_clocks(
      .i2c_mux_rst_n (i2c_mux_rst_n),
      .si5324_rst_n  (si5324_rst_n)
   );
-
+*/
 
   //----------------------------------------------------------------
   // pps_test

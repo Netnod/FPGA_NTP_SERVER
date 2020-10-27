@@ -40,134 +40,236 @@
 `default_nettype none
 
 module ntps_top #(
+		  parameter NUM_PCIE_LANES = 16,
                   parameter BUILD_INFO = 0,
                   parameter GIT_HASH   = 0
-                 )
+                  )
   (
-   input wire        reset,
+   input wire 		       pcie_perstn_rst,
+   input wire 		       pcie_clk_p, // pcie_mgt_clkp
+   input wire 		       pcie_clk_n, // pcie_mgt_clkn
+   
+   output wire [NUM_PCIE_LANES-1:0] pci_exp_txp,
+   output wire [NUM_PCIE_LANES-1:0] pci_exp_txn,
+   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxp,
+   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxn,
 
-   input wire        SYS_CLK_N,
-   input wire        SYS_CLK_P,
+   input wire                  reset,
 
-   input wire        PPS_INA_N,
-   input wire        PPS_INA_P,
-   input wire        PPS_INB_N,
-   input wire        PPS_INB_P,
-   input wire        TEN_MHZ_INA_clk_n,
-   input wire        TEN_MHZ_INA_clk_p,
-   input wire        TEN_MHZ_INB_clk_n,
-   input wire        TEN_MHZ_INB_clk_p,
-   output wire       TEN_MHZ_OUTA,
-   output wire       TEN_MHZ_OUTB,
-   output wire       PPS_OUTA,
-   output wire       PPS_OUTB,
+   input wire 		       clk_300MHz_p,
+   input wire 		       clk_300MHz_n,
 
-   input wire        PCIE_CLK_N,
-   input wire        PCIE_CLK_P,
-   input wire        pcie_perst,
+/*
+   input wire 	     PPS_INA_N,
+   input wire 	     PPS_INA_P,
+   input wire 	     PPS_INB_N,
+   input wire 	     PPS_INB_P,
+   input wire 	     TEN_MHZ_INA_clk_n,
+   input wire 	     TEN_MHZ_INA_clk_p,
+   input wire 	     TEN_MHZ_INB_clk_n,
+   input wire 	     TEN_MHZ_INB_clk_p,
+   output wire 	     TEN_MHZ_OUTA,
+   output wire 	     TEN_MHZ_OUTB,
+   output wire 	     PPS_OUTA,
+   output wire 	     PPS_OUTB,
+*/
 
+   output wire 		       led_0,
+   output wire 		       led_1,
+   output wire 		       led_2,
+   output wire 		       led_3,
+   output wire 		       led_4,
+   output wire 		       led_5,
+   output wire 		       led_6,
+   output wire 		       led_7
+   );
+   
+/*
    input wire [7:0]  pci_exp_rxn,
    input wire [7:0]  pci_exp_rxp,
    output wire [7:0] pci_exp_txn,
    output wire [7:0] pci_exp_txp,
 
-   input wire        pmbus_alert,
-   inout wire        pmbus_clk,
-   inout wire        pmbus_data,
+   input wire 	     pmbus_alert,
+   inout wire 	     pmbus_clk,
+   inout wire 	     pmbus_data,
 
-   inout wire        i2c_clk,
-   inout wire        i2c_data,
-   output wire       i2c_mux_rst_n,
-   output wire       si5324_rst_n,
+   inout wire 	     i2c_clk,
+   inout wire 	     i2c_data,
+   output wire 	     i2c_mux_rst_n,
+   output wire 	     si5324_rst_n,
 
-   input wire        xphy_refclk_n,
-   input wire        xphy_refclk_p,
+   input wire 	     xphy_refclk_n,
+   input wire 	     xphy_refclk_p,
 
-   input wire        xphy0_rxn,
-   input wire        xphy0_rxp,
-   output wire       xphy0_txn,
-   output wire       xphy0_txp,
-   input wire        xphy1_rxn,
-   input wire        xphy1_rxp,
-   output wire       xphy1_txn,
-   output wire       xphy1_txp,
-   input wire        xphy2_rxn,
-   input wire        xphy2_rxp,
-   output wire       xphy2_txn,
-   output wire       xphy2_txp,
-   input wire        xphy3_rxn,
-   input wire        xphy3_rxp,
-   output wire       xphy3_txn,
-   output wire       xphy3_txp,
+   input wire 	     xphy0_rxn,
+   input wire 	     xphy0_rxp,
+   output wire 	     xphy0_txn,
+   output wire 	     xphy0_txp,
+   input wire 	     xphy1_rxn,
+   input wire 	     xphy1_rxp,
+   output wire 	     xphy1_txn,
+   output wire 	     xphy1_txp,
+   input wire 	     xphy2_rxn,
+   input wire 	     xphy2_rxp,
+   output wire 	     xphy2_txn,
+   output wire 	     xphy2_txp,
+   input wire 	     xphy3_rxn,
+   input wire 	     xphy3_rxp,
+   output wire 	     xphy3_txn,
+   output wire 	     xphy3_txp,
 
-   input wire        sfp_module_detect0_n,
-   input wire        sfp_module_detect1_n,
-   input wire        sfp_module_detect2_n,
-   input wire        sfp_module_detect3_n,
-   input wire        sfp_signal_lost0,
-   input wire        sfp_signal_lost1,
-   input wire        sfp_signal_lost2,
-   input wire        sfp_signal_lost3,
-   output wire       sfp_tx_disable0,
-   output wire       sfp_tx_disable1,
-   output wire       sfp_tx_disable2,
-   output wire       sfp_tx_disable3,
-   input wire        sfp_tx_fault0,
-   input wire        sfp_tx_fault1,
-   input wire        sfp_tx_fault2,
-   input wire        sfp_tx_fault3,
+   input wire 	     sfp_module_detect0_n,
+   input wire 	     sfp_module_detect1_n,
+   input wire 	     sfp_module_detect2_n,
+   input wire 	     sfp_module_detect3_n,
+   input wire 	     sfp_signal_lost0,
+   input wire 	     sfp_signal_lost1,
+   input wire 	     sfp_signal_lost2,
+   input wire 	     sfp_signal_lost3,
+   output wire 	     sfp_tx_disable0,
+   output wire 	     sfp_tx_disable1,
+   output wire 	     sfp_tx_disable2,
+   output wire 	     sfp_tx_disable3,
+   input wire 	     sfp_tx_fault0,
+   input wire 	     sfp_tx_fault1,
+   input wire 	     sfp_tx_fault2,
+   input wire 	     sfp_tx_fault3,
 
-   output wire       HEAD2,
-   output wire       HEAD4,
-   output wire       HEAD6,
-   output wire       HEAD8,
-   output wire       HEAD10,
-   output wire       HEAD12,
-   output wire       HEAD14,
-   output wire       HEAD16,
-   output wire       HEAD18,
-   output wire       HEAD20,
-   output wire       HEAD22,
-   output wire       HEAD24,
-   output wire       HEAD26,
-   output wire       HEAD28,
-   output wire       HEAD30,
-   output wire       HEAD32,
-   output wire       HEAD34,
-   output wire       HEAD36,
+   output wire 	     HEAD2,
+   output wire 	     HEAD4,
+   output wire 	     HEAD6,
+   output wire 	     HEAD8,
+   output wire 	     HEAD10,
+   output wire 	     HEAD12,
+   output wire 	     HEAD14,
+   output wire 	     HEAD16,
+   output wire 	     HEAD18,
+   output wire 	     HEAD20,
+   output wire 	     HEAD22,
+   output wire 	     HEAD24,
+   output wire 	     HEAD26,
+   output wire 	     HEAD28,
+   output wire 	     HEAD30,
+   output wire 	     HEAD32,
+   output wire 	     HEAD34,
+   output wire 	     HEAD36,
 
-   output wire       LED0,
-   output wire       LED1,
-   output wire       LED2,
-   output wire       LED3,
-   output wire       LED4,
-   output wire       LED5,
-   output wire       LED6,
-   output wire       LED7
-  );
+   output wire 	     LED0,
+   output wire 	     LED1,
+   output wire 	     LED2,
+   output wire 	     LED3,
+   output wire 	     LED4,
+   output wire 	     LED5,
+   output wire 	     LED6,
+   output wire 	     LED7
+*/
 
+ wire 	     PPS_INA_N;
+ wire 	     PPS_INA_P;
+ wire 	     PPS_INB_N;
+ wire 	     PPS_INB_P;
+ wire 	     TEN_MHZ_INA_clk_n;
+ wire 	     TEN_MHZ_INA_clk_p;
+ wire 	     TEN_MHZ_INB_clk_n;
+ wire 	     TEN_MHZ_INB_clk_p;
+ wire 	     TEN_MHZ_OUTA;
+ wire 	     TEN_MHZ_OUTB;
+ wire 	     PPS_OUTA;
+ wire 	     PPS_OUTB;
+
+   wire 	     pmbus_alert;
+   wire 	     pmbus_clk;
+   wire 	     pmbus_data;
+
+   wire 	     i2c_clk;
+   wire 	     i2c_data;
+   wire 	     i2c_mux_rst_n;
+   wire 	     si5324_rst_n;
+
+   wire 	     xphy_refclk_n;
+   wire 	     xphy_refclk_p;
+
+   wire 	     xphy0_rxn;
+   wire 	     xphy0_rxp;
+   wire 	     xphy0_txn;
+   wire 	     xphy0_txp;
+   wire 	     xphy1_rxn;
+   wire 	     xphy1_rxp;
+   wire 	     xphy1_txn;
+   wire 	     xphy1_txp;
+   wire 	     xphy2_rxn;
+   wire 	     xphy2_rxp;
+   wire 	     xphy2_txn;
+   wire 	     xphy2_txp;
+   wire 	     xphy3_rxn;
+   wire 	     xphy3_rxp;
+   wire 	     xphy3_txn;
+   wire 	     xphy3_txp;
+
+   wire 	     sfp_module_detect0_n;
+   wire 	     sfp_module_detect1_n;
+   wire 	     sfp_module_detect2_n;
+   wire 	     sfp_module_detect3_n;
+   wire 	     sfp_signal_lost0;
+   wire 	     sfp_signal_lost1;
+   wire 	     sfp_signal_lost2;
+   wire 	     sfp_signal_lost3;
+   wire 	     sfp_tx_disable0;
+   wire 	     sfp_tx_disable1;
+   wire 	     sfp_tx_disable2;
+   wire 	     sfp_tx_disable3;
+   wire 	     sfp_tx_fault0;
+   wire 	     sfp_tx_fault1;
+   wire 	     sfp_tx_fault2;
+   wire 	     sfp_tx_fault3;
+
+   wire 	     HEAD2;
+   wire 	     HEAD4;
+   wire 	     HEAD6;
+   wire 	     HEAD8;
+   wire 	     HEAD10;
+   wire 	     HEAD12;
+   wire 	     HEAD14;
+   wire 	     HEAD16;
+   wire 	     HEAD18;
+   wire 	     HEAD20;
+   wire 	     HEAD22;
+   wire 	     HEAD24;
+   wire 	     HEAD26;
+   wire 	     HEAD28;
+   wire 	     HEAD30;
+   wire 	     HEAD32;
+   wire 	     HEAD34;
+   wire 	     HEAD36;
 
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
+  wire 		       pcie_perst;
+  
   // Wires for clocks.
-  wire pcie_clk;       // 100Mhz PCI express clock
-  wire sys_clk;
-  wire clk50;
-  wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
+  wire 		       pcie_clk;
+  wire 		       pcie_clk_gt;
 
+  wire 		       clk_300MHz;
+  wire 		       clk50;
+  
+   wire 		       axi_aclk;       // 125MHz AXI clock derived from PCIe clock
+  
   // Wires for NTP clocks.
-  wire PPS_INA;
-  wire PPS_INB;
-
-
+  wire                 TEN_MHZ_INA;
+  wire 		       PPS_INA;
+  wire                 TEN_MHZ_INB;
+  wire 		       PPS_INB;
+  
   // Wires for pps_test.
   wire test_PPS_OUT;
   wire test_TEN_MHZ_OUT;
-
+  
   // Wires for PCI-AXI:
   wire             user_link_up;
-
+  
   // Wires for NTP clocks.
   wire [63:0]  ntp_time;
   wire         PLL_locked_A;
@@ -176,12 +278,12 @@ module ntps_top #(
   wire         PLL_locked_B;
   wire         ntp_clock_topB_LED1;
   wire         ntp_clock_topB_LED2;
-
-
+  
+  
   // Shared network paths signals
   wire           areset_clk156;
   wire           clk156;
-
+  
   // Port 0
   wire [63  : 0] xgmii_txd_0;
   wire [7   : 0] xgmii_txc_0;
@@ -202,7 +304,7 @@ module ntps_top #(
   wire [31 : 0]  api_ext_write_data_0;
   wire [1 : 0]   api_ext_status_0;
   wire [31 : 0]  api_ext_read_data_0;
-
+  
 
   // Port 1
   wire [63  : 0] xgmii_txd_1;
@@ -224,7 +326,7 @@ module ntps_top #(
   wire [31 : 0]  api_ext_write_data_1;
   wire [1 : 0]   api_ext_status_1;
   wire [31 : 0]  api_ext_read_data_1;
-
+  
 
   // Port 2
   wire [63  : 0] xgmii_txd_2;
@@ -293,53 +395,49 @@ module ntps_top #(
   assign HEAD36 = 1'b0;
 
   // Debug Leds
-  assign LED0  = PLL_locked_A;
-  assign LED1  = ntp_clock_topA_LED1;
-  assign LED2  = ntp_clock_topA_LED2;
-  assign LED3  = 1'b0;
-  assign LED4  = PLL_locked_B;
-  assign LED5  = ntp_clock_topB_LED1;
-  assign LED6  = ntp_clock_topB_LED2;
-  assign LED7  = user_link_up;
+  assign led_0  = PLL_locked_A;
+  assign led_1  = ntp_clock_topA_LED1;
+  assign led_2  = ntp_clock_topA_LED2;
+  assign led_3  = 1'b0;
+  assign led_4  = PLL_locked_B;
+  assign led_5  = ntp_clock_topB_LED1;
+  assign led_6  = ntp_clock_topB_LED2;
+  assign led_7  = user_link_up;
 
+  /* System reset */
 
+  IBUF   pcie_perstn_ibuf (.O(pcie_perst), .I(pcie_perstn_rst));
+  
   //----------------------------------------------------------------
   // Clock tree input buffers.
   // These must be in the top level module to make Vivado happy.
   //----------------------------------------------------------------
-  // pcie_clk clock tree input buffer.
-  ntps_top_util_ds_buf_0_0 util_ds_buf_0 (
-     .IBUF_DS_N     (PCIE_CLK_N),
-     .IBUF_DS_P     (PCIE_CLK_P),
-     .IBUF_DS_ODIV2 (),
-     .IBUF_OUT      (pcie_clk)
-  );
-
+  
+  IBUFDS_GTE4 refclk_ibuf (.O(pcie_clk_gt), .ODIV2(pcie_clk), .I(pcie_clk_p), .CEB(1'b0), .IB(pcie_clk_n));
 
   // 200 MHz System clock from external source.
   // sys_clk clock tree input buffer.
-  ntps_top_util_ds_buf_0_3 util_ds_buf_1 (
-     .IBUF_DS_N  (SYS_CLK_N),
-     .IBUF_DS_P  (SYS_CLK_P),
-     .IBUF_OUT   (sys_clk)
+  IBUFDS clk_300MHz_ds_buf (
+     .I(clk_300MHz_p),
+     .IB(clk_300MHz_n),
+     .O(clk_300MHz)
   );
 
-
+  /*
   // Clock tree input buffer for NTP clock A.
-  ntp_clock_ds_buf ds_buf_0 (
-    .IBUF_DS_N	(PPS_INA_N),
-    .IBUF_DS_P	(PPS_INA_P),
-    .IBUF_OUT	(PPS_INA)
+  IBUFDS pps_ina_ds_buf (
+     .I(PPS_INA_P),
+     .IB(PPS_INA_N),
+     .O(PPS_INA)
   );
-
 
   // Clock tree insput buffer for NTP clock B.
-  ntp_clock_ds_buf ds_buf_1 (
-    .IBUF_DS_N	(PPS_INB_N),
-    .IBUF_DS_P	(PPS_INB_P),
-    .IBUF_OUT	(PPS_INB)
+  IBUFDS pps_inb_ds_buf (
+     .I(PPS_INB_P),
+     .IB(PPS_INB_N),
+     .O(PPS_INB)
   );
-
+*/
 
   //----------------------------------------------------------------
   // ntps_clocks
@@ -347,7 +445,7 @@ module ntps_top #(
   //----------------------------------------------------------------
   ntps_clocks clocks(
                      .reset         (reset),
-                     .sys_clk       (sys_clk),
+                     .sys_clk       (clk_300MHz),
                      .clk50         (clk50),
                      .i2c_clk       (i2c_clk),
                      .i2c_data      (i2c_data),
@@ -364,14 +462,16 @@ module ntps_top #(
   // and NTP clocks.
   //----------------------------------------------------------------
   ntps_interfaces #(
+		    .NUM_PCIE_LANES(NUM_PCIE_LANES),
                     .BUILD_INFO(BUILD_INFO),
                     .GIT_HASH(GIT_HASH)
                    )
  ntps_interfaces_0 (
      .reset                 (reset),
-
+		    
      .pcie_perst            (pcie_perst),
      .pcie_clk              (pcie_clk),
+     .pcie_clk_gt           (pcie_clk_gt),
      .pci_exp_rxn           (pci_exp_rxn),
      .pci_exp_rxp           (pci_exp_rxp),
      .pci_exp_txn           (pci_exp_txn),
@@ -487,7 +587,7 @@ module ntps_top #(
      .PLL_LOCKEDB           (PLL_locked_B)
     );
 
-
+/*
   //----------------------------------------------------------------
   // network_path_shared_0.
   //----------------------------------------------------------------
@@ -578,7 +678,8 @@ module ntps_top #(
     .areset_clk156      (areset_clk156),
     .sys_reset          (reset)
   );
-
+*/
+  
 endmodule // ntps_top
 
 `default_nettype wire

@@ -79,18 +79,19 @@
 ###############################################################################
 # User Time Names / User Time Groups / Time Specs
 ###############################################################################
-create_clock -name sys_clk -period 10 [get_ports sys_clk_p]
 #
-set_false_path -from [get_ports sys_rst_n]
-set_property PULLUP true [get_ports sys_rst_n]
+set_false_path -from [get_ports pcie_perstn_rst]
+set_property PULLUP true [get_ports pcie_perstn_rst]
 
-set_property IOSTANDARD LVCMOS18 [get_ports sys_rst_n]
-#
-#set_property PACKAGE_PIN AM17 [get_ports sys_rst_n]
+# set_property IOSTANDARD LVCMOS18 [get_ports pcie_perstn_raw]
+# set_property PACKAGE_PIN AM17 [get_ports pcie_perstn_raw]
 
 #
-set_property PACKAGE_PIN AL8 [get_ports sys_clk_n]
-set_property PACKAGE_PIN AL9 [get_ports sys_clk_p]
+
+create_clock -name pcie_clk -period 10 [get_ports pcie_clk_p]
+set_property PACKAGE_PIN AL9 [get_ports pcie_clk_p]
+set_property PACKAGE_PIN AL8 [get_ports pcie_clk_n]
+
 #
 
 # LEDs for VCU118
@@ -153,9 +154,9 @@ set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design ]
 #
 #
-# sys_clk vs TXOUTCLK
-set_clock_groups -name async18 -asynchronous -group [get_clocks {sys_clk}] -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
-set_clock_groups -name async19 -asynchronous -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]] -group [get_clocks {sys_clk}]
+# pcie_clk vs TXOUTCLK
+set_clock_groups -name async18 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
+set_clock_groups -name async19 -asynchronous -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]] -group [get_clocks {pcie_clk}]
 #
 # clk_300MHz vs user_clk
 set_clock_groups -name async20 -asynchronous -group [get_clocks -of_objects [get_ports clk_300MHz_p]] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
@@ -167,18 +168,18 @@ set_clock_groups -name async23 -asynchronous -group [get_clocks -of_objects [get
 #
 #
 #
-set_clock_groups -name asynco -asynchronous -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]] -group [get_clocks {sys_clk}]
-set_clock_groups -name asyncp -asynchronous -group [get_clocks {sys_clk}] -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]]
+set_clock_groups -name asynco -asynchronous -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]] -group [get_clocks {pcie_clk}]
+set_clock_groups -name asyncp -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]]
 #
 #
 #
 # ASYNC CLOCK GROUPINGS
-# sys_clk vs user_clk
-set_clock_groups -name async5 -asynchronous -group [get_clocks {sys_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
-set_clock_groups -name async6 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks {sys_clk}]
-# sys_clk vs pclk
-set_clock_groups -name async1 -asynchronous -group [get_clocks {sys_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]]
-set_clock_groups -name async2 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]] -group [get_clocks {sys_clk}]
+# pcie_clk vs user_clk
+set_clock_groups -name async5 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
+set_clock_groups -name async6 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks {pcie_clk}]
+# pcie_clk vs pclk
+set_clock_groups -name async1 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]]
+set_clock_groups -name async2 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]] -group [get_clocks {pcie_clk}]
 #
 #
 #
@@ -188,7 +189,7 @@ set_clock_groups -name async2 -asynchronous -group [get_clocks -of_objects [get_
 #resize_pblock [get_pblocks soft_512b] -add {SLICE_X157Y300:SLICE_X168Y372}
 #set_property EXCLUDE_PLACEMENT 1 [get_pblocks soft_512b]
 #
-set_clock_groups -name async24 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_intclk/O]] -group [get_clocks {sys_clk}]
+set_clock_groups -name async24 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_intclk/O]] -group [get_clocks {pcie_clk}]
 #
 #create_waiver -type METHODOLOGY -id {LUTAR-1} -user "pcie4_uscale_plus" -desc "user link up is synchroized in the user clk so it is safe to ignore"  -internal -scoped -tags 1024539  -objects [get_cells { pcie_app_uscale_i/PIO_i/len_i[5]_i_4 }] -objects [get_pins { pcie4_uscale_plus_0_i/inst/user_lnk_up_cdc/arststages_ff_reg[0]/CLR pcie4_uscale_plus_0_i/inst/user_lnk_up_cdc/arststages_ff_reg[1]/CLR }] 
 
