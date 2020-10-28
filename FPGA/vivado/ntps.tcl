@@ -37,14 +37,14 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v"]"\
- "[file normalize "$origin_dir/../xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v"]"\
+ "[file normalize "$origin_dir/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/oc_mac_crc_func.h"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/oc_mac.h"]"\
  "[file normalize "$origin_dir/../network_path/GMAC/hdl/tx_dequeue.v"]"\
