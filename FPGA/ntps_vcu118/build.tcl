@@ -30,3 +30,5 @@ file copy -force ntps_vcu118.runs/impl_1/ntps_top.bit ntps_top.bit
 # Convert .bit file to .mcs and .prm file needed for programming
 # This is disabled until we figure out the format for programming flash on VCU118
 # write_cfgmem -force -format MCS -size 128 -interface BPIx16 -loadbit "up 0x00000000 ntps_top.bit" ntps_top.mcs
+
+puts "Success"
