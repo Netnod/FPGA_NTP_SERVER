@@ -698,8 +698,6 @@
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="ntps_top"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
-        <Generic Name="GIT_HASH" Val="32&apos;h4be84130"/>
-        <Generic Name="BUILD_INFO" Val="32&apos;h0107e302"/>
       </Config>
     </FileSet>
     <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">

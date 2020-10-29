@@ -40,9 +40,7 @@
 `default_nettype none
 
 module ntps_top #(
-		  parameter NUM_PCIE_LANES = 16,
-                  parameter BUILD_INFO = 0,
-                  parameter GIT_HASH   = 0
+		  parameter NUM_PCIE_LANES = 16
                   )
   (
    input wire 		       pcie_perstn_rst,
@@ -462,9 +460,7 @@ module ntps_top #(
   // and NTP clocks.
   //----------------------------------------------------------------
   ntps_interfaces #(
-		    .NUM_PCIE_LANES(NUM_PCIE_LANES),
-                    .BUILD_INFO(BUILD_INFO),
-                    .GIT_HASH(GIT_HASH)
+		    .NUM_PCIE_LANES(NUM_PCIE_LANES)
                    )
  ntps_interfaces_0 (
      .reset                 (reset),

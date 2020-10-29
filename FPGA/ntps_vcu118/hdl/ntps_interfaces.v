@@ -437,11 +437,7 @@ module ntps_interfaces #(
   // Status registers for board power and temperature.
   // Also includes registers for build info to ID the FPGA design.
   //----------------------------------------------------------------
-  pvtmon_top #(
-               .BUILD_INFO(BUILD_INFO),
-               .GIT_HASH(GIT_HASH)
-               )
-  pvtmon_top_0 (
+  pvtmon_top pvtmon_top_0 (
     .clk50          (clk50),
     .rst            (reset),
 
