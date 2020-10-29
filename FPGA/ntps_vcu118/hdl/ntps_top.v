@@ -57,20 +57,19 @@ module ntps_top #(
    input wire 		       clk_300MHz_p,
    input wire 		       clk_300MHz_n,
 
-/*
    input wire 	     PPS_INA_N,
    input wire 	     PPS_INA_P,
-   input wire 	     PPS_INB_N,
-   input wire 	     PPS_INB_P,
+   output wire 	     PPS_OUTA,
    input wire 	     TEN_MHZ_INA_clk_n,
    input wire 	     TEN_MHZ_INA_clk_p,
+   output wire 	     TEN_MHZ_OUTA,
+
+   input wire 	     PPS_INB_N,
+   input wire 	     PPS_INB_P,
+   output wire 	     PPS_OUTB,
    input wire 	     TEN_MHZ_INB_clk_n,
    input wire 	     TEN_MHZ_INB_clk_p,
-   output wire 	     TEN_MHZ_OUTA,
    output wire 	     TEN_MHZ_OUTB,
-   output wire 	     PPS_OUTA,
-   output wire 	     PPS_OUTB,
-*/
 
    output wire 		       led_0,
    output wire 		       led_1,
@@ -161,21 +160,22 @@ module ntps_top #(
    output wire 	     LED5,
    output wire 	     LED6,
    output wire 	     LED7
-*/
 
  wire 	     PPS_INA_N;
  wire 	     PPS_INA_P;
- wire 	     PPS_INB_N;
- wire 	     PPS_INB_P;
+ wire 	     PPS_OUTA;
  wire 	     TEN_MHZ_INA_clk_n;
  wire 	     TEN_MHZ_INA_clk_p;
+ wire 	     TEN_MHZ_OUTA;
+
+ wire 	     PPS_INB_N;
+ wire 	     PPS_INB_P;
+ wire 	     PPS_OUTB;
  wire 	     TEN_MHZ_INB_clk_n;
  wire 	     TEN_MHZ_INB_clk_p;
- wire 	     TEN_MHZ_OUTA;
  wire 	     TEN_MHZ_OUTB;
- wire 	     PPS_OUTA;
- wire 	     PPS_OUTB;
-
+*/
+  
    wire 	     pmbus_alert;
    wire 	     pmbus_clk;
    wire 	     pmbus_data;
@@ -256,9 +256,7 @@ module ntps_top #(
    wire 		       axi_aclk;       // 125MHz AXI clock derived from PCIe clock
   
   // Wires for NTP clocks.
-  wire                 TEN_MHZ_INA;
   wire 		       PPS_INA;
-  wire                 TEN_MHZ_INB;
   wire 		       PPS_INB;
   
   // Wires for pps_test.
@@ -421,21 +419,19 @@ module ntps_top #(
      .O(clk_300MHz)
   );
 
-  /*
   // Clock tree input buffer for NTP clock A.
   IBUFDS pps_ina_ds_buf (
      .I(PPS_INA_P),
      .IB(PPS_INA_N),
      .O(PPS_INA)
   );
-
+  
   // Clock tree insput buffer for NTP clock B.
   IBUFDS pps_inb_ds_buf (
      .I(PPS_INB_P),
      .IB(PPS_INB_N),
      .O(PPS_INB)
   );
-*/
 
   //----------------------------------------------------------------
   // ntps_clocks

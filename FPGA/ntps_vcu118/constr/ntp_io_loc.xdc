@@ -1,47 +1,52 @@
 #--------------------------------------------------------------------
 # NTP clock A
-# set_property PACKAGE_PIN AL35 [get_ports TEN_MHZ_INA_clk_p]
-# set_property PACKAGE_PIN AL36 [get_ports TEN_MHZ_INA_clk_n]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports TEN_MHZ_INA_clk_p]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports TEN_MHZ_INA_clk_n]
+set_property PACKAGE_PIN AL35 [get_ports TEN_MHZ_INA_clk_p]
+set_property PACKAGE_PIN AL36 [get_ports TEN_MHZ_INA_clk_n]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INA_clk_p]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INA_clk_n]
 
-# set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets TEN_MHZ_INA_ds_buf/O]
+# Avoid ERROR: [Place 30-681] Sub-optimal placement for a global
+# clock-capable IO pin and MMCM pair. As a workaround for this error,
+# please insert a BUFG in between the IO and the MMCM.  For some
+# reason this error only occurs for TEN_MHZ_INA, not TEN_MHZ_INB.
+# Why?
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets ntps_interfaces_0/ntp_clock_topA/pll_0/inst/clkin1_ibufds/O]
 
-# set_property PACKAGE_PIN AY9 [get_ports PPS_INA_P]
-# set_property PACKAGE_PIN BA9 [get_ports PPS_INA_N]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports PPS_INA_N]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports PPS_INA_P]
+set_property PACKAGE_PIN AT35 [get_ports PPS_INA_P]
+set_property PACKAGE_PIN AT36 [get_ports PPS_INA_N]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports PPS_INA_N]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports PPS_INA_P]
 
-# set_property PACKAGE_PIN AJ35 [get_ports TEN_MHZ_OUTA]
-# set_property IOSTANDARD LVCMOS18 [get_ports TEN_MHZ_OUTA]
+set_property PACKAGE_PIN AJ35 [get_ports TEN_MHZ_OUTA]
+set_property IOSTANDARD LVCMOS18 [get_ports TEN_MHZ_OUTA]
 # set_property DRIVE 12 [get_ports TEN_MHZ_OUTA]
 #set_property OFFCHIP_TERM NONE [get_ports TEN_MHZ_OUTA]
 
-# set_property PACKAGE_PIN AY8 [get_ports PPS_OUTA]
-# set_property IOSTANDARD LVCMOS18 [get_ports PPS_OUTA]
+set_property PACKAGE_PIN AY8 [get_ports PPS_OUTA]
+set_property IOSTANDARD LVCMOS18 [get_ports PPS_OUTA]
 # set_property DRIVE 12 [get_ports PPS_OUTA]
 # set_property SLEW FAST [get_ports PPS_OUTA]
 #set_property OFFCHIP_TERM NONE [get_ports PPS_OUTA]
 
 #--------------------------------------------------------------------
 # NTP clock B
-# set_property PACKAGE_PIN AY9 [get_ports TEN_MHZ_INB_clk_p]
-# set_property PACKAGE_PIN BA9 [get_ports TEN_MHZ_INB_clk_n]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports TEN_MHZ_INB_clk_p]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports TEN_MHZ_INB_clk_n]
+set_property PACKAGE_PIN AY9 [get_ports TEN_MHZ_INB_clk_p]
+set_property PACKAGE_PIN BA9 [get_ports TEN_MHZ_INB_clk_n]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INB_clk_p]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INB_clk_n]
 
-# set_property PACKAGE_PIN BD13 [get_ports PPS_INB_P]
-# set_property PACKAGE_PIN BE13 [get_ports PPS_INB_N]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports PPS_INB_N]
-# set_property IOSTANDARD DIFF_SSTL18 [get_ports PPS_INB_P]
+set_property PACKAGE_PIN BD13 [get_ports PPS_INB_P]
+set_property PACKAGE_PIN BE13 [get_ports PPS_INB_N]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports PPS_INB_N]
+set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports PPS_INB_P]
 
-# set_property PACKAGE_PIN AG31 [get_ports TEN_MHZ_OUTB]
-# set_property IOSTANDARD LVCMOS18 [get_ports TEN_MHZ_OUTB]
+set_property PACKAGE_PIN AG31 [get_ports TEN_MHZ_OUTB]
+set_property IOSTANDARD LVCMOS18 [get_ports TEN_MHZ_OUTB]
 # set_property DRIVE 12 [get_ports TEN_MHZ_OUTB]
 #set_property OFFCHIP_TERM NONE [get_ports TEN_MHZ_OUTB]
 
-# set_property PACKAGE_PIN AW8 [get_ports PPS_OUTB]
-# set_property IOSTANDARD LVCMOS18 [get_ports PPS_OUTB]
+set_property PACKAGE_PIN AW8 [get_ports PPS_OUTB]
+set_property IOSTANDARD LVCMOS18 [get_ports PPS_OUTB]
 # set_property DRIVE 12 [get_ports PPS_OUTB]
 # set_property SLEW FAST [get_ports PPS_OUTB]
 #set_property OFFCHIP_TERM NONE [get_ports PPS_OUTB]

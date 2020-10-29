@@ -281,7 +281,6 @@ module ntps_interfaces #(
    );
 
 
-/*
    //----------------------------------------------------------------
   // NTP clocks.
   //----------------------------------------------------------------
@@ -328,7 +327,6 @@ module ntps_interfaces #(
     .test         ()
     );
 
-
   ntp_clock_top ntp_clock_topB (
     .reset        (reset),
     .TEN_MHZ_IN_N (TEN_MHZ_INB_N),
@@ -371,7 +369,6 @@ module ntps_interfaces #(
     .SYNC_OK      (ntp_sync_ok_b),
     .test         ()
     );
-*/
 
   //----------------------------------------------------------------
   // Common NTP clock select. Controlled by Port 0 config.
