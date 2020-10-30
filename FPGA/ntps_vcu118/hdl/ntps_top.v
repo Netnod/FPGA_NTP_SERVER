@@ -578,7 +578,6 @@ module ntps_top #(
      .PLL_LOCKEDB           (PLL_locked_B)
     );
 
-/*
   //----------------------------------------------------------------
   // network_path_shared_0.
   //----------------------------------------------------------------
@@ -669,7 +668,6 @@ module ntps_top #(
     .areset_clk156      (areset_clk156),
     .sys_reset          (reset)
   );
-*/
   
 endmodule // ntps_top
 
