@@ -411,8 +411,7 @@ module ntps_top #(
   
   IBUFDS_GTE4 refclk_ibuf (.O(pcie_clk_gt), .ODIV2(pcie_clk), .I(pcie_clk_p), .CEB(1'b0), .IB(pcie_clk_n));
 
-  // 200 MHz System clock from external source.
-  // sys_clk clock tree input buffer.
+  // 300 MHz System clock from external source.
   IBUFDS clk_300MHz_ds_buf (
      .I(clk_300MHz_p),
      .IB(clk_300MHz_n),
