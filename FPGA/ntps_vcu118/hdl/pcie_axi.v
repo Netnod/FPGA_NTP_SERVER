@@ -103,7 +103,7 @@ module pcie_axi #(
   wire [31:0]  pcie_axi_araddr;
   wire [1:0]   pcie_axi_arburst;
   wire [3:0]   pcie_axi_arcache;
-  wire [2:0]   pcie_axi_arid;
+  wire [3:0]   pcie_axi_arid;
   wire [7:0]   pcie_axi_arlen;
   wire         pcie_axi_arlock;
   wire [2:0]   pcie_axi_arprot;
@@ -113,7 +113,7 @@ module pcie_axi #(
   wire [31:0]  pcie_axi_awaddr;
   wire [1:0]   pcie_axi_awburst;
   wire [3:0]   pcie_axi_awcache;
-  wire [2:0]   pcie_axi_awid;
+  wire [3:0]   pcie_axi_awid;
   wire [7:0]   pcie_axi_awlen;
   wire         pcie_axi_awlock;
   wire [2:0]   pcie_axi_awprot;
