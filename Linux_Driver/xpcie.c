@@ -505,8 +505,8 @@ static int XPCIe_init(void)
     int ret = -EIO;
     int i;
 
-    gDev = pci_get_device (PCI_VENDOR_ID_XILINX, PCI_DEVICE_ID_XILINX_PCIE, gDev);
-    if (NULL == gDev) {
+    if ((gDev = pci_get_device (0x10ee, 0x7028, gDev)) == NULL &&
+        (gDev = pci_get_device (0x10ee, 0x902f, gDev)) == NULL) {
         printk(/*KERN_WARNING*/"%s: Init: Hardware not found.\n", gDrvrName);
 	ret = -EIO;
 	goto out;
