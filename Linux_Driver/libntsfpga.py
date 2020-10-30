@@ -931,11 +931,17 @@ if __name__=="__main__":
 
     fpga = NtsFpga()
 
-    api = NtsApi(0)
+    if (human):
+        fpga.check_version_board()
 
     if (setup):
         if init is None:
             init = True
+
+    if (init):
+        fpga.setup_clocks()
+
+    api = NtsApi(0)
 
     if (dump):
         api.dump_nts_dispatcher_api()
@@ -944,12 +950,10 @@ if __name__=="__main__":
         api.dump_nts_engine_api()
 
     if (human):
-        fpga.check_version_board()
         api.check_api()
         api.check_pp_api()
 
     if (init):
-        fpga.setup_clocks()
         api.setup_network_path()
 
     if (opt_test_entropy):
