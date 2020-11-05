@@ -35,7 +35,7 @@ LANG=en_US.UTF-8
 unset `env | grep LC | cut -d'=' -f1 `
 
 (
-cd xilinx
+cd ../cores
 ./download-and-unpack.sh
 )
 

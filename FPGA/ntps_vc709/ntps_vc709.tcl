@@ -120,6 +120,15 @@ set files [list \
  [file normalize "${origin_dir}/../cores/sha1/src/rtl/sha1_core.v"] \
  [file normalize "${origin_dir}/../cores/sha1/src/rtl/sha1_w_mem.v"] \
  [file normalize "${origin_dir}/../cores/siphash/src/rtl/siphash_core.v"] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/kcpsm6.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v" ] \
+ [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v" ] \
  [file normalize "${origin_dir}/../network_path/GMAC/hdl/oc_mac.v"] \
  [file normalize "${origin_dir}/../network_path/GMAC/hdl/rx_control.v"] \
  [file normalize "${origin_dir}/../network_path/GMAC/hdl/rx_enqueue.v"] \
@@ -177,15 +186,6 @@ set files [list \
  [file normalize "${origin_dir}/hdl/pcie_axi.v" ] \
  [file normalize "${origin_dir}/pvtmon/pvtmon_axi_slave.v"] \
  [file normalize "${origin_dir}/pvtmon/pvtmon_top.v"] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/kcpsm6.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v" ] \
- [file normalize "${origin_dir}/xilinx/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v" ] \
  [file normalize "${origin_dir}/xilinx_ip/network_path/ten_gig_eth_pcs_pma_ip/ten_gig_eth_pcs_pma_ip.xci" ] \
  [file normalize "${origin_dir}/xilinx_ip/network_path/ten_gig_eth_pcs_pma_ip_shared_logic/ten_gig_eth_pcs_pma_ip_shared_logic_in_core.xci" ] \
  [file normalize "${origin_dir}/xilinx_ip/ntp_clock/ntp_clock_ds_buf/ntp_clock_ds_buf.xci" ] \
