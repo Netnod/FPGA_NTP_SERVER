@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="44" Path="/home/wingel/work/FPGA_NTP_SERVER/FPGA/ntps_vcu118/ntps_vcu118.xpr">
+<Project Version="7" Minor="44">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="33f19b84fc244c58a961f26707a6fc29"/>
