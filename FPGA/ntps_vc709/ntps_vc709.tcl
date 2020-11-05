@@ -92,14 +92,6 @@ set_property -name "platform.board_id" -value "vc709" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
-set_property -name "webtalk.activehdl_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.ies_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.modelsim_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.questa_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.riviera_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.vcs_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.xsim_export_sim" -value "58" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "1" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC XPM_FIFO XPM_MEMORY" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -223,7 +215,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntps_top_axi_ethernetlite_0_0/ntps_top_axi_ethernetlite_0_0.xci"
+set file "ntp_clock_ds_buf/ntp_clock_ds_buf.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -239,7 +231,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntps_top_xbar_0/ntps_top_xbar_0.xci"
+set file "ntps_top_clk_wiz_0_1/ntps_top_clk_wiz_0_1.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -247,7 +239,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntps_top_s00_data_fifo_0/ntps_top_s00_data_fifo_0.xci"
+set file "ntps_top_auto_ds_0/ntps_top_auto_ds_0.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -263,7 +255,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntps_top_auto_ds_0/ntps_top_auto_ds_0.xci"
+set file "ntps_top_axi_ethernetlite_0_0/ntps_top_axi_ethernetlite_0_0.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -287,7 +279,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntps_top_clk_wiz_0_1/ntps_top_clk_wiz_0_1.xci"
+set file "ntps_top_s00_data_fifo_0/ntps_top_s00_data_fifo_0.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -295,7 +287,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntp_clock_ds_buf/ntp_clock_ds_buf.xci"
+set file "ntps_top_util_ds_buf_0_0/ntps_top_util_ds_buf_0_0.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -311,7 +303,7 @@ if { ![get_property "is_locked" $file_obj] } {
 }
 set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "ntps_top_util_ds_buf_0_0/ntps_top_util_ds_buf_0_0.xci"
+set file "ntps_top_xbar_0/ntps_top_xbar_0.xci"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
@@ -336,13 +328,6 @@ set obj [get_filesets constrs_1]
 set file "[file normalize "$origin_dir/constr/clock_control.xdc"]"
 set file_added [add_files -norecurse -fileset $obj [list $file]]
 set file "constr/clock_control.xdc"
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
-set_property -name "file_type" -value "XDC" -objects $file_obj
-
-# Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/constr/clock_cross.xdc"]"
-set file_added [add_files -norecurse -fileset $obj [list $file]]
-set file "constr/clock_cross.xdc"
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property -name "file_type" -value "XDC" -objects $file_obj
 
