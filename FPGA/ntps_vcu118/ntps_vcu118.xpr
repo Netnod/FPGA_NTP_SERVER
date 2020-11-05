@@ -115,63 +115,63 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_core.v">
+      <File Path="$PPRDIR/../cores/aes/src/rtl/aes_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_encipher_block.v">
+      <File Path="$PPRDIR/../cores/aes/src/rtl/aes_encipher_block.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_key_mem.v">
+      <File Path="$PPRDIR/../cores/aes/src/rtl/aes_key_mem.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/aes/src/rtl/aes_sbox.v">
+      <File Path="$PPRDIR/../cores/aes/src/rtl/aes_sbox.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/aes-siv/src/rtl/aes_siv_core.v">
+      <File Path="$PPRDIR/../cores/aes-siv/src/rtl/aes_siv_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/api_extension/src/rtl/api_extension.v">
+      <File Path="$PPRDIR/../network_path/api_extension/src/rtl/api_extension.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/memory/bram.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/memory/bram.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/memory/bram_dp2w.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/memory/bram_dp2w.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/memory/bram_dpge.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/memory/bram_dpge.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -185,42 +185,42 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/cmac/src/rtl/cmac_core.v">
+      <File Path="$PPRDIR/../cores/cmac/src/rtl/cmac_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/misc/counter64.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/misc/counter64.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/ctrl_gre.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/ctrl_gre.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/icmp.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/icmp.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/md5/src/rtl/md5_core.v">
+      <File Path="$PPRDIR/../cores/md5/src/rtl/md5_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/memory/memory_ctrl.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/memory/memory_ctrl.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -248,14 +248,14 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/ntp_auth.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/ntp_auth.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/keymem/src/rtl/ntp_auth_keymem.v">
+      <File Path="$PPRDIR/../network_path/keymem/src/rtl/ntp_auth_keymem.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -311,105 +311,105 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_api.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_api.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_dispatcher.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_dispatcher.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_dispatcher_mux.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_dispatcher_mux.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_engine.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_engine.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_extractor.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_extractor.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_extractor_mux.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_extractor_mux.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_extractor_tx.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_extractor_tx.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/keymem/src/rtl/nts_keymem.v">
+      <File Path="$PPRDIR/../network_path/keymem/src/rtl/nts_keymem.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/nts_noncegen/src/rtl/nts_noncegen.v">
+      <File Path="$PPRDIR/../network_path/nts_noncegen/src/rtl/nts_noncegen.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_parser_ctrl.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_parser_ctrl.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_rx_buffer.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_rx_buffer.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_timestamp.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_timestamp.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_top.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_top.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_tx_buffer.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_tx_buffer.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/nts_engine/nts_verify_secure.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/nts_engine/nts_verify_secure.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -472,7 +472,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/src/rtl/preprocessor.v">
+      <File Path="$PPRDIR/../network_path/nts/src/rtl/preprocessor.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -493,21 +493,21 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/rosc_entropy/src/rtl/rosc.v">
+      <File Path="$PPRDIR/../network_path/rosc_entropy/src/rtl/rosc.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/rosc_entropy/src/rtl/rosc_entropy.v">
+      <File Path="$PPRDIR/../network_path/rosc_entropy/src/rtl/rosc_entropy.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/rosc_entropy/src/rtl/rosc_entropy_core.v">
+      <File Path="$PPRDIR/../network_path/rosc_entropy/src/rtl/rosc_entropy_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -528,21 +528,21 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/sha1/src/rtl/sha1_core.v">
+      <File Path="$PPRDIR/../cores/sha1/src/rtl/sha1_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/sha1/src/rtl/sha1_w_mem.v">
+      <File Path="$PPRDIR/../cores/sha1/src/rtl/sha1_w_mem.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../nts/nts-poc-verilog/sub/siphash/src/rtl/siphash_core.v">
+      <File Path="$PPRDIR/../cores/siphash/src/rtl/siphash_core.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
