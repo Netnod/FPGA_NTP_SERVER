@@ -1,10 +1,10 @@
 Unless otherwise specified in specific files or directories, this project
 is covered by the BSD 2-Clause License seen below.
 
-Notable exceptions are the files for the 10GE MAC in "network_path/GMAC/hdl"
-and some Xilinx IP blocks.  The 10GE MAC is covered by the GNU Lesser General
-Public License (SPDX LGPL-2.0+).  The Xilinx IP blocks are copyrighted by
-Xilinx and may not be used on non-Xilinx FPGAs.
+Notable exceptions are the the 10GE MAC in "cores/xge_ll_mac" and some
+Xilinx cores.  The 10GE MAC is covered by the GNU Lesser General
+Public License (SPDX LGPL-2.0+).  The Xilinx IP blocks are copyrighted
+by Xilinx and may not be used on non-Xilinx FPGAs.
 
 Copyright (c) 2015-2019, Netnod
 All rights reserved.

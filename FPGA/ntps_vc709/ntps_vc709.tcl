@@ -129,11 +129,11 @@ set files [list \
  [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v" ] \
  [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v" ] \
  [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v" ] \
- [file normalize "${origin_dir}/../network_path/GMAC/hdl/oc_mac.v"] \
- [file normalize "${origin_dir}/../network_path/GMAC/hdl/rx_control.v"] \
- [file normalize "${origin_dir}/../network_path/GMAC/hdl/rx_enqueue.v"] \
- [file normalize "${origin_dir}/../network_path/GMAC/hdl/tx_control.v"] \
- [file normalize "${origin_dir}/../network_path/GMAC/hdl/tx_dequeue.v"] \
+ [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/oc_mac.v"] \
+ [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/rx_control.v"] \
+ [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/rx_enqueue.v"] \
+ [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/tx_control.v"] \
+ [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/tx_dequeue.v"] \
  [file normalize "${origin_dir}/../network_path/api_extension/src/rtl/api_extension.v"] \
  [file normalize "${origin_dir}/../network_path/hdl/network_path.v"] \
  [file normalize "${origin_dir}/../network_path/hdl/network_path_axi_slave.v"] \
