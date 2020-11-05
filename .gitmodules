@@ -1,15 +1,39 @@
-[submodule "FPGA/nts/api_extension"]
-	path = FPGA/nts/api_extension
+[submodule "FPGA/cores/aes"]
+	path = FPGA/cores/aes
+	url = ../aes.git
+[submodule "FPGA/cores/aes-siv"]
+	path = FPGA/cores/aes-siv
+	url = ../aes-siv.git
+[submodule "FPGA/cores/cmac"]
+	path = FPGA/cores/cmac
+	url = ../cmac.git
+[submodule "FPGA/cores/md5"]
+	path = FPGA/cores/md5
+	url = ../md5.git
+[submodule "FPGA/cores/sha1"]
+	path = FPGA/cores/sha1
+	url = ../sha1.git
+[submodule "FPGA/cores/siphash"]
+	path = FPGA/cores/siphash
+	url = ../siphash.git
+[submodule "FPGA/cores/api_extension"]
+	path = FPGA/network_path/api_extension
 	url = ../api_extension.git
-[submodule "FPGA/nts/default_packets"]
-	path = FPGA/nts/default_packets
+[submodule "FPGA/cores/default_packets"]
+	path = FPGA/network_path/default_packets
 	url = ../default_packets.git
-[submodule "FPGA/nts/rosc_entropy"]
-	path = FPGA/nts/rosc_entropy
+[submodule "FPGA/cores/keymem"]
+	path = FPGA/network_path/keymem
+	url = ../keymem.git
+[submodule "FPGA/cores/nts"]
+	path = FPGA/network_path/nts
+	url = ../nts.git
+[submodule "FPGA/cores/nts_noncegen"]
+	path = FPGA/network_path/nts_noncegen
+	url = ../nts_noncegen.git
+[submodule "FPGA/cores/pp_merge"]
+	path = FPGA/network_path/pp_merge
+	url = ../pp_merge.git
+[submodule "FPGA/cores/rosc_entropy"]
+	path = FPGA/network_path/rosc_entropy
 	url = ../rosc_entropy.git
-[submodule "FPGA/nts/nts-poc-verilog"]
-	path = FPGA/nts/nts-poc-verilog
-	url = ../nts-poc-verilog.git
-[submodule "FPGA/nts/pp_merge"]
-	path = FPGA/nts/pp_merge
-	url = ../pp_merge
