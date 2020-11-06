@@ -465,6 +465,10 @@ module ntps_interfaces #(
     .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT * 1) +: 1])
     );
 
+
+  assign clk156 = axi_aclk;
+  assign areset_clk156 = 0;
+
 /*
   //----------------------------------------------------------------
   // Ethernet PHYs.
