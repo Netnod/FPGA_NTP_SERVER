@@ -102,74 +102,74 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../cores/aes-siv/src/rtl/aes_siv_core.v"] \
- [file normalize "${origin_dir}/../cores/aes/src/rtl/aes_core.v"] \
- [file normalize "${origin_dir}/../cores/aes/src/rtl/aes_encipher_block.v"] \
- [file normalize "${origin_dir}/../cores/aes/src/rtl/aes_key_mem.v"] \
- [file normalize "${origin_dir}/../cores/aes/src/rtl/aes_sbox.v"] \
- [file normalize "${origin_dir}/../cores/cmac/src/rtl/cmac_core.v"] \
- [file normalize "${origin_dir}/../cores/md5/src/rtl/md5_core.v"] \
- [file normalize "${origin_dir}/../cores/sha1/src/rtl/sha1_core.v"] \
- [file normalize "${origin_dir}/../cores/sha1/src/rtl/sha1_w_mem.v"] \
- [file normalize "${origin_dir}/../cores/siphash/src/rtl/siphash_core.v"] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/kcpsm6.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v" ] \
- [file normalize "${origin_dir}/../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v" ] \
- [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/oc_mac.v"] \
- [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/rx_control.v"] \
- [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/rx_enqueue.v"] \
- [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/tx_control.v"] \
- [file normalize "${origin_dir}/../cores/xge_ll_mac/hdl/tx_dequeue.v"] \
- [file normalize "${origin_dir}/../network_path/api_extension/src/rtl/api_extension.v"] \
- [file normalize "${origin_dir}/../network_path/hdl/network_path.v"] \
- [file normalize "${origin_dir}/../network_path/hdl/network_path_axi_slave.v"] \
- [file normalize "${origin_dir}/../network_path/hdl/network_path_shared.v"] \
- [file normalize "${origin_dir}/../network_path/keymem/src/rtl/ntp_auth_keymem.v"] \
- [file normalize "${origin_dir}/../network_path/keymem/src/rtl/nts_keymem.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/memory/bram.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/memory/bram_dp2w.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/memory/bram_dpge.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/memory/memory_ctrl.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/misc/counter64.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_dispatcher.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_dispatcher_mux.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/ctrl_gre.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/icmp.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/ntp_auth.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_api.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_engine.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_parser_ctrl.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_rx_buffer.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_timestamp.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_tx_buffer.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_engine/nts_verify_secure.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_extractor.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_extractor_mux.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_extractor_tx.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/nts_top.v"] \
- [file normalize "${origin_dir}/../network_path/nts/src/rtl/preprocessor.v"] \
- [file normalize "${origin_dir}/../network_path/nts_noncegen/src/rtl/nts_noncegen.v"] \
- [file normalize "${origin_dir}/../network_path/packet_proc/hdl/pp_api.v"] \
- [file normalize "${origin_dir}/../network_path/packet_proc/hdl/pp_mac_top.v"] \
- [file normalize "${origin_dir}/../network_path/packet_proc/hdl/pp_top.v"] \
- [file normalize "${origin_dir}/../network_path/rosc_entropy/src/rtl/rosc.v"] \
- [file normalize "${origin_dir}/../network_path/rosc_entropy/src/rtl/rosc_entropy.v"] \
- [file normalize "${origin_dir}/../network_path/rosc_entropy/src/rtl/rosc_entropy_core.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/ntp_clock.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/ntp_clock_axi_slave.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/ntp_clock_select.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/ntp_clock_top.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/ntp_counters.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/pll_sync.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/pps_gen.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/pps_test.v"] \
- [file normalize "${origin_dir}/../ntp_clock/hdl/time_sel_sync.v"] \
+ [file normalize "${origin_dir}/../../cores/aes-siv/src/rtl/aes_siv_core.v"] \
+ [file normalize "${origin_dir}/../../cores/aes/src/rtl/aes_core.v"] \
+ [file normalize "${origin_dir}/../../cores/aes/src/rtl/aes_encipher_block.v"] \
+ [file normalize "${origin_dir}/../../cores/aes/src/rtl/aes_key_mem.v"] \
+ [file normalize "${origin_dir}/../../cores/aes/src/rtl/aes_sbox.v"] \
+ [file normalize "${origin_dir}/../../cores/cmac/src/rtl/cmac_core.v"] \
+ [file normalize "${origin_dir}/../../cores/md5/src/rtl/md5_core.v"] \
+ [file normalize "${origin_dir}/../../cores/sha1/src/rtl/sha1_core.v"] \
+ [file normalize "${origin_dir}/../../cores/sha1/src/rtl/sha1_w_mem.v"] \
+ [file normalize "${origin_dir}/../../cores/siphash/src/rtl/siphash_core.v"] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_simple.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/common/synchronizer_vector.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/kcpsm6.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v" ] \
+ [file normalize "${origin_dir}/../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v" ] \
+ [file normalize "${origin_dir}/../../cores/xge_ll_mac/hdl/oc_mac.v"] \
+ [file normalize "${origin_dir}/../../cores/xge_ll_mac/hdl/rx_control.v"] \
+ [file normalize "${origin_dir}/../../cores/xge_ll_mac/hdl/rx_enqueue.v"] \
+ [file normalize "${origin_dir}/../../cores/xge_ll_mac/hdl/tx_control.v"] \
+ [file normalize "${origin_dir}/../../cores/xge_ll_mac/hdl/tx_dequeue.v"] \
+ [file normalize "${origin_dir}/../../network_path/api_extension/src/rtl/api_extension.v"] \
+ [file normalize "${origin_dir}/../../network_path/hdl/network_path.v"] \
+ [file normalize "${origin_dir}/../../network_path/hdl/network_path_axi_slave.v"] \
+ [file normalize "${origin_dir}/../../network_path/hdl/network_path_shared.v"] \
+ [file normalize "${origin_dir}/../../network_path/keymem/src/rtl/ntp_auth_keymem.v"] \
+ [file normalize "${origin_dir}/../../network_path/keymem/src/rtl/nts_keymem.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/memory/bram.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/memory/bram_dp2w.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/memory/bram_dpge.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/memory/memory_ctrl.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/misc/counter64.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_dispatcher.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_dispatcher_mux.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/ctrl_gre.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/icmp.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/ntp_auth.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_api.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_engine.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_parser_ctrl.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_rx_buffer.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_timestamp.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_tx_buffer.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_engine/nts_verify_secure.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_extractor.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_extractor_mux.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_extractor_tx.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/nts_top.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts/src/rtl/preprocessor.v"] \
+ [file normalize "${origin_dir}/../../network_path/nts_noncegen/src/rtl/nts_noncegen.v"] \
+ [file normalize "${origin_dir}/../../network_path/packet_proc/hdl/pp_api.v"] \
+ [file normalize "${origin_dir}/../../network_path/packet_proc/hdl/pp_mac_top.v"] \
+ [file normalize "${origin_dir}/../../network_path/packet_proc/hdl/pp_top.v"] \
+ [file normalize "${origin_dir}/../../network_path/rosc_entropy/src/rtl/rosc.v"] \
+ [file normalize "${origin_dir}/../../network_path/rosc_entropy/src/rtl/rosc_entropy.v"] \
+ [file normalize "${origin_dir}/../../network_path/rosc_entropy/src/rtl/rosc_entropy_core.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock_axi_slave.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock_select.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock_top.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_counters.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/pll_sync.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/pps_gen.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/pps_test.v"] \
+ [file normalize "${origin_dir}/../../ntp_clock/hdl/time_sel_sync.v"] \
  [file normalize "${origin_dir}/hdl/clk50_gen.v" ] \
  [file normalize "${origin_dir}/hdl/ntps_clocks.v" ] \
  [file normalize "${origin_dir}/hdl/ntps_interfaces.v" ] \
