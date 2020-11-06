@@ -1,4 +1,5 @@
 *~
+*.xpr
 *.log
 *.cache
 *.hw
