@@ -19,9 +19,6 @@
 [submodule "FPGA/cores/api_extension"]
 	path = FPGA/network_path/api_extension
 	url = ../api_extension.git
-[submodule "FPGA/cores/default_packets"]
-	path = FPGA/network_path/default_packets
-	url = ../default_packets.git
 [submodule "FPGA/cores/keymem"]
 	path = FPGA/network_path/keymem
 	url = ../keymem.git
@@ -31,9 +28,6 @@
 [submodule "FPGA/cores/nts_noncegen"]
 	path = FPGA/network_path/nts_noncegen
 	url = ../nts_noncegen.git
-[submodule "FPGA/cores/pp_merge"]
-	path = FPGA/network_path/pp_merge
-	url = ../pp_merge.git
 [submodule "FPGA/cores/rosc_entropy"]
 	path = FPGA/network_path/rosc_entropy
 	url = ../rosc_entropy.git
