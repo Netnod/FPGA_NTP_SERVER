@@ -64,6 +64,8 @@ module ntps_interfaces #(
     inout wire            pmbus_clk,
     inout wire            pmbus_data,
 
+    input wire            refclk_156,
+
     output wire           clk156,
     output wire           areset_clk156,
 
@@ -466,7 +468,7 @@ module ntps_interfaces #(
     );
 
 
-  assign clk156 = axi_aclk;
+  assign clk156 = refclk_156;
   assign areset_clk156 = 0;
 
 /*

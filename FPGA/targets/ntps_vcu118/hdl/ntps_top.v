@@ -57,6 +57,9 @@ module ntps_top #(
    input wire 		       clk_300MHz_p,
    input wire 		       clk_300MHz_n,
 
+   input wire        refclk_156_p,
+   input wire        refclk_156_n,
+
    input wire 	     PPS_INA_N,
    input wire 	     PPS_INA_P,
    output wire 	     PPS_OUTA,
@@ -411,6 +414,14 @@ module ntps_top #(
   
   IBUFDS_GTE4 refclk_ibuf (.O(pcie_clk_gt), .ODIV2(pcie_clk), .I(pcie_clk_p), .CEB(1'b0), .IB(pcie_clk_n));
 
+  // 156 MHZ reference clock
+  wire refclk_156;
+  IBUFDS refclk_156_buf (
+    .I(refclk_156_p),			 
+    .IB(refclk_156_n),
+    .O(refclk_156)
+  );
+
   // 300 MHz System clock from external source.
   IBUFDS clk_300MHz_ds_buf (
      .I(clk_300MHz_p),
@@ -474,6 +485,8 @@ module ntps_top #(
      .pmbus_alert           (pmbus_alert),
      .pmbus_clk             (pmbus_clk),
      .pmbus_data            (pmbus_data),
+
+     .refclk_156            (refclk_156),
 
      .clk156                (clk156),
      .areset_clk156         (areset_clk156),
