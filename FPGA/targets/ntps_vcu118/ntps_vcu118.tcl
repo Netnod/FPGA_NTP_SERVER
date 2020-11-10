@@ -329,13 +329,6 @@ set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property -name "file_type" -value "XDC" -objects $file_obj
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/constr/v7_xt_xgemac_xphy.xdc"]"
-set file_added [add_files -norecurse -fileset $obj [list $file]]
-set file "constr/v7_xt_xgemac_xphy.xdc"
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
-set_property -name "file_type" -value "XDC" -objects $file_obj
-
-# Add/Import constrs file and set constrs file properties
 set file "[file normalize "$origin_dir/constr/xilinx_pcie4_uscale_plus_x1y2.xdc"]"
 set file_added [add_files -norecurse -fileset $obj [list $file]]
 set file "constr/xilinx_pcie4_uscale_plus_x1y2.xdc"
