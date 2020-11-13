@@ -4,7 +4,7 @@ BIT_FILE=ntps_top.bit
 
 echo "num" $#
 
-if [ $# -gt 1 ]; then
+if [ $# -ge 1 ]; then
     BIT_FILE="$1"
 fi
 
