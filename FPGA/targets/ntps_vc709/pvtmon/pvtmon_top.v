@@ -53,9 +53,7 @@
 module pvtmon_top #(
   parameter integer C_S_AXI_DATA_WIDTH  = 32,
   parameter integer C_S_AXI_ADDR_WIDTH  = 7,
-  parameter integer NUM_POWER_REG       = 13,
-  parameter BUILD_INFO = 0,
-  parameter GIT_HASH = 0
+  parameter integer NUM_POWER_REG       = 13
 )(
   // AXI lite
   input wire         s_axi_clk,
@@ -91,11 +89,17 @@ module pvtmon_top #(
   input wire         rst
 );
 
-// Propagate build time set by the synth_pre.tcl script
-`ifdef BUILDTIME
-  localparam BTIME = `BUILDTIME;
-`else
-  localparam BTIME = 0;
+// Defaults for defines that are normally set by the pre_synth.tcl script
+`ifndef BUILD_TIME
+ `define BUILD_TIME 0
+`endif
+
+`ifndef BUILD_INFO
+ `define BUILD_INFO 0
+`endif
+
+`ifndef GIT_HASH
+ `define GIT_HASH 0
 `endif
 
   reg  [NUM_POWER_REG*32-1:0]   power_status_reg;
@@ -105,10 +109,7 @@ module pvtmon_top #(
   user_registers_axi_slave #(
     .C_S_AXI_DATA_WIDTH (C_S_AXI_DATA_WIDTH),
     .C_S_AXI_ADDR_WIDTH (C_S_AXI_ADDR_WIDTH),
-    .NUM_POWER_REG      (NUM_POWER_REG),
-    .BTIME              (BTIME),
-    .BINFO              (BUILD_INFO),
-    .GIT_HASH           (GIT_HASH)
+    .NUM_POWER_REG      (NUM_POWER_REG)
   ) user_registers_axi_slave_inst (
     .power_status  (power_status_reg_sync_s_axi_clk),
     .pcie_link_up  (pcie_link_up),

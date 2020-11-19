@@ -39,11 +39,7 @@
 
 `default_nettype none
 
-module ntps_top #(
-                  parameter BUILD_INFO = 0,
-                  parameter GIT_HASH   = 0
-                 )
-  (
+module ntps_top (
    input wire        reset,
 
    input wire        SYS_CLK_N,
@@ -363,11 +359,7 @@ module ntps_top #(
   // All external/physical interfaces including pci-axi bridge
   // and NTP clocks.
   //----------------------------------------------------------------
-  ntps_interfaces #(
-                    .BUILD_INFO(BUILD_INFO),
-                    .GIT_HASH(GIT_HASH)
-                   )
- ntps_interfaces_0 (
+  ntps_interfaces ntps_interfaces_0 (
      .reset                 (reset),
 
      .pcie_perst            (pcie_perst),

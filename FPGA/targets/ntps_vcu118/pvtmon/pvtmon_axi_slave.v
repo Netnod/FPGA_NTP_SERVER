@@ -7,10 +7,7 @@ module user_registers_axi_slave #(
   parameter integer C_S_AXI_DATA_WIDTH = 32,
   // Width of S_AXI address bus
   parameter integer C_S_AXI_ADDR_WIDTH = 7,
-  parameter integer NUM_POWER_REG      = 13,
-  parameter integer BTIME              = 0,
-  parameter integer BINFO              = 0,
-  parameter integer GIT_HASH           = 0
+  parameter integer NUM_POWER_REG      = 13
 )(
 
   input wire [NUM_POWER_REG*32-1:0]       power_status,
@@ -38,6 +35,19 @@ module user_registers_axi_slave #(
   input wire                              S_AXI_RREADY
 );
   
+// Defaults for defines that are normally set by the pre_synth.tcl script
+`ifndef BUILD_TIME
+ `define BUILD_TIME 0
+`endif
+
+`ifndef BUILD_INFO
+ `define BUILD_INFO 0
+`endif
+
+`ifndef GIT_HASH
+ `define GIT_HASH 0
+`endif
+
   // AXI4LITE signals
   reg [C_S_AXI_ADDR_WIDTH-1:0]  axi_awaddr;
   reg                           axi_awready;
@@ -243,13 +253,13 @@ module user_registers_axi_slave #(
     if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] < NUM_POWER_REG) begin
       reg_data_out    <= power_status[axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]*32+:32];
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG) begin
-      reg_data_out    <= BTIME;  // Build Time
+      reg_data_out    <= `BUILD_TIME;  // Build Time
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+1) begin
       reg_data_out[0] <= pcie_link_up;  // Is it possible to read this
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+2) begin
-      reg_data_out    <= BINFO;
+      reg_data_out    <= `BUILD_INFO;
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+3) begin
-      reg_data_out    <= GIT_HASH;
+      reg_data_out    <= `GIT_HASH;
     end
   end // always @ (*)
   

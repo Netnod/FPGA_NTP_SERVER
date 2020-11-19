@@ -8,9 +8,5 @@ if {[string first -dirty $t] != -1} {
 }
 set git_hash [string range $t 0 7]
 
-puts "build_time $build_time"
-puts "build_info $build_info"
-puts "git_hash $git_hash"
-
 set_property verilog_define "BUILD_TIME=$build_time BUILD_INFO=32'h[format %08x $build_info] GIT_HASH=32'h$git_hash" [current_fileset]
 puts [get_property verilog_define [current_fileset]]
