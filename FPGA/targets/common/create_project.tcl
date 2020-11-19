@@ -6,6 +6,7 @@ set tcl_pre [ string trim "$env(TCL_PRE)" ]
 set syn_files [ regexp -inline -all -- {\S+} "$env(SYN_FILES)" ]
 set xdc_files [ regexp -inline -all -- {\S+} "$env(XDC_FILES)" ]
 set xci_files [ regexp -inline -all -- {\S+} "$env(XCI_FILES)" ]
+set tcl_files [ regexp -inline -all -- {\S+} "$env(TCL_FILES)" ]
 
 puts "Creating project \"$proj_name\" for part \"$fpga_part\""
 create_project -part "$fpga_part" "$proj_name"
@@ -35,7 +36,12 @@ add_files -fileset sources_1 $xci_files
 puts "Adding XDC files $xdc_files"
 add_files -fileset constrs_1 $xdc_files
 foreach fn $xdc_files {
-     set_property -name "file_type" -value "XDC" -objects [ get_files -of_objects [get_filesets constrs_1] [list "$proj_dir/$fn"] ]
+    set_property -name "file_type" -value "XDC" -objects [ get_files -of_objects [get_filesets constrs_1] [list "$proj_dir/$fn"] ]
+}
+
+foreach fn $tcl_files {
+    puts "source \"$fn\""
+    source $fn
 }
 
 if { $fpga_top != "" } {
