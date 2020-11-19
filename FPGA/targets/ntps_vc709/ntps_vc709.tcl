@@ -109,6 +109,9 @@ set files [list \
  [file normalize "${origin_dir}/../../cores/aes/src/rtl/aes_sbox.v"] \
  [file normalize "${origin_dir}/../../cores/cmac/src/rtl/cmac_core.v"] \
  [file normalize "${origin_dir}/../../cores/md5/src/rtl/md5_core.v"] \
+ [file normalize "${origin_dir}/../../cores/rosc_entropy/src/rtl/rosc.v"] \
+ [file normalize "${origin_dir}/../../cores/rosc_entropy/src/rtl/rosc_entropy.v"] \
+ [file normalize "${origin_dir}/../../cores/rosc_entropy/src/rtl/rosc_entropy_core.v"] \
  [file normalize "${origin_dir}/../../cores/sha1/src/rtl/sha1_core.v"] \
  [file normalize "${origin_dir}/../../cores/sha1/src/rtl/sha1_w_mem.v"] \
  [file normalize "${origin_dir}/../../cores/siphash/src/rtl/siphash_core.v"] \
@@ -158,9 +161,6 @@ set files [list \
  [file normalize "${origin_dir}/../../network_path/packet_proc/hdl/pp_api.v"] \
  [file normalize "${origin_dir}/../../network_path/packet_proc/hdl/pp_mac_top.v"] \
  [file normalize "${origin_dir}/../../network_path/packet_proc/hdl/pp_top.v"] \
- [file normalize "${origin_dir}/../../network_path/rosc_entropy/src/rtl/rosc.v"] \
- [file normalize "${origin_dir}/../../network_path/rosc_entropy/src/rtl/rosc_entropy.v"] \
- [file normalize "${origin_dir}/../../network_path/rosc_entropy/src/rtl/rosc_entropy_core.v"] \
  [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock.v"] \
  [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock_axi_slave.v"] \
  [file normalize "${origin_dir}/../../ntp_clock/hdl/ntp_clock_select.v"] \
