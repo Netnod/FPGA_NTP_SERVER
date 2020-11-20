@@ -29,8 +29,8 @@
 	path = FPGA/network_path/nts_noncegen
 	url = ../nts_noncegen.git
 [submodule "FPGA/cores/rosc_entropy"]
-	path = FPGA/network_path/rosc_entropy
-	url = ../rosc_entropy.git
+	path = FPGA/cores/rosc_entropy
+	url = ../rosc_entropy
 [submodule "FPGA/cores/verilog-ethernet"]
 	path = FPGA/cores/verilog-ethernet
 	url = ../verilog-ethernet
