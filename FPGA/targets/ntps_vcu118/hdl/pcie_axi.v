@@ -1,4 +1,12 @@
 //======================================================================
+//
+// pcie_axi.v
+// ----------
+// Wrapper for the PCIe and AXI backplane
+//
+// Author: Rolf Andersson (rolf@mechanicalmen.se)
+//
+//
 // Copyright (c) 2016, The Swedish Post and Telecom Authority (PTS)
 // All rights reserved.
 //
@@ -27,11 +35,6 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// Author: Rolf Andersson (rolf@mechanicalmen.se)
-//
-// Design Name: FPGA NTP Server
-// Module Name: pcie_axi
-// Description: Wrapper for the PCIe and AXI backplane
 //======================================================================
 
 `default_nettype none
@@ -46,7 +49,7 @@ module pcie_axi #(
 
   input wire 		       pcie_clk,
   input wire 		       pcie_clk_gt,
-   
+
   input wire 		       clk_300MHz_p,
   input wire 		       clk_300MHz_n,
 
@@ -54,7 +57,7 @@ module pcie_axi #(
   output wire [NUM_PCIE_LANES-1:0] pci_exp_txn,
   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxp,
   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxn,
-   
+
   output wire         axi_aresetn,
   output wire         axi_aclk,
   output wire [NUM_SLAVES*32-1:0]   m_axi_awaddr,
@@ -137,7 +140,7 @@ module pcie_axi #(
   wire         pcie_axi_wvalid;
 
 ntps_top_xdma_0 xdma_0 (
-  // PCIe bus		
+  // PCIe bus
   .sys_rst_n(pcie_perst),                 // input wire sys_rst_n
   .sys_clk(pcie_clk),                     // input wire sys_clk
   .sys_clk_gt(pcie_clk_gt),               // input wire sys_clk_gt
@@ -146,12 +149,12 @@ ntps_top_xdma_0 xdma_0 (
   .pci_exp_rxp(pci_exp_rxp),              // input wire [15 : 0] pci_exp_rxp
   .pci_exp_rxn(pci_exp_rxn),              // input wire [15 : 0] pci_exp_rxn
 
-  // AXI resets and clock			
+  // AXI resets and clock
   .axi_aclk(axi_aclk),                    // output wire axi_aclk
   .axi_aresetn(),                         // output wire axi_aresetn
   .axi_ctl_aresetn(),                     // output wire axi_ctl_aresetn
 
-  // AXI master			
+  // AXI master
   .m_axib_awid(pcie_axi_awid),            // output wire [3 : 0] m_axib_awid
   .m_axib_awaddr(pcie_axi_awaddr),        // output wire [31 : 0] m_axib_awaddr
   .m_axib_awlen(pcie_axi_awlen),          // output wire [7 : 0] m_axib_awlen
