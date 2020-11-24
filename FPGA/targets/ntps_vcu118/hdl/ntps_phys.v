@@ -45,82 +45,17 @@ module ntps_phys (
                   input wire           reset,
                   input  wire          clk_125mhz_p,
                   input  wire          clk_125mhz_n,
-                  output wire          clk156,
                   output wire          areset_clk156,
+                  output wire          clk156,
 
-                  input wire           mdc,
-                  input wire           mdio_in,
-                  output wire          mdio_out,
+                  // i2c for board management
+                  inout  wire          i2c_scl,
+                  inout  wire          i2c_sda,
 
-                  // Port 0.
-                  input wire           xphy_refclk_n,
-                  input wire           xphy_refclk_p,
-
-                  input wire  [2 : 0]  xphy_config_0,
-                  output wire [4 : 0]  xphy_status_0,
-                  input wire           sfp_module_detect_n_0,
-                  input wire           sfp_signal_lost_0,
-                  input wire           sfp_tx_fault_0,
-                  output wire          sfp_tx_disable_0,
-                  input wire           xphy_rxp_0,
-                  input wire           xphy_rxn_0,
-                  output wire          xphy_txp_0,
-                  output wire          xphy_txn_0,
-
-
-                  // External ports for QSFP interface 0.
-                  output wire          qsfp0_tx0_p,
-                  output wire          qsfp0_tx0_n,
-                  input  wire          qsfp0_rx0_p,
-                  input  wire          qsfp0_rx0_n,
-                  output wire          qsfp0_tx1_p,
-                  output wire          qsfp0_tx1_n,
-                  input  wire          qsfp0_rx1_p,
-                  input  wire          qsfp0_rx1_n,
-                  output wire          qsfp0_tx2_p,
-                  output wire          qsfp0_tx2_n,
-                  input  wire          qsfp0_rx2_p,
-                  input  wire          qsfp0_rx2_n,
-                  output wire          qsfp0_tx3_p,
-                  output wire          qsfp0_tx3_n,
-                  input  wire          qsfp0_rx3_p,
-                  input  wire          qsfp0_rx3_n,
-                  input  wire          qsfp0_mgt_refclk_0_p,
-                  input  wire          qsfp0_mgt_refclk_0_n,
-                  output wire          qsfp0_modsell,
-                  output wire          qsfp0_resetl,
-                  input  wire          qsfp0_modprsl,
-                  input  wire          qsfp0_intl,
-                  output wire          qsfp0_lpmode,
-
-
-                  // XGMII ports for QSFP interface 0.
-                  input wire [63  : 0] qsfp0_xgmii_txd_0,
-                  input wire [7   : 0] qsfp0_xgmii_txc_0,
-                  output wire [63 : 0] qsfp0_xgmii_rxd_0,
-                  output wire [7  : 0] qsfp0_xgmii_rxc_0,
-
-                  input wire [63  : 0] qsfp0_xgmii_txd_1,
-                  input wire [7   : 0] qsfp0_xgmii_txc_1,
-                  output wire [63 : 0] qsfp0_xgmii_rxd_1,
-                  output wire [7  : 0] qsfp0_xgmii_rxc_1,
-
-                  input wire [63  : 0] qsfp0_xgmii_txd_2,
-                  input wire [7   : 0] qsfp0_xgmii_txc_2,
-                  output wire [63 : 0] qsfp0_xgmii_rxd_2,
-                  output wire [7  : 0] qsfp0_xgmii_rxc_2,
-
-                  input wire [63  : 0] qsfp0_xgmii_txd_3,
-                  input wire [7   : 0] qsfp0_xgmii_txc_3,
-                  output wire [63 : 0] qsfp0_xgmii_rxd_3,
-                  output wire [7  : 0] qsfp0_xgmii_rxc_3,
-
+                  // Blinkenlights.
+                  output wire [7:0]    led,
 
                   // External ports for QSFP interface 1.
-                  output wire          qsfp1_tx0_p,
-                  output wire          qsfp1_tx0_n,
-                  input  wire          qsfp1_rx0_p,
-                  input  wire          qsfp1_rx0_n,
                   output wire          qsfp1_tx1_p,
                   output wire          qsfp1_tx1_n,
                   input  wire          qsfp1_rx1_p,
@@ -133,6 +68,10 @@ module ntps_phys (
                   output wire          qsfp1_tx3_n,
                   input  wire          qsfp1_rx3_p,
                   input  wire          qsfp1_rx3_n,
+                  output wire          qsfp1_tx4_p,
+                  output wire          qsfp1_tx4_n,
+                  input  wire          qsfp1_rx4_p,
+                  input  wire          qsfp1_rx4_n,
                   input  wire          qsfp1_mgt_refclk_0_p,
                   input  wire          qsfp1_mgt_refclk_0_n,
                   output wire          qsfp1_modsell,
@@ -141,29 +80,69 @@ module ntps_phys (
                   input  wire          qsfp1_intl,
                   output wire          qsfp1_lpmode,
 
+                  // XGMII ports for QSFP interface 1.
+                  input  wire [63 : 0] qsfp1_xgmii_txd_1,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_1,
+                  output wire [63 : 0] qsfp1_xgmii_rxd_1,
+                  output wire [7  : 0] qsfp1_xgmii_rxc_1,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_2,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_2,
+                  output wire [63 : 0] qsfp1_xgmii_rxd_2,
+                  output wire [7  : 0] qsfp1_xgmii_rxc_2,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_3,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_3,
+                  output wire [63 : 0] qsfp1_xgmii_rxd_3,
+                  output wire [7  : 0] qsfp1_xgmii_rxc_3,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_4,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_4,
+                  output wire [63 : 0] qsfp1_xgmii_rxd_4,
+                  output wire [7  : 0] qsfp1_xgmii_rxc_4,
+
+                  // External ports for QSFP interface 2.
+                  output wire          qsfp2_tx1_p,
+                  output wire          qsfp2_tx1_n,
+                  input  wire          qsfp2_rx1_p,
+                  input  wire          qsfp2_rx1_n,
+                  output wire          qsfp2_tx2_p,
+                  output wire          qsfp2_tx2_n,
+                  input  wire          qsfp2_rx2_p,
+                  input  wire          qsfp2_rx2_n,
+                  output wire          qsfp2_tx3_p,
+                  output wire          qsfp2_tx3_n,
+                  input  wire          qsfp2_rx3_p,
+                  input  wire          qsfp2_rx3_n,
+                  output wire          qsfp2_tx4_p,
+                  output wire          qsfp2_tx4_n,
+                  input  wire          qsfp2_rx4_p,
+                  input  wire          qsfp2_rx4_n,
+                  output wire          qsfp2_modsell,
+                  output wire          qsfp2_resetl,
+                  input  wire          qsfp2_modprsl,
+                  input  wire          qsfp2_intl,
+                  output wire          qsfp2_lpmode,
 
                   // XGMII ports for QSFP interface 1.
-                  input wire [63  : 0] qsfp1_xgmii_txd_0,
-                  input wire [7   : 0] qsfp1_xgmii_txc_0,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_0,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_0,
                   output wire [63 : 0] qsfp1_xgmii_rxd_0,
                   output wire [7  : 0] qsfp1_xgmii_rxc_0,
 
-                  input wire [63  : 0] qsfp1_xgmii_txd_1,
-                  input wire [7   : 0] qsfp1_xgmii_txc_1,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_1,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_1,
                   output wire [63 : 0] qsfp1_xgmii_rxd_1,
                   output wire [7  : 0] qsfp1_xgmii_rxc_1,
 
-                  input wire [63  : 0] qsfp1_xgmii_txd_2,
-                  input wire [7   : 0] qsfp1_xgmii_txc_2,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_2,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_2,
                   output wire [63 : 0] qsfp1_xgmii_rxd_2,
                   output wire [7  : 0] qsfp1_xgmii_rxc_2,
 
-                  input wire [63  : 0] qsfp1_xgmii_txd_3,
-                  input wire [7   : 0] qsfp1_xgmii_txc_3,
+                  input  wire [63 : 0] qsfp1_xgmii_txd_3,
+                  input  wire [7  : 0] qsfp1_xgmii_txc_3,
                   output wire [63 : 0] qsfp1_xgmii_rxd_3,
                   output wire [7  : 0] qsfp1_xgmii_rxc_3
-
                   );
+
 
   //----------------------------------------------------------------
   // Internal wires.
@@ -193,6 +172,120 @@ module ntps_phys (
   reg        gt_userclk_tx_active = 1'b0;
   reg [7:0]  gt_userclk_rx_active = 1'b0;
 
+  wire [5:0]  qsfp1_gt_txheader_1;
+  wire [63:0] qsfp1_gt_txdata_1;
+  wire        qsfp1_gt_rxgearboxslip_1;
+  wire [5:0]  qsfp1_gt_rxheader_1;
+  wire [1:0]  qsfp1_gt_rxheadervalid_1;
+  wire [63:0] qsfp1_gt_rxdata_1;
+  wire [1:0]  qsfp1_gt_rxdatavalid_1;
+
+  wire [5:0]  qsfp1_gt_txheader_2;
+  wire [63:0] qsfp1_gt_txdata_2;
+  wire        qsfp1_gt_rxgearboxslip_2;
+  wire [5:0]  qsfp1_gt_rxheader_2;
+  wire [1:0]  qsfp1_gt_rxheadervalid_2;
+  wire [63:0] qsfp1_gt_rxdata_2;
+  wire [1:0]  qsfp1_gt_rxdatavalid_2;
+
+  wire [5:0]  qsfp1_gt_txheader_3;
+  wire [63:0] qsfp1_gt_txdata_3;
+  wire        qsfp1_gt_rxgearboxslip_3;
+  wire [5:0]  qsfp1_gt_rxheader_3;
+  wire [1:0]  qsfp1_gt_rxheadervalid_3;
+  wire [63:0] qsfp1_gt_rxdata_3;
+  wire [1:0]  qsfp1_gt_rxdatavalid_3;
+
+  wire [5:0]  qsfp1_gt_txheader_4;
+  wire [63:0] qsfp1_gt_txdata_4;
+  wire        qsfp1_gt_rxgearboxslip_4;
+  wire [5:0]  qsfp1_gt_rxheader_4;
+  wire [1:0]  qsfp1_gt_rxheadervalid_4;
+  wire [63:0] qsfp1_gt_rxdata_4;
+  wire [1:0]  qsfp1_gt_rxdatavalid_4;
+
+  wire [5:0]  qsfp2_gt_txheader_1;
+  wire [63:0] qsfp2_gt_txdata_1;
+  wire        qsfp2_gt_rxgearboxslip_1;
+  wire [5:0]  qsfp2_gt_rxheader_1;
+  wire [1:0]  qsfp2_gt_rxheadervalid_1;
+  wire [63:0] qsfp2_gt_rxdata_1;
+  wire [1:0]  qsfp2_gt_rxdatavalid_1;
+
+  wire [5:0]  qsfp2_gt_txheader_2;
+  wire [63:0] qsfp2_gt_txdata_2;
+  wire        qsfp2_gt_rxgearboxslip_2;
+  wire [5:0]  qsfp2_gt_rxheader_2;
+  wire [1:0]  qsfp2_gt_rxheadervalid_2;
+  wire [63:0] qsfp2_gt_rxdata_2;
+  wire [1:0]  qsfp2_gt_rxdatavalid_2;
+
+  wire [5:0]  qsfp2_gt_txheader_3;
+  wire [63:0] qsfp2_gt_txdata_3;
+  wire        qsfp2_gt_rxgearboxslip_3;
+  wire [5:0]  qsfp2_gt_rxheader_3;
+  wire [1:0]  qsfp2_gt_rxheadervalid_3;
+  wire [63:0] qsfp2_gt_rxdata_3;
+  wire [1:0]  qsfp2_gt_rxdatavalid_3;
+
+  wire [5:0]  qsfp2_gt_txheader_4;
+  wire [63:0] qsfp2_gt_txdata_4;
+  wire        qsfp2_gt_rxgearboxslip_4;
+  wire [5:0]  qsfp2_gt_rxheader_4;
+  wire [1:0]  qsfp2_gt_rxheadervalid_4;
+  wire [63:0] qsfp2_gt_rxdata_4;
+  wire [1:0]  qsfp2_gt_rxdatavalid_4;
+
+  wire       qsfp1_tx_clk_1_int;
+  wire       qsfp1_tx_rst_1_int;
+  wire       qsfp1_rx_clk_1_int;
+  wire       qsfp1_rx_rst_1_int;
+  wire       qsfp1_tx_clk_2_int;
+  wire       qsfp1_tx_rst_2_int;
+  wire       qsfp1_rx_clk_2_int;
+  wire       qsfp1_rx_rst_2_int;
+  wire       qsfp1_tx_clk_3_int;
+  wire       qsfp1_tx_rst_3_int;
+  wire       qsfp1_rx_clk_3_int;
+  wire       qsfp1_rx_rst_3_int;
+  wire       qsfp1_tx_clk_4_int;
+  wire       qsfp1_tx_rst_4_int;
+  wire       qsfp1_rx_clk_4_int;
+  wire       qsfp1_rx_rst_4_int;
+  wire       qsfp1_rx_block_lock_1;
+  wire       qsfp1_rx_block_lock_2;
+  wire       qsfp1_rx_block_lock_3;
+  wire       qsfp1_rx_block_lock_4;
+
+  wire       qsfp2_tx_clk_1_int;
+  wire       qsfp2_tx_rst_1_int;
+  wire       qsfp2_rx_clk_1_int;
+  wire       qsfp2_rx_rst_1_int;
+  wire       qsfp2_tx_clk_2_int;
+  wire       qsfp2_tx_rst_2_int;
+  wire       qsfp2_rx_clk_2_int;
+  wire       qsfp2_rx_rst_2_int;
+  wire       qsfp2_tx_clk_3_int;
+  wire       qsfp2_tx_rst_3_int;
+  wire       qsfp2_rx_clk_3_int;
+  wire       qsfp2_rx_rst_3_int;
+  wire       qsfp2_tx_clk_4_int;
+  wire       qsfp2_tx_rst_4_int;
+  wire       qsfp2_rx_clk_4_int;
+  wire       qsfp2_rx_rst_4_int;
+  wire       qsfp2_rx_block_lock_1;
+  wire       qsfp2_rx_block_lock_2;
+  wire       qsfp2_rx_block_lock_3;
+  wire       qsfp2_rx_block_lock_4;
+
+  // SI570 I2C.
+  wire i2c_scl_i;
+  wire i2c_scl_o = 1'b1;
+  wire i2c_scl_t = 1'b1;
+  wire i2c_sda_i;
+  wire i2c_sda_o = 1'b1;
+  wire i2c_sda_t = 1'b1;
+
 
   //----------------------------------------------------------------
   // Assignments.
@@ -209,8 +302,19 @@ module ntps_phys (
   assign qsfp1_tx_rst_1_int = rst_156mhz_int;
   assign qsfp1_rx_clk_1_int = gt_rxusrclk[0];
 
-  assign clk156        = clk_156mhz_int;
-  assign areset_clk156 = rst_156mhz_int;
+  assign clk_156mhz_int = gt_txusrclk;
+  assign clk156         = clk_156mhz_int;
+  assign areset_clk156  = rst_156mhz_int;
+
+  assign i2c_scl_i = i2c_scl;
+  assign i2c_scl   = i2c_scl_t ? 1'bz : i2c_scl_o;
+  assign i2c_sda_i = i2c_sda;
+  assign i2c_sda   = i2c_sda_t ? 1'bz : i2c_sda_o;
+
+  assign led = {qsfp2_rx_block_lock_4, qsfp2_rx_block_lock_3,
+                qsfp2_rx_block_lock_2, qsfp2_rx_block_lock_1,
+                qsfp1_rx_block_lock_4, qsfp1_rx_block_lock_3,
+                qsfp1_rx_block_lock_2, qsfp1_rx_block_lock_1};
 
 
   //----------------------------------------------------------------
@@ -302,6 +406,164 @@ module ntps_phys (
     );
 
 
+  IBUFDS_GTE4 ibufds_gte4_qsfp1_mgt_refclk_0_inst (
+    .I             (qsfp1_mgt_refclk_0_p),
+    .IB            (qsfp1_mgt_refclk_0_n),
+    .CEB           (1'b0),
+    .O             (qsfp1_mgt_refclk_0),
+    .ODIV2         ()
+  );
+
+
+  BUFG_GT bufg_gt_tx_usrclk_inst (
+    .CE      (1'b1),
+    .CEMASK  (1'b0),
+    .CLR     (gt_tx_reset),
+    .CLRMASK (1'b0),
+    .DIV     (3'd0),
+    .I       (gt_txclkout[0]),
+    .O       (gt_txusrclk)
+  );
+
+  always @(posedge gt_txusrclk, posedge gt_tx_reset) begin
+    if (gt_tx_reset) begin
+      gt_userclk_tx_active <= 1'b0;
+    end else begin
+      gt_userclk_tx_active <= 1'b1;
+    end
+  end
+
+
+  genvar n;
+  generate
+    for (n = 0; n < 8; n = n + 1) begin
+      BUFG_GT bufg_gt_rx_usrclk_inst (
+                .CE      (1'b1),
+                .CEMASK  (1'b0),
+                .CLR     (gt_rx_reset),
+                .CLRMASK (1'b0),
+                .DIV     (3'd0),
+                .I       (gt_rxclkout[n]),
+                .O       (gt_rxusrclk[n])
+                );
+
+      always @(posedge gt_rxusrclk[n], posedge gt_rx_reset) begin
+        if (gt_rx_reset) begin
+          gt_userclk_rx_active[n] <= 1'b0;
+        end else begin
+          gt_userclk_rx_active[n] <= 1'b1;
+        end
+      end
+
+    end
+  endgenerate
+
+
+  sync_reset #(
+    .N(4)
+  )
+  sync_reset_156mhz_inst (
+    .clk(clk_156mhz_int),
+    .rst(~gt_reset_tx_done),
+    .out(rst_156mhz_int)
+  );
+
+
+  //----------------------------------------------------------------
+  // gtwizard.
+  //----------------------------------------------------------------
+  gtwizard_ultrascale_0
+    qsfp_gty_inst (
+    .gtwiz_userclk_tx_active_in(&gt_userclk_tx_active),
+    .gtwiz_userclk_rx_active_in(&gt_userclk_rx_active),
+
+    .gtwiz_reset_clk_freerun_in(clk_125mhz_int),
+    .gtwiz_reset_all_in(rst_125mhz_int),
+
+    .gtwiz_reset_tx_pll_and_datapath_in(1'b0),
+    .gtwiz_reset_tx_datapath_in(1'b0),
+
+    .gtwiz_reset_rx_pll_and_datapath_in(1'b0),
+    .gtwiz_reset_rx_datapath_in(1'b0),
+
+    .gtwiz_reset_rx_cdr_stable_out(),
+
+    .gtwiz_reset_tx_done_out(gt_reset_tx_done),
+    .gtwiz_reset_rx_done_out(gt_reset_rx_done),
+
+    .gtrefclk00_in({2{qsfp1_mgt_refclk_0}}),
+
+    .qpll0outclk_out(),
+    .qpll0outrefclk_out(),
+
+    .gtyrxn_in({qsfp2_rx4_n, qsfp2_rx3_n, qsfp2_rx2_n, qsfp2_rx1_n,
+                qsfp1_rx4_n, qsfp1_rx3_n, qsfp1_rx2_n, qsfp1_rx1_n}),
+
+    .gtyrxp_in({qsfp2_rx4_p, qsfp2_rx3_p, qsfp2_rx2_p, qsfp2_rx1_p,
+                qsfp1_rx4_p, qsfp1_rx3_p, qsfp1_rx2_p, qsfp1_rx1_p}),
+
+    .rxusrclk_in(gt_rxusrclk),
+    .rxusrclk2_in(gt_rxusrclk),
+
+    .gtwiz_userdata_tx_in({qsfp2_gt_txdata_4, qsfp2_gt_txdata_3,
+                           qsfp2_gt_txdata_2, qsfp2_gt_txdata_1,
+                           qsfp1_gt_txdata_4, qsfp1_gt_txdata_3,
+                           qsfp1_gt_txdata_2, qsfp1_gt_txdata_1}),
+
+    .txheader_in({qsfp2_gt_txheader_4, qsfp2_gt_txheader_3,
+                  qsfp2_gt_txheader_2, qsfp2_gt_txheader_1,
+                  qsfp1_gt_txheader_4, qsfp1_gt_txheader_3,
+                  qsfp1_gt_txheader_2, qsfp1_gt_txheader_1}),
+
+    .txsequence_in({8{1'b0}}),
+
+    .txusrclk_in({8{gt_txusrclk}}),
+    .txusrclk2_in({8{gt_txusrclk}}),
+
+    .gtpowergood_out(),
+
+    .gtytxn_out({qsfp2_tx4_n, qsfp2_tx3_n, qsfp2_tx2_n, qsfp2_tx1_n,
+                 qsfp1_tx4_n, qsfp1_tx3_n, qsfp1_tx2_n, qsfp1_tx1_n}),
+
+    .gtytxp_out({qsfp2_tx4_p, qsfp2_tx3_p, qsfp2_tx2_p, qsfp2_tx1_p,
+                 qsfp1_tx4_p, qsfp1_tx3_p, qsfp1_tx2_p, qsfp1_tx1_p}),
+
+    .rxgearboxslip_in({qsfp2_gt_rxgearboxslip_4, qsfp2_gt_rxgearboxslip_3,
+                       qsfp2_gt_rxgearboxslip_2, qsfp2_gt_rxgearboxslip_1,
+                       qsfp1_gt_rxgearboxslip_4, qsfp1_gt_rxgearboxslip_3,
+                       qsfp1_gt_rxgearboxslip_2, qsfp1_gt_rxgearboxslip_1}),
+
+    .gtwiz_userdata_rx_out({qsfp2_gt_rxdata_4, qsfp2_gt_rxdata_3,
+                            qsfp2_gt_rxdata_2, qsfp2_gt_rxdata_1,
+                            qsfp1_gt_rxdata_4, qsfp1_gt_rxdata_3,
+                            qsfp1_gt_rxdata_2, qsfp1_gt_rxdata_1}),
+
+    .rxdatavalid_out({qsfp2_gt_rxdatavalid_4, qsfp2_gt_rxdatavalid_3,
+                      qsfp2_gt_rxdatavalid_2, qsfp2_gt_rxdatavalid_1,
+                      qsfp1_gt_rxdatavalid_4, qsfp1_gt_rxdatavalid_3,
+                      qsfp1_gt_rxdatavalid_2, qsfp1_gt_rxdatavalid_1}),
+
+    .rxheader_out({qsfp2_gt_rxheader_4, qsfp2_gt_rxheader_3,
+                   qsfp2_gt_rxheader_2, qsfp2_gt_rxheader_1,
+                   qsfp1_gt_rxheader_4, qsfp1_gt_rxheader_3,
+                   qsfp1_gt_rxheader_2, qsfp1_gt_rxheader_1}),
+
+    .rxheadervalid_out({qsfp2_gt_rxheadervalid_4, qsfp2_gt_rxheadervalid_3,
+                        qsfp2_gt_rxheadervalid_2, qsfp2_gt_rxheadervalid_1,
+                        qsfp1_gt_rxheadervalid_4, qsfp1_gt_rxheadervalid_3,
+                        qsfp1_gt_rxheadervalid_2, qsfp1_gt_rxheadervalid_1}),
+
+    .rxoutclk_out(gt_rxclkout),
+    .rxpmaresetdone_out(gt_rxpmaresetdone),
+    .rxprgdivresetdone_out(gt_rxprgdivresetdone),
+    .rxstartofseq_out(),
+
+    .txoutclk_out(gt_txclkout),
+    .txpmaresetdone_out(gt_txpmaresetdone),
+    .txprgdivresetdone_out(gt_txprgdivresetdone)
+  );
+
+
   //----------------------------------------------------------------
   // 10G PHYs
   //----------------------------------------------------------------
@@ -326,10 +588,10 @@ module ntps_phys (
     .tx_rst(qsfp1_tx_rst_1_int),
     .rx_clk(qsfp1_rx_clk_1_int),
     .rx_rst(qsfp1_rx_rst_1_int),
-    .xgmii_txd(qsfp0_xgmii_txd_0),
-    .xgmii_txc(qsfp0_xgmii_txc_0),
-    .xgmii_rxd(qsfp0_xgmii_rxd_0),
-    .xgmii_rxc(qsfp0_xgmii_rxc_0),
+    .xgmii_txd(qsfp1_xgmii_txd_1),
+    .xgmii_txc(qsfp1_xgmii_txc_1),
+    .xgmii_rxd(qsfp1_xgmii_rxd_1),
+    .xgmii_rxc(qsfp1_xgmii_rxc_1),
     .serdes_tx_data(qsfp1_gt_txdata_1),
     .serdes_tx_hdr(qsfp1_gt_txheader_1),
     .serdes_rx_data(qsfp1_gt_rxdata_1),
@@ -361,10 +623,10 @@ module ntps_phys (
     .tx_rst(qsfp1_tx_rst_2_int),
     .rx_clk(qsfp1_rx_clk_2_int),
     .rx_rst(qsfp1_rx_rst_2_int),
-    .xgmii_txd(qsfp0_xgmii_txd_1),
-    .xgmii_txc(qsfp0_xgmii_txc_1),
-    .xgmii_rxd(qsfp0_xgmii_rxd_1),
-    .xgmii_rxc(qsfp0_xgmii_rxc_1),
+    .xgmii_txd(qsfp1_xgmii_txd_2),
+    .xgmii_txc(qsfp1_xgmii_txc_2),
+    .xgmii_rxd(qsfp1_xgmii_rxd_2),
+    .xgmii_rxc(qsfp1_xgmii_rxc_2),
     .serdes_tx_data(qsfp1_gt_txdata_2),
     .serdes_tx_hdr(qsfp1_gt_txheader_2),
     .serdes_rx_data(qsfp1_gt_rxdata_2),
@@ -396,10 +658,10 @@ module ntps_phys (
     .tx_rst(qsfp1_tx_rst_3_int),
     .rx_clk(qsfp1_rx_clk_3_int),
     .rx_rst(qsfp1_rx_rst_3_int),
-    .xgmii_txd(qsfp0_xgmii_txd_2),
-    .xgmii_txc(qsfp0_xgmii_txc_2),
-    .xgmii_rxd(qsfp0_xgmii_rxd_2),
-    .xgmii_rxc(qsfp0_xgmii_rxc_2),
+    .xgmii_txd(qsfp1_xgmii_txd_3),
+    .xgmii_txc(qsfp1_xgmii_txc_3),
+    .xgmii_rxd(qsfp1_xgmii_rxd_3),
+    .xgmii_rxc(qsfp1_xgmii_rxc_3),
     .serdes_tx_data(qsfp1_gt_txdata_3),
     .serdes_tx_hdr(qsfp1_gt_txheader_3),
     .serdes_rx_data(qsfp1_gt_rxdata_3),
@@ -431,10 +693,10 @@ module ntps_phys (
     .tx_rst(qsfp1_tx_rst_4_int),
     .rx_clk(qsfp1_rx_clk_4_int),
     .rx_rst(qsfp1_rx_rst_4_int),
-    .xgmii_txd(qsfp0_xgmii_txd_3),
-    .xgmii_txc(qsfp0_xgmii_txc_3),
-    .xgmii_rxd(qsfp0_xgmii_rxd_3),
-    .xgmii_rxc(qsfp0_xgmii_rxc_3),
+    .xgmii_txd(qsfp1_xgmii_txd_4),
+    .xgmii_txc(qsfp1_xgmii_txc_4),
+    .xgmii_rxd(qsfp1_xgmii_rxd_4),
+    .xgmii_rxc(qsfp1_xgmii_rxc_4),
     .serdes_tx_data(qsfp1_gt_txdata_4),
     .serdes_tx_hdr(qsfp1_gt_txheader_4),
     .serdes_rx_data(qsfp1_gt_rxdata_4),
@@ -466,10 +728,10 @@ module ntps_phys (
     .tx_rst(qsfp2_tx_rst_1_int),
     .rx_clk(qsfp2_rx_clk_1_int),
     .rx_rst(qsfp2_rx_rst_1_int),
-    .xgmii_txd(qsfp1_xgmii_txd_0),
-    .xgmii_txc(qsfp1_xgmii_txc_0),
-    .xgmii_rxd(qsfp1_xgmii_rxd_0),
-    .xgmii_rxc(qsfp1_xgmii_rxc_0),
+    .xgmii_txd(qsfp2_xgmii_txd_1),
+    .xgmii_txc(qsfp2_xgmii_txc_1),
+    .xgmii_rxd(qsfp2_xgmii_rxd_1),
+    .xgmii_rxc(qsfp2_xgmii_rxc_1),
     .serdes_tx_data(qsfp2_gt_txdata_1),
     .serdes_tx_hdr(qsfp2_gt_txheader_1),
     .serdes_rx_data(qsfp2_gt_rxdata_1),
@@ -501,10 +763,10 @@ module ntps_phys (
     .tx_rst(qsfp2_tx_rst_2_int),
     .rx_clk(qsfp2_rx_clk_2_int),
     .rx_rst(qsfp2_rx_rst_2_int),
-    .xgmii_txd(qsfp1_xgmii_txd_1),
-    .xgmii_txc(qsfp1_xgmii_txc_1),
-    .xgmii_rxd(qsfp1_xgmii_rxd_1),
-    .xgmii_rxc(qsfp1_xgmii_rxc_1),
+    .xgmii_txd(qsfp2_xgmii_txd_2),
+    .xgmii_txc(qsfp2_xgmii_txc_2),
+    .xgmii_rxd(qsfp2_xgmii_rxd_2),
+    .xgmii_rxc(qsfp2_xgmii_rxc_2),
     .serdes_tx_data(qsfp2_gt_txdata_2),
     .serdes_tx_hdr(qsfp2_gt_txheader_2),
     .serdes_rx_data(qsfp2_gt_rxdata_2),
@@ -536,10 +798,10 @@ module ntps_phys (
     .tx_rst(qsfp2_tx_rst_3_int),
     .rx_clk(qsfp2_rx_clk_3_int),
     .rx_rst(qsfp2_rx_rst_3_int),
-    .xgmii_txd(qsfp1_xgmii_txd_2),
-    .xgmii_txc(qsfp1_xgmii_txc_2),
-    .xgmii_rxd(qsfp1_xgmii_rxd_2),
-    .xgmii_rxc(qsfp1_xgmii_rxc_2),
+    .xgmii_txd(qsfp2_xgmii_txd_3),
+    .xgmii_txc(qsfp2_xgmii_txc_3),
+    .xgmii_rxd(qsfp2_xgmii_rxd_3),
+    .xgmii_rxc(qsfp2_xgmii_rxc_3),
     .serdes_tx_data(qsfp2_gt_txdata_3),
     .serdes_tx_hdr(qsfp2_gt_txheader_3),
     .serdes_rx_data(qsfp2_gt_rxdata_3),
@@ -571,10 +833,10 @@ module ntps_phys (
     .tx_rst(qsfp2_tx_rst_4_int),
     .rx_clk(qsfp2_rx_clk_4_int),
     .rx_rst(qsfp2_rx_rst_4_int),
-    .xgmii_txd(qsfp1_xgmii_txd_3),
-    .xgmii_txc(qsfp1_xgmii_txc_3),
-    .xgmii_rxd(qsfp1_xgmii_rxd_3),
-    .xgmii_rxc(qsfp1_xgmii_rxc_3),
+    .xgmii_txd(qsfp2_xgmii_txd_4),
+    .xgmii_txc(qsfp2_xgmii_txc_4),
+    .xgmii_rxd(qsfp2_xgmii_rxd_4),
+    .xgmii_rxc(qsfp2_xgmii_rxc_4),
     .serdes_tx_data(qsfp2_gt_txdata_4),
     .serdes_tx_hdr(qsfp2_gt_txheader_4),
     .serdes_rx_data(qsfp2_gt_rxdata_4),
