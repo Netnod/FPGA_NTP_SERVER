@@ -121,26 +121,23 @@ module ntps_phys (
                   input  wire          qsfp2_intl,
                   output wire          qsfp2_lpmode,
 
-                  // XGMII ports for QSFP interface 1.
-                  input  wire [63 : 0] qsfp1_xgmii_txd_0,
-                  input  wire [7  : 0] qsfp1_xgmii_txc_0,
-                  output wire [63 : 0] qsfp1_xgmii_rxd_0,
-                  output wire [7  : 0] qsfp1_xgmii_rxc_0,
-
-                  input  wire [63 : 0] qsfp1_xgmii_txd_1,
-                  input  wire [7  : 0] qsfp1_xgmii_txc_1,
-                  output wire [63 : 0] qsfp1_xgmii_rxd_1,
-                  output wire [7  : 0] qsfp1_xgmii_rxc_1,
-
-                  input  wire [63 : 0] qsfp1_xgmii_txd_2,
-                  input  wire [7  : 0] qsfp1_xgmii_txc_2,
-                  output wire [63 : 0] qsfp1_xgmii_rxd_2,
-                  output wire [7  : 0] qsfp1_xgmii_rxc_2,
-
-                  input  wire [63 : 0] qsfp1_xgmii_txd_3,
-                  input  wire [7  : 0] qsfp1_xgmii_txc_3,
-                  output wire [63 : 0] qsfp1_xgmii_rxd_3,
-                  output wire [7  : 0] qsfp1_xgmii_rxc_3
+                  // XGMII ports for QSFP interface 2.
+                  input  wire [63 : 0] qsfp2_xgmii_txd_1,
+                  input  wire [7  : 0] qsfp2_xgmii_txc_1,
+                  output wire [63 : 0] qsfp2_xgmii_rxd_1,
+                  output wire [7  : 0] qsfp2_xgmii_rxc_1,
+                  input  wire [63 : 0] qsfp2_xgmii_txd_2,
+                  input  wire [7  : 0] qsfp2_xgmii_txc_2,
+                  output wire [63 : 0] qsfp2_xgmii_rxd_2,
+                  output wire [7  : 0] qsfp2_xgmii_rxc_2,
+                  input  wire [63 : 0] qsfp2_xgmii_txd_3,
+                  input  wire [7  : 0] qsfp2_xgmii_txc_3,
+                  output wire [63 : 0] qsfp2_xgmii_rxd_3,
+                  output wire [7  : 0] qsfp2_xgmii_rxc_3,
+                  input  wire [63 : 0] qsfp2_xgmii_txd_4,
+                  input  wire [7  : 0] qsfp2_xgmii_txc_4,
+                  output wire [63 : 0] qsfp2_xgmii_rxd_4,
+                  output wire [7  : 0] qsfp2_xgmii_rxc_4
                   );
 
 
