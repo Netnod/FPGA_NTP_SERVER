@@ -46,6 +46,7 @@ SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_tx_if.v
 SYN_FILES += ../../cores/verilog-ethernet/rtl/xgmii_baser_dec_64.v
 SYN_FILES += ../../cores/verilog-ethernet/rtl/xgmii_baser_enc_64.v
 SYN_FILES += ../../cores/verilog-ethernet/rtl/lfsr.v
+SYN_FILES += ../../cores/verilog-ethernet/lib/axis/rtl/sync_reset.v
 
 SYN_FILES += ../../network_path/api_extension/src/rtl/api_extension.v
 SYN_FILES += ../../network_path/hdl/network_path.v

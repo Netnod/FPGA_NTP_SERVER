@@ -136,60 +136,33 @@ module ntps_top #(
    );
 
 
-
-   inout wire 	     i2c_clk,
-   inout wire 	     i2c_data,
-   output wire 	     i2c_mux_rst_n,
-   output wire 	     si5324_rst_n,
-
-   wire 	     pmbus_alert;
-   wire 	     pmbus_clk;
-   wire 	     pmbus_data;
-
-   wire 	     i2c_clk;
-   wire 	     i2c_data;
-   wire 	     i2c_mux_rst_n;
-   wire 	     si5324_rst_n;
-
-   wire 	     sfp_module_detect0_n;
-   wire 	     sfp_module_detect1_n;
-   wire 	     sfp_module_detect2_n;
-   wire 	     sfp_module_detect3_n;
-   wire 	     sfp_signal_lost0;
-   wire 	     sfp_signal_lost1;
-   wire 	     sfp_signal_lost2;
-   wire 	     sfp_signal_lost3;
-   wire 	     sfp_tx_disable0;
-   wire 	     sfp_tx_disable1;
-   wire 	     sfp_tx_disable2;
-   wire 	     sfp_tx_disable3;
-   wire 	     sfp_tx_fault0;
-   wire 	     sfp_tx_fault1;
-   wire 	     sfp_tx_fault2;
-   wire 	     sfp_tx_fault3;
-
-   wire 	     HEAD2;
-   wire 	     HEAD4;
-   wire 	     HEAD6;
-   wire 	     HEAD8;
-   wire 	     HEAD10;
-   wire 	     HEAD12;
-   wire 	     HEAD14;
-   wire 	     HEAD16;
-   wire 	     HEAD18;
-   wire 	     HEAD20;
-   wire 	     HEAD22;
-   wire 	     HEAD24;
-   wire 	     HEAD26;
-   wire 	     HEAD28;
-   wire 	     HEAD30;
-   wire 	     HEAD32;
-   wire 	     HEAD34;
-   wire 	     HEAD36;
-
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
+  wire 	     i2c_clk;
+  wire 	     i2c_data;
+  wire 	     i2c_mux_rst_n;
+  wire 	     si5324_rst_n;
+
+  wire 	     HEAD2;
+  wire 	     HEAD4;
+  wire 	     HEAD6;
+  wire 	     HEAD8;
+  wire 	     HEAD10;
+  wire 	     HEAD12;
+  wire 	     HEAD14;
+  wire 	     HEAD16;
+  wire 	     HEAD18;
+  wire 	     HEAD20;
+  wire 	     HEAD22;
+  wire 	     HEAD24;
+  wire 	     HEAD26;
+  wire 	     HEAD28;
+  wire 	     HEAD30;
+  wire 	     HEAD32;
+  wire 	     HEAD34;
+  wire 	     HEAD36;
+
   wire 		       pcie_perst;
 
   // Wires for clocks.

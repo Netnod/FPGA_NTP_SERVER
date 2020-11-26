@@ -144,30 +144,32 @@ module ntps_phys (
   //----------------------------------------------------------------
   // Internal wires.
   //----------------------------------------------------------------
-  wire       clk_125mhz_ibufg;
-  wire       clk_125mhz_mmcm_out;
-  wire       clk_125mhz_int;
-  wire       rst_125mhz_int;
-  wire       mmcm_locked;
-  wire       mmcm_clkfb;
+  wire        clk_125mhz_ibufg;
+  wire        clk_125mhz_mmcm_out;
+  wire        clk_125mhz_int;
+  wire        rst_125mhz_int;
+  wire        mmcm_locked;
+  wire        mmcm_clkfb;
 
-  wire       clk_156mhz_int;
-  wire       rst_156mhz_int;
+  wire        clk_156mhz_int;
+  wire        rst_156mhz_int;
 
-  wire [7:0] gt_txclkout;
-  wire       gt_txusrclk;
-  wire [7:0] gt_rxclkout;
-  wire [7:0] gt_rxusrclk;
-  wire       gt_reset_tx_done;
-  wire       gt_reset_rx_done;
-  wire [7:0] gt_txprgdivresetdone;
-  wire [7:0] gt_txpmaresetdone;
-  wire [7:0] gt_rxprgdivresetdone;
-  wire [7:0] gt_rxpmaresetdone;
-  wire       gt_tx_reset = ~((&gt_txprgdivresetdone) & (&gt_txpmaresetdone));
-  wire       gt_rx_reset = ~&gt_rxpmaresetdone;
-  reg        gt_userclk_tx_active = 1'b0;
-  reg [7:0]  gt_userclk_rx_active = 1'b0;
+  wire [7:0]  gt_txclkout;
+  wire        gt_txusrclk;
+  wire [7:0]  gt_rxclkout;
+  wire [7:0]  gt_rxusrclk;
+  wire        gt_reset_tx_done;
+  wire        gt_reset_rx_done;
+  wire [7:0]  gt_txprgdivresetdone;
+  wire [7:0]  gt_txpmaresetdone;
+  wire [7:0]  gt_rxprgdivresetdone;
+  wire [7:0]  gt_rxpmaresetdone;
+  wire        gt_tx_reset = ~((&gt_txprgdivresetdone) & (&gt_txpmaresetdone));
+  wire        gt_rx_reset = ~&gt_rxpmaresetdone;
+  reg         gt_userclk_tx_active = 1'b0;
+  reg [7:0]   gt_userclk_rx_active = 1'b0;
+
+  wire        qsfp1_mgt_refclk_0;
 
   wire [5:0]  qsfp1_gt_txheader_1;
   wire [63:0] qsfp1_gt_txdata_1;
@@ -233,67 +235,67 @@ module ntps_phys (
   wire [63:0] qsfp2_gt_rxdata_4;
   wire [1:0]  qsfp2_gt_rxdatavalid_4;
 
-  wire       qsfp1_tx_clk_1_int;
-  wire       qsfp1_tx_rst_1_int;
-  wire       qsfp1_rx_clk_1_int;
-  wire       qsfp1_rx_rst_1_int;
-  wire       qsfp1_tx_clk_2_int;
-  wire       qsfp1_tx_rst_2_int;
-  wire       qsfp1_rx_clk_2_int;
-  wire       qsfp1_rx_rst_2_int;
-  wire       qsfp1_tx_clk_3_int;
-  wire       qsfp1_tx_rst_3_int;
-  wire       qsfp1_rx_clk_3_int;
-  wire       qsfp1_rx_rst_3_int;
-  wire       qsfp1_tx_clk_4_int;
-  wire       qsfp1_tx_rst_4_int;
-  wire       qsfp1_rx_clk_4_int;
-  wire       qsfp1_rx_rst_4_int;
-  wire       qsfp1_rx_block_lock_1;
-  wire       qsfp1_rx_block_lock_2;
-  wire       qsfp1_rx_block_lock_3;
-  wire       qsfp1_rx_block_lock_4;
+  wire        qsfp1_tx_clk_1_int;
+  wire        qsfp1_tx_rst_1_int;
+  wire        qsfp1_rx_clk_1_int;
+  wire        qsfp1_rx_rst_1_int;
+  wire        qsfp1_tx_clk_2_int;
+  wire        qsfp1_tx_rst_2_int;
+  wire        qsfp1_rx_clk_2_int;
+  wire        qsfp1_rx_rst_2_int;
+  wire        qsfp1_tx_clk_3_int;
+  wire        qsfp1_tx_rst_3_int;
+  wire        qsfp1_rx_clk_3_int;
+  wire        qsfp1_rx_rst_3_int;
+  wire        qsfp1_tx_clk_4_int;
+  wire        qsfp1_tx_rst_4_int;
+  wire        qsfp1_rx_clk_4_int;
+  wire        qsfp1_rx_rst_4_int;
+  wire        qsfp1_rx_block_lock_1;
+  wire        qsfp1_rx_block_lock_2;
+  wire        qsfp1_rx_block_lock_3;
+  wire        qsfp1_rx_block_lock_4;
 
-  wire       qsfp2_tx_clk_1_int;
-  wire       qsfp2_tx_rst_1_int;
-  wire       qsfp2_rx_clk_1_int;
-  wire       qsfp2_rx_rst_1_int;
-  wire       qsfp2_tx_clk_2_int;
-  wire       qsfp2_tx_rst_2_int;
-  wire       qsfp2_rx_clk_2_int;
-  wire       qsfp2_rx_rst_2_int;
-  wire       qsfp2_tx_clk_3_int;
-  wire       qsfp2_tx_rst_3_int;
-  wire       qsfp2_rx_clk_3_int;
-  wire       qsfp2_rx_rst_3_int;
-  wire       qsfp2_tx_clk_4_int;
-  wire       qsfp2_tx_rst_4_int;
-  wire       qsfp2_rx_clk_4_int;
-  wire       qsfp2_rx_rst_4_int;
-  wire       qsfp2_rx_block_lock_1;
-  wire       qsfp2_rx_block_lock_2;
-  wire       qsfp2_rx_block_lock_3;
-  wire       qsfp2_rx_block_lock_4;
+  wire        qsfp2_tx_clk_1_int;
+  wire        qsfp2_tx_rst_1_int;
+  wire        qsfp2_rx_clk_1_int;
+  wire        qsfp2_rx_rst_1_int;
+  wire        qsfp2_tx_clk_2_int;
+  wire        qsfp2_tx_rst_2_int;
+  wire        qsfp2_rx_clk_2_int;
+  wire        qsfp2_rx_rst_2_int;
+  wire        qsfp2_tx_clk_3_int;
+  wire        qsfp2_tx_rst_3_int;
+  wire        qsfp2_rx_clk_3_int;
+  wire        qsfp2_rx_rst_3_int;
+  wire        qsfp2_tx_clk_4_int;
+  wire        qsfp2_tx_rst_4_int;
+  wire        qsfp2_rx_clk_4_int;
+  wire        qsfp2_rx_rst_4_int;
+  wire        qsfp2_rx_block_lock_1;
+  wire        qsfp2_rx_block_lock_2;
+  wire        qsfp2_rx_block_lock_3;
+  wire        qsfp2_rx_block_lock_4;
 
   // SI570 I2C.
-  wire i2c_scl_i;
-  wire i2c_scl_o = 1'b1;
-  wire i2c_scl_t = 1'b1;
-  wire i2c_sda_i;
-  wire i2c_sda_o = 1'b1;
-  wire i2c_sda_t = 1'b1;
+  wire        i2c_scl_i;
+  wire        i2c_scl_o = 1'b1;
+  wire        i2c_scl_t = 1'b1;
+  wire        i2c_sda_i;
+  wire        i2c_sda_o = 1'b1;
+  wire        i2c_sda_t = 1'b1;
 
 
   //----------------------------------------------------------------
   // Assignments.
   //----------------------------------------------------------------
-  assign qsfp0_modsell = 1'b0;
-  assign qsfp0_resetl  = 1'b1;
-  assign qsfp0_lpmode  = 1'b0;
-
   assign qsfp1_modsell = 1'b0;
   assign qsfp1_resetl  = 1'b1;
   assign qsfp1_lpmode  = 1'b0;
+
+  assign qsfp2_modsell = 1'b0;
+  assign qsfp2_resetl  = 1'b1;
+  assign qsfp2_lpmode  = 1'b0;
 
   assign qsfp1_tx_clk_1_int = clk_156mhz_int;
   assign qsfp1_tx_rst_1_int = rst_156mhz_int;
