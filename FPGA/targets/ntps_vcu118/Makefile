@@ -35,6 +35,18 @@ SYN_FILES += ../../cores/xge_ll_mac/hdl/rx_enqueue.v
 SYN_FILES += ../../cores/xge_ll_mac/hdl/tx_control.v
 SYN_FILES += ../../cores/xge_ll_mac/hdl/tx_dequeue.v
 
+SYN_FILES += ../../cores/verilog-ethernet/example/VCU118/fpga_10g/rtl/sync_signal.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx_if.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx_frame_sync.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx_ber_mon.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_tx.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_tx_if.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/xgmii_baser_dec_64.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/xgmii_baser_enc_64.v
+SYN_FILES += ../../cores/verilog-ethernet/rtl/lfsr.v
+
 SYN_FILES += ../../network_path/api_extension/src/rtl/api_extension.v
 SYN_FILES += ../../network_path/hdl/network_path.v
 SYN_FILES += ../../network_path/hdl/network_path_axi_slave.v
@@ -100,6 +112,7 @@ XDC_FILES += constr/network_path_except.xdc
 XDC_FILES += constr/ntp_io_loc.xdc
 XDC_FILES += constr/ntps_top_constr.xdc
 XDC_FILES += constr/xilinx_pcie4_uscale_plus_x1y2.xdc
+XDC_FILES += constr/network_phys.xdc
 
 # IP files
 XCI_FILES :=
