@@ -130,6 +130,10 @@ XCI_FILES += xilinx_ip/top/ntps_top_xdma_0/ntps_top_xdma_0.xci
 # Tcl file to run before starting synthesis
 TCL_PRE := pre_synth.tcl
 
+# Tcl file to add cores etc.
+TCL_FILES :=
+TCL_FILES += ../../cores/verilog-ethernet/example/VCU118/fpga_10g/ip/gtwizard_ultrascale_0.tcl
+
 .PHONY: fpga vivado clean
 
 all: fpga
