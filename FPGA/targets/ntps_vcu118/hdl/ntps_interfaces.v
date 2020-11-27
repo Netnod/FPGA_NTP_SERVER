@@ -489,7 +489,7 @@ module ntps_interfaces #(
   ntps_phys phys(
                  .reset(),
                  .clk_125mhz_p(clk_125mhz_p),
-                 .clk_125mhz_nw(clk_125mhz_p),
+                 .clk_125mhz_n(clk_125mhz_p),
                  .areset_clk156(areset_clk156),
                  .clk156(clk156),
 
