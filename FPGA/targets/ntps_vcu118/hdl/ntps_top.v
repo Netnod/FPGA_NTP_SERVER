@@ -383,6 +383,8 @@ module ntps_top #(
      .clk50                 (clk50),
      .clk156                (clk156),
      .areset_clk156         (areset_clk156),
+     .clk_125mhz_p          (clk_125mhz_p),
+     .clk_125mhz_n          (clk_125mhz_n),
 
      .pcie_perst            (pcie_perst),
      .pcie_clk              (pcie_clk),
