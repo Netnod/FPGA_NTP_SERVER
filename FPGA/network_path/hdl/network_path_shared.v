@@ -40,7 +40,8 @@
 
 `default_nettype none
 
-module network_path_shared (
+module network_path_shared #(parameter integer INSTANTIATE_ROSC = 1)
+  (
   input wire [1 : 0]    api_ext_command,
   input wire [31 : 0]   api_ext_address,
   input wire [31 : 0]   api_ext_write_data,
@@ -116,16 +117,19 @@ module network_path_shared (
   wire [31 : 0] pp_api_write_data;
   wire [31 : 0] pp_api_read_data;
   wire          pp_api_ready;
+
   wire          rosc_cs;
   wire          rosc_we;
   wire [7 : 0]  rosc_address;
   wire [31 : 0] rosc_write_data;
   wire [31 : 0] rosc_read_data;
+
   wire          nts_cs;
   wire          nts_we;
   wire [23 : 0] nts_address;
   wire [31 : 0] nts_write_data;
   wire [31 : 0] nts_read_data;
+
   wire          merge_cs;
   wire          merge_we;
   wire [7 : 0]  merge_address;
@@ -290,17 +294,27 @@ module network_path_shared (
   //----------------------------------------------------------------
   // rosc
   // Ring Oscillator based entropy source. Used by SW to seed
-  // the system level random generator.
+  // the system level random generator. Only instatiated if
+  // INSTANTIATE_ROSC != 0.
   //----------------------------------------------------------------
-  rosc_entropy rosc(
-                    .clk(clk156),
-                    .reset(areset_clk156),
-                    .cs(rosc_cs),
-                    .we(rosc_we),
-                    .address(rosc_address[7 : 0]),
-                    .write_data(rosc_write_data),
-                    .read_data(rosc_read_data)
-                    );
+  generate
+    if (INSTANTIATE_ROSC)
+      begin
+        rosc_entropy rosc(
+                          .clk(clk156),
+                          .reset(areset_clk156),
+                          .cs(rosc_cs),
+                          .we(rosc_we),
+                          .address(rosc_address[7 : 0]),
+                          .write_data(rosc_write_data),
+                          .read_data(rosc_read_data)
+                          );
+      end
+    else
+      begin
+        assign rosc_read_data = 32'hdeadbeef;
+      end
+  endgenerate
 
 
   //----------------------------------------------------------------

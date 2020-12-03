@@ -41,10 +41,8 @@
 
 `default_nettype none
 
-module network_path #(
-  parameter integer C_S_AXI_DATA_WIDTH = 32,
-  parameter integer C_S_AXI_ADDR_WIDTH = 9
-)(
+module network_path #(parameter integer INSTANTIATE_ROSC = 1)
+  (
   input wire [1 : 0]    api_ext_command,
   input wire [31 : 0]   api_ext_address,
   input wire [31 : 0]   api_ext_write_data,
@@ -72,6 +70,12 @@ module network_path #(
   wire [31 : 0] pp_api_write_data;
   wire [31 : 0] pp_api_read_data;
   wire          pp_api_ready;
+
+  wire          rosc_cs;
+  wire          rosc_we;
+  wire [7 : 0]  rosc_address;
+  wire [31 : 0] rosc_write_data;
+  wire [31 : 0] rosc_read_data;
 
 
   //----------------------------------------------------------------
@@ -131,13 +135,39 @@ module network_path #(
     .merge_read_data(32'hdeaddead),
     .merge_ready(1'h1),
 
-    .rosc_cs(),
-    .rosc_we(),
-    .rosc_address(),
-    .rosc_write_data(),
-    .rosc_read_data(32'hdeadbeef),
+    .rosc_cs(rosc_cs),
+    .rosc_we(rosc_we),
+    .rosc_address(rosc_address),
+    .rosc_write_data(rosc_write_data),
+    .rosc_read_data(rosc_read_data),
     .rosc_ready(1'h1)
   );
+
+
+  //----------------------------------------------------------------
+  // rosc
+  // Ring Oscillator based entropy source. Used by SW to seed
+  // the system level random generator. Only instatiated if
+  // INSTANTIATE_ROSC != 0.
+  //----------------------------------------------------------------
+  generate
+    if (INSTANTIATE_ROSC)
+      begin
+        rosc_entropy rosc(
+                          .clk(clk156),
+                          .reset(areset_clk156),
+                          .cs(rosc_cs),
+                          .we(rosc_we),
+                          .address(rosc_address[7 : 0]),
+                          .write_data(rosc_write_data),
+                          .read_data(rosc_read_data)
+                          );
+      end
+    else
+      begin
+        assign rosc_read_data = 32'hdeadbeef;
+      end
+  endgenerate
 
 endmodule
 
