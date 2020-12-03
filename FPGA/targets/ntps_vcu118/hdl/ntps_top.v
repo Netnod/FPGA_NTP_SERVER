@@ -49,8 +49,6 @@ module ntps_top #(
    input  wire                      clk_125mhz_n,
    input wire 		            clk_300MHz_p,
    input wire 		            clk_300MHz_n,
-   input wire                       refclk_156_p,
-   input wire                       refclk_156_n,
 
    input wire 	                    pmbus_alert,
    inout wire 	                    pmbus_clk,
