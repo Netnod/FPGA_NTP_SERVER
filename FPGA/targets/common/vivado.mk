@@ -2,7 +2,7 @@
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-%.xpr: Makefile $(XCI_FILES)
+%.xpr: Makefile $(XCI_FILES) $(TCL_FILES)
 	rm -rf -- $*.xpr $*.cache $*.hw $*.ip_user_files $*.runs $*.sim $*.srcs
 	PROJ_NAME="$(PROJ_NAME)" \
 	FPGA_TOP="$(FPGA_TOP)" \
@@ -11,6 +11,7 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 	SYN_FILES="$(SYN_FILES)" \
 	XDC_FILES="$(XDC_FILES)" \
 	XCI_FILES="$(XCI_FILES)" \
+	TCL_FILES="$(TCL_FILES)" \
 	TCL_PRE="$(TCL_PRE)" \
 	time vivado -nojournal -nolog -notrace -mode batch -source "$(SELF_DIR)"create_project.tcl
 

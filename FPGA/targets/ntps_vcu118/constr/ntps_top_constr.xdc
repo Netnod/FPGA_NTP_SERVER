@@ -7,9 +7,9 @@
 create_clock -period 5.000 -name sys_clk -waveform {0.000 2.500} [get_ports sys_clk_p]
 
 # 156MHz clock
-create_clock -name refclk_156 -period 6.4 [get_ports refclk_156_p]
-set_property PACKAGE_PIN AW23 [get_ports refclk_156_p]
-set_property IOSTANDARD LVDS [get_ports refclk_156_p]
+#create_clock -name refclk_156 -period 6.4 [get_ports refclk_156_p]
+#set_property PACKAGE_PIN AW23 [get_ports refclk_156_p]
+#set_property IOSTANDARD LVDS [get_ports refclk_156_p]
 
 # set_property PACKAGE_PIN AV35 [get_ports pcie_perst]
 # set_property IOSTANDARD LVCMOS18 [get_ports pcie_perst]

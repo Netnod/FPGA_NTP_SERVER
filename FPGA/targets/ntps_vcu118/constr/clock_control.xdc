@@ -1,3 +1,23 @@
+# System clocks
+# 300 MHz
+#set_property -dict {LOC G31  IOSTANDARD DIFF_SSTL12} [get_ports clk_300mhz_p]
+#set_property -dict {LOC F31  IOSTANDARD DIFF_SSTL12} [get_ports clk_300mhz_n]
+#create_clock -period 3.333 -name clk_300mhz [get_ports clk_300mhz_p]
+
+# 250 MHz
+#set_property -dict {LOC E12  IOSTANDARD DIFF_SSTL12} [get_ports clk_250mhz_1_p]
+#set_property -dict {LOC D12  IOSTANDARD DIFF_SSTL12} [get_ports clk_250mhz_1_n]
+#create_clock -period 4 -name clk_250mhz_1 [get_ports clk_250mhz_1_p]
+
+#set_property -dict {LOC AW26 IOSTANDARD DIFF_SSTL12} [get_ports clk_250mhz_2_p]
+#set_property -dict {LOC AW27 IOSTANDARD DIFF_SSTL12} [get_ports clk_250mhz_2_n]
+#create_clock -period 4 -name clk_250mhz_2 [get_ports clk_250mhz_2_p]
+
+# 125 MHz
+set_property -dict {LOC AY24 IOSTANDARD LVDS} [get_ports clk_125mhz_p]
+set_property -dict {LOC AY23 IOSTANDARD LVDS} [get_ports clk_125mhz_n]
+create_clock -period 8.000 -name clk_125mhz [get_ports clk_125mhz_p]
+
 # 156.25 MHz clock control LOCs
 # set_property IOSTANDARD LVCMOS18 [get_ports i2c_clk]
 # set_property SLEW SLOW [get_ports i2c_clk]
