@@ -52,8 +52,7 @@ module ntps_interfaces #(
    input wire                       clk50,
    output wire                      clk156,
    output wire                      areset_clk156,
-   input  wire                      clk_125mhz_p,
-   input  wire                      clk_125mhz_n,
+   input wire                       clk_125mhz,
 
    input wire 		            pcie_perst,
    input wire 		            pcie_clk,
@@ -488,8 +487,7 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   ntps_phys phys(
                  .reset(),
-                 .clk_125mhz_p(clk_125mhz_p),
-                 .clk_125mhz_n(clk_125mhz_p),
+                 .clk_125mhz(clk_125mhz),
                  .areset_clk156(areset_clk156),
                  .clk156(clk156),
 

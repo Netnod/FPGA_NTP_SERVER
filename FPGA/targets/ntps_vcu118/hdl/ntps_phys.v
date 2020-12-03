@@ -43,8 +43,7 @@
 
 module ntps_phys (
                   input wire           reset,
-                  input  wire          clk_125mhz_p,
-                  input  wire          clk_125mhz_n,
+                  input  wire          clk_125mhz,
                   output wire          areset_clk156,
                   output wire          clk156,
 
@@ -144,7 +143,6 @@ module ntps_phys (
   //----------------------------------------------------------------
   // Internal wires.
   //----------------------------------------------------------------
-  wire        clk_125mhz_ibufg;
   wire        clk_125mhz_mmcm_out;
   wire        clk_125mhz_int;
   wire        rst_125mhz_int;
@@ -319,16 +317,6 @@ module ntps_phys (
   //----------------------------------------------------------------
   // Moudule instantiations.
   //----------------------------------------------------------------
-  IBUFGDS #(
-    .DIFF_TERM("FALSE"),
-    .IBUF_LOW_PWR("FALSE")
-    )
-  clk_125mhz_ibufg_inst (
-    .O   (clk_125mhz_ibufg),
-    .I   (clk_125mhz_p),
-    .IB  (clk_125mhz_n)
-    );
-
   // MMCM instance
   // 125 MHz in, 125 MHz out
   // PFD range: 10 MHz to 500 MHz
@@ -367,7 +355,7 @@ module ntps_phys (
     .CLKOUT4_CASCADE("FALSE")
     )
   clk_mmcm_inst (
-    .CLKIN1(clk_125mhz_ibufg),
+    .CLKIN1(clk_125mhz),
     .CLKFBIN(mmcm_clkfb),
     .RST(reset),
     .PWRDWN(1'b0),

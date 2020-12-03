@@ -169,10 +169,11 @@ module ntps_top #(
   wire 		       pcie_clk;
   wire 		       pcie_clk_gt;
 
+  wire                 clk_125mhz_ibufg;
   wire 		       clk_300MHz;
   wire 		       clk50;
 
-   wire 		       axi_aclk;       // 125MHz AXI clock derived from PCIe clock
+  wire 	               axi_aclk;       // 125MHz AXI clock derived from PCIe clock
 
   // Wires for NTP clocks.
   wire 		       PPS_INA;
@@ -352,6 +353,17 @@ module ntps_top #(
      .O(PPS_INB)
   );
 
+  IBUFGDS #(
+    .DIFF_TERM("FALSE"),
+    .IBUF_LOW_PWR("FALSE")
+    )
+  clk_125mhz_ibufg_inst (
+    .O   (clk_125mhz_ibufg),
+    .I   (clk_125mhz_p),
+    .IB  (clk_125mhz_n)
+    );
+
+
   //----------------------------------------------------------------
   // ntps_clocks
   // clock generators, clock control.
@@ -383,8 +395,7 @@ module ntps_top #(
      .clk50                 (clk50),
      .clk156                (clk156),
      .areset_clk156         (areset_clk156),
-     .clk_125mhz_p          (clk_125mhz_p),
-     .clk_125mhz_n          (clk_125mhz_n),
+     .clk_125mhz            (clk_125mhz_ibufg),
 
      .pcie_perst            (pcie_perst),
      .pcie_clk              (pcie_clk),
