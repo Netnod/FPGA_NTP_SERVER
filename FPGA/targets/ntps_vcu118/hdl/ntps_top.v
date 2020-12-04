@@ -137,175 +137,107 @@ module ntps_top #(
   //----------------------------------------------------------------
   // Wires.
   //----------------------------------------------------------------
-  wire 	     i2c_clk;
-  wire 	     i2c_data;
-  wire 	     i2c_mux_rst_n;
-  wire 	     si5324_rst_n;
+  wire          pcie_perst;
+  wire          areset_clk156;
+  wire          clk156;
+  wire          pcie_clk;
+  wire          pcie_clk_gt;
+  wire          clk_125mhz_ibufg;
+  wire          clk_300MHz;
+  wire          clk50;
 
-  wire 	     HEAD2;
-  wire 	     HEAD4;
-  wire 	     HEAD6;
-  wire 	     HEAD8;
-  wire 	     HEAD10;
-  wire 	     HEAD12;
-  wire 	     HEAD14;
-  wire 	     HEAD16;
-  wire 	     HEAD18;
-  wire 	     HEAD20;
-  wire 	     HEAD22;
-  wire 	     HEAD24;
-  wire 	     HEAD26;
-  wire 	     HEAD28;
-  wire 	     HEAD30;
-  wire 	     HEAD32;
-  wire 	     HEAD34;
-  wire 	     HEAD36;
+  wire          i2c_clk;
+  wire          i2c_data;
+  wire          i2c_mux_rst_n;
+  wire          si5324_rst_n;
 
-  wire 		       pcie_perst;
+  wire          HEAD2;
+  wire          HEAD4;
+  wire          HEAD6;
+  wire          HEAD8;
+  wire          HEAD10;
+  wire          HEAD12;
+  wire          HEAD14;
+  wire          HEAD16;
+  wire          HEAD18;
+  wire          HEAD20;
+  wire          HEAD22;
+  wire          HEAD24;
+  wire          HEAD26;
+  wire          HEAD28;
+  wire          HEAD30;
+  wire          HEAD32;
+  wire          HEAD34;
+  wire          HEAD36;
 
-  // Wires for clocks.
-  wire 		       pcie_clk;
-  wire 		       pcie_clk_gt;
+  wire          user_link_up;
 
-  wire                 clk_125mhz_ibufg;
-  wire 		       clk_300MHz;
-  wire 		       clk50;
-
-  wire 	               axi_aclk;       // 125MHz AXI clock derived from PCIe clock
-
-  // Wires for NTP clocks.
-  wire 		       PPS_INA;
-  wire 		       PPS_INB;
-
-  // Wires for pps_test.
-  wire test_PPS_OUT;
-  wire test_TEN_MHZ_OUT;
-
-  // Wires for PCI-AXI:
-  wire             user_link_up;
-
-  // Wires for NTP clocks.
-  wire [63:0]  ntp_time;
-  wire         PLL_locked_A;
-  wire         ntp_clock_topA_LED1;
-  wire         ntp_clock_topA_LED2;
-  wire         PLL_locked_B;
-  wire         ntp_clock_topB_LED1;
-  wire         ntp_clock_topB_LED2;
-
-
-  // Shared network paths signals
-  wire           areset_clk156;
-  wire           clk156;
+  wire [63 : 0] ntp_time;
+  wire          PLL_locked_A;
+  wire          ntp_clock_topA_LED1;
+  wire          ntp_clock_topA_LED2;
+  wire          PLL_locked_B;
+  wire          ntp_clock_topB_LED1;
+  wire          ntp_clock_topB_LED2;
+  wire          PPS_INA;
+  wire          PPS_INB;
+  wire          test_PPS_OUT;
+  wire          test_TEN_MHZ_OUT;
 
   // Port 0
-  wire [63  : 0] xgmii_txd_0;
-  wire [7   : 0] xgmii_txc_0;
-  wire [63 : 0]  xgmii_rxd_0;
-  wire [7  : 0]  xgmii_rxc_0;
-  wire [31:0]    gen_config_0;
-  wire [31:0]    ntp_config_0;
-  wire [31:0]    ntp_root_delay_0;
-  wire [31:0]    ntp_root_disp_0;
-  wire [31:0]    ntp_ref_id_0;
-  wire [63:0]    ntp_ref_ts_0;
-  wire [31:0]    ntp_rx_ofs_0;
-  wire [31:0]    ntp_tx_ofs_0;
-  wire [31:0]    pp_status_0;
-  wire 	         ntp_sync_ok_0;
-  wire [1 : 0]   api_ext_command_0;
-  wire [31 : 0]  api_ext_address_0;
-  wire [31 : 0]  api_ext_write_data_0;
-  wire [1 : 0]   api_ext_status_0;
-  wire [31 : 0]  api_ext_read_data_0;
-
+  wire [63 : 0] xgmii_txd_0;
+  wire [7  : 0] xgmii_txc_0;
+  wire [63 : 0] xgmii_rxd_0;
+  wire [7  : 0] xgmii_rxc_0;
+  wire [1 : 0]  api_ext_command_0;
+  wire [31 : 0] api_ext_address_0;
+  wire [31 : 0] api_ext_write_data_0;
+  wire [1 : 0]  api_ext_status_0;
+  wire [31 : 0] api_ext_read_data_0;
 
   // Port 1
-  wire [63  : 0] xgmii_txd_1;
-  wire [7   : 0] xgmii_txc_1;
-  wire [63 : 0]  xgmii_rxd_1;
-  wire [7  : 0]  xgmii_rxc_1;
-  wire [31:0]    gen_config_1;
-  wire [31:0]    ntp_config_1;
-  wire [31:0]    ntp_root_delay_1;
-  wire [31:0]    ntp_root_disp_1;
-  wire [31:0]    ntp_ref_id_1;
-  wire [63:0]    ntp_ref_ts_1;
-  wire [31:0]    ntp_rx_ofs_1;
-  wire [31:0]    ntp_tx_ofs_1;
-  wire [31:0]    pp_status_1;
-  wire 	         ntp_sync_ok_1;
-  wire [1 : 0]   api_ext_command_1;
-  wire [31 : 0]  api_ext_address_1;
-  wire [31 : 0]  api_ext_write_data_1;
-  wire [1 : 0]   api_ext_status_1;
-  wire [31 : 0]  api_ext_read_data_1;
-
+  wire [63 : 0] xgmii_txd_1;
+  wire [7  : 0] xgmii_txc_1;
+  wire [63 : 0] xgmii_rxd_1;
+  wire [7  : 0] xgmii_rxc_1;
+  wire [1 : 0]  api_ext_command_1;
+  wire [31 : 0] api_ext_address_1;
+  wire [31 : 0] api_ext_write_data_1;
+  wire [1 : 0]  api_ext_status_1;
+  wire [31 : 0] api_ext_read_data_1;
 
   // Port 2
-  wire [63  : 0] xgmii_txd_2;
-  wire [7   : 0] xgmii_txc_2;
-  wire [63 : 0]  xgmii_rxd_2;
-  wire [7  : 0]  xgmii_rxc_2;
-  wire [31:0]    gen_config_2;
-  wire [31:0]    ntp_config_2;
-  wire [31:0]    ntp_root_delay_2;
-  wire [31:0]    ntp_root_disp_2;
-  wire [31:0]    ntp_ref_id_2;
-  wire [63:0]    ntp_ref_ts_2;
-  wire [31:0]    ntp_rx_ofs_2;
-  wire [31:0]    ntp_tx_ofs_2;
-  wire [31:0]    pp_status_2;
-  wire 	         ntp_sync_ok_2;
-  wire [1 : 0]   api_ext_command_2;
-  wire [31 : 0]  api_ext_address_2;
-  wire [31 : 0]  api_ext_write_data_2;
-  wire [1 : 0]   api_ext_status_2;
-  wire [31 : 0]  api_ext_read_data_2;
-
+  wire [63 : 0] xgmii_txd_2;
+  wire [7  : 0] xgmii_txc_2;
+  wire [63 : 0] xgmii_rxd_2;
+  wire [7  : 0] xgmii_rxc_2;
+  wire [1 : 0]  api_ext_command_2;
+  wire [31 : 0] api_ext_address_2;
+  wire [31 : 0] api_ext_write_data_2;
+  wire [1 : 0]  api_ext_status_2;
+  wire [31 : 0] api_ext_read_data_2;
 
   // Port 3
-  wire [63  : 0] xgmii_txd_3;
-  wire [7   : 0] xgmii_txc_3;
-  wire [63 : 0]  xgmii_rxd_3;
-  wire [7  : 0]  xgmii_rxc_3;
-  wire [31:0]    gen_config_3;
-  wire [31:0]    ntp_config_3;
-  wire [31:0]    ntp_root_delay_3;
-  wire [31:0]    ntp_root_disp_3;
-  wire [31:0]    ntp_ref_id_3;
-  wire [63:0]    ntp_ref_ts_3;
-  wire [31:0]    ntp_rx_ofs_3;
-  wire [31:0]    ntp_tx_ofs_3;
-  wire [31:0]    pp_status_3;
-  wire 	         ntp_sync_ok_3;
-  wire [1 : 0]   api_ext_command_3;
-  wire [31 : 0]  api_ext_address_3;
-  wire [31 : 0]  api_ext_write_data_3;
-  wire [1 : 0]   api_ext_status_3;
-  wire [31 : 0]  api_ext_read_data_3;
-
+  wire [63 : 0] xgmii_txd_3;
+  wire [7  : 0] xgmii_txc_3;
+  wire [63 : 0] xgmii_rxd_3;
+  wire [7  : 0] xgmii_rxc_3;
+  wire [1 : 0]  api_ext_command_3;
+  wire [31 : 0] api_ext_address_3;
+  wire [31 : 0] api_ext_write_data_3;
+  wire [1 : 0]  api_ext_status_3;
+  wire [31 : 0] api_ext_read_data_3;
 
   // Port 4
-  wire [63  : 0] xgmii_txd_4;
-  wire [7   : 0] xgmii_txc_4;
-  wire [63 : 0]  xgmii_rxd_4;
-  wire [7  : 0]  xgmii_rxc_4;
-  wire [31:0]    gen_config_4;
-  wire [31:0]    ntp_config_4;
-  wire [31:0]    ntp_root_delay_4;
-  wire [31:0]    ntp_root_disp_4;
-  wire [31:0]    ntp_ref_id_4;
-  wire [63:0]    ntp_ref_ts_4;
-  wire [31:0]    ntp_rx_ofs_4;
-  wire [31:0]    ntp_tx_ofs_4;
-  wire [31:0]    pp_status_4;
-  wire 	         ntp_sync_ok_4;
-  wire [1 : 0]   api_ext_command_4;
-  wire [31 : 0]  api_ext_address_4;
-  wire [31 : 0]  api_ext_write_data_4;
-  wire [1 : 0]   api_ext_status_4;
-  wire [31 : 0]  api_ext_read_data_4;
+  wire [63 : 0] xgmii_txd_4;
+  wire [7  : 0] xgmii_txc_4;
+  wire [63 : 0] xgmii_rxd_4;
+  wire [7  : 0] xgmii_rxc_4;
+  wire [1 : 0]  api_ext_command_4;
+  wire [31 : 0] api_ext_address_4;
+  wire [31 : 0] api_ext_write_data_4;
+  wire [1 : 0]  api_ext_status_4;
+  wire [31 : 0] api_ext_read_data_4;
 
 
   //----------------------------------------------------------------
@@ -340,47 +272,56 @@ module ntps_top #(
   assign led_6  = ntp_clock_topB_LED2;
   assign led_7  = user_link_up;
 
-  // System reset
-  IBUF   pcie_perstn_ibuf (.O(pcie_perst), .I(pcie_perstn_rst));
-
 
   //----------------------------------------------------------------
   // Clock tree input buffers.
-  // These must be in the top level module to make Vivado happy.
   //----------------------------------------------------------------
-  IBUFDS_GTE4 refclk_ibuf (.O(pcie_clk_gt), .ODIV2(pcie_clk), .I(pcie_clk_p), .CEB(1'b0), .IB(pcie_clk_n));
+  // PCIe clock from external source.
+  IBUFDS_GTE4 refclk_ibuf(
+                          .O(pcie_clk_gt),
+                          .ODIV2(pcie_clk),
+                          .I(pcie_clk_p),
+                          .CEB(1'b0),
+                          .IB(pcie_clk_n)
+                         );
 
+  // 125 MHz System clock from external source.
+  IBUFGDS #(
+            .DIFF_TERM("FALSE"),
+            .IBUF_LOW_PWR("FALSE")
+           )
+  clk_125mhz_ibufg_inst (
+                         .O(clk_125mhz_ibufg),
+                         .I(clk_125mhz_p),
+                         .IB(clk_125mhz_n)
+                        );
 
   // 300 MHz System clock from external source.
-  IBUFDS clk_300MHz_ds_buf (
-     .I(clk_300MHz_p),
-     .IB(clk_300MHz_n),
-     .O(clk_300MHz)
-  );
+  IBUFDS clk_300MHz_ds_buf(
+                           .I(clk_300MHz_p),
+                           .IB(clk_300MHz_n),
+                            .O(clk_300MHz)
+                           );
 
   // Clock tree input buffer for NTP clock A.
-  IBUFDS pps_ina_ds_buf (
-     .I(PPS_INA_P),
-     .IB(PPS_INA_N),
-     .O(PPS_INA)
-  );
+  IBUFDS pps_ina_ds_buf(
+                        .I(PPS_INA_P),
+                        .IB(PPS_INA_N),
+                        .O(PPS_INA)
+                       );
 
   // Clock tree insput buffer for NTP clock B.
-  IBUFDS pps_inb_ds_buf (
-     .I(PPS_INB_P),
-     .IB(PPS_INB_N),
-     .O(PPS_INB)
-  );
+  IBUFDS pps_inb_ds_buf(
+                        .I(PPS_INB_P),
+                        .IB(PPS_INB_N),
+                        .O(PPS_INB)
+                       );
 
-  IBUFGDS #(
-    .DIFF_TERM("FALSE"),
-    .IBUF_LOW_PWR("FALSE")
-    )
-  clk_125mhz_ibufg_inst (
-    .O   (clk_125mhz_ibufg),
-    .I   (clk_125mhz_p),
-    .IB  (clk_125mhz_n)
-    );
+
+  //----------------------------------------------------------------
+  // System reset
+  //----------------------------------------------------------------
+  IBUF pcie_perstn_ibuf(.O(pcie_perst), .I(pcie_perstn_rst));
 
 
   //----------------------------------------------------------------
