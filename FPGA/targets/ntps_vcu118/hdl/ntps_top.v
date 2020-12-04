@@ -286,6 +286,28 @@ module ntps_top #(
   wire [31 : 0]  api_ext_read_data_3;
 
 
+  // Port 4
+  wire [63  : 0] xgmii_txd_4;
+  wire [7   : 0] xgmii_txc_4;
+  wire [63 : 0]  xgmii_rxd_4;
+  wire [7  : 0]  xgmii_rxc_4;
+  wire [31:0]    gen_config_4;
+  wire [31:0]    ntp_config_4;
+  wire [31:0]    ntp_root_delay_4;
+  wire [31:0]    ntp_root_disp_4;
+  wire [31:0]    ntp_ref_id_4;
+  wire [63:0]    ntp_ref_ts_4;
+  wire [31:0]    ntp_rx_ofs_4;
+  wire [31:0]    ntp_tx_ofs_4;
+  wire [31:0]    pp_status_4;
+  wire 	         ntp_sync_ok_4;
+  wire [1 : 0]   api_ext_command_4;
+  wire [31 : 0]  api_ext_address_4;
+  wire [31 : 0]  api_ext_write_data_4;
+  wire [1 : 0]   api_ext_status_4;
+  wire [31 : 0]  api_ext_read_data_4;
+
+
   //----------------------------------------------------------------
   // Pin Assignments.
   //----------------------------------------------------------------
@@ -318,8 +340,7 @@ module ntps_top #(
   assign led_6  = ntp_clock_topB_LED2;
   assign led_7  = user_link_up;
 
-  /* System reset */
-
+  // System reset
   IBUF   pcie_perstn_ibuf (.O(pcie_perst), .I(pcie_perstn_rst));
 
 
@@ -501,8 +522,20 @@ module ntps_top #(
      .api_ext_status_3      (api_ext_status_3),
      .api_ext_read_data_3   (api_ext_read_data_3),
 
+     // Port 4.
+     .xgmii_txd_4           (xgmii_txd_4),
+     .xgmii_txc_4           (xgmii_txc_4),
+     .xgmii_rxd_4           (xgmii_rxd_4),
+     .xgmii_rxc_4           (xgmii_rxc_4),
+     .api_ext_command_4     (api_ext_command_4),
+     .api_ext_address_4     (api_ext_address_4),
+     .api_ext_write_data_4  (api_ext_write_data_4),
+     .api_ext_status_4      (api_ext_status_4),
+     .api_ext_read_data_4   (api_ext_read_data_4),
+
      .ntp_time              (ntp_time),
 
+     // NTP clocks.
      .PPS_INA               (PPS_INA),
      .PPS_OUTA              (PPS_OUTA),
      .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
@@ -521,6 +554,7 @@ module ntps_top #(
      .NTP_LED2B             (ntp_clock_topB_LED2),
      .PLL_LOCKEDB           (PLL_locked_B)
     );
+
 
   //----------------------------------------------------------------
   // network_path_shared_0.
@@ -607,6 +641,29 @@ module ntps_top #(
     .xgmii_rxc          (xgmii_rxc_3),
     .xgmii_txd          (xgmii_txd_3),
     .xgmii_txc          (xgmii_txc_3),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+    .sys_reset          (reset)
+  );
+
+
+  //----------------------------------------------------------------
+  // network_path_4
+  //----------------------------------------------------------------
+  network_path network_path_4 (
+    .api_ext_command    (api_ext_command_4),
+    .api_ext_address    (api_ext_address_4),
+    .api_ext_write_data (api_ext_write_data_4),
+    .api_ext_status     (api_ext_status_4),
+    .api_ext_read_data  (api_ext_read_data_4),
+
+    .ntp_time           (ntp_time),
+
+    .xgmii_rxd          (xgmii_rxd_4),
+    .xgmii_rxc          (xgmii_rxc_4),
+    .xgmii_txd          (xgmii_txd_4),
+    .xgmii_txc          (xgmii_txc_4),
 
     .clk156             (clk156),
     .areset_clk156      (areset_clk156),

@@ -162,6 +162,17 @@ module ntps_interfaces #(
    input wire [1 : 0]               api_ext_status_3,
    input wire [31 : 0]              api_ext_read_data_3,
 
+   // Port 4.
+   input wire [63  : 0]             xgmii_txd_4,
+   input wire [7   : 0]             xgmii_txc_4,
+   output wire [63 : 0]             xgmii_rxd_4,
+   output wire [7  : 0]             xgmii_rxc_4,
+   output wire [1 : 0]              api_ext_command_4,
+   output wire [31 : 0]             api_ext_address_4,
+   output wire [31 : 0]             api_ext_write_data_4,
+   input wire [1 : 0]               api_ext_status_4,
+   input wire [31 : 0]              api_ext_read_data_4,
+
     // NTP clocks.
    output wire [63 : 0]             ntp_time,
 
@@ -566,10 +577,10 @@ module ntps_interfaces #(
                  .qsfp2_lpmode(qsfp2_lpmode),
 
                  // XGMII ports for QSFP interface 2.
-                 .qsfp2_xgmii_txd_1(64'h0),
-                 .qsfp2_xgmii_txc_1(1'h0),
-                 .qsfp2_xgmii_rxd_1(),
-                 .qsfp2_xgmii_rxc_1(),
+                 .qsfp2_xgmii_txd_1(xgmii_txd_4),
+                 .qsfp2_xgmii_txc_1(xgmii_txc_4),
+                 .qsfp2_xgmii_rxd_1(xgmii_rxd_4),
+                 .qsfp2_xgmii_rxc_1(xgmii_rxc_4),
                  .qsfp2_xgmii_txd_2(64'h0),
                  .qsfp2_xgmii_txc_2(1'h0),
                  .qsfp2_xgmii_rxd_2(),
