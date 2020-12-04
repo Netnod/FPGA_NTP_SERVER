@@ -2,8 +2,8 @@
 //
 // network_path_shared.v
 // ---------------------
-// Special version of network_path with a special 10G PHY with
-// clock regeneration etc.
+// Special version of network_path with separate MAC.
+// (Nothing is really shared anymore.)
 //
 //
 // Author: Rolf Andersson (rolf@mechanicalmen.se)
@@ -40,27 +40,31 @@
 
 `default_nettype none
 
-module network_path_shared #(parameter integer INSTANTIATE_ROSC = 1)
+module network_path_shared #(
+                             parameter integer ENGINES_NTS      = 16,
+                             parameter integer ENGINES_MINI     = 2,
+                             parameter integer INSTANTIATE_ROSC = 1
+                            )
   (
-  input wire [1 : 0]    api_ext_command,
-  input wire [31 : 0]   api_ext_address,
-  input wire [31 : 0]   api_ext_write_data,
-  output wire [1 : 0]   api_ext_status,
-  output wire [31 : 0]  api_ext_read_data,
+   input wire [1 : 0]    api_ext_command,
+   input wire [31 : 0]   api_ext_address,
+   input wire [31 : 0]   api_ext_write_data,
+   output wire [1 : 0]   api_ext_status,
+   output wire [31 : 0]  api_ext_read_data,
 
-  // NTP times
-  input wire [63 : 0]   ntp_time,
+   // NTP times
+   input wire [63 : 0]   ntp_time,
 
-  // Ethernet PHY.
-  input wire [63 : 0]   xgmii_rxd,
-  input wire [7  : 0]   xgmii_rxc,
-  output wire [63  : 0] xgmii_txd,
-  output wire [7   : 0] xgmii_txc,
+   // Ethernet PHY.
+   input wire [63 : 0]   xgmii_rxd,
+   input wire [7  : 0]   xgmii_rxc,
+   output wire [63  : 0] xgmii_txd,
+   output wire [7   : 0] xgmii_txc,
 
-  input wire            clk156,
-  input wire            areset_clk156,
-  input wire            sys_reset
-);
+   input wire            clk156,
+   input wire            areset_clk156,
+   input wire            sys_reset
+   );
 
 
   //----------------------------------------------------------------
@@ -267,28 +271,31 @@ module network_path_shared #(parameter integer INSTANTIATE_ROSC = 1)
   //----------------------------------------------------------------
   // NTS network path.
   //----------------------------------------------------------------
-  nts_top nts (
-    .i_areset(areset_clk156),
-    .i_clk(clk156),
+  nts_top #(.ENGINES_NTS(ENGINES_NTS),
+            .ENGINES_MINI(ENGINES_MINI)
+            )
+    nts0 (
+     .i_areset(areset_clk156),
+     .i_clk(clk156),
 
-    .i_ntp_time(ntp_time),
+     .i_ntp_time(ntp_time),
 
-    .i_mac_rx_data_valid(rx_mac_data_valid),
-    .i_mac_rx_data(rx_mac_data),
-    .i_mac_rx_bad_frame(rx_mac_bad_frame),
-    .i_mac_rx_good_frame(rx_mac_good_frame),
+     .i_mac_rx_data_valid(rx_mac_data_valid),
+     .i_mac_rx_data(rx_mac_data),
+     .i_mac_rx_bad_frame(rx_mac_bad_frame),
+     .i_mac_rx_good_frame(rx_mac_good_frame),
 
-    .o_mac_tx_start(nts_mactx_start),
-    .i_mac_tx_ack(nts_mactx_ack),
-    .o_mac_tx_data_valid(nts_mactx_data_valid),
-    .o_mac_tx_data(nts_mactx_data),
+     .o_mac_tx_start(nts_mactx_start),
+     .i_mac_tx_ack(nts_mactx_ack),
+     .o_mac_tx_data_valid(nts_mactx_data_valid),
+     .o_mac_tx_data(nts_mactx_data),
 
-    .i_api_dispatcher_cs(p0_nts_cs_reg),
-    .i_api_dispatcher_we(p0_nts_we_reg),
-    .i_api_dispatcher_address(p0_nts_address_reg),
-    .i_api_dispatcher_write_data(p0_nts_write_data_reg),
-    .o_api_dispatcher_read_data(nts_read_data)
-  );
+     .i_api_dispatcher_cs(p0_nts_cs_reg),
+     .i_api_dispatcher_we(p0_nts_we_reg),
+     .i_api_dispatcher_address(p0_nts_address_reg),
+     .i_api_dispatcher_write_data(p0_nts_write_data_reg),
+     .o_api_dispatcher_read_data(nts_read_data)
+    );
 
 
   //----------------------------------------------------------------

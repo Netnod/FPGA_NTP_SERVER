@@ -4,13 +4,6 @@
 # set_property IOSTANDARD DIFF_SSTL15 [get_ports SYS_CLK_P]
 # set_property PACKAGE_PIN H19 [get_ports SYS_CLK_P]
 
-create_clock -period 5.000 -name sys_clk -waveform {0.000 2.500} [get_ports sys_clk_p]
-
-# 156MHz clock
-#create_clock -name refclk_156 -period 6.4 [get_ports refclk_156_p]
-#set_property PACKAGE_PIN AW23 [get_ports refclk_156_p]
-#set_property IOSTANDARD LVDS [get_ports refclk_156_p]
-
 # set_property PACKAGE_PIN AV35 [get_ports pcie_perst]
 # set_property IOSTANDARD LVCMOS18 [get_ports pcie_perst]
 
@@ -49,8 +42,3 @@ create_clock -period 5.000 -name sys_clk -waveform {0.000 2.500} [get_ports sys_
 # set_property IOSTANDARD LVCMOS18 [get_ports pmbus_data]
 # set_property PACKAGE_PIN AV38 [get_ports pmbus_alert]
 # set_property IOSTANDARD LVCMOS18 [get_ports pmbus_alert]
-
-
-# We really want combinational loops for the rosc oscillators.
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets network_path_shared_0/rosc/core/oscillators[*].rosc_array/dout_new*]
-set_property ALLOW_COMBINATORIAL_LOOPS TRUE [get_nets network_path_shared_0/rosc/core/oscillators[*].rosc_array/dout_reg*]

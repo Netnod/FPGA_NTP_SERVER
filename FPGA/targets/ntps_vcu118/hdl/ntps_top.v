@@ -500,116 +500,141 @@ module ntps_top #(
   //----------------------------------------------------------------
   // network_path_shared_0.
   //----------------------------------------------------------------
-  network_path_shared network_path_shared_0 (
-    .api_ext_command    (api_ext_command_0),
-    .api_ext_address    (api_ext_address_0),
-    .api_ext_write_data (api_ext_write_data_0),
-    .api_ext_status     (api_ext_status_0),
-    .api_ext_read_data  (api_ext_read_data_0),
+  network_path_shared #(
+                        .ENGINES_NTS(8),
+                        .ENGINES_MINI(2),
+                        .INSTANTIATE_ROSC(1)
+                        )
+  network_path_shared_0 (
+     .clk156             (clk156),
+     .areset_clk156      (areset_clk156),
+     .sys_reset          (reset),
 
-    .ntp_time           (ntp_time),
+     .xgmii_rxd          (xgmii_rxd_0),
+     .xgmii_rxc          (xgmii_rxc_0),
+     .xgmii_txd          (xgmii_txd_0),
+     .xgmii_txc          (xgmii_txc_0),
 
-    .xgmii_rxd          (xgmii_rxd_0),
-    .xgmii_rxc          (xgmii_rxc_0),
-    .xgmii_txd          (xgmii_txd_0),
-    .xgmii_txc          (xgmii_txc_0),
+     .ntp_time           (ntp_time),
 
-    .clk156             (clk156),
-    .areset_clk156      (areset_clk156),
-    .sys_reset          (reset)
-  );
-
-
-  //----------------------------------------------------------------
-  // network_path_1
-  //----------------------------------------------------------------
-  network_path network_path_1 (
-    .api_ext_command    (api_ext_command_1),
-    .api_ext_address    (api_ext_address_1),
-    .api_ext_write_data (api_ext_write_data_1),
-    .api_ext_status     (api_ext_status_1),
-    .api_ext_read_data  (api_ext_read_data_1),
-
-    .ntp_time           (ntp_time),
-
-    .xgmii_rxd          (xgmii_rxd_1),
-    .xgmii_rxc          (xgmii_rxc_1),
-    .xgmii_txd          (xgmii_txd_1),
-    .xgmii_txc          (xgmii_txc_1),
-
-    .clk156             (clk156),
-    .areset_clk156      (areset_clk156),
-    .sys_reset          (reset)
-  );
+     .api_ext_command    (api_ext_command_0),
+     .api_ext_address    (api_ext_address_0),
+     .api_ext_write_data (api_ext_write_data_0),
+     .api_ext_status     (api_ext_status_0),
+     .api_ext_read_data  (api_ext_read_data_0)
+     );
 
 
   //----------------------------------------------------------------
-  // network_path_2
+  // network_path_shared_1
   //----------------------------------------------------------------
-  network_path network_path_2 (
-    .api_ext_command    (api_ext_command_2),
-    .api_ext_address    (api_ext_address_2),
-    .api_ext_write_data (api_ext_write_data_2),
-    .api_ext_status     (api_ext_status_2),
-    .api_ext_read_data  (api_ext_read_data_2),
+  network_path_shared #(
+                        .ENGINES_NTS(2),
+                        .ENGINES_MINI(2),
+                        .INSTANTIATE_ROSC(0)
+                        )
+  network_path_shared_1 (
+     .clk156             (clk156),
+     .areset_clk156      (areset_clk156),
+     .sys_reset          (reset),
 
-    .ntp_time           (ntp_time),
+     .xgmii_rxd          (xgmii_rxd_1),
+     .xgmii_rxc          (xgmii_rxc_1),
+     .xgmii_txd          (xgmii_txd_1),
+     .xgmii_txc          (xgmii_txc_1),
 
-    .xgmii_rxd          (xgmii_rxd_2),
-    .xgmii_rxc          (xgmii_rxc_2),
-    .xgmii_txd          (xgmii_txd_2),
-    .xgmii_txc          (xgmii_txc_2),
+     .ntp_time           (ntp_time),
 
-    .clk156             (clk156),
-    .areset_clk156      (areset_clk156),
-    .sys_reset          (reset)
-  );
-
-
-  //----------------------------------------------------------------
-  // network_path_3
-  //----------------------------------------------------------------
-  network_path network_path_3 (
-    .api_ext_command    (api_ext_command_3),
-    .api_ext_address    (api_ext_address_3),
-    .api_ext_write_data (api_ext_write_data_3),
-    .api_ext_status     (api_ext_status_3),
-    .api_ext_read_data  (api_ext_read_data_3),
-
-    .ntp_time           (ntp_time),
-
-    .xgmii_rxd          (xgmii_rxd_3),
-    .xgmii_rxc          (xgmii_rxc_3),
-    .xgmii_txd          (xgmii_txd_3),
-    .xgmii_txc          (xgmii_txc_3),
-
-    .clk156             (clk156),
-    .areset_clk156      (areset_clk156),
-    .sys_reset          (reset)
-  );
+     .api_ext_command    (api_ext_command_1),
+     .api_ext_address    (api_ext_address_1),
+     .api_ext_write_data (api_ext_write_data_1),
+     .api_ext_status     (api_ext_status_1),
+     .api_ext_read_data  (api_ext_read_data_1)
+    );
 
 
   //----------------------------------------------------------------
-  // network_path_4
+  // network_path_shared_2
   //----------------------------------------------------------------
-  network_path network_path_4 (
-    .api_ext_command    (api_ext_command_4),
-    .api_ext_address    (api_ext_address_4),
-    .api_ext_write_data (api_ext_write_data_4),
-    .api_ext_status     (api_ext_status_4),
-    .api_ext_read_data  (api_ext_read_data_4),
+  network_path_shared #(
+                        .ENGINES_NTS(2),
+                        .ENGINES_MINI(2),
+                        .INSTANTIATE_ROSC(0)
+                        )
+  network_path_shared_2 (
+     .clk156             (clk156),
+     .areset_clk156      (areset_clk156),
+     .sys_reset          (reset),
 
-    .ntp_time           (ntp_time),
+     .xgmii_rxd          (xgmii_rxd_2),
+     .xgmii_rxc          (xgmii_rxc_2),
+     .xgmii_txd          (xgmii_txd_2),
+     .xgmii_txc          (xgmii_txc_2),
 
-    .xgmii_rxd          (xgmii_rxd_4),
-    .xgmii_rxc          (xgmii_rxc_4),
-    .xgmii_txd          (xgmii_txd_4),
-    .xgmii_txc          (xgmii_txc_4),
+     .ntp_time           (ntp_time),
 
-    .clk156             (clk156),
-    .areset_clk156      (areset_clk156),
-    .sys_reset          (reset)
-  );
+     .api_ext_command    (api_ext_command_2),
+     .api_ext_address    (api_ext_address_2),
+     .api_ext_write_data (api_ext_write_data_2),
+     .api_ext_status     (api_ext_status_2),
+     .api_ext_read_data  (api_ext_read_data_2)
+    );
+
+
+  //----------------------------------------------------------------
+  // network_path_shared_3
+  //----------------------------------------------------------------
+  network_path_shared #(
+                        .ENGINES_NTS(2),
+                        .ENGINES_MINI(2),
+                        .INSTANTIATE_ROSC(0)
+                        )
+  network_path_shared_3 (
+     .clk156             (clk156),
+     .areset_clk156      (areset_clk156),
+     .sys_reset          (reset),
+
+     .xgmii_rxd          (xgmii_rxd_3),
+     .xgmii_rxc          (xgmii_rxc_3),
+     .xgmii_txd          (xgmii_txd_3),
+     .xgmii_txc          (xgmii_txc_3),
+
+     .ntp_time           (ntp_time),
+
+     .api_ext_command    (api_ext_command_3),
+     .api_ext_address    (api_ext_address_3),
+     .api_ext_write_data (api_ext_write_data_3),
+     .api_ext_status     (api_ext_status_3),
+     .api_ext_read_data  (api_ext_read_data_3)
+    );
+
+
+  //----------------------------------------------------------------
+  // network_path_shared_4
+  //----------------------------------------------------------------
+  network_path_shared #(
+                        .ENGINES_NTS(2),
+                        .ENGINES_MINI(2),
+                        .INSTANTIATE_ROSC(0)
+                        )
+  network_path_shared_4 (
+     .clk156             (clk156),
+     .areset_clk156      (areset_clk156),
+     .sys_reset          (reset),
+
+     .xgmii_rxd          (xgmii_rxd_4),
+     .xgmii_rxc          (xgmii_rxc_4),
+     .xgmii_txd          (xgmii_txd_4),
+     .xgmii_txc          (xgmii_txc_4),
+
+     .ntp_time           (ntp_time),
+
+     .api_ext_command    (api_ext_command_4),
+     .api_ext_address    (api_ext_address_4),
+     .api_ext_write_data (api_ext_write_data_4),
+     .api_ext_status     (api_ext_status_4),
+     .api_ext_read_data  (api_ext_read_data_4)
+    );
 
 endmodule // ntps_top
 

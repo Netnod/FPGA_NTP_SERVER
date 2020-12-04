@@ -50,8 +50,8 @@ SYN_FILES += ../../cores/verilog-ethernet/lib/axis/rtl/sync_reset.v
 
 SYN_FILES += ../../network_path/api_extension/src/rtl/api_extension.v
 SYN_FILES += ../../network_path/hdl/network_path.v
-SYN_FILES += ../../network_path/hdl/network_path_axi_slave.v
 SYN_FILES += ../../network_path/hdl/network_path_shared.v
+SYN_FILES += ../../network_path/hdl/network_path_axi_slave.v
 SYN_FILES += ../../network_path/keymem/src/rtl/ntp_auth_keymem.v
 SYN_FILES += ../../network_path/keymem/src/rtl/nts_keymem.v
 SYN_FILES += ../../network_path/nts/src/rtl/memory/bram.v
@@ -114,6 +114,7 @@ XDC_FILES += constr/ntp_io_loc.xdc
 XDC_FILES += constr/ntps_top_constr.xdc
 XDC_FILES += constr/xilinx_pcie4_uscale_plus_x1y2.xdc
 XDC_FILES += constr/network_phys.xdc
+XDC_FILES += constr/rosc_comb_loop.xdc
 
 # IP files
 XCI_FILES :=
