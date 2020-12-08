@@ -51,43 +51,26 @@ set_property -dict {LOC AY24 IOSTANDARD LVDS} [get_ports clk_125mhz_p]
 set_property -dict {LOC AY23 IOSTANDARD LVDS} [get_ports clk_125mhz_n]
 create_clock -period 8.000 -name clk_125mhz [get_ports clk_125mhz_p]
 
+# Separate Eth phy clocks from AXI clocks
+# set_clock_groups -name async_userclks_clk156 -asynchronous -group [get_clocks userclk*] -group [get_clocks [get_clocks -of_objects [get_pins ntps_interfaces_0/phys/phy0/refclk_p]]]
+
+
+# 156.25 MHz MGT reference clock. External source.
+# ------------------------------------------------
+# Missing the IO type for these.
+set_property -dict {LOC W9  } [get_ports qsfp1_mgt_refclk_0_p] ;# MGTREFCLK0P_231 from U38.4
+set_property -dict {LOC W8  } [get_ports qsfp1_mgt_refclk_0_n] ;# MGTREFCLK0N_231 from U38.5
+create_clock -period 6.400 -name qsfp1_mgt_refclk_0 [get_ports qsfp1_mgt_refclk_0_p]
+
+#set_property -dict {LOC U9  } [get_ports qsfp1_mgt_refclk_1_p] ;# MGTREFCLK1P_231 from U57.28
+#set_property -dict {LOC U8  } [get_ports qsfp1_mgt_refclk_1_n] ;# MGTREFCLK1N_231 from U57.29
+
 
 # Derived, generated clocks.
 # --------------------------
 # clk50
 create_generated_clock -name clk50 -source [get_ports SYS_CLK_P] -divide_by 2 [get_pins {clocks/clk50_gen_0/clk_divide_reg[1]/Q}]
 set_clock_groups -name clk_50_clocks -asynchronous -group [get_clocks -include_generated_clocks clk50]
-
-
-# Old, posibly redundant clock constraints
-# ----------------------------------------
-# 156.25 MHz clock control LOCs
-# set_property IOSTANDARD LVCMOS18 [get_ports i2c_clk]
-# set_property SLEW SLOW [get_ports i2c_clk]
-# set_property DRIVE 16 [get_ports i2c_clk]
-# set_property PULLUP true [get_ports i2c_clk]
-# set_property PACKAGE_PIN AT35 [get_ports i2c_clk]
-
-# set_property IOSTANDARD LVCMOS18 [get_ports i2c_data]
-# set_property SLEW SLOW [get_ports i2c_data]
-# set_property DRIVE 16 [get_ports i2c_data]
-# set_property PULLUP true [get_ports i2c_data]
-# set_property PACKAGE_PIN AU32 [get_ports i2c_data]
-
-# set_property IOSTANDARD LVCMOS18 [get_ports i2c_mux_rst_n]
-# set_property SLEW SLOW [get_ports i2c_mux_rst_n]
-# set_property DRIVE 16 [get_ports i2c_mux_rst_n]
-# set_property PACKAGE_PIN AY42 [get_ports i2c_mux_rst_n]
-
-# set_property IOSTANDARD LVCMOS18 [get_ports si5324_rst_n]
-# set_property SLEW SLOW [get_ports si5324_rst_n]
-# set_property DRIVE 16 [get_ports si5324_rst_n]
-# set_property PACKAGE_PIN AT36 [get_ports si5324_rst_n]
-
-# set_false_path -from [get_ports pcie_perst]
-
-# Separate Eth phy clocks from AXI clocks
-# set_clock_groups -name async_userclks_clk156 -asynchronous -group [get_clocks userclk*] -group [get_clocks [get_clocks -of_objects [get_pins ntps_interfaces_0/phys/phy0/refclk_p]]]
 
 #=======================================================================
 # EOF clocks.xdc
