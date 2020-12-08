@@ -105,8 +105,7 @@ SYN_FILES += pvtmon/pvtmon_top.v
 # Note, the order is important, some files contain definitions
 # that later files rely upon
 XDC_FILES :=
-XDC_FILES += constr/clock_control.xdc
-XDC_FILES += constr/clock_groups.xdc
+XDC_FILES += constr/clocks.xdc
 XDC_FILES += constr/debug.xdc
 XDC_FILES += constr/misc.xdc
 XDC_FILES += constr/network_path_except.xdc

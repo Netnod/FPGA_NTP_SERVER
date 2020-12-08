@@ -1,9 +1,17 @@
-#--------------------------------------------------------------------
+#=======================================================================
+# ntp.xdc
+# -------
+# Constraints for NTP.
+# Input pins, timing, groups etc.
+#=======================================================================
+
 # NTP clock A
+# -----------
 set_property PACKAGE_PIN AL35 [get_ports TEN_MHZ_INA_clk_p]
 set_property PACKAGE_PIN AL36 [get_ports TEN_MHZ_INA_clk_n]
 set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INA_clk_p]
 set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INA_clk_n]
+set_clock_groups -name ntp_clocks_A -asynchronous -group [get_clocks -include_generated_clocks TEN_MHZ_INA_clk_p]
 
 # Avoid ERROR: [Place 30-681] Sub-optimal placement for a global
 # clock-capable IO pin and MMCM pair. As a workaround for this error,
@@ -28,12 +36,14 @@ set_property IOSTANDARD LVCMOS18 [get_ports PPS_OUTA]
 # set_property SLEW FAST [get_ports PPS_OUTA]
 #set_property OFFCHIP_TERM NONE [get_ports PPS_OUTA]
 
-#--------------------------------------------------------------------
+
 # NTP clock B
+# -----------
 set_property PACKAGE_PIN AY9 [get_ports TEN_MHZ_INB_clk_p]
 set_property PACKAGE_PIN BA9 [get_ports TEN_MHZ_INB_clk_n]
 set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INB_clk_p]
 set_property IOSTANDARD DIFF_HSTL_I_18 [get_ports TEN_MHZ_INB_clk_n]
+set_clock_groups -name ntp_clocks_B -asynchronous -group [get_clocks -include_generated_clocks TEN_MHZ_INB_clk_p]
 
 set_property PACKAGE_PIN BD13 [get_ports PPS_INB_P]
 set_property PACKAGE_PIN BE13 [get_ports PPS_INB_N]
