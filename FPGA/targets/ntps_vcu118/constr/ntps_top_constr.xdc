@@ -6,16 +6,23 @@
 # separate constraint file.
 #=======================================================================
 
-# BITFILE/BITSTREAM compress options
-# ----------------------------------
-set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 8 [current_design]
-set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN div-1 [current_design]
-set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
-set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design ]
+# Device config
+# -------------
+set_property CFGBVS GND                                [current_design]
+set_property CONFIG_VOLTAGE 1.8                        [current_design]
+
+
+# Bitstream
+# ---------
+set_property BITSTREAM.GENERAL.COMPRESS true           [current_design]
+set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN {DIV-1} [current_design]
+set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR YES       [current_design]
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 8           [current_design]
+set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES        [current_design]
 
 
 # Reset
-# ------
+# -----
 # set_property IOSTANDARD LVCMOS18 [get_ports pcie_perstn_raw]
 # set_property PACKAGE_PIN AM17 [get_ports pcie_perstn_raw]
 set_false_path -from [get_ports pcie_perstn_rst]
@@ -23,7 +30,7 @@ set_property PULLUP true [get_ports pcie_perstn_rst]
 
 
 # LEDs on VCU118
-# ----------------
+# --------------
 set_property PACKAGE_PIN AT32 [get_ports led_0]
 set_property IOSTANDARD LVCMOS12 [get_ports led_0]
 set_property DRIVE 8 [get_ports led_0]
@@ -60,7 +67,7 @@ set_false_path -to [get_ports -filter NAME=~led_*]
 
 
 # Assorted old constraints to be cleanup, included, removed etc.
-----------------------------------------------------------------
+# --------------------------------------------------------------
 # set_property PACKAGE_PIN AB8 [get_ports PCIE_CLK_P]
 # create_clock -period 10.000 -name PCIE_CLK -waveform {0.000 5.000} [get_ports PCIE_CLK_P]
 
@@ -71,18 +78,8 @@ set_false_path -to [get_ports -filter NAME=~led_*]
 # set_property IOSTANDARD LVCMOS18 [get_ports pcie_perst]
 
 
-#As per UG470, UG899, UG908, and G18 Flash specifications
-# set_property BITSTREAM.CONFIG.BPI_SYNC_MODE Type1 [current_design]
-# set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN div-1 [current_design]
-# set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
-# set_property BITSTREAM.CONFIG.UNUSEDPIN Pulldown [current_design]
-# set_property CONFIG_MODE BPI16 [current_design]
-# set_property CFGBVS GND [current_design]
-# set_property CONFIG_VOLTAGE 1.8 [current_design]
-
-#-------------------------------------
-# PMBUS LOC
-#-------------------------------------
+# PMBUS
+#------
 # set_property PACKAGE_PIN AW37 [get_ports pmbus_clk]
 # set_property IOSTANDARD LVCMOS18 [get_ports pmbus_clk]
 # set_property PACKAGE_PIN AY39 [get_ports pmbus_data]
