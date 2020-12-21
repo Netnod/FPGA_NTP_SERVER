@@ -40,7 +40,7 @@
 `default_nettype none
 
 module ntps_top #(
-		  parameter NUM_PCIE_LANES = 16
+		  parameter NUM_PCIE_LANES = 8
                   )
   (
    input wire                       reset,
