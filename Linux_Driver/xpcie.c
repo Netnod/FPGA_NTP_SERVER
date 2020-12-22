@@ -506,7 +506,9 @@ static int XPCIe_init(void)
     int i;
 
     if ((gDev = pci_get_device (0x10ee, 0x7028, gDev)) == NULL &&
-        (gDev = pci_get_device (0x10ee, 0x902f, gDev)) == NULL) {
+        (gDev = pci_get_device (0x10ee, 0x9028, gDev)) == NULL &&
+        (gDev = pci_get_device (0x10ee, 0x902f, gDev)) == NULL &&
+        (gDev = pci_get_device (0x10ee, 0x9038, gDev)) == NULL) {
         printk(/*KERN_WARNING*/"%s: Init: Hardware not found.\n", gDrvrName);
 	ret = -EIO;
 	goto out;
