@@ -35,9 +35,6 @@ add_files -fileset sources_1 $xci_files
 
 puts "Adding XDC files $xdc_files"
 add_files -fileset constrs_1 $xdc_files
-foreach fn $xdc_files {
-    set_property -name "file_type" -value "XDC" -objects [ get_files -of_objects [get_filesets constrs_1] [list "$proj_dir/$fn"] ]
-}
 
 foreach fn $tcl_files {
     puts "source \"$fn\""
