@@ -9,7 +9,7 @@ set xci_files [ regexp -inline -all -- {\S+} "$env(XCI_FILES)" ]
 set tcl_files [ regexp -inline -all -- {\S+} "$env(TCL_FILES)" ]
 
 puts "Creating project \"$proj_name\" for part \"$fpga_part\""
-create_project -part "$fpga_part" "$proj_name"
+create_project -force -part "$fpga_part" "$proj_name"
 
 set proj_dir [get_property directory [current_project] ]
 
@@ -30,8 +30,10 @@ if { "$tcl_pre" != "" } {
 puts "Adding source files $syn_files"
 add_files -fileset sources_1 $syn_files
 
-puts "Adding XCI files $xci_files"
-add_files -fileset sources_1 $xci_files
+if { [llength $xci_files] != 0 } {
+    puts "Adding XCI files $xci_files"
+    add_files -fileset sources_1 $xci_files
+}
 
 puts "Adding XDC files $xdc_files"
 add_files -fileset constrs_1 $xdc_files

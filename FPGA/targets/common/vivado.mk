@@ -2,7 +2,9 @@
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-%.xpr: Makefile $(XCI_FILES) $(TCL_FILES)
+.PHONY: proj synth report_synth impl report_impl bit
+
+proj $(PROJ_NAME).xpr: Makefile $(XCI_FILES) $(TCL_FILES)
 	rm -rf -- $*.xpr $*.cache $*.hw $*.ip_user_files $*.runs $*.sim $*.srcs
 	PROJ_NAME="$(PROJ_NAME)" \
 	FPGA_TOP="$(FPGA_TOP)" \
@@ -13,16 +15,26 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 	XCI_FILES="$(XCI_FILES)" \
 	TCL_FILES="$(TCL_FILES)" \
 	TCL_PRE="$(TCL_PRE)" \
-	time vivado -nojournal -nolog -notrace -mode batch -source "$(SELF_DIR)"create_project.tcl
+	/bin/time vivado -nojournal -nolog -notrace -mode batch -source "$(SELF_DIR)create_project.tcl"; ec=$$?; if [ $$ec -ne 0 ]; then rm -f -- $(2); exit $$ec; fi
 
-%.runs/synth_1/%.dcp: %.xpr $(SYN_FILES) $(INC_FILES) $(XDC_FILES) $(TCL_PRE)
+.PRECIOUS: $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp
+synth $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp: $(PROJ_NAME).xpr $(SYN_FILES) $(INC_FILES) $(XDC_FILES) $(TCL_PRE)
 	PROJ_NAME="$(PROJ_NAME)" \
-	time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)"run_synth.tcl
+	/bin/time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)run_synth.tcl"
 
-%.runs/impl_1/%_routed.dcp: %.runs/synth_1/%.dcp
+report_synth: $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp
 	PROJ_NAME="$(PROJ_NAME)" \
-	time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)"run_impl.tcl
+	/bin/time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)report_synth.tcl"
 
-%.bit: %.runs/impl_1/%_routed.dcp
+.PRECIOUS: $(PROJ_NAME).runs/impl_1/$(FPGA_TOP)_routed.dcp
+impl $(PROJ_NAME).runs/impl_1/$(FPGA_TOP)_routed.dcp: $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp
 	PROJ_NAME="$(PROJ_NAME)" \
-	time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)"generate_bitstream.tcl
+	/bin/time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)run_impl.tcl"
+
+report_impl: $(PROJ_NAME).runs/impl_1/$(FPGA_TOP)_routed.dcp
+	PROJ_NAME="$(PROJ_NAME)" \
+	/bin/time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)report_impl.tcl"
+
+bit $(PROJ_NAME).bit: $(PROJ_NAME).runs/impl_1/$(FPGA_TOP)_routed.dcp
+	PROJ_NAME="$(PROJ_NAME)" \
+	/bin/time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)generate_bitstream.tcl"
