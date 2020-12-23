@@ -554,6 +554,33 @@ module ntps_phys (
   //----------------------------------------------------------------
   // 10G PHYs
   //----------------------------------------------------------------
+  wire [63 : 0] qsfp1_xgmii_txd_1_int;
+  wire [7  : 0] qsfp1_xgmii_txc_1_int;
+  wire [63 : 0] qsfp1_xgmii_rxd_1_int;
+  wire [7  : 0] qsfp1_xgmii_rxc_1_int;
+
+  xgmii_fifo qsfp1_tx_fifo_1 (
+    .wr_rst(rst_156mhz_int),
+    .wr_clk(clk_156mhz_int),
+    .wr_data(qsfp1_xgmii_txd_1),
+    .wr_ctrl(qsfp1_xgmii_txc_1),
+
+    .rd_clk(qsfp1_tx_clk_1_int),
+    .rd_data(qsfp1_xgmii_txd_1_int),
+    .rd_ctrl(qsfp1_xgmii_txc_1_int)
+  );
+
+  xgmii_fifo qsfp1_rx_fifo_1 (
+    .wr_rst(qsfp1_rx_rst_1_int),
+    .wr_clk(qsfp1_rx_clk_1_int),
+    .wr_data(qsfp1_xgmii_rxd_1_int),
+    .wr_ctrl(qsfp1_xgmii_rxc_1_int),
+
+    .rd_clk(clk_156mhz_int),
+    .rd_data(qsfp1_xgmii_rxd_1),
+    .rd_ctrl(qsfp1_xgmii_rxc_1)
+  );
+
   assign qsfp1_tx_clk_1_int = clk_156mhz_int;
   assign qsfp1_tx_rst_1_int = rst_156mhz_int;
   assign qsfp1_rx_clk_1_int = gt_rxusrclk[0];
@@ -575,10 +602,10 @@ module ntps_phys (
     .tx_rst(qsfp1_tx_rst_1_int),
     .rx_clk(qsfp1_rx_clk_1_int),
     .rx_rst(qsfp1_rx_rst_1_int),
-    .xgmii_txd(qsfp1_xgmii_txd_1),
-    .xgmii_txc(qsfp1_xgmii_txc_1),
-    .xgmii_rxd(qsfp1_xgmii_rxd_1),
-    .xgmii_rxc(qsfp1_xgmii_rxc_1),
+    .xgmii_txd(qsfp1_xgmii_txd_1_int),
+    .xgmii_txc(qsfp1_xgmii_txc_1_int),
+    .xgmii_rxd(qsfp1_xgmii_rxd_1_int),
+    .xgmii_rxc(qsfp1_xgmii_rxc_1_int),
     .serdes_tx_data(qsfp1_gt_txdata_1),
     .serdes_tx_hdr(qsfp1_gt_txheader_1),
     .serdes_rx_data(qsfp1_gt_rxdata_1),
@@ -587,7 +614,6 @@ module ntps_phys (
     .rx_block_lock(qsfp1_rx_block_lock_1),
     .rx_high_ber()
   );
-
 
   assign qsfp1_tx_clk_2_int = clk_156mhz_int;
   assign qsfp1_tx_rst_2_int = rst_156mhz_int;

@@ -11,10 +11,6 @@ set_property -dict {LOC AY24 IOSTANDARD LVDS} [get_ports clk_125mhz_p]
 set_property -dict {LOC AY23 IOSTANDARD LVDS} [get_ports clk_125mhz_n]
 create_clock -period 8.000 -name clk_125mhz [get_ports clk_125mhz_p]
 
-# Separate Eth phy clocks from AXI clocks
-# set_clock_groups -name async_userclks_clk156 -asynchronous -group [get_clocks userclk*] -group [get_clocks [get_clocks -of_objects [get_pins ntps_interfaces_0/phys/phy0/refclk_p]]]
-
-
 # 156.25 MHz MGT reference clock. External source.
 # ------------------------------------------------
 set_property -dict {LOC W9  } [get_ports qsfp1_mgt_refclk_0_p] ;# MGTREFCLK0P_231 from U38.4
@@ -31,13 +27,13 @@ set_property -dict {LOC G31  IOSTANDARD DIFF_SSTL12} [get_ports clk_300mhz_p]
 set_property -dict {LOC F31  IOSTANDARD DIFF_SSTL12} [get_ports clk_300mhz_n]
 create_clock -period 3.333 -name clk_300mhz [get_ports clk_300mhz_p]
 
-set_clock_groups -name async20 -asynchronous -group [get_clocks -of_objects [get_ports clk_300MHz_p]] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
+# set_clock_groups -name async20 -asynchronous -group [get_clocks -of_objects [get_ports clk_300MHz_p]] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
 
-set_clock_groups -name async21 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks -of_objects [get_ports clk_300MHz_p]]
+# set_clock_groups -name async21 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks -of_objects [get_ports clk_300MHz_p]]
 
-set_clock_groups -name async22 -asynchronous -group [get_clocks -of_objects [get_ports clk_300MHz_p]] -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
+# set_clock_groups -name async22 -asynchronous -group [get_clocks -of_objects [get_ports clk_300MHz_p]] -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
 
-set_clock_groups -name async23 -asynchronous -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]] -group [get_clocks -of_objects [get_ports clk_300MHz_p]]
+# set_clock_groups -name async23 -asynchronous -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]] -group [get_clocks -of_objects [get_ports clk_300MHz_p]]
 
 
 # Derived, generated clocks.
@@ -53,23 +49,34 @@ set_property PACKAGE_PIN AL9 [get_ports pcie_clk_p]
 set_property PACKAGE_PIN AL8 [get_ports pcie_clk_n]
 create_clock -name pcie_clk -period 10 [get_ports pcie_clk_p]
 
-set_clock_groups -name async18 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
+# set_clock_groups -name async18 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE4_CHANNEL_PRIM_INST/TXOUTCLK}]]
 
-set_clock_groups -name asynco -asynchronous -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]] -group [get_clocks {pcie_clk}]
+# set_clock_groups -name asynco -asynchronous -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]] -group [get_clocks {pcie_clk}]
 
-set_clock_groups -name asyncp -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]]
+# set_clock_groups -name asyncp -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins mem_clk_inst/clk_out1]]
 
-set_clock_groups -name async5 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
+# set_clock_groups -name async5 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]]
 
-set_clock_groups -name async6 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks {pcie_clk}]
+# set_clock_groups -name async6 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_userclk/O]] -group [get_clocks {pcie_clk}]
 
-set_clock_groups -name async1 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]]
+# set_clock_groups -name async1 -asynchronous -group [get_clocks {pcie_clk}] -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]]
 
-set_clock_groups -name async2 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]] -group [get_clocks {pcie_clk}]
+# set_clock_groups -name async2 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_pclk/O]] -group [get_clocks {pcie_clk}]
 
-set_clock_groups -name async24 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_intclk/O]] -group [get_clocks {pcie_clk}]
+# set_clock_groups -name async24 -asynchronous -group [get_clocks -of_objects [get_pins vcu118_pcie_x16_gen3_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/phy_clk_i/bufg_gt_intclk/O]] -group [get_clocks {pcie_clk}]
 
-set_clock_groups -name async19 -asynchronous -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE
+# set_clock_groups -name async19 -asynchronous -group [get_clocks -of_objects [get_pins -hierarchical -filter {NAME =~ *gen_channel_container[*].*gen_gtye4_channel_inst[*].GTYE
+
+# Separate Eth phy clocks from AXI clocks
+
+# Rename 156MHz clock from PHYs
+# create_generated_clock -name phy_clk -source [get_pins ntps_interfaces_0/pcie_axi_0/xdma_0/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/ntps_top_xdma_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.ntps_top_xdma_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[31].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST/QPLL1CLK] -master_clock [get_clocks qpll1outclk_out[0]] [get_pins ntps_interfaces_0/pcie_axi_0/xdma_0/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/ntps_top_xdma_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.ntps_top_xdma_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[31].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST/TXOUTCLKPCS]
+
+set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk] -group [get_clocks txoutclk_out[0]]
+
+# set_clock_groups -name async_userclks_clk156 -asynchronous -group [get_clocks userclk*] -group [get_clocks [get_clocks -of_objects [get_pins ntps_interfaces_0/phys/phy0/refclk_p]]]
+# set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk]
+# set_clock_groups -name async_axi_aclk_clk156 -asynchronous -group [get_clocks axi_aclk] -group [get_clocks -of_objects [get_nets clk156]]
 
 #=======================================================================
 # EOF clocks.xdc
