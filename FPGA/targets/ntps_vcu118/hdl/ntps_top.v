@@ -501,7 +501,7 @@ module ntps_top #(
   // network_path_shared_0.
   //----------------------------------------------------------------
   network_path_shared #(
-                        .ENGINES_NTS(8),
+                        .ENGINES_NTS(2),
                         .ENGINES_MINI(2),
                         .INSTANTIATE_ROSC(1)
                         )
@@ -524,7 +524,16 @@ module ntps_top #(
      .api_ext_read_data  (api_ext_read_data_0)
      );
 
+  assign xgmii_txd_1 = 64'h0707070707070707;
+  assign xgmii_txc_1 = 8'hff;
+  assign xgmii_txd_2 = 64'h0707070707070707;
+  assign xgmii_txc_2 = 8'hff;
+  assign xgmii_txd_3 = 64'h0707070707070707;
+  assign xgmii_txc_3 = 8'hff;
+  assign xgmii_txd_4 = 64'h0707070707070707;
+  assign xgmii_txc_4 = 8'hff;
 
+/*
   //----------------------------------------------------------------
   // network_path_shared_1
   //----------------------------------------------------------------
@@ -635,6 +644,7 @@ module ntps_top #(
      .api_ext_status     (api_ext_status_4),
      .api_ext_read_data  (api_ext_read_data_4)
     );
+*/
 
 endmodule // ntps_top
 
