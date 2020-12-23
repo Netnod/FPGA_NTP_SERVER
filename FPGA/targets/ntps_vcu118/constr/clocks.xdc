@@ -26,7 +26,7 @@ create_clock -period 6.400 -name qsfp1_mgt_refclk_0 [get_ports qsfp1_mgt_refclk_
 
 
 # 300 MHz system clock. External source. Used for PCIe.
--------------------------------------------------------
+# -------------------------------------------------------
 set_property -dict {LOC G31  IOSTANDARD DIFF_SSTL12} [get_ports clk_300mhz_p]
 set_property -dict {LOC F31  IOSTANDARD DIFF_SSTL12} [get_ports clk_300mhz_n]
 create_clock -period 3.333 -name clk_300mhz [get_ports clk_300mhz_p]
