@@ -6,6 +6,4 @@ cd ../../cores
 ./download-and-unpack.sh
 )
 
-make
-
-
+/bin/time make 2>&1 | tee log
