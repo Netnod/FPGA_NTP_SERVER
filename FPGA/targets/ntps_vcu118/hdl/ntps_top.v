@@ -87,28 +87,6 @@ module ntps_top #(
    input  wire                      qsfp1_intl,
    output wire                      qsfp1_lpmode,
 
-   output wire                      qsfp2_tx1_p,
-   output wire                      qsfp2_tx1_n,
-   input  wire                      qsfp2_rx1_p,
-   input  wire                      qsfp2_rx1_n,
-   output wire                      qsfp2_tx2_p,
-   output wire                      qsfp2_tx2_n,
-   input  wire                      qsfp2_rx2_p,
-   input  wire                      qsfp2_rx2_n,
-   output wire                      qsfp2_tx3_p,
-   output wire                      qsfp2_tx3_n,
-   input  wire                      qsfp2_rx3_p,
-   input  wire                      qsfp2_rx3_n,
-   output wire                      qsfp2_tx4_p,
-   output wire                      qsfp2_tx4_n,
-   input  wire                      qsfp2_rx4_p,
-   input  wire                      qsfp2_rx4_n,
-   output wire                      qsfp2_modsell,
-   output wire                      qsfp2_resetl,
-   input  wire                      qsfp2_modprsl,
-   input  wire                      qsfp2_intl,
-   output wire                      qsfp2_lpmode,
-
    input wire 	                    PPS_INA_P,
    input wire 	                    PPS_INA_N,
    output wire 	                    PPS_OUTA,
@@ -396,29 +374,6 @@ module ntps_top #(
      .qsfp1_intl            (qsfp1_intl),
      .qsfp1_lpmode          (qsfp1_lpmode),
 
-     // External ports for QSFP interface 2.
-     .qsfp2_tx1_p           (qsfp2_tx1_p),
-     .qsfp2_tx1_n           (qsfp2_tx1_n),
-     .qsfp2_rx1_p           (qsfp2_rx1_p),
-     .qsfp2_rx1_n           (qsfp2_rx1_n),
-     .qsfp2_tx2_p           (qsfp2_tx2_p),
-     .qsfp2_tx2_n           (qsfp2_tx2_n),
-     .qsfp2_rx2_p           (qsfp2_rx2_p),
-     .qsfp2_rx2_n           (qsfp2_rx2_n),
-     .qsfp2_tx3_p           (qsfp2_tx3_p),
-     .qsfp2_tx3_n           (qsfp2_tx3_n),
-     .qsfp2_rx3_p           (qsfp2_rx3_p),
-     .qsfp2_rx3_n           (qsfp2_rx3_n),
-     .qsfp2_tx4_p           (qsfp2_tx4_p),
-     .qsfp2_tx4_n           (qsfp2_tx4_n),
-     .qsfp2_rx4_p           (qsfp2_rx4_p),
-     .qsfp2_rx4_n           (qsfp2_rx4_n),
-     .qsfp2_modsell         (qsfp2_modsell),
-     .qsfp2_resetl          (qsfp2_resetl),
-     .qsfp2_modprsl         (qsfp2_modprsl),
-     .qsfp2_intl            (qsfp2_intl),
-     .qsfp2_lpmode          (qsfp2_lpmode),
-
      // Port 0.
      .xgmii_txd_0           (xgmii_txd_0),
      .xgmii_txc_0           (xgmii_txc_0),
@@ -501,7 +456,7 @@ module ntps_top #(
   // network_path_shared_0.
   //----------------------------------------------------------------
   network_path_shared #(
-                        .ENGINES_NTS(45),
+                        .ENGINES_NTS(2),
                         .ENGINES_MINI(2),
                         .INSTANTIATE_ROSC(1)
                         )

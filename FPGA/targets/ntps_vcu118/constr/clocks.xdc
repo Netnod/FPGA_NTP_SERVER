@@ -72,7 +72,10 @@ create_clock -name pcie_clk -period 10 [get_ports pcie_clk_p]
 # Rename 156MHz clock from PHYs
 # create_generated_clock -name phy_clk -source [get_pins ntps_interfaces_0/pcie_axi_0/xdma_0/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/ntps_top_xdma_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.ntps_top_xdma_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[31].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST/QPLL1CLK] -master_clock [get_clocks qpll1outclk_out[0]] [get_pins ntps_interfaces_0/pcie_axi_0/xdma_0/inst/pcie4_ip_i/inst/gt_top_i/diablo_gt.diablo_gt_phy_wrapper/gt_wizard.gtwizard_top_i/ntps_top_xdma_0_pcie4_ip_gt_i/inst/gen_gtwizard_gtye4_top.ntps_top_xdma_0_pcie4_ip_gt_gtwizard_gtye4_inst/gen_gtwizard_gtye4.gen_channel_container[31].gen_enabled_channel.gtye4_channel_wrapper_inst/channel_inst/gtye4_channel_gen.gen_gtye4_channel_inst[2].GTYE4_CHANNEL_PRIM_INST/TXOUTCLKPCS]
 
-set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk] -group [get_clocks txoutclk_out[0]]
+# set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk] -group [get_clocks txoutclk_out[0]]
+# set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk] -group [get_clocks rxoutclk_out[0]]
+
+set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk]
 
 # set_clock_groups -name async_userclks_clk156 -asynchronous -group [get_clocks userclk*] -group [get_clocks [get_clocks -of_objects [get_pins ntps_interfaces_0/phys/phy0/refclk_p]]]
 # set_clock_groups -name async_axi_aclk -asynchronous -group [get_clocks axi_aclk]

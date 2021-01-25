@@ -35,17 +35,6 @@ SYN_FILES += ../../cores/xge_ll_mac/hdl/rx_enqueue.v
 SYN_FILES += ../../cores/xge_ll_mac/hdl/tx_control.v
 SYN_FILES += ../../cores/xge_ll_mac/hdl/tx_dequeue.v
 
-SYN_FILES += ../../cores/verilog-ethernet/example/VCU118/fpga_10g/rtl/sync_signal.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx_if.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx_frame_sync.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_rx_ber_mon.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_tx.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/eth_phy_10g_tx_if.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/xgmii_baser_dec_64.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/xgmii_baser_enc_64.v
-SYN_FILES += ../../cores/verilog-ethernet/rtl/lfsr.v
 SYN_FILES += ../../cores/verilog-ethernet/lib/axis/rtl/sync_reset.v
 
 SYN_FILES += ../../network_path/api_extension/src/rtl/api_extension.v
@@ -97,7 +86,6 @@ SYN_FILES += hdl/ntps_interfaces.v
 SYN_FILES += hdl/ntps_phys.v
 SYN_FILES += hdl/ntps_top.v
 SYN_FILES += hdl/pcie_axi.v
-SYN_FILES += hdl/xgmii_fifo.v
 
 SYN_FILES += pvtmon/pvtmon_axi_slave.v
 SYN_FILES += pvtmon/pvtmon_top.v
@@ -106,9 +94,6 @@ SYN_FILES += pvtmon/pvtmon_top.v
 # Note, the order is important, some files contain definitions
 # that later files rely upon
 XDC_FILES :=
-XDC_FILES += ../../cores/verilog-ethernet/syn/eth_mac_fifo.tcl
-XDC_FILES += ../../cores/verilog-ethernet/lib/axis/syn/axis_async_fifo.tcl
-XDC_FILES += ../../cores/verilog-ethernet/lib/axis/syn/sync_reset.tcl
 XDC_FILES += constr/clocks.xdc
 XDC_FILES += constr/debug.xdc
 XDC_FILES += constr/network_path_except.xdc
@@ -129,14 +114,13 @@ XCI_FILES += xilinx_ip/top/ntps_top_rst_axi_pcie3_0_250M_0/ntps_top_rst_axi_pcie
 XCI_FILES += xilinx_ip/top/ntps_top_s00_data_fifo_0/ntps_top_s00_data_fifo_0.xci
 XCI_FILES += xilinx_ip/top/ntps_top_xbar_0/ntps_top_xbar_0.xci
 XCI_FILES += xilinx_ip/top/ntps_top_xdma_0/ntps_top_xdma_0.xci
-XCI_FILES += xilinx_ip/top/xgmii_fifo_int/xgmii_fifo_int.xci
+XCI_FILES += xilinx_ip/xxv_ethernet_0/xxv_ethernet_0.xci
 
 # Tcl file to run before starting synthesis
 TCL_PRE := pre_synth.tcl
 
 # Tcl file to add cores etc.
 TCL_FILES :=
-TCL_FILES += ../../cores/verilog-ethernet/example/VCU118/fpga_10g/ip/gtwizard_ultrascale_0.tcl
 
 .PHONY: fpga vivado clean
 
