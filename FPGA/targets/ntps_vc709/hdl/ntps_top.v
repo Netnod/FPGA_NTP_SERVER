@@ -483,7 +483,12 @@ module ntps_top (
   //----------------------------------------------------------------
   // network_path_shared_0.
   //----------------------------------------------------------------
-  network_path_shared network_path_shared_0 (
+  network_path_shared #(
+                        .ENGINES_NTS(8),
+                        .ENGINES_MINI(2),
+                        .INSTANTIATE_ROSC(1)
+                        )
+  network_path_shared_0 (
     .api_ext_command    (api_ext_command_0),
     .api_ext_address    (api_ext_address_0),
     .api_ext_write_data (api_ext_write_data_0),
@@ -503,6 +508,14 @@ module ntps_top (
   );
 
 
+  assign xgmii_txd_1 = 64'h0707070707070707;
+  assign xgmii_txc_1 = 8'hff;
+  assign xgmii_txd_2 = 64'h0707070707070707;
+  assign xgmii_txc_2 = 8'hff;
+  assign xgmii_txd_3 = 64'h0707070707070707;
+  assign xgmii_txc_3 = 8'hff;
+
+/*
   //----------------------------------------------------------------
   // network_path_1
   //----------------------------------------------------------------
@@ -571,6 +584,7 @@ module ntps_top (
     .sys_reset          (reset)
   );
 
+*/
 endmodule // ntps_top
 
 `default_nettype wire
