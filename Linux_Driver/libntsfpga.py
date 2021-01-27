@@ -844,7 +844,7 @@ if __name__=="__main__":
     opt_test_entropy = 0
     install_keys = []
     activate_key = None
-    mac = [ 0xc86000101010, 0xc86000101011, 0xc86000101012, 0xc86000101013 ]
+    mac = [ 0x525a2c182ef0, 0x525a2c182ef1, 0x525a2c182ef2, 0x525a2c182ef3 ]
     ipv4 = []
     for i in range(8):
         ipv4.append(("192.168.%d.%d" % (40, (30 + i))))
