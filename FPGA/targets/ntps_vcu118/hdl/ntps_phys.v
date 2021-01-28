@@ -54,7 +54,12 @@ module ntps_phys (
                   // Blinkenlights.
                   output wire [7:0]    led,
 
-                  // External ports for QSFP interface 1.
+                  input wire  [2 : 0]  xphy_config_0,
+                  input wire  [2 : 0]  xphy_config_1,
+                  input wire  [2 : 0]  xphy_config_2,
+                  input wire  [2 : 0]  xphy_config_3,
+
+                 // External ports for QSFP interface 1.
                   output wire          qsfp1_tx1_p,
                   output wire          qsfp1_tx1_n,
                   input  wire          qsfp1_rx1_p,
@@ -100,7 +105,7 @@ module ntps_phys (
                   );
 
 assign qsfp1_modsell = 1'b0;
-assign qsfp1_resetl  = 1'b1;
+  assign qsfp1_resetl  = xphy_config_0[0]; // & xphy_config_1[0] & xphy_config_2[0] & xphy_config_3[0];
 assign qsfp1_lpmode  = 1'b0;
 
 wire [3:0] rx_core_clk;

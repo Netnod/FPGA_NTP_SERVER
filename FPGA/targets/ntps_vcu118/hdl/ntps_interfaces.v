@@ -487,6 +487,11 @@ module ntps_interfaces #(
                  // Blinkenlights.
                  .led(),
 
+                 .xphy_config_0         (gen_config_0[31 : 29]),
+                 .xphy_config_1         (gen_config_1[31 : 29]),
+                 .xphy_config_2         (gen_config_2[31 : 29]),
+                 .xphy_config_3         (gen_config_3[31 : 29]),
+
                  .qsfp1_mgt_refclk_0_p(qsfp1_mgt_refclk_0_p),
                  .qsfp1_mgt_refclk_0_n(qsfp1_mgt_refclk_0_n),
 
