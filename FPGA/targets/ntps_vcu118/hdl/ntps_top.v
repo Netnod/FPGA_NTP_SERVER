@@ -458,7 +458,7 @@ module ntps_top #(
   network_path_shared #(
                         .ENGINES_NTS(40),
                         .ENGINES_MINI(2),
-                        .INSTANTIATE_ROSC(0)
+                        .INSTANTIATE_ROSC(1)
                         )
   network_path_shared_0 (
      .clk156             (clk156),
