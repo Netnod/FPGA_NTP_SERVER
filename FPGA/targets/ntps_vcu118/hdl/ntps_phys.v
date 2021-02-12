@@ -105,7 +105,7 @@ module ntps_phys (
                   );
 
 assign qsfp1_modsell = 1'b0;
-  assign qsfp1_resetl  = xphy_config_0[0]; // & xphy_config_1[0] & xphy_config_2[0] & xphy_config_3[0];
+  assign qsfp1_resetl  = 1; // xphy_config_0[0]; // & xphy_config_1[0] & xphy_config_2[0] & xphy_config_3[0];
 assign qsfp1_lpmode  = 1'b0;
 
 wire [3:0] rx_core_clk;
@@ -131,7 +131,7 @@ sync_reset_156mhz_inst (
 assign rx_core_clk = {4{clk156}};
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-xxv_ethernet_0 your_instance_name (
+xxv_ethernet_0 xxv_ethernet_0_inst (
   .gt_txp_out({qsfp1_tx1_p,qsfp1_tx2_p,qsfp1_tx3_p,qsfp1_tx4_p}),                                    // output wire [3 : 0] gt_txp_out
   .gt_txn_out({qsfp1_tx1_n,qsfp1_tx2_n,qsfp1_tx3_n,qsfp1_tx4_n}),                                    // output wire [3 : 0] gt_txn_out
   .gt_rxp_in({qsfp1_rx1_p,qsfp1_rx2_p,qsfp1_rx3_p,qsfp1_rx4_p}),                                      // input wire [3 : 0] gt_rxp_in
@@ -312,10 +312,10 @@ xxv_ethernet_0 your_instance_name (
   .ctl_tx_test_pattern_1(1'b0),                              // input wire ctl_tx_test_pattern_1
   .ctl_tx_test_pattern_2(1'b0),                              // input wire ctl_tx_test_pattern_2
   .ctl_tx_test_pattern_3(1'b0),                              // input wire ctl_tx_test_pattern_3
-  .ctl_tx_test_pattern_enable_0(1'b0),                // input wire ctl_tx_test_pattern_enable_0
-  .ctl_tx_test_pattern_enable_1(1'b0),                // input wire ctl_tx_test_pattern_enable_1
-  .ctl_tx_test_pattern_enable_2(1'b0),                // input wire ctl_tx_test_pattern_enable_2
-  .ctl_tx_test_pattern_enable_3(1'b0),                // input wire ctl_tx_test_pattern_enable_3
+  .ctl_tx_test_pattern_enable_0(~xphy_config_0[0]),                // input wire ctl_tx_test_pattern_enable_0
+  .ctl_tx_test_pattern_enable_1(~xphy_config_1[0]),                // input wire ctl_tx_test_pattern_enable_1
+  .ctl_tx_test_pattern_enable_2(~xphy_config_2[0]),                // input wire ctl_tx_test_pattern_enable_2
+  .ctl_tx_test_pattern_enable_3(~xphy_config_3[0]),                // input wire ctl_tx_test_pattern_enable_3
   .ctl_tx_test_pattern_select_0(1'b0),                // input wire ctl_tx_test_pattern_select_0
   .ctl_tx_test_pattern_select_1(1'b0),                // input wire ctl_tx_test_pattern_select_1
   .ctl_tx_test_pattern_select_2(1'b0),                // input wire ctl_tx_test_pattern_select_2
