@@ -1,17 +1,35 @@
-Introduction
-============
+# FPGA_NTP_SERVER
 
-This directory contains the source code for a NTP/NTP server running
-in a Xilinx Virtex 7 FPGA device on a VC709 reference board or in a
-Virtex Ultrascale+ FGPA device on a VCU118 reference board.
+## Introduction
+This repository contains the source code for a complete, FPGA based
+hardware implementation of a Network Time Protocol (NTP) server. The
+implementation includes hardware support for [Network Time security
+(NTS)](https://datatracker.ietf.org/doc/html/rfc8915).
 
-This NTP server is used to run the Swedish Distributed Time Service.
-More information can be found here:
+The server implements the complete network stack in hardware, which
+allows high performance, low latency and low jiter. The design supports
+scalability through parallel, independent network engines.
 
-http://www.ntp.se/
+The repository contains setup and build targets to implement the
+server on existing FPPGA boards. The currently supported FPGA boards ar:
+
+* [Xilinx VC709 Connectivity
+Kit](https://www.xilinx.com/products/boards-and-kits/dk-v7-vc709-g.html). A
+reference board wuth a Virtex 7 FPGA device.
+
+* [Xilinx VCU-118 Evaluation
+Kit](https://www.xilinx.com/products/boards-and-kits/vcu118.html). A
+reference board with Virtex Ultrascale+ FGPA device.
+
 
 Look at README.md in the respective target directories for more
 information on how to build an FPGA image and for the two FPGA
 reference boards.  The VC709 project has the most complete
 instructions on how to use it, the VCU118 project lacks documentation
 on how to set up the hardware, but is is fairly similar.
+
+
+## Status
+The design is complete, verified and tested in real hardware and
+systems. The server is used to operate the [Swedish Distributed Time
+Service](http://www.ntp.se/).
