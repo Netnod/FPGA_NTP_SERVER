@@ -15,11 +15,11 @@ server on existing FPPGA boards. The currently supported FPGA boards ar:
 
 * [Xilinx VC709 Connectivity
 Kit](https://www.xilinx.com/products/boards-and-kits/dk-v7-vc709-g.html). A
-reference board wuth a Virtex 7 FPGA device.
+reference board with a Virtex 7 FPGA device.
 
 * [Xilinx VCU-118 Evaluation
 Kit](https://www.xilinx.com/products/boards-and-kits/vcu118.html). A
-reference board with Virtex Ultrascale+ FGPA device.
+reference board with a Virtex Ultrascale+ FGPA device.
 
 
 Look at README.md in the respective target directories for more
