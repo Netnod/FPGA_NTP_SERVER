@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 from __future__ import division, print_function, unicode_literals
 
 import getopt
@@ -8,6 +8,9 @@ import random
 import datetime
 import netaddr
 import sys
+
+import io
+sys.stdout = io.TextIOWrapper(open(sys.stdout.fileno(), 'wb', 0), write_through = True)
 
 import xpcie
 
@@ -24,6 +27,18 @@ class NtsFpga(object):
         if build_info & (1<<24):
             git_hash += '-dirty'
         print( "FPGA built with Vivado %s from git hash %s" % (vivado, git_hash))
+
+        print("MAGIC 0x%08x" % ur.read(ur.magic))
+        ctr156_0 = ur.read(ur.ctr156)
+        ctr50_0 = ur.read(ur.ctr50)
+        ctraxi_0 = ur.read(ur.ctraxi)
+        time.sleep(0.999)
+        ctr156_1 = ur.read(ur.ctr156)
+        ctr50_1 = ur.read(ur.ctr50)
+        ctraxi_1 = ur.read(ur.ctraxi)
+        print("ctr156 0x%08x .. 0x%08lx %.3fM" % (ctr156_0, ctr156_1, (ctr156_1-ctr156_0) / 1E6))
+        print("ctr50 0x%08x .. 0x%08lx %.3fM" % (ctr50_0, ctr50_1, (ctr50_1-ctr50_0) / 1E6))
+        print("ctraxi 0x%08x .. 0x%08lx %.3fM" % (ctraxi_0, ctraxi_1, (ctraxi_1-ctraxi_0) / 1E6))
 
         die_temp = round((ur.read(ur.die_temp) * 504.0 / 1024.0) - 273.0, 1)
         print("FPGA Die temperature is " + str(die_temp) + "C.")
@@ -84,8 +99,8 @@ class NtsApi(object):
     API_DISPATCHER_ADDR_BUS_STATUS         = 81
     API_DISPATCHER_ADDR_BUS_DATA           = 82
 
-    EXPECTED_DISPATCHER_ADDR_NAME = 0x4e54532d44495350L
-    EXPECTED_DISPATCHER_VERSION = 0x302e3032L
+    EXPECTED_DISPATCHER_ADDR_NAME = 0x4e54532d44495350
+    EXPECTED_DISPATCHER_VERSION = 0x302e3032
 
     BUS_READ  = 0x55
     BUS_WRITE = 0xAA
@@ -324,10 +339,10 @@ class NtsApi(object):
 
     @staticmethod
     def humanL(a):
-        if (a == 0L):
+        if (a == 0):
             return "<0>"
         else:
-            return hex(a)[2:][:-1].decode("hex")
+            return bytes.fromhex(hex(a)[2:]).decode('ASCII')
 
     def human32(self, base, offset):
         machine = self.read32(base, offset)
@@ -338,7 +353,7 @@ class NtsApi(object):
         return self.humanL(machine)
 
     def engine_read32(self, engine, addr):
-        if 1:
+        if self.path.KERNEL_API:
             return self.path.read_engine(self.path.port, engine, addr)
         else:
             id_cmd_addr = (engine<<20) | (self.BUS_READ<<12) | (addr & 0xFFF)
@@ -355,7 +370,7 @@ class NtsApi(object):
             return result
 
     def engine_write32(self, engine, addr, value):
-        if 1:
+        if self.path.KERNEL_API:
             return self.path.write_engine(self.path.port, engine, addr, value)
         else:
             id_cmd_addr = (engine<<20) | (self.BUS_WRITE<<12) | (addr & 0xFFF)
