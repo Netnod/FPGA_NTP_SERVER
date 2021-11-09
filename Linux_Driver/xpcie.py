@@ -1,35 +1,90 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 import fcntl
 import array
 import time
 import struct
 import netaddr
+import os
+import struct
 
 DEBUG = 0
 
-# Globals
-xpcie = open("/dev/xpcie")
+for fn in os.listdir('/dev'):
+  if not fn.startswith('i2c-'):
+    continue
 
-# Note: "home cooked" iotcl stuff.
-magix = ord('X') << 24 # to generate unique IOTCL values
-magi0 = ord('0') << 24 # to generate unique IOTCL values
-magi1 = ord('1') << 24 # to generate unique IOTCL values
-magi2 = ord('2') << 24 # to generate unique IOTCL values
-magie = ord('E') << 24 # to generate unique IOTCL values
-iow   =  1 << 23       # enable register write
+  try:
+    name = open('/sys/class/i2c-adapter/%s/name' % fn).read().strip()
+  except IOError:
+    continue
 
-class xpcie_class:
+  if name != 'xi2c':
+    continue
 
+  print("found %s, using xi2c driver" % fn)
+  n = int(fn[4:])
+
+  import smbus2
+  bus = smbus2.SMBus(n)
+
+  class xpcie_class:
     no_regs    = 0
-    p_ofs      = 0
+
+    # Read a register
+    def read(self, reg):
+        if (reg >= 0 and reg < self.no_regs):
+            addr = struct.pack('>L', reg * 4)
+            w = smbus2.i2c_msg.write(self.i2c_addr, addr)
+            r = smbus2.i2c_msg.read(self.i2c_addr, 4)
+            bus.i2c_rdwr(w, r)
+            val = struct.unpack('<L', bytes(list(r)))[0]
+            if DEBUG >= 2:
+                print("%02x:%08x -> %08x" % (self.i2c_addr, reg * 4, val))
+            return val
+
+        else:
+            raise IOError("read 0x%x failed" % (reg))
+
+    # Write a register
+    def write(self, reg, val):
+        if (reg >= 0 and reg < self.no_regs):
+            addr = struct.pack('>L', reg * 4)
+            data = struct.pack('<L', val)
+            if DEBUG >= 2:
+                print("%02x:%08x <- %08x" % (self.i2c_addr, reg * 4, val))
+            w = smbus2.i2c_msg.write(self.i2c_addr, addr + data)
+            bus.i2c_rdwr(w)
+
+        else:
+            raise IOError("write 0x%x failed" % (reg))
+
+  break
+
+else:
+  # Globals
+  xpcie = open("/dev/xpcie")
+
+  # Note: "home cooked" iotcl stuff.
+  magix = ord('X') << 24 # to generate unique IOTCL values
+  magi0 = ord('0') << 24 # to generate unique IOTCL values
+  magi1 = ord('1') << 24 # to generate unique IOTCL values
+  magi2 = ord('2') << 24 # to generate unique IOTCL values
+  magie = ord('E') << 24 # to generate unique IOTCL values
+  iow   =  1 << 23       # enable register write
+
+  class xpcie_class:
+    no_regs    = 0
 
     # Read a register
     def read(self, reg):
         if (reg >= 0 and reg < self.no_regs):
             res = array.array('L', [0])
             fcntl.ioctl(xpcie, magix + self.p_ofs + reg*4, res)
-            return res.tolist()[0]
+            val = res.tolist()[0]
+            if DEBUG >= 2:
+                print("%08x -> %08x" % (self.p_ofs + reg*4, val))
+            return val
         else:
             raise IOError("read 0x%x failed" % (reg))
 
@@ -37,77 +92,13 @@ class xpcie_class:
     def write(self, reg, val):
         if (reg >= 0 and reg < self.no_regs):
             val = val & (2**32-1) # truncate to 32 bits
+            if DEBUG >= 2:
+                print("%08x <- %08x" % (self.p_ofs + reg*4, val))
             if val >= 2**31:
                 val -= 2**32 # unsigned to signed
             fcntl.ioctl(xpcie, magix + self.p_ofs + iow + reg*4, val)
         else:
             raise IOError("write 0x%x failed" % (reg))
-
-    def read_api(self, path, reg):
-        if path < 0 or path > 3:
-            raise IOError("invalid path %d" % path)
-
-        if reg >= 0x00000000 and reg < 0x00100000:
-            magi = magi0
-        elif reg >= 0x1000000 and reg < 0x10100000:
-            magi = magi1
-        elif reg >= 0x2000000 and reg < 0x20100000:
-            magi = magi2
-        else:
-            raise IOError("read_api invalid reg 0x%x" % (reg))
-
-        res = array.array('L', [0])
-        fcntl.ioctl(xpcie, magi | (path << 20) | reg, res)
-        return res.tolist()[0]
-
-    def write_api(self, path, reg, val):
-        if path < 0 or path > 3:
-            raise IOError("invalid path %d" % path)
-
-        if reg >= 0x00000000 and reg < 0x00100000:
-            magi = magi0
-        elif reg >= 0x1000000 and reg < 0x10100000:
-            magi = magi1
-        elif reg >= 0x2000000 and reg < 0x20100000:
-            magi = magi2
-        else:
-            raise IOError("write_api invalid reg 0x%x" % (reg))
-
-        val = val & (2**32-1) # truncate to 32 bits
-        if val >= 2**31:
-            val -= 2**32 # unsigned to signed
-
-        fcntl.ioctl(xpcie, magi | (path << 20) | iow | reg, val)
-
-    def read_engine(self, path, engine, reg):
-        if path < 0 or path > 3:
-            raise IOError("read_engine invalid path %d" % path)
-
-        if engine < 0 or engine > 255:
-            raise IOError("read_engine invalid engine %d" % engine)
-
-        if reg < 0 or reg > 0xfff:
-            raise IOError("read_engine invalid reg 0x%x" % (reg))
-
-        res = array.array('L', [0])
-        fcntl.ioctl(xpcie, magie | (path << 20) | (engine << 12) | reg, res)
-        return res.tolist()[0]
-
-    def write_engine(self, path, engine, reg, val):
-        if path < 0 or path > 3:
-            raise IOError("write_engine invalid path %d" % path)
-
-        if engine < 0 or engine > 255:
-            raise IOError("write_engine invalid engine %d" % engine)
-
-        if reg < 0 or reg > 0xfff:
-            raise IOError("write_engine invalid reg 0x%x" % (reg))
-
-        val = val & (2**32-1) # truncate to 32 bits
-        if val >= 2**31:
-            val -= 2**32 # unsigned to signed
-
-        fcntl.ioctl(xpcie, magie | (path << 20) | (engine << 12) | iow | reg, val)
 
 class ntp_clock(xpcie_class):
     # offsets need to match xpcie.h/c
@@ -130,8 +121,10 @@ class ntp_clock(xpcie_class):
     def __init__(self, port):
         if port == 'A':
             self.p_ofs = self.axi_base + self.a_ofs
+            self.i2c_addr = 0x40
         elif port == 'B':
             self.p_ofs = self.axi_base + self.b_ofs
+            self.i2c_addr = 0x41
         else:
             raise ValueError
 
@@ -187,7 +180,9 @@ class ntp_clock(xpcie_class):
 
 class network_path(xpcie_class):
     # offsets need to match xpcie.h/c
-    net_path_axi_base =  0x2000  # Byte address
+    net_path_axi_base_old = 0x2000  # Byte address
+    net_path_axi_base_new = 0x8000  # Byte address
+
     net_path_ofs      =  0x1000
 
     gen_config             =  0 # Word offset
@@ -266,7 +261,7 @@ class network_path(xpcie_class):
     nts_api_write_data     = 73
     nts_api_read_data      = 74
 
-    no_regs =  75
+    no_regs =  81
 
     # gen config bits
     arp_en    =  2**0
@@ -294,14 +289,35 @@ class network_path(xpcie_class):
     VN        =  2**27
     LI        =  2**30
 
+    # API extension
+
+    COMMAND_IDLE = 0x0
+    COMMAND_READ = 0x1
+    COMMAND_WRITE = 0x3
+
+    STATUS_BUSY  = 0x0
+    STATUS_READY = 0x1
+
     #--------------------
 
     def __init__(self, port):
         if port < 4 and port >= 0:
-            self.p_ofs = self.net_path_axi_base + port*self.net_path_ofs
+            if fpga_magic:
+                self.p_ofs = self.net_path_axi_base_new
+                self.KERNEL_API = 0
+            else:
+                self.p_ofs = self.net_path_axi_base_old
+                self.KERNEL_API = 1
+            self.p_ofs += port*self.net_path_ofs
+            self.i2c_addr = 0x40 + 4 + port
         else:
             raise ValueError
         self.port = port
+
+        if not self.KERNEL_API:
+            self.write(self.nts_api_command, 0)
+
+        print("network_path %u id: 0x%08x" % (port, self.read(80)))
 
     def set_ipv4(self, N, ip_no):
         self.write(self.ipv4_addr0+N, int(netaddr.IPAddress(ip_no)))
@@ -328,11 +344,121 @@ class network_path(xpcie_class):
     def get_mac(self, N):
         return str(netaddr.EUI((self.read(self.mac_addr0_1+N*2) << 32) + self.read(self.mac_addr0_0+N*2)))
 
+    def read_api(self, path, reg):
+        if path < 0 or path > 3:
+            raise IOError("invalid path %d" % path)
+
+        if self.KERNEL_API:
+            if reg >= 0x00000000 and reg < 0x00100000:
+                magi = magi0
+            elif reg >= 0x1000000 and reg < 0x10100000:
+                magi = magi1
+            elif reg >= 0x2000000 and reg < 0x20100000:
+                magi = magi2
+            else:
+                raise IOError("read_api invalid reg 0x%x" % (reg))
+
+            res = array.array('L', [0])
+            fcntl.ioctl(xpcie, magi | (path << 20) | reg, res)
+            return res.tolist()[0]
+
+        else:
+            self.write(self.nts_api_address, reg)
+            self.write(self.nts_api_command, self.COMMAND_READ)
+            for i in range(10):
+                status = self.read(self.nts_api_status)
+                if status & self.STATUS_READY:
+                    break
+                if DEBUG:
+                    print(status)
+                time.sleep(0.001)
+            else:
+                print("read timeout")
+                return
+
+            data = self.read(self.nts_api_read_data)
+            self.write(self.nts_api_command, self.COMMAND_IDLE)
+
+        if DEBUG:
+            print("api[%u:0x%08x] -> %08x" % (self.port, reg, data))
+
+        return data
+
+    def write_api(self, path, reg, val):
+        if DEBUG:
+            print("api[%u:0x%04x] <- %08x" % (self.port, reg, val))
+
+        if path < 0 or path > 3:
+            raise IOError("invalid path %d" % path)
+
+        if self.KERNEL_API:
+            if reg >= 0x00000000 and reg < 0x00100000:
+                magi = magi0
+            elif reg >= 0x1000000 and reg < 0x10100000:
+                magi = magi1
+            elif reg >= 0x2000000 and reg < 0x20100000:
+                magi = magi2
+            else:
+                raise IOError("write_api invalid reg 0x%x" % (reg))
+
+            val = val & (2**32-1) # truncate to 32 bits
+            if val >= 2**31:
+                val -= 2**32 # unsigned to signed
+
+            fcntl.ioctl(xpcie, magi | (path << 20) | iow | reg, val)
+
+        else:
+            self.write(self.nts_api_address, reg)
+            self.write(self.nts_api_write_data, val)
+            self.write(self.nts_api_command, self.COMMAND_WRITE)
+            for i in range(10):
+                status = self.read(self.nts_api_status)
+                if status & self.STATUS_READY:
+                    break
+                if DEBUG:
+                    print(status)
+                time.sleep(0.001)
+            else:
+                print("write timeout")
+                return
+            self.write(self.nts_api_command, self.COMMAND_IDLE)
+
+    def read_engine(self, path, engine, reg):
+        if path < 0 or path > 3:
+            raise IOError("read_engine invalid path %d" % path)
+
+        if engine < 0 or engine > 255:
+            raise IOError("read_engine invalid engine %d" % engine)
+
+        if reg < 0 or reg > 0xfff:
+            raise IOError("read_engine invalid reg 0x%x" % (reg))
+
+        res = array.array('L', [0])
+        fcntl.ioctl(xpcie, magie | (path << 20) | (engine << 12) | reg, res)
+        return res.tolist()[0]
+
+    def write_engine(self, path, engine, reg, val):
+        if path < 0 or path > 3:
+            raise IOError("write_engine invalid path %d" % path)
+
+        if engine < 0 or engine > 255:
+            raise IOError("write_engine invalid engine %d" % engine)
+
+        if reg < 0 or reg > 0xfff:
+            raise IOError("write_engine invalid reg 0x%x" % (reg))
+
+        val = val & (2**32-1) # truncate to 32 bits
+        if val >= 2**31:
+            val -= 2**32 # unsigned to signed
+
+        fcntl.ioctl(xpcie, magie | (path << 20) | (engine << 12) | iow | reg, val)
+
 
 #-------------------------------------------------------------------------------------------------------#
 # The MDIO master is implemented in a Xilinx etherlite block.
 
-class mdio(xpcie_class):
+if 0:
+  class mdio(xpcie_class):
 
     axi_base =  0x107E4 # Byte address
 
@@ -354,7 +480,7 @@ class mdio(xpcie_class):
 
 class user_regs(xpcie_class):
     # offsets need to match xpcie.h/c
-    axi_base =  0x6000  # Byte address
+    axi_base = 0x6000  # Byte address
 
     VCCINT_power      =  0 # Word offset
     VCCAUX_power      =  1
@@ -373,20 +499,22 @@ class user_regs(xpcie_class):
     pcie_link         = 14
     build_info        = 15
     git_hash          = 16
+    magic             = 17
+    ctr156            = 18
+    ctr50             = 19
+    ctraxi            = 20
 
-    no_regs =  17
+    no_regs =  21
 
     def __init__(self):
         self.p_ofs = self.axi_base
+        self.i2c_addr = 0x43
 
 
 #-------------------------------------------------------------------------------------------------------#
-
-class key_mem(xpcie_class):
+if 0:
+  class key_mem(xpcie_class):
     # offsets need to match xpcie.h/c
-    net_path_axi_base =  0x20000  # Byte address
-    net_path_ofs      =  0x10000
-
     no_regs =  8192       # words in keymem
     no_keys =  no_regs/8  # 256 bits
 
@@ -394,7 +522,7 @@ class key_mem(xpcie_class):
 
     def __init__(self, port):
         if port < 4 and port >= 0:
-            self.p_ofs = self.net_path_axi_base + port*self.net_path_ofs
+            self.i2c_addr = 0x40 + 4 + port
         else:
             raise ValueError
 
@@ -450,78 +578,28 @@ class key_mem(xpcie_class):
 #-------------------------------------------------------------------------------------------------------#
 
 class api_extension(object):
-    COMMAND_IDLE = 0x0
-    COMMAND_READ = 0x1
-    COMMAND_WRITE = 0x3
-
-    STATUS_BUSY  = 0x0
-    STATUS_READY = 0x1
-
-    KERNEL_API = 1
-    
     def __init__(self, path):
         self.path = path
-        if not self.KERNEL_API:
-            self.path.write(self.path.nts_api_command, 0)
-        
+
     def read(self, reg):
-        if DEBUG:
-            print "api[%u:0x%08x] ->" % (self.path.port, reg),
-        if self.KERNEL_API:
-            data = self.path.read_api(self.path.port, reg)           
-        else:
-            self.path.write(self.path.nts_api_address, reg)
-            self.path.write(self.path.nts_api_command, self.COMMAND_READ)
-            for i in range(10):
-                status = self.path.read(self.path.nts_api_status)
-                if status & self.STATUS_READY:
-                    break
-                if DEBUG:
-                    print status,
-                time.sleep(0.001)
-            else:
-                print "read timeout"
-                return
+        return self.path.read_api(self.path.port, reg)
 
-            data = self.path.read(self.path.nts_api_read_data)
-            self.path.write(self.path.nts_api_command, self.COMMAND_IDLE)
-        if DEBUG:
-            print "0x%08x" % data
-        return data
-
-    
     def write(self, reg, data):
-        if DEBUG:
-            print "api[%u:0x%04x] <-" % (self.path.port, reg),
-        if self.KERNEL_API:
-            self.path.write_api(self.path.port, reg, data)
-        else:
-            self.path.write(self.path.nts_api_address, reg)
-            self.path.write(self.path.nts_api_write_data, data)
-            self.path.write(self.path.nts_api_command, self.COMMAND_WRITE)
-            for i in range(10):
-                status = self.path.read(self.path.nts_api_status)
-                if status & self.STATUS_READY:
-                    break
-                if DEBUG:
-                    print status,
-                time.sleep(0.001)
-            else:
-                print "write timeout"
-                return
-            self.path.write(self.path.nts_api_command, self.COMMAND_IDLE)
-        if DEBUG:
-            print "0x%08x" % data
+        self.path.write_api(self.path.port, reg, data)
 
     def engine_read(self, engine, reg):
-        if DEBUG:
-            print "engine_read [%u:%u:0x%08x] ->" % (self.path.port, engine, reg),
         data = self.path.read_engine(engine.path.port, engine, reg)
         if DEBUG:
-            print "0x%08x" % data
+            print("engine_read [%u:%u:0x%08x] -> %08x" % (self.path.port, engine, reg, data))
         return data
 
     def engine_write(self, reg, data):
         if DEBUG:
-            print "engine_write [%u:%u:0x%04x] <- 0x%08x" % (self.path.port, engine, reg, data)
-        self.path.read_engine(engine.path.port, engine, reg, data)
+            print("engine_write [%u:%u:0x%04x] <- 0x%08x" % (self.path.port, engine, reg, data))
+        self.path.write_engine(engine.path.port, engine, reg, data)
+
+fpga_magic = user_regs().read(user_regs.magic)
+if fpga_magic:
+    print("using new xpcie register map")
+else:
+    print("using old xpcie register map")
