@@ -34,3 +34,6 @@
 [submodule "FPGA/cores/verilog-ethernet"]
 	path = FPGA/cores/verilog-ethernet
 	url = ../verilog-ethernet
+[submodule "FPGA/cores/verilog-i2c"]
+	path = FPGA/cores/verilog-i2c
+	url = ../verilog-i2c
