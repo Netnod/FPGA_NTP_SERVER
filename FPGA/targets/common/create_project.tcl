@@ -45,6 +45,8 @@ foreach fn $tcl_files {
 
 if { $fpga_top != "" } {
     puts "Setting top level to \"$fpga_top\""
+    # switch to manual update order
+    set_property source_mgmt_mode DisplayOnly [current_project]
     set obj [get_filesets sources_1]
     set_property -name "top" -value "$fpga_top" -objects $obj
     set obj [get_filesets sim_1]
