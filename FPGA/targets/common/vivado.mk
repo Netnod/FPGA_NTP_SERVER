@@ -4,7 +4,8 @@ SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 .PHONY: proj synth report_synth impl report_impl bit
 
-proj $(PROJ_NAME).xpr: Makefile $(TCL_FILES)
+proj $(PROJ_NAME).xpr .stamp.$(PROJ_NAME).xpr: Makefile $(TCL_FILES)
+	rm -f -- .stamp.$(PROJ_NAME).xpr
 	rm -rf -- $*.xpr $*.cache $*.hw $*.ip_user_files $*.runs $*.sim $*.srcs
 	PROJ_NAME="$(PROJ_NAME)" \
 	FPGA_TOP="$(FPGA_TOP)" \
@@ -16,9 +17,10 @@ proj $(PROJ_NAME).xpr: Makefile $(TCL_FILES)
 	TCL_FILES="$(TCL_FILES)" \
 	TCL_PRE="$(TCL_PRE)" \
 	time vivado -nojournal -nolog -notrace -mode batch -source "$(SELF_DIR)create_project.tcl"; ec=$$?; if [ $$ec -ne 0 ]; then rm -f -- $(2); exit $$ec; fi
+	touch .stamp.$(PROJ_NAME).xpr
 
 .PRECIOUS: $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp
-synth $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp: $(PROJ_NAME).xpr $(SYN_FILES) $(INC_FILES) $(XDC_FILES) $(XCI_FILES) $(TCL_PRE)
+synth $(PROJ_NAME).runs/synth_1/$(FPGA_TOP).dcp: $(PROJ_NAME).xpr .stamp.$(PROJ_NAME).xpr $(SYN_FILES) $(INC_FILES) $(XDC_FILES) $(XCI_FILES) $(TCL_PRE)
 	PROJ_NAME="$(PROJ_NAME)" \
 	time vivado -nojournal -nolog -mode batch -source "$(SELF_DIR)run_synth.tcl"
 
