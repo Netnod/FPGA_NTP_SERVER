@@ -93,15 +93,15 @@ module ntps_top #(
    input wire 	                    PPS_INA_P,
    input wire 	                    PPS_INA_N,
    output wire 	                    PPS_OUTA,
-   input wire 	                    TEN_MHZ_INA_clk_p,
-   input wire 	                    TEN_MHZ_INA_clk_n,
+   input wire 	                    TEN_MHZ_INA_P,
+   input wire 	                    TEN_MHZ_INA_N,
    output wire 	                    TEN_MHZ_OUTA,
 
    input wire 	                    PPS_INB_P,
    input wire 	                    PPS_INB_N,
    output wire 	                    PPS_OUTB,
-   input wire 	                    TEN_MHZ_INB_clk_p,
-   input wire 	                    TEN_MHZ_INB_clk_n,
+   input wire 	                    TEN_MHZ_INB_P,
+   input wire 	                    TEN_MHZ_INB_N,
    output wire 	                    TEN_MHZ_OUTB,
 
    output wire 		            led_0,
@@ -160,8 +160,6 @@ module ntps_top #(
   wire          PLL_locked_B;
   wire          ntp_clock_topB_LED1;
   wire          ntp_clock_topB_LED2;
-  wire          PPS_INA;
-  wire          PPS_INB;
   wire          test_PPS_OUT;
   wire          test_TEN_MHZ_OUT;
 
@@ -284,20 +282,31 @@ module ntps_top #(
                             .O(clk_300MHz)
                            );
 
-  // Clock tree input buffer for NTP clock A.
-  IBUFDS pps_ina_ds_buf(
-                        .I(PPS_INA_P),
-                        .IB(PPS_INA_N),
-                        .O(PPS_INA)
-                       );
+  // Input buffers for NTP clock A
+  wire ten_mhz_ina;
+  IBUFDS ten_mhz_ina_ds_buf
+    (.I(TEN_MHZ_INA_P),
+     .IB(TEN_MHZ_INA_N),
+     .O(ten_mhz_ina));
 
-  // Clock tree insput buffer for NTP clock B.
-  IBUFDS pps_inb_ds_buf(
-                        .I(PPS_INB_P),
-                        .IB(PPS_INB_N),
-                        .O(PPS_INB)
-                       );
+  wire pps_ina;
+  IBUFDS pps_ina_ds_buf
+    (.I(PPS_INA_P),
+     .IB(PPS_INA_N),
+     .O(pps_ina));
 
+  // Input buffers for NTP clock B
+  wire ten_mhz_inb;
+  IBUFDS ten_mhz_inb_ds_buf
+    (.I(TEN_MHZ_INB_P),
+     .IB(TEN_MHZ_INB_N),
+     .O(ten_mhz_inb));
+
+  wire pps_inb;
+  IBUFDS pps_inb_ds_buf
+    (.I(PPS_INB_P),
+     .IB(PPS_INB_N),
+     .O(pps_inb));
 
   //----------------------------------------------------------------
   // System reset
@@ -435,19 +444,17 @@ module ntps_top #(
      .ntp_time              (ntp_time),
 
      // NTP clocks.
-     .PPS_INA               (PPS_INA),
+     .PPS_INA               (pps_ina),
      .PPS_OUTA              (PPS_OUTA),
-     .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
-     .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
+     .TEN_MHZ_INA           (ten_mhz_ina),
      .TEN_MHZ_OUTA          (TEN_MHZ_OUTA),
      .NTP_LED1A             (ntp_clock_topA_LED1),
      .NTP_LED2A             (ntp_clock_topA_LED2),
      .PLL_LOCKEDA           (PLL_locked_A),
 
-     .PPS_INB               (PPS_INB),
+     .PPS_INB               (pps_inb),
      .PPS_OUTB              (PPS_OUTB),
-     .TEN_MHZ_INB_N         (TEN_MHZ_INB_clk_n),
-     .TEN_MHZ_INB_P         (TEN_MHZ_INB_clk_p),
+     .TEN_MHZ_INB           (ten_mhz_inb),
      .TEN_MHZ_OUTB          (TEN_MHZ_OUTB),
      .NTP_LED1B             (ntp_clock_topB_LED1),
      .NTP_LED2B             (ntp_clock_topB_LED2),
