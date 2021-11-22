@@ -41,8 +41,7 @@
 
 module ntp_clock_top (
   input  wire        reset,
-  input  wire        TEN_MHZ_IN_N,
-  input  wire        TEN_MHZ_IN_P,
+  input  wire        TEN_MHZ_IN,
   output wire        TEN_MHZ_OUT,
   input  wire        PPS_IN,
   output wire        PPS_OUT,
@@ -100,8 +99,7 @@ module ntp_clock_top (
   //----------------------------------------------------------------
   ntp_clock_pll pll_0 (
     .reset	 (reset),
-    .clk_in1_n   (TEN_MHZ_IN_N),
-    .clk_in1_p   (TEN_MHZ_IN_P),
+    .clk_in1     (TEN_MHZ_IN),
     .clk_out1    (TEN_MHZ_OUT),
     .clk_out2    (clk128),
     .locked	 (PLL_locked),
