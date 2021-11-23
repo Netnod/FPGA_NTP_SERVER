@@ -245,11 +245,12 @@ class NtsApi(object):
     API_ADDR_NTPAUTH_KEYMEM_KEY4          = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x27
 
 
-    def __init__(self, idx):
+    def __init__(self, idx, path_only = False):
         self.idx = idx
         self.path = xpcie.network_path(idx)
-        self.api = xpcie.api_extension(self.path)
-        self.engines = self.detect_engines()
+        if not path_only:
+            self.api = xpcie.api_extension(self.path)
+            self.engines = self.detect_engines()
 
     def check_api(self):
         print("Checking APIs")
@@ -970,6 +971,8 @@ if __name__=="__main__":
 
     if (init):
         api.setup_network_path()
+        for i in range(1, 4):
+            NtsApi(i, path_only = True).setup_network_path()
 
     if (opt_test_entropy):
         test_entropy(opt_test_entropy, "ent_data.bin")
