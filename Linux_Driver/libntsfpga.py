@@ -10,7 +10,11 @@ import netaddr
 import sys
 
 import io
-sys.stdout = io.TextIOWrapper(open(sys.stdout.fileno(), 'wb', 0), write_through = True)
+try:
+    sys.stdout = io.TextIOWrapper(open(sys.stdout.fileno(), 'wb', 0),
+                                  write_through = True)
+except TypeError:
+    pass
 
 import xpcie
 
@@ -343,7 +347,10 @@ class NtsApi(object):
         if (a == 0):
             return "<0>"
         else:
-            return bytes.fromhex(hex(a)[2:]).decode('ASCII')
+            try:
+                return bytes.fromhex(hex(a)[2:]).decode('ASCII')
+            except AttributeError:
+                return hex(a)[2:].decode('hex')
 
     def human32(self, base, offset):
         machine = self.read32(base, offset)
