@@ -38,7 +38,7 @@ for fn in os.listdir('/dev'):
             w = smbus2.i2c_msg.write(self.i2c_addr, addr)
             r = smbus2.i2c_msg.read(self.i2c_addr, 4)
             bus.i2c_rdwr(w, r)
-            val = struct.unpack('<L', bytes(list(r)))[0]
+            val = struct.unpack('<L', bytearray(list(r)))[0]
             if DEBUG >= 2:
                 print("%02x:%08x -> %08x" % (self.i2c_addr, reg * 4, val))
             return val
