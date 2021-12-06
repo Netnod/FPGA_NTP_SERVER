@@ -833,7 +833,7 @@ class NtsApi(object):
 
             print("Engine %d - configuring parser" % engine)
             print("  * enable  bits: %08x" % enable_bits )
-            print("  * disbale bits: %08x" % disable_bits )
+            print("  * disable bits: %08x" % disable_bits )
             if (enable_bits or disable_bits):
                 ctrl_old = self.engine_read32(engine, self.API_ADDR_PARSER_CTRL)
                 ctrl_new = (ctrl_old | enable_bits) & ( ~ disable_bits )
