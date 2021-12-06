@@ -230,7 +230,7 @@ class NtsApi(object):
     API_ADDR_PARSER_IPV6_7       = API_ADDR_PARSER_BASE + 0x7C
 
 
-    API_ADDR_NTPAUTH_KEYMEM_BASE          = 0x300;
+    API_ADDR_NTPAUTH_KEYMEM_BASE          = 0x300
     API_ADDR_NTPAUTH_KEYMEM_NAME0         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x00
     API_ADDR_NTPAUTH_KEYMEM_NAME1         = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x01
     API_ADDR_NTPAUTH_KEYMEM_VERSION       = API_ADDR_NTPAUTH_KEYMEM_BASE + 0x02
@@ -399,7 +399,7 @@ class NtsApi(object):
         self.engine_write32(engine, addr, value)
         readback = self.engine_read32(engine, addr)
         if (value != readback):
-            raise IOError("WARNING: Write engine[{}]={}, read back was: {}".format(hex(addr), hex(value), hex(readback)));
+            raise IOError("WARNING: Write engine[{}]={}, read back was: {}".format(hex(addr), hex(value), hex(readback)))
 
     def engine_read64(self, engine, addr):
         msb = self.engine_read32(engine, addr)
@@ -429,14 +429,14 @@ class NtsApi(object):
         for addr in range(0, 0x1000):
             value = self.read32(self.DISPATCHER_BASE, addr)
             if (value != 0):
-                print("dispatcher[%03x] = %08x" % (addr, value) );
+                print("dispatcher[%03x] = %08x" % (addr, value) )
 
     def dump_nts_engine_api(self):
         for engine in range(self.engines):
             for addr in range(0, 0x1000):
                 value = self.engine_read32(engine, addr)
                 if (value != 0):
-                    print("engine%d[%03x] = %08x" % (engine, addr, value) );
+                    print("engine%d[%03x] = %08x" % (engine, addr, value) )
 
     def check_nts_dispatcher_apis(self):
         print("Checking access to Dispatcher APIs in NTS")
@@ -453,7 +453,7 @@ class NtsApi(object):
         self.write32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY, 0x1cec001d)
         print("   - DUMMY:     0x%08x (expected: 1cec001d)" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY))
         print("   - SYSTICK32: %d (dec)" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_SYSTICK32))
-        print("   - FRAMES:");
+        print("   - FRAMES:")
         print("     - DETECTED:   %d (dec)" % self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_COUNTER_FRAMES))
         print("     - GOOD:       %d (dec)" % self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_COUNTER_GOOD))
         print("     - BAD:        %d (dec)" % self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_COUNTER_BAD))
@@ -492,7 +492,7 @@ class NtsApi(object):
 
     def check_nts_engine_apis(self):
         for engine in range(self.engines):
-            print("ENGINE %d:" % engine);
+            print("ENGINE %d:" % engine)
             print("  - Cores:")
             print("   - Core:  %s %s" % (self.engine_human64(engine, self.API_ADDR_ENGINE_NAME0), self.engine_human32(engine, self.API_ADDR_ENGINE_VERSION)))
             print("   - Core:  %s %s" % (self.engine_human64(engine, self.API_ADDR_CLOCK_NAME0), self.engine_human32(engine, self.API_ADDR_ENGINE_VERSION)))
@@ -500,13 +500,13 @@ class NtsApi(object):
             print("   - Core:  %s %s" % (self.engine_human64(engine, self.API_ADDR_KEYMEM_NAME0), self.engine_human32(engine, self.API_ADDR_KEYMEM_VERSION)))
             print("   - Core:  %s %s" % (self.engine_human64(engine, self.API_ADDR_NONCEGEN_NAME), self.engine_human32(engine, self.API_ADDR_NONCEGEN_VERSION)))
             print("   - Core:  %s %s" % (self.engine_human64(engine, self.API_ADDR_PARSER_NAME0), self.engine_human32(engine, self.API_ADDR_PARSER_VERSION)))
-            print("  - Debug");
-            print("    - NTS");
+            print("  - Debug")
+            print("    - NTS")
             print("      - Processed:  %d" % self.engine_read64(engine, self.API_ADDR_DEBUG_NTS_PROCESSED))
             print("      - Bad cookie: %d" % self.engine_read64(engine, self.API_ADDR_DEBUG_NTS_BAD_COOKIE))
             print("      - Bad auth:   %d" % self.engine_read64(engine, self.API_ADDR_DEBUG_NTS_BAD_AUTH))
             print("      - Bad keyid:  %d" % self.engine_read64(engine, self.API_ADDR_DEBUG_NTS_BAD_KEYID))
-            print("    - Error counters");
+            print("    - Error counters")
             print("      - Crypto:     %d" % self.engine_read64(engine, self.API_ADDR_DEBUG_ERR_CRYPTO))
             print("      - TxBuf:      %d" % self.engine_read64(engine, self.API_ADDR_DEBUG_ERR_TXBUF))
             print("    - Other debug messurements:")
@@ -528,8 +528,8 @@ class NtsApi(object):
             print("    - Control: %08x" % self.engine_read32(engine, self.API_ADDR_NONCEGEN_CTRL))
             print("    - Status:  %08x" % self.engine_read32(engine, self.API_ADDR_NONCEGEN_STATUS))
             print("    - Config:  %08x" % self.engine_read32(engine, self.API_ADDR_NONCEGEN_CONFIG))
-            print("  - Parser");
-            print("    - State:         0x%0x" % self.engine_read32(engine, self.API_ADDR_PARSER_STATE));
+            print("  - Parser")
+            print("    - State:         0x%0x" % self.engine_read32(engine, self.API_ADDR_PARSER_STATE))
             print("    - State Crypto:  0x%0x" % self.engine_read32(engine, self.API_ADDR_PARSER_STATE_CRYPTO))
             print("    - Error State:   0x%0x" % self.engine_read32(engine, self.API_ADDR_PARSER_ERROR_STATE))
             print("    - Error Cause:   0x%0x" % self.engine_read32(engine, self.API_ADDR_PARSER_ERROR_CAUSE))
@@ -553,9 +553,9 @@ class NtsApi(object):
             src_mac = int(gre_src_mac.replace(":","",5), 16)
             dst_ip = int(netaddr.IPAddress(gre_dst_ip))
             src_ip = int(netaddr.IPAddress(gre_src_ip))
-            self.engine_write64(engine, self.API_ADDR_GRE_DST_MAC_MSB, dst_mac);
+            self.engine_write64(engine, self.API_ADDR_GRE_DST_MAC_MSB, dst_mac)
             self.engine_write32(engine, self.API_ADDR_GRE_DST_IP, dst_ip)
-            self.engine_write64(engine, self.API_ADDR_GRE_SRC_MAC_MSB, src_mac);
+            self.engine_write64(engine, self.API_ADDR_GRE_SRC_MAC_MSB, src_mac)
             self.engine_write32(engine, self.API_ADDR_GRE_SRC_IP, src_ip)
 
     def init_arp(self, mac, ipv4, ipv6):
@@ -670,7 +670,7 @@ class NtsApi(object):
             self.engine_write32(engine, self.API_ADDR_NONCEGEN_CONTEXT4, context4 )
             self.engine_write32(engine, self.API_ADDR_NONCEGEN_CONTEXT5, context5 )
             self.engine_write32(engine, self.API_ADDR_NONCEGEN_LABEL, label)
-            self.engine_write32(engine, self.API_ADDR_NONCEGEN_CTRL, 0x00000001);
+            self.engine_write32(engine, self.API_ADDR_NONCEGEN_CTRL, 0x00000001)
 
     def nts_disable_keys(self):
         for engine in range(self.engines):
@@ -684,7 +684,7 @@ class NtsApi(object):
             CTRL_CURR_LOW = 16
             ctrl = 0
             mask1 = 0x3<<CTRL_CURR_LOW
-            mask2 = 0xffffffff ^ mask1;
+            mask2 = 0xffffffff ^ mask1
             k = 0
             k = (keynum & 0x3) << CTRL_CURR_LOW
             ctrl = self.engine_read32(engine, self.API_ADDR_KEYMEM_CTRL )
@@ -710,7 +710,7 @@ class NtsApi(object):
             print("Engine %d - Install key, index = %x, address key = %x, address key id = %x" % (engine, key_index, addr_key, addr_keyid))
 
             ctrl = self.engine_read32(engine, self.API_ADDR_KEYMEM_CTRL )
-            ctrl = ctrl & ~ (1<<key_index);
+            ctrl = ctrl & ~ (1<<key_index)
 
             self.engine_write32(engine, self.API_ADDR_KEYMEM_CTRL, ctrl )
             print(" * key ctrl: %08x" % self.engine_read32(engine, self.API_ADDR_KEYMEM_CTRL ))
@@ -736,22 +736,22 @@ class NtsApi(object):
 
     def ntp_auth_install_key(self, slot, md5, sha1, keyid, key):
         for engine in range(self.engines):
-            slots = self.engine_read32(engine, self.API_ADDR_NTPAUTH_KEYMEM_SLOTS);
-            print(" * Slots: %0d" % slots);
+            slots = self.engine_read32(engine, self.API_ADDR_NTPAUTH_KEYMEM_SLOTS)
+            print(" * Slots: %0d" % slots)
             if (slots == 0):
-                print(" * WARNING: NTP AUTH support not present");
+                print(" * WARNING: NTP AUTH support not present")
                 continue
 
             print(" * Slot %d - Install install key keyid=%08x MD5=%s SHA1=%s" % (slot, keyid, md5, sha1))
 
-            keytype = 0;
+            keytype = 0
             if (md5 and sha1):
-                keytype = 3;
+                keytype = 3
                 print(" * WARNING: Key is MD5 and SHA1, probably unwise")
             elif (md5):
-                keytype = 1;
+                keytype = 1
             elif (sha1):
-                keytype = 2;
+                keytype = 2
 
             if (slot >= slots):
                 raise ValueError("WARNING: Slots: %0d, slot %0d is out of range".format(slots, slot))
@@ -923,7 +923,7 @@ if __name__=="__main__":
         if (opt == '--parser_ctrl_ntp'): parser_ctrl_ntp = arg
         if (opt == '--parser_ctrl_ntp_md5'): parser_ctrl_ntp_md5 = arg
         if (opt == '--parser_ctrl_ntp_sha1'): parser_ctrl_ntp_sha1 = arg
-        if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg;
+        if (opt == '--parser_ctrl_nts'): parser_ctrl_nts = arg
         if (opt == '--reset-api-dispatcher'): reset_api_dispatcher = True
         if (opt == '--reset-api-extractor'): reset_api_extractor = True
         if (opt == '--test-entropy'): opt_test_entropy = int(arg)
