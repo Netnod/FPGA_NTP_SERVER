@@ -7,7 +7,7 @@
 //
 // Author: Joachim Strombergson
 //
-// Copyright 2020-2021 Netnod Internet Exchange i Sverige AB
+// Copyright 2020-2022 Netnod AB
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -44,6 +44,7 @@
 
 module ntps_phys (
                   input wire           reset,
+
                   output wire          clk156,
                   output wire          areset_clk156,
 

@@ -1,5 +1,6 @@
+//======================================================================
 //
-// Copyright 2016-2021 Netnod Internet Exchange i Sverige AB
+// Copyright 2016-2022 Netnod AB
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -30,6 +31,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
+//======================================================================
 
 //
 // Author: Rolf Andersson (rolf@mechanicalmen.se)
@@ -37,11 +39,11 @@
 // Design Name: FPGA NTP Server
 // Module Name: clk50_gen
 // Description: Generate a 50MHz clock from a 200MHz source
-// 
+//
 
 `timescale 1ns / 1ps
 `default_nettype none
-  
+
 module clk50_gen(
     input wire clk200,
     output wire clk50
@@ -51,12 +53,12 @@ module clk50_gen(
   always @(posedge clk200) begin
     clk_divide  <= clk_divide + 1'b1;
   end
-  
+
   BUFG buffer_clk50 (
     .I    (clk_divide[1]),
     .O    (clk50)
   );
-  
+
 endmodule // clk50_gen
 
 `default_nettype wire
