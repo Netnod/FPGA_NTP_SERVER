@@ -1,14 +1,18 @@
 #! /bin/bash
 
-BIT_FILE=ntps_top.bit
-
-echo "num" $#
+BIT_FILE=ntps_vcu118.bit
 
 if [ $# -ge 1 ]; then
     BIT_FILE="$1"
 fi
 
-. /opt/Xilinx/Vivado_Lab/2019.2/settings64.sh
+if [ -f /opt/Xilinx/Vivado_Lab/2019.2/settings64.sh ]; then
+    . /opt/Xilinx/Vivado_Lab/2019.2/settings64.sh
+    vivado=vivado_lab
+else
+    . /opt/Xilinx/Vivado/2019.2/settings64.sh
+    vivado=vivado
+fi
 
 set -x
 set -e
@@ -22,7 +26,7 @@ if [ ! -z "$PCI_NODE" ]; then
     echo 1 >/sys/bus/pci/devices/$PCI_DEV/remove
 fi
 
-vivado_lab -mode batch -source program_fpga.tcl -tclargs "$BIT_FILE"
+$vivado -mode batch -source program_fpga.tcl -tclargs "$BIT_FILE"
 
 echo 1 >/sys/bus/pci/rescan
 
