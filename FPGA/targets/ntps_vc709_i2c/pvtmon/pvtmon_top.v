@@ -85,6 +85,7 @@ module pvtmon_top #(
   // PCI link status
   input wire         pcie_link_up,
 
+  input wire         clk156,
   input wire         clk50,
   input wire         rst
 );
@@ -113,6 +114,8 @@ module pvtmon_top #(
   ) user_registers_axi_slave_inst (
     .power_status  (power_status_reg_sync_s_axi_clk),
     .pcie_link_up  (pcie_link_up),
+    .clk50 (clk50),
+    .clk156 (clk156),
     .S_AXI_ACLK    (s_axi_clk),
     .S_AXI_ARESETN (s_axi_aresetn),
     .S_AXI_AWADDR  (s_axi_awaddr),
@@ -322,6 +325,7 @@ module pvtmon_top #(
     end
   end // always @ (posedge clk50)
 
+  /*
   vc709_power_monitor vc709_pvt_monitor_0 (
     .pmbus_clk      (pmbus_clk),
     .pmbus_data     (pmbus_data),
@@ -342,5 +346,6 @@ module pvtmon_top #(
     .new_clk      (s_axi_clk        ),
     .data_out     (power_status_reg_sync_s_axi_clk)
   );
+*/
 
 endmodule // pvtmon_top

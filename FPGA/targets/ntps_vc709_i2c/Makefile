@@ -1,6 +1,6 @@
 # Project settings
-PROJ_NAME := ntps_vc709
-FPGA_TOP := ntps_top
+PROJ_NAME := ntps_vc709_i2c
+FPGA_TOP := i2c_top
 FPGA_PART := xc7vx690tffg1761-2
 FPGA_BOARD := xilinx.com:vc709:part0:1.8
 
@@ -20,6 +20,7 @@ SYN_FILES += ../../cores/rosc_entropy/src/rtl/rosc_entropy_core.v
 SYN_FILES += ../../cores/sha1/src/rtl/sha1_core.v
 SYN_FILES += ../../cores/sha1/src/rtl/sha1_w_mem.v
 SYN_FILES += ../../cores/siphash/src/rtl/siphash_core.v
+
 SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control.v
 SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/clock_control_program.v
 SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/clock_control/kcpsm6.v
@@ -29,6 +30,7 @@ SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/kcpsm6.v
 SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control.v
 SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/power_test_control_program.v
 SYN_FILES += ../../cores/v7_xt_conn_trd/hardware/sources/hdl/pvtmon/vc709_power_monitor.v
+
 SYN_FILES += ../../cores/xge_ll_mac/hdl/oc_mac.v
 SYN_FILES += ../../cores/xge_ll_mac/hdl/rx_control.v
 SYN_FILES += ../../cores/xge_ll_mac/hdl/rx_enqueue.v
@@ -78,45 +80,54 @@ SYN_FILES += ../../ntp_clock/hdl/pps_gen.v
 SYN_FILES += ../../ntp_clock/hdl/pps_test.v
 SYN_FILES += ../../ntp_clock/hdl/time_sel_sync.v
 
-SYN_FILES += hdl/clk50_gen.v
-SYN_FILES += hdl/ntps_clocks.v
-SYN_FILES += hdl/ntps_interfaces.v
-SYN_FILES += hdl/ntps_phys.v
-SYN_FILES += hdl/ntps_top.v
-SYN_FILES += hdl/pcie_axi.v
+SYN_FILES += src/i2c_top.v
+SYN_FILES += src/clk50_gen.v
+SYN_FILES += src/ntps_clocks.v
+SYN_FILES += src/ntps_phys.v
+SYN_FILES += src/ntps_interfaces.v
 
 SYN_FILES += pvtmon/pvtmon_axi_slave.v
 SYN_FILES += pvtmon/pvtmon_top.v
+
+SYN_FILES += vc709_i2c.srcs/sources_1/bd/design_1/synth/design_1.v
+
+SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave.v
+SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave_axil_master.v
 
 # Constraint files
 # Note, the order is important, some files contain definitions
 # that later files rely upon
 XDC_FILES :=
-XDC_FILES += constr/clock_control.xdc
-XDC_FILES += constr/clock_groups.xdc
-XDC_FILES += constr/debug.xdc
-XDC_FILES += constr/misc.xdc
-XDC_FILES += constr/network_path_except.xdc
-XDC_FILES += constr/ntp_io_loc.xdc
-XDC_FILES += constr/ntps_top_constr.xdc
-XDC_FILES += constr/v7_xt_xgemac_xphy.xdc
+# XDC_FILES += constr/clock_control.xdc
+# XDC_FILES += constr/clock_groups.xdc
+# XDC_FILES += constr/debug.xdc
+# XDC_FILES += constr/misc.xdc
+
+XDC_FILES += constr/vc709.xdc
+XDC_FILES += constr/interface_board.xdc
+XDC_FILES += constr/sfp_ports.xdc
+XDC_FILES += constr/network_path.tcl
+XDC_FILES += constr/ntps.tcl
 
 # IP files
 XCI_FILES :=
+
 XCI_FILES += xilinx_ip/network_path/ten_gig_eth_pcs_pma_ip/ten_gig_eth_pcs_pma_ip.xci
 XCI_FILES += xilinx_ip/network_path/ten_gig_eth_pcs_pma_ip_shared_logic/ten_gig_eth_pcs_pma_ip_shared_logic_in_core.xci
-XCI_FILES += xilinx_ip/ntp_clock/ntp_clock_ds_buf/ntp_clock_ds_buf.xci
+# XCI_FILES += xilinx_ip/ntp_clock/ntp_clock_ds_buf/ntp_clock_ds_buf.xci
 XCI_FILES += xilinx_ip/ntp_clock/ntp_clock_pll/ntp_clock_pll.xci
 XCI_FILES += xilinx_ip/ntp_clock/ntps_top_clk_wiz_0_1/ntps_top_clk_wiz_0_1.xci
-XCI_FILES += xilinx_ip/top/ntps_top_auto_ds_0/ntps_top_auto_ds_0.xci
-XCI_FILES += xilinx_ip/top/ntps_top_auto_pc_0/ntps_top_auto_pc_0.xci
 XCI_FILES += xilinx_ip/top/ntps_top_axi_ethernetlite_0_0/ntps_top_axi_ethernetlite_0_0.xci
-XCI_FILES += xilinx_ip/top/ntps_top_axi_pcie3_0_0/ntps_top_axi_pcie3_0_0.xci
-XCI_FILES += xilinx_ip/top/ntps_top_rst_axi_pcie3_0_250M_0/ntps_top_rst_axi_pcie3_0_250M_0.xci
-XCI_FILES += xilinx_ip/top/ntps_top_s00_data_fifo_0/ntps_top_s00_data_fifo_0.xci
-XCI_FILES += xilinx_ip/top/ntps_top_util_ds_buf_0_0/ntps_top_util_ds_buf_0_0.xci
-XCI_FILES += xilinx_ip/top/ntps_top_util_ds_buf_0_3/ntps_top_util_ds_buf_0_3.xci
-XCI_FILES += xilinx_ip/top/ntps_top_xbar_0/ntps_top_xbar_0.xci
+
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_ds_0/design_1_auto_ds_0.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_pc_0/design_1_auto_pc_0.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_0/design_1_axi_gpio_0_0.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_util_ds_buf_0/design_1_util_ds_buf_0.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_2/design_1_axi_pcie3_0_0_pcie3_ip.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/design_1_axi_pcie3_0_0.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_0/axi_pcie3_v3_0_10_blk_mem_gen_v8_3_6_64B_parity.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_1/axi_pcie3_v3_0_10_fifo_generator_v13_1_4_64B_parity.xci
+XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_axi_periph_0/design_1_axi_pcie3_0_axi_periph_0.xci
 
 # Tcl file to run before starting synthesis
 TCL_PRE := pre_synth.tcl
