@@ -1,6 +1,7 @@
 # FPGA_NTP_SERVER
 
 ## Introduction
+
 This repository contains the source code for a complete, FPGA based
 hardware implementation of a Network Time Protocol (NTP) server. The
 implementation includes hardware support for [Network Time security
@@ -10,26 +11,24 @@ The server implements the complete network stack in hardware, which
 allows high performance, low latency and low jiter. The design supports
 scalability through parallel, independent network engines.
 
-The repository contains setup and build targets to implement the
-server on existing FPPGA boards. The currently supported FPGA boards ar:
+The directory [FPGA/targets] contains the implementations of the
+NTP/NTS server "ntps" on different FPGA platforms. The currently
+supported platforms are:
 
-* [Xilinx VC709 Connectivity
-Kit](https://www.xilinx.com/products/boards-and-kits/dk-v7-vc709-g.html). A
-reference board with a Virtex 7 FPGA device.
+* [Xilinx VC709 Connectivity Kit](https://www.xilinx.com/products/boards-and-kits/dk-v7-vc709-g.html). A
+reference board with a Virtex 7 XC7VX690T FPGA device.
 
-* [Xilinx VCU-118 Evaluation
-Kit](https://www.xilinx.com/products/boards-and-kits/vcu118.html). A
-reference board with a Virtex Ultrascale+ FGPA device.
-
+* [Xilinx VCU-118 Evaluation Kit](https://www.xilinx.com/products/boards-and-kits/vcu118.html). A
+reference board with a Virtex Ultrascale+ VU9P FPGA.
 
 Look at README.md in the respective target directories for more
-information on how to build an FPGA image and for the two FPGA
-reference boards.  The VC709 project has the most complete
-instructions on how to use it, the VCU118 project lacks documentation
-on how to set up the hardware, but is is fairly similar.
-
+information on how to build and deploy an FPGA image for the different
+platforms.  The VC709_I2C project has the most complete instructions
+on how to use it, the VCU118 project lacks documentation on how to set
+up the hardware, but is is fairly similar.
 
 ## Status
+
 The design is complete, verified and tested in real hardware and
 systems. The server is used to operate the [Swedish Distributed Time
 Service](http://www.ntp.se/).
