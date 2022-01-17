@@ -79,6 +79,10 @@ class NtsFpga(object):
             time.sleep(0.1)
         print("")
 
+    def pps_shift(self, shift):
+        ur = xpcie.user_regs()
+        ur.write(ur.pps_shift, shift)
+
 class NtsApi(object):
     DISPATCHER_BASE = 0x20000000
 
@@ -558,6 +562,61 @@ class NtsApi(object):
             self.engine_write64(engine, self.API_ADDR_GRE_SRC_MAC_MSB, src_mac)
             self.engine_write32(engine, self.API_ADDR_GRE_SRC_IP, src_ip)
 
+    def set_mac(self, mac):
+        print("set_mac(%s)" % (mac))
+
+        if mac is None:
+            mac_ctrl = 0
+            v = 0
+        else:
+            mac_ctrl = 0xf
+            v = int(mac.replace(':', ''), 16)
+
+        for engine in range(self.engines):
+            for i in range(4):
+                self.engine_write64(engine, self.API_ADDR_PARSER_MAC_0 + i * 2, v)
+            self.engine_write32(engine, self.API_ADDR_PARSER_MAC_CTRL, mac_ctrl)
+
+    def set_ipv4(self, i, ipv4):
+        print("set_ipv4(%u, %s)" % (i, ipv4))
+
+        for engine in range(self.engines):
+            ipv4_ctrl = self.engine_read32(engine, self.API_ADDR_PARSER_IPV4_CTRL)
+            if ipv4 is None:
+                ipv4_ctrl &= ~(1<<i)
+                v = 0
+            else:
+                ipv4_ctrl |= (1<<i)
+                v = int(netaddr.IPAddress(ipv4))
+
+            print("Engine %d - ipv4 0x%08x 0x%08x" % (engine, v, ipv4_ctrl))
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV4_0 + i, v)
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV4_CTRL, ipv4_ctrl )
+
+    def set_ipv6(self, i, ipv6):
+        print("set_ipv6(%u, %s)" % (i, ipv6))
+
+        for engine in range(self.engines):
+            ipv6_ctrl = self.engine_read32(engine, self.API_ADDR_PARSER_IPV6_CTRL)
+            if ipv6 is None:
+                ipv6_ctrl &= ~(1<<i)
+                v = 0
+            else:
+                ipv6_ctrl |= (1<<i)
+                v = int(netaddr.IPAddress(ipv6))
+
+            print("Engine %d - ipv6 0x%08x 0x%08x" % (engine, v, ipv6_ctrl))
+
+            u0 = (v >> 96) & 0xffffffff
+            u1 = (v >> 64) & 0xffffffff
+            u2 = (v >> 32) & 0xffffffff
+            u3 = (v >>  0) & 0xffffffff
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV6_0 + i * 4 + 0, u0 )
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV6_0 + i * 4 + 1, u1 )
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV6_0 + i * 4 + 2, u2 )
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV6_0 + i * 4 + 3, u3 )
+            self.engine_write32(engine, self.API_ADDR_PARSER_IPV6_CTRL, ipv6_ctrl )
+
     def init_arp(self, mac, ipv4, ipv6):
         for engine in range(self.engines):
             print("Engine %d - init ARP" % engine)
@@ -734,6 +793,20 @@ class NtsApi(object):
         self.nts_install_key_256bit(2, 0x13fe78e9, [ 0xfeb10c69, 0x9c6435be, 0x5a9ee521, 0xe40e420c, 0xf665d8f7, 0xa969302a, 0x63b9385d, 0x353ae43e ] )
         self.nts_set_current_key(1)
 
+    def set_nts_key(self, key_idx, key_id, key_value):
+        print("set_nts_key %u %s %s" % (key_idx,key_id, key_value))
+        a = []
+        for i in range(0, 64, 8):
+            a.append(int(key_value[i:i+8], 16))
+        self.nts_install_key_256bit(key_idx, int(key_id, 16), a)
+
+    def clear_nts_key(self, key_index):
+        print("clear_nts_key %u" % key_index)
+        for engine in range(self.engines):
+            ctrl = self.engine_read32(engine, self.API_ADDR_KEYMEM_CTRL)
+            ctrl = ctrl & ~ (1<<key_index)
+            self.engine_write32(engine, self.API_ADDR_KEYMEM_CTRL, ctrl)
+
     def ntp_auth_install_key(self, slot, md5, sha1, keyid, key):
         for engine in range(self.engines):
             slots = self.engine_read32(engine, self.API_ADDR_NTPAUTH_KEYMEM_SLOTS)
@@ -771,15 +844,11 @@ class NtsApi(object):
         self.ntp_auth_install_key(5, 0, 1, 0xbaad, [ 0xbaad4444, 0xbaad3333, 0xbaad2222, 0xbaad1111, 0xbaad0000 ])
         self.ntp_auth_install_key(7, 1, 0, 0xf00d, [ 0xf00d4444, 0xf00d3333, 0xf00d2222, 0xf00d1111, 0xf00d0000 ])
 
-    def nts_configure_ntp(self, refid, rootdelay, rootdisp, tx_ofs, config):
-        v_config = int(config, 16)
-        v_refid = 0 # refid is zero-padded if length<4
-        v_rootdelay = int(rootdelay, 16)
-        v_rootdisp = int(rootdisp, 16)
-        v_tx_ofs = int(tx_ofs, 16)
-
+    def set_refid(self, refid):
         if (len(refid) > 4):
             raise ValueError("WARNING: refid {}: illegal length greater than 4".format(refid))
+
+        v_refid = 0 # refid is zero-padded if length<4
 
         for i in range(len(refid)):
             a = ord(refid[i])
@@ -788,11 +857,64 @@ class NtsApi(object):
             v_refid |= a << ((3-i)*8)
 
         for engine in range(self.engines):
-            self.engine_write32(engine, self.API_ADDR_CLOCK_CONFIG, v_config)
-            self.engine_write32(engine, self.API_ADDR_CLOCK_ROOT_DELAY, v_rootdelay)
-            self.engine_write32(engine, self.API_ADDR_CLOCK_ROOT_DISP, v_rootdisp)
             self.engine_write32(engine, self.API_ADDR_CLOCK_REF_ID, v_refid)
-            self.engine_write32(engine, self.API_ADDR_CLOCK_TX_OFS, v_tx_ofs)
+
+    @staticmethod
+    def to_short_format(v):
+        i = int(v * 2**16 + 0.5)
+        if i < 0 or i >= 0x100000000:
+            raise Valuerror("cannot represent %s in short format" % repr(v))
+        return i
+
+    def set_ntp_config_raw(self, config):
+        # high byte uint8_t with log2(poll interval in seconds)
+        # low byte is int8_t with log2(precision in seconds)
+
+        for engine in range(self.engines):
+            self.engine_write32(engine, self.API_ADDR_CLOCK_CONFIG, config)
+
+    def set_ntp_config(self, log2poll, log2precision):
+        if log2poll < 0 or log2poll > 255:
+            raise ValueError("invalid log2(poll) %s" % repr(log2poll))
+        if log2precision < -128 or log2poll > 127:
+            raise ValueError("invalid log2(precision) %s" % repr(log2precision))
+        self.set_ntp_config_raw(((log2poll & 0xff) << 8) | (log2precision & 0xff))
+
+    def set_root_delay_raw(self, root_delay):
+        for engine in range(self.engines):
+            self.engine_write32(engine, self.API_ADDR_CLOCK_ROOT_DELAY, root_delay)
+
+    def set_root_delay(self, seconds):
+        self.set_root_delay_raw(self.to_short_format(seconds))
+
+    def set_root_disp_raw(self, root_disp):
+        for engine in range(self.engines):
+            self.engine_write32(engine, self.API_ADDR_CLOCK_ROOT_DISP, root_disp)
+
+    def set_root_disp(self, seconds):
+        self.set_root_disp_raw(self.to_short_format(seconds))
+
+    def set_tx_ofs_raw(self, tx_ofs):
+        for engine in range(self.engines):
+            self.engine_write32(engine, self.API_ADDR_CLOCK_TX_OFS, tx_ofs)
+
+    def set_tx_ofs(self, seconds):
+        # TODO This is fairly useless, a negative offset or signed
+        # value would be able to compensate for cable delay, a
+        # positive value can only adjust the timestamp in the "wrong"
+        # direction
+
+        i = int(seconds * 2**32 + 0.5)
+        if i < 0 or i >= 0x100000000:
+            raise Valuerror("cannot represent %s as a 32 bit fraction" % repr(v))
+        self.set_tx_ofs_raw(i)
+
+    def nts_configure_ntp(self, refid, root_delay, root_disp, tx_ofs, config):
+        self.set_ntp_config_raw(int(config, 16))
+        self.set_root_delay_raw(int(root_delay, 16))
+        self.set_root_disp_raw(int(root_disp, 16))
+        self.set_tx_ofs_raw(int(tx_ofs, 16))
+        self.set_refid(refid)
 
     def parser_configure_helper (self, e, d, bit, value ):
         if (value is None):
