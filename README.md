@@ -21,11 +21,13 @@ reference board with a Virtex 7 XC7VX690T FPGA device.
 * [Xilinx VCU-118 Evaluation Kit](https://www.xilinx.com/products/boards-and-kits/vcu118.html). A
 reference board with a Virtex Ultrascale+ VU9P FPGA.
 
+* [Arista 7130-48LB FPGA Switch](https://www.arista.com/en/products/7130l-series). A Layer 1+ switch with a Virtex Ultrascale+ VU9P FPGA.
+
 Look at README.md in the respective target directories for more
 information on how to build and deploy an FPGA image for the different
-platforms.  The VC709_I2C project has the most complete instructions
-on how to use it, the VCU118 project lacks documentation on how to set
-up the hardware, but is is fairly similar.
+platforms.  The VC709 project has the most complete instructions on
+how to use it, the VCU118 project lacks documentation on how to set up
+the hardware, but is is fairly similar.
 
 ## Status
 
