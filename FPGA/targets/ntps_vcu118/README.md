@@ -2,18 +2,19 @@ Introduction
 ============
 
 This directory contains the source code for a NTP and NTS server
-"ntps" running in a Xilinx Virtex 7 XC7VX690T FPGA on a VC709
+"ntps" running in a Xilinx Ultrascale+ VU9P FPGA on a VCU118
 reference board.
 
 Requirements for using the FPGA images
 ======================================
 
-- a Xilinx VC709 reference board with the necessary cables such as a
+- a Xilinx VCU118 reference board with the necessary cables such as a
   PC power supply adapter cable to power the board and a micro USB
   cable to be able to program the board.
 
-- a PC running Linux to install the VC709 in which is used to power
-  and control the board.
+- a PC running Linux to install the VCU118 in which is used to power
+  and control the board.  Note that the VCU118 is larger than a normal
+  PCIe board and will not fit in many normal PC cases.
 
 - a stable PPS and 10MHz clock source
 
@@ -29,8 +30,8 @@ Requirements for using the FPGA images
 - If you want to build the FPGA bitstream from source you will need a
   decently powerful PC running Xilinx Vivado 2019.2.  You will also
   need a license for Vivado, the free-to-use Vivado WebPACK Edition is
-  device limited and can not create bitstreams for the Virtex device
-  on the VC709 board.
+  device limited and can not create bitstreams for the Virtex
+  Ultrascale+ device on the VCU118 board.
 
 Notes
 =====
@@ -70,72 +71,54 @@ To build (assuming that Vivado is installed in /opt/Xilinx):
 
 ```
 source /opt/Xilinx/Vivado/2019.2/settings64.sh
-cd FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c
+cd FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118
 build.sh
 ```
 
-On a half decent PC (Ryzen 2400G) the VC709 build will take about 2
+On a half decent PC (Ryzen 2400G) the VCU118 build will take about 2
 hours.
 
-Setting up the VC709 hardware
-=============================
+Setting up the VCU118 hardware
+==============================
 
-The VC709 hardware must be installed in a PC which is used to power
+The VCU118 hardware must be installed in a PC which is used to power
 and control the FPGA image.
 
 I very strongly suggest that you start out by downloading the document
-UG966 "Virtex-7 XT VC709 Connectivity Kit Getting Started":
+"XTP449 - VCU118 Software Install and Board Setup - Xilinx":
 
-  https://www.xilinx.com/support/documentation/boards_and_kits/virtex-7/v7xt_gsg/v1_0/ug966-v7-xt-connectivity-getting-started.pdf
+  https://www.xilinx.com/support/documentation/boards_and_kits/vcu118/2017_3/xtp449-vcu118-setup-c-2017-3.pdf
 
-and then following the instructions in chapter 2 on how to run the
-"Connectivity System Setup with Targeted Reference Design".  This will
-verify that the FPGA board works properly in your PC before you try to
-run the FPGA_NTP_SERVER.
-
-If the flash on your VC709 board does not contain the default demo applications, you can find the "VC709 Restoring Flash Contents Tutorial" and associated design files here:
-
-  https://www.xilinx.com/support/documentation-navigation/design-hubs/dh0036-vc709-connectivity-kit-hub.html
-
-The most important steps are to set SW11 correctly to and then connect
-the PC power supply to the VC709 power connection using the adapter
-cable supplied with the in the VC709 kit.
+and then following the instructions in "VCU118 Hardware Setup" to
+verify that the hardware is properly installed.
 
 __WARNING!__ The 12V cables for a motherboard or graphics card will
-fit in the power connector on the VC709 but has a different pinout.
-You __will__ fry your $5k VC709 board if you do that, so please don't.
-Use the short cable shown in the document with a 4 pin connector that
-fits into the VC709 on one end and a 4 pin Molex connector (used on
-old hard drives) on the other end.  If you don't have such a cable,
-find one, you can't make the VC709 board work without one.
+fit in the power connector on the VCU118 but has a different pinout.
+You __will__ fry your $8k VCU118 board if you do that, so please
+don't.  Use the short cable shown in the document with a 4 pin
+connector that fits into the VCU118 on one end and a 4 pin Molex
+connector (used on old hard drives) on the other end.  If you don't
+have such a cable, find one, you can't make the VCU118 board work
+without one.
 
-Power off the PC and power it on with the VC709 in the machine.  Loop
-back the 10Gbit Ethernet SFP+ transceivers as described in the guide.
-Verify that the LEDs light up or blink as described in the guide.
-
-When Linux has booted on the PC, run "lspci -nn" and verify that the
-VC709 board shows up as expected in the list of PCI devices.  You
-should see a line such as this:
-
-  01:00.0 Communication controller [0780]: Xilinx Corporation Device [10ee:7083]
-
-When you have verified that the VC709 board itself works, you can
+When you have verified that the VCU118 board itself works, you can
 power off the system once more and continue with the NTP specific
 parts:
 
-* Connect the interface board to the FMC connector on the VC709 board.
+* Connect the interface board to the HPC FMC connector on the VCU118
+  board.
 
 * Connect your 10MHz clock source to connector X200 on the interface card.
 
 * Connect your PPS source to connector X202 on the interface card.
 
-* Connect the first SFP+ port of the VC709 card to a 10GBit capable
-device.
+* Connect 4x10GBit fiber QSFP to the port closest to the PCIe
+connector of the VCU118 card.  Connect the first fiber to a 10GBit
+capable device.
 
-Note that the interface board supports two sets of 10MHz and PPS
-inputs.  The other inputs on X201 and X203 are not used by default but
-can be activated from software.  See the Verilog source code and
-libntsfpga.py for more information on that.
+Note that the interface board itself supports two sets of 10MHz and
+PPS inputs.  The inputs on X201 and X203 are not wired in the FMC
+connector on the VCU118 board and will not work.
 
 Running the NTP server
 ======================
@@ -144,17 +127,17 @@ If the FPGA board is installed in a different computer, copy the files
 from the build to the computer with the FPGA board, keeping the same
 directory structure:
 
-- FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c/BUILDINFO.txt
-- FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c/ntps_vc709_i2c.bit
-- FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c/program_fpga.sh
-- FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c/program_fpga.tcl
-- FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c/reload_fpga.sh
+- FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118/BUILDINFO.txt
+- FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118/ntps_vcu118.bit
+- FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118/program_fpga.sh
+- FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118/program_fpga.tcl
+- FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118/reload_fpga.sh
 - FPGA_NTP_SERVER/Linux_Driver/
 
 go to the target directory and run the script to reload the FPGA:
 
 ```
-cd FPGA_NTP_SERVER/FPGA/targets/ntps_vc709_i2c
+cd FPGA_NTP_SERVER/FPGA/targets/ntps_vcu118
 ./reload_fpga.sh
 ```
 
@@ -172,10 +155,10 @@ cd FPGA_NTP_SERVER/Linux_Driver
 You should see something like this:
 
 ```
-FPGA build at 2022-01-13 12:29:27 (1642073367)
+FPGA build at 2022-01-13 12:27:59 (1642073279)
 FPGA built with Vivado 2019.2 from git hash 7fff5526
 ...
-FPGA Die temperature is 47.9C.
+FPGA Die temperature is -273.0C.
 ...
 pll_status 0xc000017b 0x00000200
 pll_status 0xc000017b 0x00000200
@@ -183,7 +166,7 @@ pll_status 0xc000017b 0x00000200
 ...
 Setting up network path 0
 PATH 0: gen_config 0x600003ff
-XPHY 0 status: 0x00000017
+XPHY 0 status: 0x00000000
 ```
 
 The pll_status field above shows that the FPGA has a lock on both the
@@ -191,9 +174,8 @@ The pll_status field above shows that the FPGA has a lock on both the
 signals for clock input A.  The lower bits (0x17b) show the offset
 between the 10MHz clock and the PPS pulse.
 
-An XPHY status of 0x00000017 means that the SFP+ port has detected a
-link.  An XPY status of 0x00000009 means the SFP+ port has not
-detected a link.
+Note that the FPGA Die Temperature is wrong, and the XPHY status field
+is zero.  These readouts are nonfunctional on the VCU118.
 
 The configuration is currently hardcoded in the libntsfpga.py script.
 It will set up the FPGA with the following addresses:
