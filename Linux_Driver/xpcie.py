@@ -10,7 +10,56 @@ import struct
 
 DEBUG = 0
 
-for fn in os.listdir('/dev'):
+try:
+  import hal
+  import ctypes
+
+  # print("libntsfpga using Arista hal")
+
+  bus = hal.i2c.Bus(hal.i2c.label_to_bus('main_app'))
+
+  def read_buf(addr, reg, n):
+    cmd = struct.pack('>L', reg)
+    cmd = ctypes.create_string_buffer(cmd, len(cmd))
+    buf = (ctypes.c_char * n).from_buffer(bytearray(n))
+    bus.xfer(
+      (addr, 0, ctypes.sizeof(cmd), cmd),
+      (addr, 1, len(buf), buf))
+    return buf.raw
+
+  def write_buf(addr, reg, buf):
+    cmd = struct.pack('>L', reg) + buf
+    cmd = ctypes.create_string_buffer(cmd, len(cmd))
+    bus.xfer((addr, 0, ctypes.sizeof(cmd), cmd))
+
+  class xpcie_class:
+    no_regs    = 0
+
+    # Read a register
+    def read(self, reg):
+        if (reg >= 0 and reg < self.no_regs):
+          val = struct.unpack('<L', read_buf(self.i2c_addr, reg*4, 4))[0]
+          if DEBUG >= 2:
+            print("%02x:%08x -> %08x" % (self.i2c_addr, reg * 4, val))
+          return val
+
+        else:
+            raise IOError("read 0x%x failed" % (reg))
+
+    # Write a register
+    def write(self, reg, val):
+        if (reg >= 0 and reg < self.no_regs):
+            if DEBUG >= 2:
+                print("%02x:%08x <- %08x" % (self.i2c_addr, reg * 4, val))
+            write_buf(self.i2c_addr, reg * 4, struct.pack('<L', val))
+            return val
+
+        else:
+            raise IOError("write 0x%x failed" % (reg))
+
+except ModuleNotFoundError:
+ bus = None
+ for fn in os.listdir('/dev'):
   if not fn.startswith('i2c-'):
     continue
 
@@ -22,7 +71,7 @@ for fn in os.listdir('/dev'):
   if name != 'xi2c':
     continue
 
-  print("found %s, using xi2c driver" % fn)
+  print("found %s, libntsfpga using xi2c driver" % fn)
   n = int(fn[4:])
 
   import smbus2
@@ -61,7 +110,7 @@ for fn in os.listdir('/dev'):
 
   break
 
-else:
+ else:
   # Globals
   xpcie = open("/dev/xpcie")
 
@@ -503,8 +552,9 @@ class user_regs(xpcie_class):
     ctr156            = 18
     ctr50             = 19
     ctraxi            = 20
+    pps_shift         = 21
 
-    no_regs =  21
+    no_regs =  22
 
     def __init__(self):
         self.p_ofs = self.axi_base
@@ -598,8 +648,11 @@ class api_extension(object):
             print("engine_write [%u:%u:0x%04x] <- 0x%08x" % (self.path.port, engine, reg, data))
         self.path.write_engine(engine.path.port, engine, reg, data)
 
-fpga_magic = user_regs().read(user_regs.magic)
-if fpga_magic:
-    print("using new xpcie register map")
+if bus:
+  fpga_magic = True
 else:
-    print("using old xpcie register map")
+  fpga_magic = user_regs().read(user_regs.magic)
+  if fpga_magic:
+    print("libntsfpga using new xpcie register map")
+  else:
+    print("libntsfpga using old xpcie register map")
