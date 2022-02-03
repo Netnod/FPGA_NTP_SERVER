@@ -233,6 +233,9 @@ class Example(mosapi.App):
             for i in range(NUM_IP_ADDRESS):
                 self.hw_set_ip(i)
 
+            for i in range(NUM_IP_ADDRESS):
+                self.hw_set_ipv6(i)
+
             self.hw_set_config()
             self.hw_set_refid()
             self.hw_set_root_delay()
