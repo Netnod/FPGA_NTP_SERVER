@@ -73,6 +73,7 @@ APP_RPM = $(PROJECT)-$(VERSION_ID).x86_64.rpm
 .PHONY : all
 all : $(APP_RPM)
 
+
 #-------------------------------------------------------------------------------
 # Target description
 #-------------------------------------------------------------------------------
@@ -107,8 +108,22 @@ targets::
 .PHONY : clean
 clean::
 
+
 #-------------------------------------------------------------------------------
 # Include Arista Build Scripts
 #-------------------------------------------------------------------------------
 include $(ARISTA_FDK_DIR)/resources/app.mk
 include $(ARISTA_FDK_DIR)/resources/vivado.mk
+
+#-------------------------------------------------------------------------------
+# Rules to copy user files from the FDK. 
+# FIXME: These should be migrated to the IP core instead. 
+#-------------------------------------------------------------------------------
+
+$(APP_STAGING_DIR)/clockappdaemon.py $(APP_STAGING_DIR)/format_docstring.py: $(ARISTA_FDK_DIR)/examples/tscore/src/$$(@F)
+	mkdir -p $(@D) && cp $< $@
+	echo $(APP_STAGING_DIR)
+
+$(APP_STAGING_DIR)/daemon/%:$(ARISTA_FDK_DIR)/examples/tscore/src/daemon/%
+	mkdir -p $(@D) && cp $< $@
+	echo $(APP_STAGING_DIR)
