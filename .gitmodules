@@ -33,7 +33,7 @@
 	url = ../../NetNod/rosc_entropy
 [submodule "FPGA/cores/verilog-ethernet"]
 	path = FPGA/cores/verilog-ethernet
-	url = ../../NetNod/verilog-ethernet
+	url = ../../aristanetworks/verilog-ethernet
 [submodule "FPGA/cores/verilog-i2c"]
 	path = FPGA/cores/verilog-i2c
 	url = ../../NetNod/verilog-i2c
