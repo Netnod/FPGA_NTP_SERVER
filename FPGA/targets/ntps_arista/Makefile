@@ -35,9 +35,7 @@ ARISTA_FDK_VERSION ?= 2.0.0beta1
 ARISTA_FDK_DIR ?= $(PROJECT_DIR)/../../../arista_fdk-$(ARISTA_FDK_VERSION)
 ARISTA_SRC_DIR  = $(ARISTA_FDK_DIR)/src
 
-# SOURCE_FILES = $(PROJECT_DIR)/src_files.json
-# FIXME: tscore source files from the Arista FDK. 
-SOURCE_FILES = $(ARISTA_FDK_DIR)/examples/tscore/src_files.json
+SOURCE_FILES = $(PROJECT_DIR)/src_files.json
 
 BOARDSTD ?= $(sort $(foreach brd, $(wildcard src/*-cfg.json), $(wordlist 2,2, $(subst -, ,$(basename $(notdir $(brd)))))))
 VARIANTS ?= $(sort $(foreach var, $(wildcard src/*-cfg.json), $(wordlist 1,1, $(subst -, ,$(basename $(notdir $(var)))))))
