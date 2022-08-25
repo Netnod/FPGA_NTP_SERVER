@@ -73,7 +73,7 @@ APP_SWIX = $(PROJECT)-$(VERSION_ID).swix
 APP_BUILD_SQUASHFS =
 
 .PHONY : all
-all : $(APP_SWIX)
+all : $(APP_SWIX) $(APP_RPM)
 
 
 #-------------------------------------------------------------------------------
