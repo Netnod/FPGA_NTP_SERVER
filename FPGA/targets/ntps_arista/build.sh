@@ -1,6 +1,5 @@
 #! /bin/bash
-set -x
-set -e
+set -euxo pipefail
 
 ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../../arista_fdk-2.0.0beta1}
 echo "Building using Arista FDK in $ARISTA_FDK_DIR"
