@@ -89,7 +89,7 @@ SYN_FILES += src/ntps_interfaces.v
 SYN_FILES += pvtmon/pvtmon_axi_slave.v
 SYN_FILES += pvtmon/pvtmon_top.v
 
-SYN_FILES += vc709_i2c.srcs/sources_1/bd/design_1/synth/design_1.v
+# SYN_FILES += vc709_i2c.srcs/sources_1/bd/design_1/synth/design_1.v
 
 SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave.v
 SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave_axil_master.v
@@ -119,15 +119,18 @@ XCI_FILES += xilinx_ip/ntp_clock/ntp_clock_pll/ntp_clock_pll.xci
 XCI_FILES += xilinx_ip/ntp_clock/ntps_top_clk_wiz_0_1/ntps_top_clk_wiz_0_1.xci
 XCI_FILES += xilinx_ip/top/ntps_top_axi_ethernetlite_0_0/ntps_top_axi_ethernetlite_0_0.xci
 
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_ds_0/design_1_auto_ds_0.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_pc_0/design_1_auto_pc_0.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_0/design_1_axi_gpio_0_0.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_util_ds_buf_0/design_1_util_ds_buf_0.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_2/design_1_axi_pcie3_0_0_pcie3_ip.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/design_1_axi_pcie3_0_0.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_0/axi_pcie3_v3_0_10_blk_mem_gen_v8_3_6_64B_parity.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_1/axi_pcie3_v3_0_10_fifo_generator_v13_1_4_64B_parity.xci
-XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_axi_periph_0/design_1_axi_pcie3_0_axi_periph_0.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_ds_0/design_1_auto_ds_0.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_pc_0/design_1_auto_pc_0.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_0/design_1_axi_gpio_0_0.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_util_ds_buf_0/design_1_util_ds_buf_0.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_2/design_1_axi_pcie3_0_0_pcie3_ip.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/design_1_axi_pcie3_0_0.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_0/axi_pcie3_v3_0_10_blk_mem_gen_v8_3_6_64B_parity.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_1/axi_pcie3_v3_0_10_fifo_generator_v13_1_4_64B_parity.xci
+# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_axi_periph_0/design_1_axi_pcie3_0_axi_periph_0.xci
+
+TCL_FILES :=
+TCL_FILES += bd.tcl
 
 # Tcl file to run before starting synthesis
 TCL_PRE := pre_synth.tcl
