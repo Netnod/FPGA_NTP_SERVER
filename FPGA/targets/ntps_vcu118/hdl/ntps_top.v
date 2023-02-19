@@ -466,7 +466,7 @@ module ntps_top #(
   // network_path_shared_0.
   //----------------------------------------------------------------
   network_path_shared #(
-                        .ENGINES_NTS(40),
+                        .ENGINES_NTS(4),
                         .ENGINES_MINI(2),
                         .INSTANTIATE_ROSC(1)
                         )
