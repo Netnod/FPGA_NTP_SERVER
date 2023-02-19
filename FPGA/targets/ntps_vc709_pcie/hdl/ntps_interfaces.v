@@ -151,8 +151,7 @@ module ntps_interfaces #(
 
     input wire            PPS_INA,
     output wire           PPS_OUTA,
-    input wire            TEN_MHZ_INA_N,
-    input wire            TEN_MHZ_INA_P,
+    input wire            TEN_MHZ_INA,
     output wire           TEN_MHZ_OUTA,
     output wire           NTP_LED1A,
     output wire           NTP_LED2A,
@@ -160,8 +159,7 @@ module ntps_interfaces #(
 
     input wire            PPS_INB,
     output wire           PPS_OUTB,
-    input wire            TEN_MHZ_INB_N,
-    input wire            TEN_MHZ_INB_P,
+    input wire            TEN_MHZ_INB,
     output wire           TEN_MHZ_OUTB,
     output wire           NTP_LED1B,
     output wire           NTP_LED2B,
@@ -280,8 +278,7 @@ module ntps_interfaces #(
   //----------------------------------------------------------------
   ntp_clock_top ntp_clock_topA (
     .reset        (reset),
-    .TEN_MHZ_IN_N (TEN_MHZ_INA_N),
-    .TEN_MHZ_IN_P (TEN_MHZ_INA_P),
+    .TEN_MHZ_IN   (TEN_MHZ_INA),
     .TEN_MHZ_OUT  (TEN_MHZ_OUTA),
     .PPS_IN       (PPS_INA),
     .PPS_OUT      (PPS_OUTA),
@@ -324,8 +321,7 @@ module ntps_interfaces #(
 
   ntp_clock_top ntp_clock_topB (
     .reset        (reset),
-    .TEN_MHZ_IN_N (TEN_MHZ_INB_N),
-    .TEN_MHZ_IN_P (TEN_MHZ_INB_P),
+    .TEN_MHZ_IN   (TEN_MHZ_INB),
     .TEN_MHZ_OUT  (TEN_MHZ_OUTB),
     .PPS_IN       (PPS_INB),
     .PPS_OUT      (PPS_OUTB),

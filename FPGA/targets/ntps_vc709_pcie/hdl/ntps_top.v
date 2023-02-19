@@ -156,7 +156,9 @@ module ntps_top (
   wire axi_aclk;       // 125MHz AXI clock derived from PCIe clock
 
   // Wires for NTP clocks.
+  wire TEN_MHZ_INA;
   wire PPS_INA;
+  wire TEN_MHZ_INB;
   wire PPS_INB;
 
 
@@ -324,6 +326,14 @@ module ntps_top (
   );
 
 
+  // Input buffers for NTP clock A
+  wire ten_mhz_ina;
+  IBUFDS ten_mhz_ina_ds_buf
+    (.I(TEN_MHZ_INA_clk_p),
+     .IB(TEN_MHZ_INA_clk_n),
+     .O(TEN_MHZ_INA));
+
+
   // Clock tree input buffer for NTP clock A.
   ntp_clock_ds_buf ds_buf_0 (
     .IBUF_DS_N	(PPS_INA_N),
@@ -331,6 +341,13 @@ module ntps_top (
     .IBUF_OUT	(PPS_INA)
   );
 
+
+  // Input buffers for NTP clock B
+  wire ten_mhz_inb;
+  IBUFDS ten_mhz_inb_ds_buf
+    (.I(TEN_MHZ_INB_clk_p),
+     .IB(TEN_MHZ_INB_clk_n),
+     .O(TEN_MHZ_INB));
 
   // Clock tree insput buffer for NTP clock B.
   ntp_clock_ds_buf ds_buf_1 (
@@ -465,8 +482,7 @@ module ntps_top (
 
      .PPS_INA               (PPS_INA),
      .PPS_OUTA              (PPS_OUTA),
-     .TEN_MHZ_INA_N         (TEN_MHZ_INA_clk_n),
-     .TEN_MHZ_INA_P         (TEN_MHZ_INA_clk_p),
+     .TEN_MHZ_INA           (TEN_MHZ_INA),
      .TEN_MHZ_OUTA          (TEN_MHZ_OUTA),
      .NTP_LED1A             (ntp_clock_topA_LED1),
      .NTP_LED2A             (ntp_clock_topA_LED2),
@@ -474,8 +490,7 @@ module ntps_top (
 
      .PPS_INB               (PPS_INB),
      .PPS_OUTB              (PPS_OUTB),
-     .TEN_MHZ_INB_N         (TEN_MHZ_INB_clk_n),
-     .TEN_MHZ_INB_P         (TEN_MHZ_INB_clk_p),
+     .TEN_MHZ_INB           (TEN_MHZ_INB),
      .TEN_MHZ_OUTB          (TEN_MHZ_OUTB),
      .NTP_LED1B             (ntp_clock_topB_LED1),
      .NTP_LED2B             (ntp_clock_topB_LED2),
