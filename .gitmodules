@@ -37,3 +37,6 @@
 [submodule "FPGA/cores/verilog-i2c"]
 	path = FPGA/cores/verilog-i2c
 	url = ../verilog-i2c
+[submodule "FPGA/cores/neorv32"]
+	path = FPGA/cores/neorv32
+	url = ../neorv32
