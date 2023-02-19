@@ -1,11 +1,11 @@
-# Create a board design with a PCIe to AXI bridge with a GPIO
+# Create a block design with a PCIe to AXI bridge with a GPIO
 # peripheral.  The host can then bitbang I2C using the GPIOs.
 
-# If you want to modify the board deasign, run build.sh to recreate
-# the project, open the .xpr file in Vivado oan make changes to the
-# board design.  Then use "write_project_tcl filename.tcl" to export
-# the project to a TCL file, and merge the changes from that file into
-# this one.
+# If you want to modify the block deasign, run build.sh to recreate
+# the project, open the .xpr file in Vivado and make changes to the
+# block design.  Then use "write_project_tcl filename.tcl" to export
+# the project to a TCL file, and merge the changes to the block design
+# section from that file into this one.
 
 # Proc to create BD design_1
 proc cr_bd_design_1 { parentCell } {
