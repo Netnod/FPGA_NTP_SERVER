@@ -8,6 +8,7 @@
 #include <linux/delay.h>
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
+#include <linux/serial_8250.h>
 
 MODULE_LICENSE("GPL");
 
@@ -25,6 +26,7 @@ struct xi2c_data {
 	void *iomem;
 	void *reg_io;
 	void *reg_tristate;
+        int serial_line;
 };
 
 int xi2c_getscl(void *data)
@@ -82,6 +84,8 @@ static void xi2c_free(struct pci_dev *pdev, struct i2c_adapter *adapter)
 			if (pdata) {
 				printk("%s: freeing pdata\n", __func__);
 
+                                if (pdata->serial_line >= 0)
+                                        serial8250_unregister_port(pdata->serial_line);
 				if (pdata->iomem)
 					iounmap(pdata->iomem);
 				if (pdata->region)
@@ -116,6 +120,7 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	struct i2c_adapter *adapter;
 	struct i2c_algo_bit_data *bit_data;
 	struct xi2c_data *pdata;
+        struct uart_8250_port uart;
 	int ret;
 
 	printk(KERN_INFO "%s:\n", __func__);
@@ -129,7 +134,7 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (!adapter) {
 		printk(KERN_WARNING "%s: adapter alloc failed\n", __func__);
 		ret = -ENOMEM;
-		goto out;
+                goto out;
 	}
 
 	pci_set_drvdata(pdev, adapter);
@@ -145,7 +150,7 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	bit_data->setscl = xi2c_setscl;
 	bit_data->getsda = xi2c_getsda;
 	bit_data->setsda = xi2c_setsda;
-	bit_data->udelay = 1;
+	bit_data->udelay = 5;
 	bit_data->timeout = HZ / 10;
 
 	adapter->algo_data = bit_data;
@@ -157,6 +162,7 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out;
 	}
 
+        pdata->serial_line = -1;
 	bit_data->data = pdata;
 
 	pdata->phys_start = pci_resource_start(pdev, 0);
@@ -175,6 +181,13 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	       pdata->phys_start,
 	       pdata->phys_start + pdata->phys_len - 1);
 
+        if (pdata->phys_len < 0x20000) {
+		printk(KERN_WARNING "%s: memory region too small\n", __func__);
+		ret = -EIO;
+		goto out;
+        }
+        pdata->phys_len = 0x10000;
+
 	pdata->region = request_mem_region(pdata->phys_start, pdata->phys_len, DRIVER_NAME);
 	if (!pdata->region) {
 		printk(KERN_WARNING "%s: request_mem_region failed\n", __func__);
@@ -192,8 +205,8 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	pdata->reg_io = pdata->iomem + 0x08;
 	pdata->reg_tristate = pdata->iomem + 0x0c;
 
-	writeb(0x03, pdata->reg_tristate);
-	writeb(0x00, pdata->reg_io);
+	writel(0x00000003, pdata->reg_tristate);
+	writel(0x80000000, pdata->reg_io);
 
 	snprintf(adapter->name, I2C_NAME_SIZE, "%s", DRIVER_NAME);
 	adapter->owner = THIS_MODULE;
@@ -207,6 +220,31 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	}
 
 	printk(KERN_INFO "%s: ready\n", __func__);
+
+        memset(&uart, 0, sizeof(uart));
+        uart.port.iotype = UPIO_MEM;
+        uart.port.iobase = 0;
+        uart.port.mapbase = pdata->phys_start + 0x10000;
+        // uart.port.membase = pdata->iomem + 0x10000;
+        uart.port.regshift = 2;
+        uart.port.irq = pci_irq_vector(pdev, 0);
+        uart.port.flags = UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ;
+        uart.port.flags |= UPF_IOREMAP;
+        uart.port.uartclk = 125000000;
+        uart.port.dev = &pdev->dev;
+
+        ret = serial8250_register_8250_port(&uart);
+        if (ret < 0) {
+            pr_err("failed to register serial port (%d)\n", ret);
+            goto out;
+        }
+        pr_info("serial line %d registered\n", ret);
+
+        pdata->serial_line = ret;
+
+        // Allow a bit of time before releasing reset
+        msleep(1000);
+	writel(0x00000000, pdata->reg_io);
 
 	return 0;
 

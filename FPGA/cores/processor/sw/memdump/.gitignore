@@ -1,0 +1,4 @@
+*.bin
+*.o
+*.elf
+neorv32_application_image.vhd
