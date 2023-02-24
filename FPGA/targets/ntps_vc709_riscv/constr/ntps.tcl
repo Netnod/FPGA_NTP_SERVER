@@ -12,3 +12,8 @@ create_generated_clock -name clk50 -source [get_ports SYS_CLK_P] -divide_by 2 [g
 
 # Separate 50 MHz clock from all other clocks
 set_clock_groups -name clk_50_clocks -asynchronous -group [get_clocks -include_generated_clocks clk50]
+
+# Allow combinatorial loops i NEORV32 TRNG
+# set_property SEVERITY {warning} [get_drc_checks LUTLP-1]
+# set_property IS_ENABLED FALSE [get_drc_checks LUTLP-1]
+# set_property ALLOW_COMBINATORIAL_LOOPS TRUE [ get_nets neorv32_wrapper_inst/neorv32_top_inst/neorv32_top_inst/neorv32_trng_inst_true.neorv32_trng_inst/neoTRNG_inst/neoTRNG_cell_inst[*].neoTRNG_cell_inst_i/enable_sreg_l_reg[*]_0 ]

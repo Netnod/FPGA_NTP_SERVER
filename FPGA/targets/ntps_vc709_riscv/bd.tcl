@@ -26,6 +26,7 @@ proc cr_bd_design_1 { parentCell } {
      set list_check_ips "\ 
   xilinx.com:ip:axi_gpio:2.0\
   xilinx.com:ip:axi_pcie3:3.0\
+  xilinx.com:ip:axi_uart16550:2.0\
   xilinx.com:ip:util_ds_buf:2.1\
   "
 
@@ -90,6 +91,8 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.FREQ_HZ {100000000} \
    ] $pcie_refclk
 
+  set rs232_uart [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 rs232_uart ]
+
 
   # Create ports
   set axi_aclk [ create_bd_port -dir O -type clk axi_aclk ]
@@ -102,7 +105,7 @@ proc cr_bd_design_1 { parentCell } {
   # Create instance: axi_gpio_0, and set properties
   set axi_gpio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 ]
   set_property -dict [ list \
-   CONFIG.C_GPIO2_WIDTH {8} \
+   CONFIG.C_GPIO2_WIDTH {32} \
    CONFIG.C_IS_DUAL {1} \
    CONFIG.GPIO2_BOARD_INTERFACE {Custom} \
    CONFIG.GPIO_BOARD_INTERFACE {led_8bits} \
@@ -119,13 +122,21 @@ proc cr_bd_design_1 { parentCell } {
    CONFIG.en_axi_slave_if {false} \
    CONFIG.pf0_bar0_scale {Megabytes} \
    CONFIG.pf0_bar0_size {1} \
+   CONFIG.pf0_msi_enabled {false} \
  ] $axi_pcie3_0
 
   # Create instance: axi_pcie3_0_axi_periph, and set properties
   set axi_pcie3_0_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_pcie3_0_axi_periph ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {1} \
+   CONFIG.NUM_MI {2} \
  ] $axi_pcie3_0_axi_periph
+
+  # Create instance: axi_uart16550_0, and set properties
+  set axi_uart16550_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 axi_uart16550_0 ]
+  set_property -dict [ list \
+   CONFIG.UART_BOARD_INTERFACE {rs232_uart} \
+   CONFIG.USE_BOARD_FLOW {true} \
+ ] $axi_uart16550_0
 
   # Create instance: util_ds_buf, and set properties
   set util_ds_buf [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 util_ds_buf ]
@@ -139,18 +150,21 @@ proc cr_bd_design_1 { parentCell } {
   connect_bd_intf_net -intf_net axi_gpio_0_GPIO2 [get_bd_intf_ports gpio_rtl] [get_bd_intf_pins axi_gpio_0/GPIO2]
   connect_bd_intf_net -intf_net axi_pcie3_0_M_AXI [get_bd_intf_pins axi_pcie3_0/M_AXI] [get_bd_intf_pins axi_pcie3_0_axi_periph/S00_AXI]
   connect_bd_intf_net -intf_net axi_pcie3_0_axi_periph_M00_AXI [get_bd_intf_pins axi_gpio_0/S_AXI] [get_bd_intf_pins axi_pcie3_0_axi_periph/M00_AXI]
+  connect_bd_intf_net -intf_net axi_pcie3_0_axi_periph_M01_AXI [get_bd_intf_pins axi_pcie3_0_axi_periph/M01_AXI] [get_bd_intf_pins axi_uart16550_0/S_AXI]
   connect_bd_intf_net -intf_net axi_pcie3_0_pcie_7x_mgt [get_bd_intf_ports pci_express_x1] [get_bd_intf_pins axi_pcie3_0/pcie_7x_mgt]
+  connect_bd_intf_net -intf_net axi_uart16550_0_UART [get_bd_intf_ports rs232_uart] [get_bd_intf_pins axi_uart16550_0/UART]
   connect_bd_intf_net -intf_net pcie_refclk_1 [get_bd_intf_ports pcie_refclk] [get_bd_intf_pins util_ds_buf/CLK_IN_D]
 
   # Create port connections
-  connect_bd_net -net axi_pcie3_0_axi_aclk [get_bd_ports axi_aclk] [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins axi_pcie3_0/axi_aclk] [get_bd_pins axi_pcie3_0_axi_periph/ACLK] [get_bd_pins axi_pcie3_0_axi_periph/M00_ACLK] [get_bd_pins axi_pcie3_0_axi_periph/S00_ACLK]
-  connect_bd_net -net axi_pcie3_0_axi_aresetn [get_bd_ports axi_aresetn] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_pcie3_0/axi_aresetn] [get_bd_pins axi_pcie3_0_axi_periph/ARESETN] [get_bd_pins axi_pcie3_0_axi_periph/M00_ARESETN] [get_bd_pins axi_pcie3_0_axi_periph/S00_ARESETN]
+  connect_bd_net -net axi_pcie3_0_axi_aclk [get_bd_ports axi_aclk] [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins axi_pcie3_0/axi_aclk] [get_bd_pins axi_pcie3_0_axi_periph/ACLK] [get_bd_pins axi_pcie3_0_axi_periph/M00_ACLK] [get_bd_pins axi_pcie3_0_axi_periph/M01_ACLK] [get_bd_pins axi_pcie3_0_axi_periph/S00_ACLK] [get_bd_pins axi_uart16550_0/s_axi_aclk]
+  connect_bd_net -net axi_pcie3_0_axi_aresetn [get_bd_ports axi_aresetn] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_pcie3_0/axi_aresetn] [get_bd_pins axi_pcie3_0_axi_periph/ARESETN] [get_bd_pins axi_pcie3_0_axi_periph/M00_ARESETN] [get_bd_pins axi_pcie3_0_axi_periph/M01_ARESETN] [get_bd_pins axi_pcie3_0_axi_periph/S00_ARESETN] [get_bd_pins axi_uart16550_0/s_axi_aresetn]
+  connect_bd_net -net axi_uart16550_0_ip2intc_irpt [get_bd_pins axi_pcie3_0/intx_msi_request] [get_bd_pins axi_uart16550_0/ip2intc_irpt]
   connect_bd_net -net pcie_perstn_1 [get_bd_ports pcie_perstn] [get_bd_pins axi_pcie3_0/sys_rst_n]
   connect_bd_net -net util_ds_buf_IBUF_OUT [get_bd_pins axi_pcie3_0/refclk] [get_bd_pins util_ds_buf/IBUF_OUT]
 
   # Create address segments
-  assign_bd_address -offset 0x40000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_pcie3_0/M_AXI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
-
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_pcie3_0/M_AXI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces axi_pcie3_0/M_AXI] [get_bd_addr_segs axi_uart16550_0/S_AXI/Reg] -force
 
   # Restore current instance
   current_bd_instance $oldCurInst

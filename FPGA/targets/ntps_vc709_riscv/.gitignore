@@ -5,3 +5,4 @@
 *.hw
 *.runs
 *.sim
+neorv32.tcl

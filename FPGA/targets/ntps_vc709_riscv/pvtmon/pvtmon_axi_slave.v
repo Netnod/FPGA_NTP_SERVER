@@ -279,7 +279,7 @@ module user_registers_axi_slave #(
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+3) begin
       reg_data_out    <= `GIT_HASH;
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+4) begin
-      reg_data_out    <= 32'hbeeffeed;
+      reg_data_out    <= 32'h11a6ebf8;
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+5) begin
       reg_data_out    <= ctr156;
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+6) begin

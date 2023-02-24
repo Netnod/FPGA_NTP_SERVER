@@ -8,6 +8,7 @@ import random
 import datetime
 import netaddr
 import sys
+import socket
 
 import io
 try:
@@ -367,6 +368,9 @@ class NtsApi(object):
     def engine_read32(self, engine, addr):
         if self.path.KERNEL_API:
             return self.path.read_engine(self.path.port, engine, addr)
+        elif xpcie.RISCV_ENGINE and xpcie.RISCV_API:
+            o = 0x8000 // 4 + 0x1000 // 4 * engine + addr
+            return self.path.read(o)
         else:
             id_cmd_addr = (engine<<20) | (self.BUS_READ<<12) | (addr & 0xFFF)
 
@@ -384,6 +388,9 @@ class NtsApi(object):
     def engine_write32(self, engine, addr, value):
         if self.path.KERNEL_API:
             return self.path.write_engine(self.path.port, engine, addr, value)
+        elif xpcie.RISCV_ENGINE and xpcie.RISCV_API:
+            o = 0x8000 // 4 + 0x1000 // 4 * engine + addr
+            return self.path.write(o, value)
         else:
             id_cmd_addr = (engine<<20) | (self.BUS_WRITE<<12) | (addr & 0xFFF)
 
@@ -418,13 +425,15 @@ class NtsApi(object):
         return self.humanL(self.engine_read64(engine, addr))
 
     def detect_engines(self):
+        print("detect_engines")
         disp_name = self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_NAME)
+        print("xxx")
         disp_version = self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_VERSION)
         disp_engines = self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_NTS_ENGINES_ALL)
         if (disp_name != self.EXPECTED_DISPATCHER_ADDR_NAME):
-            raise ValueError("WARNING: invalid dispatcher name: {}".format(disp_name))
+            raise ValueError("WARNING: invalid dispatcher name: {0:016x}".format(disp_name))
         if (disp_version < self.EXPECTED_DISPATCHER_VERSION):
-            raise ValueError("WARNING: invalid dispatcher version: {}".format(disp_version))
+            raise ValueError("WARNING: invalid dispatcher version: {0:04x}".format(disp_version))
         if (disp_engines < 1):
             raise ValueError("WARNING: invalid dispatcher engine count: {}".format(disp_engines))
         return disp_engines
@@ -451,11 +460,12 @@ class NtsApi(object):
         print("")
         print(" - Unofficial undocumented debug registers (behaivor subject to change)")
         print("   - NTP_TIME:  0x%016x" % self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_NTPTIME))
-        print("   - DUMMY:     0x%08x" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY))
         self.write32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY, 0xdeadbeef)
         print("   - DUMMY:     0x%08x (expected: deadbeef)" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY))
         self.write32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY, 0x1cec001d)
         print("   - DUMMY:     0x%08x (expected: 1cec001d)" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY))
+        self.write32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY, 0xfeedfeed)
+        print("   - DUMMY:     0x%08x (expected: feedfeed)" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_DUMMY))
         print("   - SYSTICK32: %d (dec)" % self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_SYSTICK32))
         print("   - FRAMES:")
         print("     - DETECTED:   %d (dec)" % self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_COUNTER_FRAMES))
@@ -713,6 +723,18 @@ class NtsApi(object):
                 context3 = self.random32(f)
                 context4 = self.random32(f)
                 context5 = self.random32(f)
+
+            if socket.gethostname() in [ 'ticktock' ]:
+                key0 = 0x12345678
+                key1 = 0x9abcdef0
+                key2 = 0xfedcba98
+                key3 = 0x76543210
+                context0 = 0x00000000
+                context1 = 0x11111111
+                context2 = 0x22222222
+                context3 = 0x33333333
+                context4 = 0x44444444
+                context5 = 0x55555555
 
             print(" * Key: %08x%08x%08x%08x" % (key0, key1, key2, key3))
             print(" * Context %08x%08x%08x%08x%08x%08x" % (context0, context1, context2, context3, context4, context5))

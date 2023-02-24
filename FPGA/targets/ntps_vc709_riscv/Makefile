@@ -1,11 +1,24 @@
 # Project settings
-PROJ_NAME := ntps_vc709_i2c
-FPGA_TOP := i2c_top
+PROJ_NAME := ntps_vc709_riscv
+FPGA_TOP := riscv_top
 FPGA_PART := xc7vx690tffg1761-2
 FPGA_BOARD := xilinx.com:vc709:part0:1.8
 
 # Files for synthesis and simulation
 SYN_FILES :=
+
+# Constraint files
+# Note, the order is important, some files contain definitions
+# that later files rely upon
+XDC_FILES :=
+
+# IP files
+XCI_FILES :=
+
+TCL_FILES :=
+
+# NEORV32_FILES are added to the library "neorv32" at the end, not the default library "work"
+NEORV32_FILES :=
 
 SYN_FILES += ../../cores/aes-siv/src/rtl/aes_siv_core.v
 SYN_FILES += ../../cores/aes/src/rtl/aes_core.v
@@ -80,7 +93,7 @@ SYN_FILES += ../../ntp_clock/hdl/pps_gen.v
 SYN_FILES += ../../ntp_clock/hdl/pps_test.v
 SYN_FILES += ../../ntp_clock/hdl/time_sel_sync.v
 
-SYN_FILES += src/i2c_top.v
+SYN_FILES += src/riscv_top.v
 SYN_FILES += src/clk50_gen.v
 SYN_FILES += src/ntps_clocks.v
 SYN_FILES += src/ntps_phys.v
@@ -89,48 +102,79 @@ SYN_FILES += src/ntps_interfaces.v
 SYN_FILES += pvtmon/pvtmon_axi_slave.v
 SYN_FILES += pvtmon/pvtmon_top.v
 
-# SYN_FILES += vc709_i2c.srcs/sources_1/bd/design_1/synth/design_1.v
-
-SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave.v
-SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave_axil_master.v
-
-# Constraint files
-# Note, the order is important, some files contain definitions
-# that later files rely upon
-XDC_FILES :=
-# XDC_FILES += constr/clock_control.xdc
-# XDC_FILES += constr/clock_groups.xdc
-# XDC_FILES += constr/debug.xdc
-# XDC_FILES += constr/misc.xdc
-
 XDC_FILES += constr/vc709.xdc
 XDC_FILES += constr/interface_board.xdc
 XDC_FILES += constr/sfp_ports.xdc
 XDC_FILES += constr/network_path.tcl
 XDC_FILES += constr/ntps.tcl
 
-# IP files
-XCI_FILES :=
-
 XCI_FILES += xilinx_ip/network_path/ten_gig_eth_pcs_pma_ip/ten_gig_eth_pcs_pma_ip.xci
 XCI_FILES += xilinx_ip/network_path/ten_gig_eth_pcs_pma_ip_shared_logic/ten_gig_eth_pcs_pma_ip_shared_logic_in_core.xci
-# XCI_FILES += xilinx_ip/ntp_clock/ntp_clock_ds_buf/ntp_clock_ds_buf.xci
 XCI_FILES += xilinx_ip/ntp_clock/ntp_clock_pll/ntp_clock_pll.xci
 XCI_FILES += xilinx_ip/ntp_clock/ntps_top_clk_wiz_0_1/ntps_top_clk_wiz_0_1.xci
 XCI_FILES += xilinx_ip/top/ntps_top_axi_ethernetlite_0_0/ntps_top_axi_ethernetlite_0_0.xci
+XCI_FILES += xilinx_ip/top/ntps_top_xbar_0/ntps_top_xbar_0.xci
 
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_ds_0/design_1_auto_ds_0.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_auto_pc_0/design_1_auto_pc_0.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_gpio_0_0/design_1_axi_gpio_0_0.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_util_ds_buf_0/design_1_util_ds_buf_0.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_2/design_1_axi_pcie3_0_0_pcie3_ip.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/design_1_axi_pcie3_0_0.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_0/axi_pcie3_v3_0_10_blk_mem_gen_v8_3_6_64B_parity.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_0/ip_1/axi_pcie3_v3_0_10_fifo_generator_v13_1_4_64B_parity.xci
-# XCI_FILES += vc709_i2c.srcs/sources_1/bd/design_1/ip/design_1_axi_pcie3_0_axi_periph_0/design_1_axi_pcie3_0_axi_periph_0.xci
+SYN_FILES += ../../cores/processor/rtl/neorv32_wrapper.vhd
 
-TCL_FILES :=
+SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave_wbm.v
+SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave.v
+
+NEORV32_FILES += ../../cores/processor/rtl/neorv32_cfs.vhd
+SYN_FILES += ../../cores/processor/rtl/mirror_wb_slave.v
+SYN_FILES += ../../cores/processor/rtl/cfs_twi_slave.v
+
+SYN_FILES += ../../cores/processor/rtl/wb_axil_bridge.vhd
+
+NEORV32_FILES += ../../cores/processor/rtl/neorv32_application_image.vhd
+
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_boot_rom.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_bootloader_image.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_bus_keeper.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_busswitch.vhd
+# NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cfs.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_alu.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_bus.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_control.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_cp_bitmanip.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_cp_cfu.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_cp_fpu.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_cp_muldiv.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_cp_shifter.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_decompressor.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cpu_regfile.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_debug_dm.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_debug_dtm.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_dmem.entity.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_fifo.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_gpio.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_gptmr.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_icache.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_imem.entity.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_mtime.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_neoled.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_onewire.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_package.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_pwm.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_slink.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_spi.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_sysinfo.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_top.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_trng.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_twi.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_uart.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_wdt.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_wishbone.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_xip.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_xirq.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/mem/neorv32_dmem.default.vhd
+NEORV32_FILES += ../../cores/neorv32/rtl/core/mem/neorv32_imem.default.vhd
+
+SYN_FILES += $(NEORV32_FILES)
+
 TCL_FILES += bd.tcl
+TCL_FILES += neorv32.tcl
 
 # Tcl file to run before starting synthesis
 TCL_PRE := pre_synth.tcl
@@ -150,5 +194,7 @@ clean:
 	rm -rf .Xil
 	rm -rf -- $(PROJ_NAME).xpr $(PROJ_NAME).cache $(PROJ_NAME).hw $(PROJ_NAME).ip_user_files $(PROJ_NAME).runs $(PROJ_NAME).sim $(PROJ_NAME).srcs
 
+neorv32.tcl: Makefile
+	echo "set_property library neorv32 [ get_files \"$(NEORV32_FILES)\" ]" >neorv32.tcl
 
 include ../common/vivado.mk

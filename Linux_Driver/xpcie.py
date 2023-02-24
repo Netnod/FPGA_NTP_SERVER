@@ -8,7 +8,7 @@ import netaddr
 import os
 import struct
 
-DEBUG = 0
+DEBUG = 5
 
 try:
   import hal
@@ -35,27 +35,28 @@ try:
   class xpcie_class:
     no_regs    = 0
 
+    def make_addr(self, reg):
+      if RISCV_API:
+        print("using RISCV API")
+        return 0x4a, self.i2c_addr * 0x01000000 + reg * 4
+      else:
+        return self.i2c_addr, reg * 4
+
     # Read a register
     def read(self, reg):
-        if (reg >= 0 and reg < self.no_regs):
-          val = struct.unpack('<L', read_buf(self.i2c_addr, reg*4, 4))[0]
-          if DEBUG >= 2:
-            print("%02x:%08x -> %08x" % (self.i2c_addr, reg * 4, val))
-          return val
-
-        else:
-            raise IOError("read 0x%x failed" % (reg))
+      i2c_addr, mem_addr = self.make_addr(reg)
+      val = struct.unpack('<L', read_buf(i2c_addr, mem_addr, 4))[0]
+      if DEBUG >= 9:
+        print("%02x:%08x -> %08x" % (i2c_addr, mem_addr, val))
+      return val
 
     # Write a register
     def write(self, reg, val):
-        if (reg >= 0 and reg < self.no_regs):
-            if DEBUG >= 2:
-                print("%02x:%08x <- %08x" % (self.i2c_addr, reg * 4, val))
-            write_buf(self.i2c_addr, reg * 4, struct.pack('<L', val))
-            return val
-
-        else:
-            raise IOError("write 0x%x failed" % (reg))
+      i2c_addr, mem_addr = self.make_addr(reg)
+      if DEBUG >= 9:
+        print("%02x:%08x <- %08x" % (i2c_addr, mem_addr, val))
+      write_buf(i2c_addr, mem_addr, struct.pack('<L', val))
+      return val
 
 except ModuleNotFoundError:
  bus = None
@@ -80,33 +81,33 @@ except ModuleNotFoundError:
   class xpcie_class:
     no_regs    = 0
 
+    def make_addr(self, reg):
+      if RISCV_API:
+        return 0x4a, self.i2c_addr * 0x01000000 + reg * 4
+      else:
+        return self.i2c_addr, reg * 4
+
     # Read a register
     def read(self, reg):
-        if (reg >= 0 and reg < self.no_regs):
-            addr = struct.pack('>L', reg * 4)
-            w = smbus2.i2c_msg.write(self.i2c_addr, addr)
-            r = smbus2.i2c_msg.read(self.i2c_addr, 4)
-            bus.i2c_rdwr(w, r)
-            val = struct.unpack('<L', bytearray(list(r)))[0]
-            if DEBUG >= 2:
-                print("%02x:%08x -> %08x" % (self.i2c_addr, reg * 4, val))
-            return val
-
-        else:
-            raise IOError("read 0x%x failed" % (reg))
+      i2c_addr, mem_addr = self.make_addr(reg)
+      addr_buf = struct.pack('>L', mem_addr)
+      w = smbus2.i2c_msg.write(i2c_addr, addr_buf)
+      r = smbus2.i2c_msg.read(i2c_addr, 4)
+      bus.i2c_rdwr(w, r)
+      val = struct.unpack('<L', bytearray(list(r)))[0]
+      if DEBUG >= 9:
+        print("%02x:%08x -> %08x" % (i2c_addr, mem_addr, val))
+      return val
 
     # Write a register
     def write(self, reg, val):
-        if (reg >= 0 and reg < self.no_regs):
-            addr = struct.pack('>L', reg * 4)
-            data = struct.pack('<L', val)
-            if DEBUG >= 2:
-                print("%02x:%08x <- %08x" % (self.i2c_addr, reg * 4, val))
-            w = smbus2.i2c_msg.write(self.i2c_addr, addr + data)
-            bus.i2c_rdwr(w)
-
-        else:
-            raise IOError("write 0x%x failed" % (reg))
+      i2c_addr, mem_addr = self.make_addr(reg)
+      if DEBUG >= 9:
+        print("%02x:%08x <- %08x" % (i2c_addr, mem_addr, val))
+      addr_buf = struct.pack('>L', mem_addr)
+      data_buf = struct.pack('<L', val)
+      w = smbus2.i2c_msg.write(i2c_addr, addr_buf + data_buf)
+      bus.i2c_rdwr(w)
 
   break
 
@@ -131,7 +132,7 @@ except ModuleNotFoundError:
             res = array.array('L', [0])
             fcntl.ioctl(xpcie, magix + self.p_ofs + reg*4, res)
             val = res.tolist()[0]
-            if DEBUG >= 2:
+            if DEBUG >= 9:
                 print("%08x -> %08x" % (self.p_ofs + reg*4, val))
             return val
         else:
@@ -141,7 +142,7 @@ except ModuleNotFoundError:
     def write(self, reg, val):
         if (reg >= 0 and reg < self.no_regs):
             val = val & (2**32-1) # truncate to 32 bits
-            if DEBUG >= 2:
+            if DEBUG >= 9:
                 print("%08x <- %08x" % (self.p_ofs + reg*4, val))
             if val >= 2**31:
                 val -= 2**32 # unsigned to signed
@@ -411,6 +412,21 @@ class network_path(xpcie_class):
             fcntl.ioctl(xpcie, magi | (path << 20) | reg, res)
             return res.tolist()[0]
 
+        elif RISCV_API:
+            if reg >= 0x00000000 and reg < 0x00100000:
+              offs = 0x1000
+            elif reg >= 0x1000000 and reg < 0x10100000:
+              offs = 0x2000
+            elif reg >= 0x2000000 and reg < 0x20100000:
+              offs = 0x3000
+            else:
+                raise IOError("read_api invalid reg 0x%x" % (reg))
+
+            if reg & 0xffffff > 0xfff:
+              raise ValueError("invalid reg 0x%x" % reg)
+
+            data = self.read(offs // 4 + (reg & 0xfff))
+
         else:
             self.write(self.nts_api_address, reg)
             self.write(self.nts_api_command, self.COMMAND_READ)
@@ -428,13 +444,13 @@ class network_path(xpcie_class):
             data = self.read(self.nts_api_read_data)
             self.write(self.nts_api_command, self.COMMAND_IDLE)
 
-        if DEBUG:
+        if DEBUG >= 6:
             print("api[%u:0x%08x] -> %08x" % (self.port, reg, data))
 
         return data
 
     def write_api(self, path, reg, val):
-        if DEBUG:
+        if DEBUG >= 6:
             print("api[%u:0x%04x] <- %08x" % (self.port, reg, val))
 
         if path < 0 or path > 3:
@@ -455,6 +471,21 @@ class network_path(xpcie_class):
                 val -= 2**32 # unsigned to signed
 
             fcntl.ioctl(xpcie, magi | (path << 20) | iow | reg, val)
+
+        elif RISCV_API:
+            if reg >= 0x00000000 and reg < 0x00100000:
+              offs = 0x1000
+            elif reg >= 0x1000000 and reg < 0x10100000:
+              offs = 0x2000
+            elif reg >= 0x2000000 and reg < 0x20100000:
+              offs = 0x3000
+            else:
+                raise IOError("write_api invalid reg 0x%x" % (reg))
+
+            if reg & 0xffffff > 0xfff:
+              raise ValueError("invalid reg 0x%x" % reg)
+
+            data = self.write(offs // 4 + (reg & 0xfff), val)
 
         else:
             self.write(self.nts_api_address, reg)
@@ -649,10 +680,18 @@ class api_extension(object):
         self.path.write_engine(engine.path.port, engine, reg, data)
 
 if bus:
-  fpga_magic = True
+  try:
+    RISCV_API = 0
+    fpga_magic = user_regs().read(user_regs.magic)
+  except OSError:
+    RISCV_API = 1
+    RISCV_ENGINE = 1
+    fpga_magic = user_regs().read(user_regs.magic)
+
 else:
-  fpga_magic = user_regs().read(user_regs.magic)
   if fpga_magic:
     print("libntsfpga using new xpcie register map")
   else:
     print("libntsfpga using old xpcie register map")
+
+print("fpga_magic 0x%08x" % fpga_magic)

@@ -5,6 +5,11 @@ This directory contains the source code for a NTP and NTS server
 "ntps" running in a Xilinx Virtex 7 XC7VX690T FPGA on a VC709
 reference board.
 
+This is yet another variant of the vc709 implementation, this one adds
+a RISC-V processor (NEORV32) which replaces the I2C-AXI bridge.  This
+will allow us to put more intelligence in the FPGA and simplify the
+I2C interface.
+
 Requirements for using the FPGA images
 ======================================
 

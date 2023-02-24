@@ -1,7 +1,7 @@
 //======================================================================
 //
-// i2c_top.v
-// ---------
+// riscv_top.v
+// -----------
 // Top level module for the NTP, NTS FPGA design.
 //
 // Author: Rolf Andersson (rolf@mechanicalmen.se)
@@ -44,7 +44,7 @@
 
 `default_nettype none
 
-module i2c_top
+module riscv_top
   (
    input  wire       SYS_CLK_N,
    input  wire       SYS_CLK_P,
@@ -98,6 +98,283 @@ module i2c_top
   localparam PHY_PATHS = 4;
   localparam NUM_SLAVES = NUM_PATHS + 4;
 
+  localparam INT_BOOTLOADER_EN = 1'b0;
+
+  //////////////////////////////////////////////////////////////////////
+  // PCIe to GPIO(I2C)/UART bridge
+  // 
+  // A simple block design which adds a couple of GPIO registers and
+  // a UART to the host.
+
+  // AXI clock and reset from the block design
+  wire axi_aclk;
+  wire axi_aresetn;
+
+  // GPIO pins from the block design
+  wire [31:0] gpio_tri_i;
+  wire [31:0] gpio_tri_o;
+  wire [31:0] gpio_tri_t;
+
+  // UART from the block design
+  wire uart_rxd;
+  wire uart_txd;
+
+  design_1 design_1_i
+    (.pci_express_x1_rxn	(pci_express_x1_rxn),
+     .pci_express_x1_rxp	(pci_express_x1_rxp),
+     .pci_express_x1_txn	(pci_express_x1_txn),
+     .pci_express_x1_txp	(pci_express_x1_txp),
+     .pcie_perstn		(pcie_perstn),
+     .pcie_refclk_clk_n		(pcie_refclk_clk_n),
+     .pcie_refclk_clk_p		(pcie_refclk_clk_p),
+
+     .axi_aclk			(axi_aclk),
+     .axi_aresetn		(axi_aresetn),
+
+     .led_8bits_tri_o		(),
+     .gpio_rtl_tri_i		(gpio_tri_i),
+     .gpio_rtl_tri_o		(gpio_tri_o),
+     .gpio_rtl_tri_t		(gpio_tri_t),
+     .rs232_uart_rxd		(uart_rxd),
+     .rs232_uart_txd		(uart_txd)
+     );
+
+  // Create an I2C bus with SCL/SDA from host GPIOs 
+  wire host_scl_i;
+  wire host_scl_o;
+  wire host_sda_i;
+  wire host_sda_o;
+
+  assign host_scl_o = gpio_tri_t[0] ? 1 : gpio_tri_o[0];
+  assign host_sda_o = gpio_tri_t[1] ? 1 : gpio_tri_o[1];
+  assign gpio_tri_i[0] = host_scl_i;
+  assign gpio_tri_i[1] = host_sda_i;
+
+  // Control the RISC-V CPU reset via a GPIO on the host
+  wire cpu_resetn  = !gpio_tri_o[31] && axi_aresetn;
+
+  //////////////////////////////////////////////////////////////////////
+  // Internal I2C bus
+  //
+  // Connects host and cpu I2C ports using an internal bus
+  
+  // I2C slave pins
+  wire cpu_scl_i;
+  wire cpu_scl_o;
+  wire cpu_sda_i;
+  wire cpu_sda_o;
+  
+  // Connect all TWI devices on an internal bus
+  wire internal_scl = host_scl_o & cpu_scl_o;
+  wire internal_sda = host_sda_o & cpu_sda_o;
+  assign host_scl_i = internal_scl;
+  assign host_sda_i = internal_sda;
+  assign cpu_scl_i = internal_scl;
+  assign cpu_sda_i = internal_sda;
+
+  //////////////////////////////////////////////////////////////////////
+  // RISC-V (NEORV32) CPU
+
+  // CPU GPIO pins
+  wire [7:0] cpu_gpio_i;
+  wire [7:0] cpu_gpio_o;
+
+  // CPU Wishboe bus
+  wire			wb_reset;
+  wire			wb_cyc;
+  wire			wb_stb;
+  wire			wb_we;
+  wire [32-1:0]		wb_addr;
+  wire [32-1:0]		wb_data_w;
+  wire [32/8-1:0]	wb_sel;
+  wire			wb_stall;
+  wire			wb_ack;
+  wire [32-1:0]		wb_data_r;
+  wire			wb_err;
+
+  neorv32_wrapper #
+    (
+     .CLOCK_FREQUENCY(125000000),
+     .MEM_EXT_PIPE_MODE(1'b0),
+     .INT_BOOTLOADER_EN(INT_BOOTLOADER_EN)
+     )
+  neorv32_wrapper_inst
+    (
+     .clk_i			(axi_aclk),
+     .rstn_i			(cpu_resetn),
+    
+     // GPIO
+     .gpio_i(cpu_gpio_i), // parallel input
+     .gpio_o(cpu_gpio_o), // parallel output
+
+     // primary UART0
+     .uart0_txd_o(uart_rxd), // UART0 send data
+     .uart0_rxd_i(uart_txd),  // UART0 receive data
+
+     // TWI bus
+     .twi_scl_i(cpu_scl_i),
+     .twi_sda_i(cpu_sda_i),
+     .twi_scl_o(cpu_scl_o),
+     .twi_sda_o(cpu_sda_o),
+
+     // Wishbone bus
+     .wb_cyc_o			(wb_cyc),
+     .wb_stb_o			(wb_stb),
+     .wb_we_o			(wb_we),
+     .wb_adr_o			(wb_addr),
+     .wb_dat_o			(wb_data_w),
+     .wb_sel_o			(wb_sel),
+     .wb_ack_i			(wb_ack),
+     .wb_dat_i			(wb_data_r),
+     .wb_err_i			(wb_err)
+     );
+
+  //////////////////////////////////////////////////////////////////////
+  // Wishbone to AXI Lite bridge
+
+  // AXI bus
+  // Write Address Channel
+  wire [31:0] 	top_axi_awaddr;
+  wire [2:0] 	top_axi_awprot;
+  wire 		top_axi_awvalid;
+  wire 		top_axi_awready;
+  // Write Data Channel
+  wire [31:0] 	top_axi_wdata;
+  wire [3:0] 	top_axi_wstrb;
+  wire 		top_axi_wvalid;
+  wire 		top_axi_wready;
+  // Write Response Channel
+  wire [1:0] 	top_axi_bresp;
+  wire 		top_axi_bvalid;
+  wire 		top_axi_bready;
+  // Read Address Channel
+  wire [31:0] 	top_axi_araddr;
+  wire [2:0] 	top_axi_arprot;
+  wire 		top_axi_arvalid;
+  wire 		top_axi_arready;
+  // Read Data Channel
+  wire [31:0] 	top_axi_rdata;
+  wire [1:0] 	top_axi_rresp;
+  wire 		top_axi_rvalid;
+  wire 		top_axi_rready;
+
+  wb_axil_bridge #
+    (
+     .AW(32),
+     .C_AXI_ADDR_WIDTH(32)
+     )
+  wb_axil_bridge_inst
+    (
+     .clk_i		(axi_aclk),
+     .rstn_i		(!cpu_resetn),
+
+     // Wishbone bus
+     .wb_cyc_i		(wb_cyc),
+     .wb_stb_i		(wb_stb),
+     .wb_we_i		(wb_we),
+     .wb_adr_i		(wb_addr),
+     .wb_dat_i		(wb_data_w),
+     .wb_sel_i		(wb_sel),
+     .wb_ack_o		(wb_ack),
+     .wb_dat_o		(wb_data_r),
+     .wb_err_o		(wb_err),
+
+     // AXI bus
+     .m_axi_awaddr      (top_axi_awaddr),
+     .m_axi_awprot      (top_axi_awprot),
+     .m_axi_awvalid     (top_axi_awvalid),
+     .m_axi_awready     (top_axi_awready),
+
+     .m_axi_wdata       (top_axi_wdata),
+     .m_axi_wstrb       (top_axi_wstrb),
+     .m_axi_wvalid      (top_axi_wvalid),
+     .m_axi_wready      (top_axi_wready),
+
+     .m_axi_bresp       (top_axi_bresp),
+     .m_axi_bvalid      (top_axi_bvalid),
+     .m_axi_bready      (top_axi_bready),
+
+     .m_axi_araddr      (top_axi_araddr),
+     .m_axi_arprot      (top_axi_arprot),
+     .m_axi_arvalid     (top_axi_arvalid),
+     .m_axi_arready     (top_axi_arready),
+
+     .m_axi_rdata       (top_axi_rdata),
+     .m_axi_rresp       (top_axi_rresp),
+     .m_axi_rvalid      (top_axi_rvalid),
+     .m_axi_rready      (top_axi_rready)
+
+     );
+  
+  //----------------------------------------------------------------
+  // AXI Lite bus
+  //----------------------------------------------------------------
+
+  wire [NUM_SLAVES*32-1:0]   axil_awaddr;
+  wire [NUM_SLAVES*3-1:0]    axil_awprot;
+  wire [NUM_SLAVES-1:0]      axil_awvalid;
+  wire [NUM_SLAVES-1:0]      axil_awready;
+  wire [NUM_SLAVES*32-1:0]   axil_wdata;
+  wire [NUM_SLAVES*32/8-1:0] axil_wstrb;
+  wire [NUM_SLAVES-1:0]      axil_wvalid;
+  wire [NUM_SLAVES-1:0]      axil_wready;
+  wire [NUM_SLAVES*2-1:0]    axil_bresp;
+  wire [NUM_SLAVES-1:0]      axil_bvalid;
+  wire [NUM_SLAVES-1:0]      axil_bready;
+  wire [NUM_SLAVES*32-1:0]   axil_araddr;
+  wire [NUM_SLAVES*3-1:0]    axil_arprot;
+  wire [NUM_SLAVES-1:0]      axil_arvalid;
+  wire [NUM_SLAVES-1:0]      axil_arready;
+  wire [NUM_SLAVES*32-1:0]   axil_rdata;
+  wire [NUM_SLAVES*2-1:0]    axil_rresp;
+  wire [NUM_SLAVES-1:0]      axil_rvalid;
+  wire [NUM_SLAVES-1:0]      axil_rready;
+
+  ntps_top_xbar_0 xbar (
+    .aclk          (axi_aclk),
+    .aresetn       (cpu_resetn),
+
+    .s_axi_araddr  (top_axi_araddr),
+    .s_axi_arprot  (top_axi_arprot),
+    .s_axi_arready (top_axi_arready),
+    .s_axi_arvalid (top_axi_arvalid),
+    .s_axi_awaddr  (top_axi_awaddr),
+    .s_axi_awprot  (top_axi_awprot),
+    .s_axi_awready (top_axi_awready),
+    .s_axi_awvalid (top_axi_awvalid),
+    .s_axi_bready  (top_axi_bready),
+    .s_axi_bresp   (top_axi_bresp),
+    .s_axi_bvalid  (top_axi_bvalid),
+    .s_axi_rdata   (top_axi_rdata),
+    .s_axi_rready  (top_axi_rready),
+    .s_axi_rresp   (top_axi_rresp),
+    .s_axi_rvalid  (top_axi_rvalid),
+    .s_axi_wdata   (top_axi_wdata),
+    .s_axi_wready  (top_axi_wready),
+    .s_axi_wstrb   (top_axi_wstrb),
+    .s_axi_wvalid  (top_axi_wvalid),
+
+    .m_axi_awaddr  (axil_awaddr),
+    .m_axi_awprot  (axil_awprot),
+    .m_axi_awvalid (axil_awvalid),
+    .m_axi_awready (axil_awready),
+    .m_axi_wdata   (axil_wdata),
+    .m_axi_wstrb   (axil_wstrb),
+    .m_axi_wvalid  (axil_wvalid),
+    .m_axi_wready  (axil_wready),
+    .m_axi_bresp   (axil_bresp),
+    .m_axi_bvalid  (axil_bvalid),
+    .m_axi_bready  (axil_bready),
+    .m_axi_araddr  (axil_araddr),
+    .m_axi_arprot  (axil_arprot),
+    .m_axi_arvalid (axil_arvalid),
+    .m_axi_arready (axil_arready),
+    .m_axi_rdata   (axil_rdata),
+    .m_axi_rresp   (axil_rresp),
+    .m_axi_rvalid  (axil_rvalid),
+    .m_axi_rready  (axil_rready)
+  );
+
   //----------------------------------------------------------------
 
   // Input buffers for sysclk
@@ -150,139 +427,6 @@ module i2c_top
      .si5324_rst_n  (si5324_rst_n),
      .PPS_OUT       (),
      .TEN_MHZ_OUT   ());
-
-  //----------------------------------------------------------------
-  // AXI clock
-  //----------------------------------------------------------------
-
-  wire axi_aclk;
-  wire axi_aresetn;
-
-  //----------------------------------------------------------------
-  // AXI Lite bus
-  //----------------------------------------------------------------
-
-  wire [NUM_SLAVES*32-1:0]   axil_awaddr;
-  wire [NUM_SLAVES*3-1:0]    axil_awprot;
-  wire [NUM_SLAVES-1:0]      axil_awvalid;
-  wire [NUM_SLAVES-1:0]      axil_awready;
-  wire [NUM_SLAVES*32-1:0]   axil_wdata;
-  wire [NUM_SLAVES*32/8-1:0] axil_wstrb;
-  wire [NUM_SLAVES-1:0]      axil_wvalid;
-  wire [NUM_SLAVES-1:0]      axil_wready;
-  wire [NUM_SLAVES*2-1:0]    axil_bresp;
-  wire [NUM_SLAVES-1:0]      axil_bvalid;
-  wire [NUM_SLAVES-1:0]      axil_bready;
-  wire [NUM_SLAVES*32-1:0]   axil_araddr;
-  wire [NUM_SLAVES*3-1:0]    axil_arprot;
-  wire [NUM_SLAVES-1:0]      axil_arvalid;
-  wire [NUM_SLAVES-1:0]      axil_arready;
-  wire [NUM_SLAVES*32-1:0]   axil_rdata;
-  wire [NUM_SLAVES*2-1:0]    axil_rresp;
-  wire [NUM_SLAVES-1:0]      axil_rvalid;
-  wire [NUM_SLAVES-1:0]      axil_rready;
-
-  //----------------------------------------------------------------
-  // PCIe to GPIO (I2C) bridge
-  //----------------------------------------------------------------
-
-  wire [7:0]gpio_rtl_tri_i;
-  wire [7:0]gpio_rtl_tri_o;
-  wire [7:0]gpio_rtl_tri_t;
-
-  design_1 design_1_i
-    (.gpio_rtl_tri_i(gpio_rtl_tri_i),
-     .gpio_rtl_tri_o(gpio_rtl_tri_o),
-     .gpio_rtl_tri_t(gpio_rtl_tri_t),
-     .led_8bits_tri_o(),
-     .axi_aclk(axi_aclk),
-     .axi_aresetn(axi_aresetn),
-     .pci_express_x1_rxn(pci_express_x1_rxn),
-     .pci_express_x1_rxp(pci_express_x1_rxp),
-     .pci_express_x1_txn(pci_express_x1_txn),
-     .pci_express_x1_txp(pci_express_x1_txp),
-     .pcie_perstn(pcie_perstn),
-     .pcie_refclk_clk_n(pcie_refclk_clk_n),
-     .pcie_refclk_clk_p(pcie_refclk_clk_p));
-
-  assign gpio_rtl_tri_i[7:3] = 0;
-
-  // Connect I2C slave to bitbang GPIOs and external I2C bus
-
-  wire [NUM_SLAVES-1:0] i2c_axil_scl_i;
-  wire [NUM_SLAVES-1:0] i2c_axil_scl_o;
-  wire [NUM_SLAVES-1:0] i2c_axil_scl_t;
-
-  wire [NUM_SLAVES-1:0] i2c_axil_sda_i;
-  wire [NUM_SLAVES-1:0] i2c_axil_sda_o;
-  wire [NUM_SLAVES-1:0] i2c_axil_sda_t;
-
-  wire internal_i2c_scl = (gpio_rtl_tri_t[0] ? 1 : gpio_rtl_tri_o[0]);
-  wire internal_i2c_sda = (gpio_rtl_tri_t[1] ? 1 : gpio_rtl_tri_o[1]);
-
-  assign gpio_rtl_tri_i[0] = &i2c_axil_scl_t ? internal_i2c_scl : &i2c_axil_scl_o;
-  assign gpio_rtl_tri_i[1] = &i2c_axil_sda_t ? internal_i2c_sda : &i2c_axil_sda_o;
-
-  //----------------------------------------------------------------
-  // I2C to AXI bridges
-  //----------------------------------------------------------------
-
-  parameter DATA_WIDTH = 32;  // width of data bus in bits
-  parameter ADDR_WIDTH = 32;  // width of address bus in bits
-  parameter STRB_WIDTH = (DATA_WIDTH/8);
-
-  genvar ii;
-
-  generate
-    for (ii = 0; ii < NUM_SLAVES; ii = ii + 1) begin : generate_i2c
-
-      assign i2c_axil_scl_i[ii] = internal_i2c_scl;
-      assign i2c_axil_sda_i[ii] = internal_i2c_sda;
-
-      i2c_slave_axil_master
-        #(.DATA_WIDTH(DATA_WIDTH),
-          .ADDR_WIDTH(ADDR_WIDTH))
-      i2c_slave_axil_master_i
-        (.enable(1),
-         .device_address(7'h40 + ii),
-
-         .busy(),
-         .bus_addressed(),
-         .bus_active(),
-
-         .i2c_scl_i(i2c_axil_scl_i[ii]),
-         .i2c_scl_o(i2c_axil_scl_o[ii]),
-         .i2c_scl_t(i2c_axil_scl_t[ii]),
-
-         .i2c_sda_i(i2c_axil_sda_i[ii]),
-         .i2c_sda_o(i2c_axil_sda_o[ii]),
-         .i2c_sda_t(i2c_axil_sda_t[ii]),
-
-         .clk                (axi_aclk),
-         .rst                (!axi_aresetn),
-
-         .m_axil_awaddr      (axil_awaddr  [ii*32 +: 32]),
-         .m_axil_awprot      (axil_awprot  [ii*3 +: 3]),
-         .m_axil_awvalid     (axil_awvalid [ii]),
-         .m_axil_awready     (axil_awready [ii]),
-         .m_axil_wdata       (axil_wdata   [ii*32 +: 32]),
-         .m_axil_wstrb       (axil_wstrb   [ii*32/8 +: 32/8]),
-         .m_axil_wvalid      (axil_wvalid  [ii]),
-         .m_axil_wready      (axil_wready  [ii]),
-         .m_axil_bresp       (axil_bresp   [ii*2 +: 2]),
-         .m_axil_bvalid      (axil_bvalid  [ii]),
-         .m_axil_bready      (axil_bready  [ii]),
-         .m_axil_araddr      (axil_araddr  [ii*32 +: 32]),
-         .m_axil_arprot      (axil_arprot  [ii*3 +: 3]),
-         .m_axil_arvalid     (axil_arvalid [ii]),
-         .m_axil_arready     (axil_arready [ii]),
-         .m_axil_rdata       (axil_rdata   [ii*32 +: 32]),
-         .m_axil_rresp       (axil_rresp   [ii*2 +: 2]),
-         .m_axil_rvalid      (axil_rvalid  [ii]),
-         .m_axil_rready      (axil_rready  [ii]));
-
-    end
-  endgenerate
 
   //----------------------------------------------------------------
   // Ethernet PHYs.
@@ -390,7 +534,7 @@ module i2c_top
      .areset_clk156         (areset_clk156),
 
      .axi_aclk              (axi_aclk),
-     .axi_aresetn           (axi_aresetn),
+     .axi_aresetn           (cpu_resetn),
      .axil_awaddr           (axil_awaddr),
      .axil_awvalid          (axil_awvalid),
      .axil_awready          (axil_awready),
@@ -433,7 +577,7 @@ module i2c_top
      .NTP_LED1B             (),
      .NTP_LED2B             (),
      .PLL_LOCKEDB           ());
-
+   
 endmodule
 
 `default_nettype wire
