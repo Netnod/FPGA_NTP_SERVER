@@ -35,8 +35,10 @@ if { [llength $xci_files] != 0 } {
     add_files -fileset sources_1 $xci_files
 }
 
-puts "Adding XDC files $xdc_files"
-add_files -fileset constrs_1 $xdc_files
+if { [llength $xdc_files] != 0 } {
+    puts "Adding XDC files $xdc_files"
+    add_files -fileset constrs_1 $xdc_files
+}
 
 foreach fn $tcl_files {
     puts "source \"$fn\""
