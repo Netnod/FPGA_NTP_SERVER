@@ -45,17 +45,15 @@
 
 module ntps_interfaces
   #(
-    parameter NUM_PATHS = 4,
-    parameter NUM_SLAVES = 8,
-    parameter ENGINES_NTS = 2,
-    parameter ENGINES_MINI = 2
+    parameter NUM_PATHS = 1,
+    parameter NUM_SLAVES = 8
     )
    (
     input wire            refclk,
-    input wire            refclk_reset,
+    input wire            reset,
 
     input wire            clk156,
-    input wire            clk156_areset,
+    input wire            areset_clk156,
 
     input wire [31:0] phy_debug,
 
@@ -156,7 +154,7 @@ module ntps_interfaces
   // NTP clocks.
   //----------------------------------------------------------------
   ntp_clock_top ntp_clock_topA (
-    .refclk_reset (refclk_reset),
+    .reset        (reset),
     .TEN_MHZ_IN   (TEN_MHZ_INA),
     .TEN_MHZ_OUT  (TEN_MHZ_OUTA),
     .PPS_IN       (PPS_INA),
@@ -199,7 +197,7 @@ module ntps_interfaces
 
 
   ntp_clock_top ntp_clock_topB (
-    .refclk_reset (refclk_reset),
+    .reset        (reset),
     .TEN_MHZ_IN   (TEN_MHZ_INB),
     .TEN_MHZ_OUT  (TEN_MHZ_OUTB),
     .PPS_IN       (PPS_INB),
@@ -256,7 +254,7 @@ module ntps_interfaces
     .ntp_sync_ok    (ntp_sync_ok),
     .clk156         (clk156),
 
-    .refclk_reset   (refclk_reset)
+    .reset          (reset)
     );
 
 
@@ -307,7 +305,7 @@ module ntps_interfaces
   //----------------------------------------------------------------
   pvtmon_top pvtmon_top_0 (
     .clk50          (refclk),
-    .rst            (refclk_reset),
+    .rst            (reset),
 
     .pcie_link_up   (user_link_up),
     .pmbus_clk      (),
@@ -340,9 +338,8 @@ module ntps_interfaces
 
 
   //----------------------------------------------------------------
-  // Network path axi slavee, contains some control logic and bridges
-  // between the AXI and the API extension bus
-  // ----------------------------------------------------------------
+  // network_path_axi_slaves
+  //----------------------------------------------------------------
   generate
     for (ii = 0; ii < NUM_PATHS; ii = ii + 1) begin : generate_network_path_axi_slave
       network_path_axi_slave network_path_axi_slave (
@@ -390,40 +387,69 @@ module ntps_interfaces
   endgenerate
 
   //----------------------------------------------------------------
-  // Network paths, this is where the magic happens
+  // network_path_shared_0.
+  //----------------------------------------------------------------
+   if (1)
+  network_path_shared
+  #(
+    .ENGINES_NTS(2),
+    .ENGINES_MINI(2),
+    .INSTANTIATE_ROSC(1)
+    )
+  network_path_inst_0
+   (
+    .api_ext_command    (api_ext_command   [ 2*0 +:  2]),
+    .api_ext_address    (api_ext_address   [32*0 +: 32]),
+    .api_ext_write_data (api_ext_write_data[32*0 +: 32]),
+    .api_ext_status     (api_ext_status    [ 2*0 +:  2]),
+    .api_ext_read_data  (api_ext_read_data [32*0 +: 32]),
+
+    .ntp_time           (ntp_time),
+
+    .xgmii_rxd          (xgmii_rxd[64*0 +: 64]),
+    .xgmii_rxc          (xgmii_rxc[ 8*0 +:  8]),
+    .xgmii_txd          (xgmii_txd[64*0 +: 64]),
+    .xgmii_txc          (xgmii_txc[ 8*0 +:  8]),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+
+    .sys_reset          (reset)
+  );
+
+  //----------------------------------------------------------------
+  // network_path_n
   //----------------------------------------------------------------
   generate
-    for (ii = 0; ii < NUM_PATHS; ii = ii + 1) begin : generate_network_path_n
-      // We currently only use the first path, so disable all the others
-      if (ii == 0) begin
-        network_path_shared #
-          (
-           .ENGINES_NTS(ENGINES_NTS),
-           .ENGINES_MINI(ENGINES_MINI),
-           .INSTANTIATE_ROSC(ii == 0)
-           )
-        network_path_inst_n
-          (
-	   .api_ext_command    (api_ext_command   [ 2*ii +:  2]),
-	   .api_ext_address    (api_ext_address   [32*ii +: 32]),
-	   .api_ext_write_data (api_ext_write_data[32*ii +: 32]),
-	   .api_ext_status     (api_ext_status    [ 2*ii +:  2]),
-	   .api_ext_read_data  (api_ext_read_data [32*ii +: 32]),
-           
-	   .ntp_time           (ntp_time),
-           
-	   .xgmii_rxd          (xgmii_rxd[64*ii +: 64]),
-	   .xgmii_rxc          (xgmii_rxc[ 8*ii +:  8]),
-	   .xgmii_txd          (xgmii_txd[64*ii +: 64]),
-	   .xgmii_txc          (xgmii_txc[ 8*ii +:  8]),
-           
-	   .clk156             (clk156),
-	   .areset_clk156      (clk156_areset),
-           
-	   .sys_reset          (refclk_reset)
-           );
-      end else begin
-        // Transmit IDLE frames
+    for (ii = 1; ii < NUM_PATHS; ii = ii + 1) begin : generate_network_path_n
+      if (0)
+      network_path_shared
+       #(
+         .ENGINES_NTS(2),
+         .ENGINES_MINI(2),
+         .INSTANTIATE_ROSC(0)
+         )
+      network_path_inst_n
+         (
+	  .api_ext_command    (api_ext_command   [ 2*ii +:  2]),
+	  .api_ext_address    (api_ext_address   [32*ii +: 32]),
+	  .api_ext_write_data (api_ext_write_data[32*ii +: 32]),
+	  .api_ext_status     (api_ext_status    [ 2*ii +:  2]),
+	  .api_ext_read_data  (api_ext_read_data [32*ii +: 32]),
+
+	  .ntp_time           (ntp_time),
+
+	  .xgmii_rxd          (xgmii_rxd[64*ii +: 64]),
+	  .xgmii_rxc          (xgmii_rxc[ 8*ii +:  8]),
+	  .xgmii_txd          (xgmii_txd[64*ii +: 64]),
+	  .xgmii_txc          (xgmii_txc[ 8*ii +:  8]),
+
+	  .clk156             (clk156),
+	  .areset_clk156      (areset_clk156),
+
+	  .sys_reset          (reset)
+          );
+      else begin
 	assign xgmii_txd[64*ii +: 64] = 64'h0707070707070707;
 	assign xgmii_txc[ 8*ii +:  8] = 8'hff;
       end
