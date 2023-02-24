@@ -47,6 +47,9 @@ module ntps_top
     input wire			     refclk_25,
     input wire                       refclk_25_rst,
 
+    input wire			     refclk_50,
+    input wire                       refclk_50_rst,
+
     output wire internal_pps,
     output wire beat_send,
     output wire beat_recv,
@@ -92,11 +95,20 @@ module ntps_top
   localparam NUM_SLAVES = NUM_PATHS + 4;
 
   //----------------------------------------------------------------
+  // RISC-V CPU
+  //----------------------------------------------------------------
+
+   wire [7:0] 		    cpu_gpio_i;
+   wire [7:0] 		    cpu_gpio_o;
+  
+   wire 		    cpu_resetn;
+
+  //----------------------------------------------------------------
   // AXI clock
   //----------------------------------------------------------------
 
-  wire axi_aclk = refclk_25;
-  wire axi_aresetn = !refclk_25_rst;
+  wire axi_aclk = refclk_50;
+  wire axi_aresetn = !refclk_50_rst;
 
   //----------------------------------------------------------------
   // AXI Lite bus
@@ -122,71 +134,19 @@ module ntps_top
   wire [NUM_SLAVES-1:0]      m_axi_rvalid;
   wire [NUM_SLAVES-1:0]      m_axi_rready;
 
-  //----------------------------------------------------------------
-  // I2C to AXI bridges
-  //----------------------------------------------------------------
+  // I2C bus
 
-  wire [NUM_SLAVES-1:0] i2c_axil_scl_i;
-  wire [NUM_SLAVES-1:0] i2c_axil_scl_t;
+  // SCL/SDA from host GPIOs 
+  wire 		     cpu_scl;
+  wire 		     cpu_sda;
+  
+  // Combine all SCL/SDAs to a simulated bus
+  wire 		     combined_scl = scl_in;
+  wire 		     combined_sda = sda_in;
 
-  wire [NUM_SLAVES-1:0] i2c_axil_sda_i;
-  wire [NUM_SLAVES-1:0] i2c_axil_sda_t;
-
-  genvar ii;
-
-  assign scl_low_n = &i2c_axil_scl_t;
-  assign sda_low_n = &i2c_axil_sda_t;
-
-  generate
-    for (ii = 0; ii < NUM_SLAVES; ii = ii + 1) begin : generate_i2c
-
-      assign i2c_axil_scl_i[ii] = scl_in;
-      assign i2c_axil_sda_i[ii] = sda_in;
-
-      i2c_slave_axil_master
-        #(.DATA_WIDTH(32),
-          .ADDR_WIDTH(32))
-      i2c_slave_axil_master_i
-        (.enable(1),
-         .device_address(7'h40 + ii),
-
-         .busy(),
-         .bus_addressed(),
-         .bus_active(),
-
-         .i2c_scl_i(i2c_axil_scl_i[ii]),
-         .i2c_scl_o(),
-         .i2c_scl_t(i2c_axil_scl_t[ii]),
-
-         .i2c_sda_i(i2c_axil_sda_i[ii]),
-         .i2c_sda_o(),
-         .i2c_sda_t(i2c_axil_sda_t[ii]),
-
-         .clk                (axi_aclk),
-         .rst                (!axi_aresetn),
-
-         .m_axil_awaddr      (m_axi_awaddr  [ii*32 +: 32]),
-         .m_axil_awprot      (m_axi_awprot  [ii*3 +: 3]),
-         .m_axil_awvalid     (m_axi_awvalid [ii]),
-         .m_axil_awready     (m_axi_awready [ii]),
-         .m_axil_wdata       (m_axi_wdata   [ii*32 +: 32]),
-         .m_axil_wstrb       (m_axi_wstrb   [ii*32/8 +: 32/8]),
-         .m_axil_wvalid      (m_axi_wvalid  [ii]),
-         .m_axil_wready      (m_axi_wready  [ii]),
-         .m_axil_bresp       (m_axi_bresp   [ii*2 +: 2]),
-         .m_axil_bvalid      (m_axi_bvalid  [ii]),
-         .m_axil_bready      (m_axi_bready  [ii]),
-         .m_axil_araddr      (m_axi_araddr  [ii*32 +: 32]),
-         .m_axil_arprot      (m_axi_arprot  [ii*3 +: 3]),
-         .m_axil_arvalid     (m_axi_arvalid [ii]),
-         .m_axil_arready     (m_axi_arready [ii]),
-         .m_axil_rdata       (m_axi_rdata   [ii*32 +: 32]),
-         .m_axil_rresp       (m_axi_rresp   [ii*2 +: 2]),
-         .m_axil_rvalid      (m_axi_rvalid  [ii]),
-         .m_axil_rready      (m_axi_rready  [ii]));
-
-    end
-  endgenerate
+  // host connections
+  assign scl_low_n = cpu_scl;
+  assign sda_low_n = cpu_sda;
 
   //----------------------------------------------------------------
   // Ethernet PHYs.
@@ -279,7 +239,7 @@ module ntps_top
     .clk156                (clk156),
     .areset_clk156         (areset_clk156),
 
-    .internal_pps              (internal_pps),
+    .internal_pps          (internal_pps),
     .beat_send             (beat_send),
     .beat_recv             (beat_recv),
 
@@ -332,6 +292,124 @@ module ntps_top
     .NTP_LED1B             (),
     .NTP_LED2B             (),
     .PLL_LOCKEDB           ());
+
+   // Write Address Channel
+   wire [31:0] 		    top_axi_awaddr;
+   wire [2:0] 		    top_axi_awprot;
+   wire 		    top_axi_awvalid;
+   wire 		    top_axi_awready;
+   // Write Data Channel
+   wire [31:0] 		    top_axi_wdata;
+   wire [3:0] 		    top_axi_wstrb;
+   wire 		    top_axi_wvalid;
+   wire 		    top_axi_wready;
+   // Read Address Channel
+   wire [31:0] 		    top_axi_araddr;
+   wire [2:0] 		    top_axi_arprot;
+   wire 		    top_axi_arvalid;
+   wire 		    top_axi_arready;
+   // Read Data Channel
+   wire [31:0] 		    top_axi_rdata;
+   wire [1:0] 		    top_axi_rresp;
+   wire 		    top_axi_rvalid;
+   wire 		    top_axi_rready;
+   // Write Response Channel
+   wire [1:0] 		    top_axi_bresp;
+   wire 		    top_axi_bvalid;
+   wire 		    top_axi_bready;
+
+  wire rs232_uart_rxd = 1;
+  wire rs232_uart_txd;
+  
+  neorv32_wrapper neorv32_wrapper_inst
+    (
+      // GPIO
+      .gpio_i(cpu_gpio_i), // parallel input
+      .gpio_o(cpu_gpio_o), // parallel output
+
+      // primary UART0
+      .uart0_txd_o(rs232_uart_rxd), // UART0 send data
+      .uart0_rxd_i(rs232_uart_txd),  // UART0 receive data
+
+     // Clock and Reset
+     .m_axi_aclk                    (axi_aclk)                  ,
+     .m_axi_aresetn                 (cpu_resetn)               ,
+     // Write Address Channel
+     .m_axi_awaddr                  (top_axi_awaddr)                ,
+     .m_axi_awprot                  (top_axi_awprot)                ,
+     .m_axi_awvalid                 (top_axi_awvalid)               ,
+     .m_axi_awready                 (top_axi_awready)               ,
+     // Write Data Channel
+     .m_axi_wdata                   (top_axi_wdata)                 ,
+     .m_axi_wstrb                   (top_axi_wstrb)                 ,
+     .m_axi_wvalid                  (top_axi_wvalid)                ,
+     .m_axi_wready                  (top_axi_wready)                ,
+     // Read Address Channel
+     .m_axi_araddr                  (top_axi_araddr)                ,
+     .m_axi_arprot                  (top_axi_arprot)                ,
+     .m_axi_arvalid                 (top_axi_arvalid)               ,
+     .m_axi_arready                 (top_axi_arready)               ,
+     // Read Data Channel
+     .m_axi_rdata                   (top_axi_rdata)                 ,
+     .m_axi_rresp                   (top_axi_rresp)                 ,
+     .m_axi_rvalid                  (top_axi_rvalid)                ,
+     .m_axi_rready                  (top_axi_rready)                ,
+     // Write Response Channel
+     .m_axi_bresp                   (top_axi_bresp)                 ,
+     .m_axi_bvalid                  (top_axi_bvalid)                ,
+     .m_axi_bready                  (top_axi_bready)
+     );
+
+   assign cpu_resetn  = axi_aresetn;
+
+   assign cpu_scl = !cpu_gpio_o[0];
+   assign cpu_sda = !cpu_gpio_o[1];
+
+   assign cpu_gpio_i[0] = !combined_scl;
+   assign cpu_gpio_i[1] = !combined_sda;
+   
+  ntps_top_xbar_0 xbar (
+    .aclk          (axi_aclk),
+    .aresetn       (cpu_resetn),
+    .s_axi_araddr  (top_axi_araddr),
+    .s_axi_arprot  (top_axi_arprot),
+    .s_axi_arready (top_axi_arready),
+    .s_axi_arvalid (top_axi_arvalid),
+    .s_axi_awaddr  (top_axi_awaddr),
+    .s_axi_awprot  (top_axi_awprot),
+    .s_axi_awready (top_axi_awready),
+    .s_axi_awvalid (top_axi_awvalid),
+    .s_axi_bready  (top_axi_bready),
+    .s_axi_bresp   (top_axi_bresp),
+    .s_axi_bvalid  (top_axi_bvalid),
+    .s_axi_rdata   (top_axi_rdata),
+    .s_axi_rready  (top_axi_rready),
+    .s_axi_rresp   (top_axi_rresp),
+    .s_axi_rvalid  (top_axi_rvalid),
+    .s_axi_wdata   (top_axi_wdata),
+    .s_axi_wready  (top_axi_wready),
+    .s_axi_wstrb   (top_axi_wstrb),
+    .s_axi_wvalid  (top_axi_wvalid),
+    .m_axi_awaddr  (m_axi_awaddr),
+    .m_axi_awprot  (m_axi_awprot),
+    .m_axi_awvalid (m_axi_awvalid),
+    .m_axi_awready (m_axi_awready),
+    .m_axi_wdata   (m_axi_wdata),
+    .m_axi_wstrb   (m_axi_wstrb),
+    .m_axi_wvalid  (m_axi_wvalid),
+    .m_axi_wready  (m_axi_wready),
+    .m_axi_bresp   (m_axi_bresp),
+    .m_axi_bvalid  (m_axi_bvalid),
+    .m_axi_bready  (m_axi_bready),
+    .m_axi_araddr  (m_axi_araddr),
+    .m_axi_arprot  (m_axi_arprot),
+    .m_axi_arvalid (m_axi_arvalid),
+    .m_axi_arready (m_axi_arready),
+    .m_axi_rdata   (m_axi_rdata),
+    .m_axi_rresp   (m_axi_rresp),
+    .m_axi_rvalid  (m_axi_rvalid),
+    .m_axi_rready  (m_axi_rready)
+  );
 
 endmodule
 

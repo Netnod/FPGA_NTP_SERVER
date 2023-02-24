@@ -200,6 +200,9 @@ begin
       refclk_25      => refclk_25,
       refclk_25_rst  => refclk_25_rst,
 
+      refclk_50      => refclk_50,
+      refclk_50_rst  => refclk_50_rst,
+
       scl_in         => i2c_scl_in(1),
       scl_low_n      => ntps_scl_out,
       sda_in         => i2c_sda_in(1),
