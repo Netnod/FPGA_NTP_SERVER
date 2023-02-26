@@ -59,7 +59,7 @@ module cfs_twi_slave #
      .rst                       (!sync_rstn),
      
      .enable                    (1),
-     .device_address            (7'h4a),
+     .device_address            (7'h43),
     
      .i2c_scl_i                 (twi_scl_i),
      .i2c_scl_o                 (twi_scl_o),

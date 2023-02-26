@@ -94,59 +94,217 @@ module ntps_top
   localparam NUM_PATHS = 4;
   localparam NUM_SLAVES = NUM_PATHS + 4;
 
-  //----------------------------------------------------------------
-  // RISC-V CPU
-  //----------------------------------------------------------------
-
-   wire [7:0] 		    cpu_gpio_i;
-   wire [7:0] 		    cpu_gpio_o;
-  
-   wire 		    cpu_resetn;
+  localparam INT_BOOTLOADER_EN = 1'b0;
 
   //----------------------------------------------------------------
   // AXI clock
   //----------------------------------------------------------------
 
-  wire axi_aclk = refclk_50;
-  wire axi_aresetn = !refclk_50_rst;
+  wire axi_aclk = refclk_25;
+  wire axi_aresetn = !refclk_25_rst;
 
+  //////////////////////////////////////////////////////////////////////
+  // RISC-V (NEORV32) CPU
+
+  // CPU GPIO pins
+  wire [7:0] cpu_gpio_i;
+  wire [7:0] cpu_gpio_o;
+
+  // CPU Wishboe bus
+  wire			wb_reset;
+  wire			wb_cyc;
+  wire			wb_stb;
+  wire			wb_we;
+  wire [32-1:0]		wb_addr;
+  wire [32-1:0]		wb_data_w;
+  wire [32/8-1:0]	wb_sel;
+  wire			wb_stall;
+  wire			wb_ack;
+  wire [32-1:0]		wb_data_r;
+  wire			wb_err;
+
+  neorv32_wrapper #
+    (
+     .CLOCK_FREQUENCY(125000000),
+     .MEM_EXT_PIPE_MODE(1'b0),
+     .INT_BOOTLOADER_EN(INT_BOOTLOADER_EN)
+     )
+  neorv32_wrapper_inst
+    (
+     .clk_i			(axi_aclk),
+     .rstn_i			(axi_aresetn),
+    
+     // GPIO
+     .gpio_i(cpu_gpio_i), // parallel input
+     .gpio_o(cpu_gpio_o), // parallel output
+
+     // primary UART0
+     .uart0_txd_o(), // UART0 send data
+     .uart0_rxd_i(1'b1),  // UART0 receive data
+
+     // TWI bus
+     .twi_scl_i(scl_in),
+     .twi_sda_i(sda_in),
+     .twi_scl_o(scl_low_n),
+     .twi_sda_o(sda_low_n),
+
+     // Wishbone bus
+     .wb_cyc_o			(wb_cyc),
+     .wb_stb_o			(wb_stb),
+     .wb_we_o			(wb_we),
+     .wb_adr_o			(wb_addr),
+     .wb_dat_o			(wb_data_w),
+     .wb_sel_o			(wb_sel),
+     .wb_ack_i			(wb_ack),
+     .wb_dat_i			(wb_data_r),
+     .wb_err_i			(wb_err)
+     );
+
+  //////////////////////////////////////////////////////////////////////
+  // Wishbone to AXI Lite bridge
+
+  // AXI bus
+  // Write Address Channel
+  wire [31:0] 	top_axi_awaddr;
+  wire [2:0] 	top_axi_awprot;
+  wire 		top_axi_awvalid;
+  wire 		top_axi_awready;
+  // Write Data Channel
+  wire [31:0] 	top_axi_wdata;
+  wire [3:0] 	top_axi_wstrb;
+  wire 		top_axi_wvalid;
+  wire 		top_axi_wready;
+  // Write Response Channel
+  wire [1:0] 	top_axi_bresp;
+  wire 		top_axi_bvalid;
+  wire 		top_axi_bready;
+  // Read Address Channel
+  wire [31:0] 	top_axi_araddr;
+  wire [2:0] 	top_axi_arprot;
+  wire 		top_axi_arvalid;
+  wire 		top_axi_arready;
+  // Read Data Channel
+  wire [31:0] 	top_axi_rdata;
+  wire [1:0] 	top_axi_rresp;
+  wire 		top_axi_rvalid;
+  wire 		top_axi_rready;
+
+  wb_axil_bridge #
+    (
+     .AW(32),
+     .C_AXI_ADDR_WIDTH(32)
+     )
+  wb_axil_bridge_inst
+    (
+     .clk_i		(axi_aclk),
+     .rstn_i		(!axi_aresetn),
+
+     // Wishbone bus
+     .wb_cyc_i		(wb_cyc),
+     .wb_stb_i		(wb_stb),
+     .wb_we_i		(wb_we),
+     .wb_adr_i		(wb_addr),
+     .wb_dat_i		(wb_data_w),
+     .wb_sel_i		(wb_sel),
+     .wb_ack_o		(wb_ack),
+     .wb_dat_o		(wb_data_r),
+     .wb_err_o		(wb_err),
+
+     // AXI bus
+     .m_axi_awaddr      (top_axi_awaddr),
+     .m_axi_awprot      (top_axi_awprot),
+     .m_axi_awvalid     (top_axi_awvalid),
+     .m_axi_awready     (top_axi_awready),
+
+     .m_axi_wdata       (top_axi_wdata),
+     .m_axi_wstrb       (top_axi_wstrb),
+     .m_axi_wvalid      (top_axi_wvalid),
+     .m_axi_wready      (top_axi_wready),
+
+     .m_axi_bresp       (top_axi_bresp),
+     .m_axi_bvalid      (top_axi_bvalid),
+     .m_axi_bready      (top_axi_bready),
+
+     .m_axi_araddr      (top_axi_araddr),
+     .m_axi_arprot      (top_axi_arprot),
+     .m_axi_arvalid     (top_axi_arvalid),
+     .m_axi_arready     (top_axi_arready),
+
+     .m_axi_rdata       (top_axi_rdata),
+     .m_axi_rresp       (top_axi_rresp),
+     .m_axi_rvalid      (top_axi_rvalid),
+     .m_axi_rready      (top_axi_rready)
+
+     );
+  
   //----------------------------------------------------------------
   // AXI Lite bus
   //----------------------------------------------------------------
 
-  wire [NUM_SLAVES*32-1:0]   m_axi_awaddr;
-  wire [NUM_SLAVES*3-1:0]    m_axi_awprot;
-  wire [NUM_SLAVES-1:0]      m_axi_awvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_awready;
-  wire [NUM_SLAVES*32-1:0]   m_axi_wdata;
-  wire [NUM_SLAVES*32/8-1:0] m_axi_wstrb;
-  wire [NUM_SLAVES-1:0]      m_axi_wvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_wready;
-  wire [NUM_SLAVES*2-1:0]    m_axi_bresp;
-  wire [NUM_SLAVES-1:0]      m_axi_bvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_bready;
-  wire [NUM_SLAVES*32-1:0]   m_axi_araddr;
-  wire [NUM_SLAVES*3-1:0]    m_axi_arprot;
-  wire [NUM_SLAVES-1:0]      m_axi_arvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_arready;
-  wire [NUM_SLAVES*32-1:0]   m_axi_rdata;
-  wire [NUM_SLAVES*2-1:0]    m_axi_rresp;
-  wire [NUM_SLAVES-1:0]      m_axi_rvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_rready;
+  wire [NUM_SLAVES*32-1:0]   axil_awaddr;
+  wire [NUM_SLAVES*3-1:0]    axil_awprot;
+  wire [NUM_SLAVES-1:0]      axil_awvalid;
+  wire [NUM_SLAVES-1:0]      axil_awready;
+  wire [NUM_SLAVES*32-1:0]   axil_wdata;
+  wire [NUM_SLAVES*32/8-1:0] axil_wstrb;
+  wire [NUM_SLAVES-1:0]      axil_wvalid;
+  wire [NUM_SLAVES-1:0]      axil_wready;
+  wire [NUM_SLAVES*2-1:0]    axil_bresp;
+  wire [NUM_SLAVES-1:0]      axil_bvalid;
+  wire [NUM_SLAVES-1:0]      axil_bready;
+  wire [NUM_SLAVES*32-1:0]   axil_araddr;
+  wire [NUM_SLAVES*3-1:0]    axil_arprot;
+  wire [NUM_SLAVES-1:0]      axil_arvalid;
+  wire [NUM_SLAVES-1:0]      axil_arready;
+  wire [NUM_SLAVES*32-1:0]   axil_rdata;
+  wire [NUM_SLAVES*2-1:0]    axil_rresp;
+  wire [NUM_SLAVES-1:0]      axil_rvalid;
+  wire [NUM_SLAVES-1:0]      axil_rready;
 
-  // I2C bus
+  ntps_top_xbar_0 xbar (
+    .aclk          (axi_aclk),
+    .aresetn       (axi_aresetn),
 
-  // SCL/SDA from host GPIOs 
-  wire 		     cpu_scl;
-  wire 		     cpu_sda;
-  
-  // Combine all SCL/SDAs to a simulated bus
-  wire 		     combined_scl = scl_in;
-  wire 		     combined_sda = sda_in;
+    .s_axi_araddr  (top_axi_araddr),
+    .s_axi_arprot  (top_axi_arprot),
+    .s_axi_arready (top_axi_arready),
+    .s_axi_arvalid (top_axi_arvalid),
+    .s_axi_awaddr  (top_axi_awaddr),
+    .s_axi_awprot  (top_axi_awprot),
+    .s_axi_awready (top_axi_awready),
+    .s_axi_awvalid (top_axi_awvalid),
+    .s_axi_bready  (top_axi_bready),
+    .s_axi_bresp   (top_axi_bresp),
+    .s_axi_bvalid  (top_axi_bvalid),
+    .s_axi_rdata   (top_axi_rdata),
+    .s_axi_rready  (top_axi_rready),
+    .s_axi_rresp   (top_axi_rresp),
+    .s_axi_rvalid  (top_axi_rvalid),
+    .s_axi_wdata   (top_axi_wdata),
+    .s_axi_wready  (top_axi_wready),
+    .s_axi_wstrb   (top_axi_wstrb),
+    .s_axi_wvalid  (top_axi_wvalid),
 
-  // host connections
-  assign scl_low_n = cpu_scl;
-  assign sda_low_n = cpu_sda;
+    .m_axi_awaddr  (axil_awaddr),
+    .m_axi_awprot  (axil_awprot),
+    .m_axi_awvalid (axil_awvalid),
+    .m_axi_awready (axil_awready),
+    .m_axi_wdata   (axil_wdata),
+    .m_axi_wstrb   (axil_wstrb),
+    .m_axi_wvalid  (axil_wvalid),
+    .m_axi_wready  (axil_wready),
+    .m_axi_bresp   (axil_bresp),
+    .m_axi_bvalid  (axil_bvalid),
+    .m_axi_bready  (axil_bready),
+    .m_axi_araddr  (axil_araddr),
+    .m_axi_arprot  (axil_arprot),
+    .m_axi_arvalid (axil_arvalid),
+    .m_axi_arready (axil_arready),
+    .m_axi_rdata   (axil_rdata),
+    .m_axi_rresp   (axil_rresp),
+    .m_axi_rvalid  (axil_rvalid),
+    .m_axi_rready  (axil_rready)
+  );
 
   //----------------------------------------------------------------
   // Ethernet PHYs.
@@ -233,8 +391,8 @@ module ntps_top
     )
   ntps_interfaces_0
    (
-    .refclk                (refclk_25),
-    .refclk_rst            (refclk_25_rst),
+    .refclk                (axi_aclk),
+    .refclk_rst            (!axi_aresetn),
 
     .clk156                (clk156),
     .areset_clk156         (areset_clk156),
@@ -244,27 +402,27 @@ module ntps_top
     .beat_recv             (beat_recv),
 
     // AXI interface
-    .axi_aresetn           (axi_aresetn),
-    .axi_aclk              (axi_aclk),
-    .m_axi_awaddr          (m_axi_awaddr),
-    .m_axi_awprot          (m_axi_awprot),
-    .m_axi_awvalid         (m_axi_awvalid),
-    .m_axi_awready         (m_axi_awready),
-    .m_axi_wdata           (m_axi_wdata),
-    .m_axi_wstrb           (m_axi_wstrb),
-    .m_axi_wvalid          (m_axi_wvalid),
-    .m_axi_wready          (m_axi_wready),
-    .m_axi_bresp           (m_axi_bresp),
-    .m_axi_bvalid          (m_axi_bvalid),
-    .m_axi_bready          (m_axi_bready),
-    .m_axi_araddr          (m_axi_araddr),
-    .m_axi_arprot          (m_axi_arprot),
-    .m_axi_arvalid         (m_axi_arvalid),
-    .m_axi_arready         (m_axi_arready),
-    .m_axi_rdata           (m_axi_rdata),
-    .m_axi_rresp           (m_axi_rresp),
-    .m_axi_rvalid          (m_axi_rvalid),
-    .m_axi_rready          (m_axi_rready),
+    .axi_aresetn          (axi_aresetn),
+    .axi_aclk             (axi_aclk),
+    .axil_awaddr          (axil_awaddr),
+    .axil_awprot          (axil_awprot),
+    .axil_awvalid         (axil_awvalid),
+    .axil_awready         (axil_awready),
+    .axil_wdata           (axil_wdata),
+    .axil_wstrb           (axil_wstrb),
+    .axil_wvalid          (axil_wvalid),
+    .axil_wready          (axil_wready),
+    .axil_bresp           (axil_bresp),
+    .axil_bvalid          (axil_bvalid),
+    .axil_bready          (axil_bready),
+    .axil_araddr          (axil_araddr),
+    .axil_arprot          (axil_arprot),
+    .axil_arvalid         (axil_arvalid),
+    .axil_arready         (axil_arready),
+    .axil_rdata           (axil_rdata),
+    .axil_rresp           (axil_rresp),
+    .axil_rvalid          (axil_rvalid),
+    .axil_rready          (axil_rready),
 
     .user_link_up          (0),
 
@@ -292,124 +450,6 @@ module ntps_top
     .NTP_LED1B             (),
     .NTP_LED2B             (),
     .PLL_LOCKEDB           ());
-
-   // Write Address Channel
-   wire [31:0] 		    top_axi_awaddr;
-   wire [2:0] 		    top_axi_awprot;
-   wire 		    top_axi_awvalid;
-   wire 		    top_axi_awready;
-   // Write Data Channel
-   wire [31:0] 		    top_axi_wdata;
-   wire [3:0] 		    top_axi_wstrb;
-   wire 		    top_axi_wvalid;
-   wire 		    top_axi_wready;
-   // Read Address Channel
-   wire [31:0] 		    top_axi_araddr;
-   wire [2:0] 		    top_axi_arprot;
-   wire 		    top_axi_arvalid;
-   wire 		    top_axi_arready;
-   // Read Data Channel
-   wire [31:0] 		    top_axi_rdata;
-   wire [1:0] 		    top_axi_rresp;
-   wire 		    top_axi_rvalid;
-   wire 		    top_axi_rready;
-   // Write Response Channel
-   wire [1:0] 		    top_axi_bresp;
-   wire 		    top_axi_bvalid;
-   wire 		    top_axi_bready;
-
-  wire rs232_uart_rxd = 1;
-  wire rs232_uart_txd;
-  
-  neorv32_wrapper neorv32_wrapper_inst
-    (
-      // GPIO
-      .gpio_i(cpu_gpio_i), // parallel input
-      .gpio_o(cpu_gpio_o), // parallel output
-
-      // primary UART0
-      .uart0_txd_o(rs232_uart_rxd), // UART0 send data
-      .uart0_rxd_i(rs232_uart_txd),  // UART0 receive data
-
-     // Clock and Reset
-     .m_axi_aclk                    (axi_aclk)                  ,
-     .m_axi_aresetn                 (cpu_resetn)               ,
-     // Write Address Channel
-     .m_axi_awaddr                  (top_axi_awaddr)                ,
-     .m_axi_awprot                  (top_axi_awprot)                ,
-     .m_axi_awvalid                 (top_axi_awvalid)               ,
-     .m_axi_awready                 (top_axi_awready)               ,
-     // Write Data Channel
-     .m_axi_wdata                   (top_axi_wdata)                 ,
-     .m_axi_wstrb                   (top_axi_wstrb)                 ,
-     .m_axi_wvalid                  (top_axi_wvalid)                ,
-     .m_axi_wready                  (top_axi_wready)                ,
-     // Read Address Channel
-     .m_axi_araddr                  (top_axi_araddr)                ,
-     .m_axi_arprot                  (top_axi_arprot)                ,
-     .m_axi_arvalid                 (top_axi_arvalid)               ,
-     .m_axi_arready                 (top_axi_arready)               ,
-     // Read Data Channel
-     .m_axi_rdata                   (top_axi_rdata)                 ,
-     .m_axi_rresp                   (top_axi_rresp)                 ,
-     .m_axi_rvalid                  (top_axi_rvalid)                ,
-     .m_axi_rready                  (top_axi_rready)                ,
-     // Write Response Channel
-     .m_axi_bresp                   (top_axi_bresp)                 ,
-     .m_axi_bvalid                  (top_axi_bvalid)                ,
-     .m_axi_bready                  (top_axi_bready)
-     );
-
-   assign cpu_resetn  = axi_aresetn;
-
-   assign cpu_scl = !cpu_gpio_o[0];
-   assign cpu_sda = !cpu_gpio_o[1];
-
-   assign cpu_gpio_i[0] = !combined_scl;
-   assign cpu_gpio_i[1] = !combined_sda;
-   
-  ntps_top_xbar_0 xbar (
-    .aclk          (axi_aclk),
-    .aresetn       (cpu_resetn),
-    .s_axi_araddr  (top_axi_araddr),
-    .s_axi_arprot  (top_axi_arprot),
-    .s_axi_arready (top_axi_arready),
-    .s_axi_arvalid (top_axi_arvalid),
-    .s_axi_awaddr  (top_axi_awaddr),
-    .s_axi_awprot  (top_axi_awprot),
-    .s_axi_awready (top_axi_awready),
-    .s_axi_awvalid (top_axi_awvalid),
-    .s_axi_bready  (top_axi_bready),
-    .s_axi_bresp   (top_axi_bresp),
-    .s_axi_bvalid  (top_axi_bvalid),
-    .s_axi_rdata   (top_axi_rdata),
-    .s_axi_rready  (top_axi_rready),
-    .s_axi_rresp   (top_axi_rresp),
-    .s_axi_rvalid  (top_axi_rvalid),
-    .s_axi_wdata   (top_axi_wdata),
-    .s_axi_wready  (top_axi_wready),
-    .s_axi_wstrb   (top_axi_wstrb),
-    .s_axi_wvalid  (top_axi_wvalid),
-    .m_axi_awaddr  (m_axi_awaddr),
-    .m_axi_awprot  (m_axi_awprot),
-    .m_axi_awvalid (m_axi_awvalid),
-    .m_axi_awready (m_axi_awready),
-    .m_axi_wdata   (m_axi_wdata),
-    .m_axi_wstrb   (m_axi_wstrb),
-    .m_axi_wvalid  (m_axi_wvalid),
-    .m_axi_wready  (m_axi_wready),
-    .m_axi_bresp   (m_axi_bresp),
-    .m_axi_bvalid  (m_axi_bvalid),
-    .m_axi_bready  (m_axi_bready),
-    .m_axi_araddr  (m_axi_araddr),
-    .m_axi_arprot  (m_axi_arprot),
-    .m_axi_arvalid (m_axi_arvalid),
-    .m_axi_arready (m_axi_arready),
-    .m_axi_rdata   (m_axi_rdata),
-    .m_axi_rresp   (m_axi_rresp),
-    .m_axi_rvalid  (m_axi_rvalid),
-    .m_axi_rready  (m_axi_rready)
-  );
 
 endmodule
 

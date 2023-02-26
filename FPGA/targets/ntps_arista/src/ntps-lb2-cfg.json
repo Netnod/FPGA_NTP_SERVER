@@ -62,14 +62,19 @@
         "${PROJECT_DIR}/src/pvtmon_axi_slave.v",
         "${PROJECT_DIR}/src/pvtmon_top.v",
 
-        "${PROJECT_DIR}/src/neorv32_wrapper.vhd",
-        "${PROJECT_DIR}/../../cores/neorv32_mods/rtl/neorv32_application_image.vhd",
+        "${PROJECT_DIR}/../../cores/verilog-i2c/rtl/i2c_slave_wbm.v",
+        "${PROJECT_DIR}/../../cores/verilog-i2c/rtl/i2c_slave.v",
 
-        "${PROJECT_DIR}/build/neorv32/rtl/system_integration/neorv32_SystemTop_axi4lite.vhd",
+        "${PROJECT_DIR}/build/processor/rtl/neorv32_wrapper.vhd",
+        "${PROJECT_DIR}/build/processor/rtl/mirror_wb_slave.v",
+        "${PROJECT_DIR}/build/processor/rtl/cfs_twi_slave.v",
+        "${PROJECT_DIR}/build/processor/rtl/wb_axil_bridge.vhd",
+        "${PROJECT_DIR}/build/processor/rtl/neorv32_cfs.vhd",
+        "${PROJECT_DIR}/build/processor/rtl/neorv32_application_image.vhd",
+
         "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_boot_rom.vhd",
         "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_bus_keeper.vhd",
         "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_busswitch.vhd",
-        "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_cfs.vhd",
         "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_cpu.vhd",
         "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_cpu_alu.vhd",
         "${PROJECT_DIR}/build/neorv32/rtl/core/neorv32_cpu_bus.vhd",

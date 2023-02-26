@@ -18,27 +18,29 @@ try:
 
   bus = hal.i2c.Bus(hal.i2c.label_to_bus('main_app'))
 
-  def read_buf(addr, reg, n):
-    cmd = struct.pack('>L', reg)
+  RISCV_API = 1
+  RISCV_ENGINE = 1
+
+  def read_buf(i2c_addr, mem_addr, n):
+    cmd = struct.pack('>L', mem_addr)
     cmd = ctypes.create_string_buffer(cmd, len(cmd))
     buf = (ctypes.c_char * n).from_buffer(bytearray(n))
     bus.xfer(
-      (addr, 0, ctypes.sizeof(cmd), cmd),
-      (addr, 1, len(buf), buf))
+      (i2c_addr, 0, ctypes.sizeof(cmd), cmd),
+      (i2c_addr, 1, len(buf), buf))
     return buf.raw
 
-  def write_buf(addr, reg, buf):
-    cmd = struct.pack('>L', reg) + buf
+  def write_buf(i2c_addr, mem_addr, buf):
+    cmd = struct.pack('>L', mem_addr) + buf
     cmd = ctypes.create_string_buffer(cmd, len(cmd))
-    bus.xfer((addr, 0, ctypes.sizeof(cmd), cmd))
+    bus.xfer((i2c_addr, 0, ctypes.sizeof(cmd), cmd))
 
   class xpcie_class:
     no_regs    = 0
 
     def make_addr(self, reg):
       if RISCV_API:
-        print("using RISCV API")
-        return 0x4a, self.i2c_addr * 0x01000000 + reg * 4
+        return 0x43, self.i2c_addr * 0x01000000 + reg * 4
       else:
         return self.i2c_addr, reg * 4
 
@@ -83,7 +85,7 @@ except ModuleNotFoundError:
 
     def make_addr(self, reg):
       if RISCV_API:
-        return 0x4a, self.i2c_addr * 0x01000000 + reg * 4
+        return 0x43, self.i2c_addr * 0x01000000 + reg * 4
       else:
         return self.i2c_addr, reg * 4
 
@@ -352,7 +354,7 @@ class network_path(xpcie_class):
 
     def __init__(self, port):
         if port < 4 and port >= 0:
-            if fpga_magic:
+            if new_register_map:
                 self.p_ofs = self.net_path_axi_base_new
                 self.KERNEL_API = 0
             else:
@@ -680,18 +682,13 @@ class api_extension(object):
         self.path.write_engine(engine.path.port, engine, reg, data)
 
 if bus:
-  try:
-    RISCV_API = 0
-    fpga_magic = user_regs().read(user_regs.magic)
-  except OSError:
-    RISCV_API = 1
-    RISCV_ENGINE = 1
-    fpga_magic = user_regs().read(user_regs.magic)
+  RISCV_API = 1
+  RISCV_ENGINE = 1
+  new_register_map = True
 
 else:
-  if fpga_magic:
+  new_register_map = user_regs().read(user_regs.magic)
+  if new_register_map:
     print("libntsfpga using new xpcie register map")
   else:
     print("libntsfpga using old xpcie register map")
-
-print("fpga_magic 0x%08x" % fpga_magic)

@@ -425,9 +425,7 @@ class NtsApi(object):
         return self.humanL(self.engine_read64(engine, addr))
 
     def detect_engines(self):
-        print("detect_engines")
         disp_name = self.read64(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_NAME)
-        print("xxx")
         disp_version = self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_VERSION)
         disp_engines = self.read32(self.DISPATCHER_BASE, self.API_DISPATCHER_ADDR_NTS_ENGINES_ALL)
         if (disp_name != self.EXPECTED_DISPATCHER_ADDR_NAME):

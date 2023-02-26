@@ -27,7 +27,7 @@
 .SECONDEXPANSION:
 
 PROJECT    ?= ntps
-VERSION_ID ?= 3.0.0
+VERSION_ID ?= 4.0.0
 BUILD_ID   ?= 1
 
 PROJECT_DIR     = $(CURDIR)
@@ -106,6 +106,11 @@ targets::
 #-------------------------------------------------------------------------------
 .PHONY : clean
 clean::
+
+.PHONY : rpm
+rpm::
+	find . -name "*.rpm" | xargs rm -rfv ./build/rpmbuild || true
+	/bin/time nice make BOARDSTD=lb2 2>&1 | tee log
 
 #-------------------------------------------------------------------------------
 # Include Arista Build Scripts

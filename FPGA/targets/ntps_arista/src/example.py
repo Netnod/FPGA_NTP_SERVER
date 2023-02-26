@@ -40,7 +40,7 @@ import traceback
 try:
     from .Linux_Driver import libntsfpga
 except:
-    pass
+    print(traceback.format_exc())
 
 NUM_MAC_ADDRESS = 4
 NUM_IP_ADDRESS = 8
