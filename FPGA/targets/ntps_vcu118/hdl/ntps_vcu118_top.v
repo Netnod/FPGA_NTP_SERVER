@@ -1,6 +1,6 @@
 //======================================================================
 //
-// ntps_top.v
+// ntps_vcu118_top.v
 // ----------
 // Top level module for the NTP, NTS FPGA design.
 //
@@ -42,7 +42,7 @@
 
 `default_nettype none
 
-module ntps_top #(
+module ntps_vcu118_top #(
 		  parameter NUM_PCIE_LANES = 1
                   )
   (
@@ -611,10 +611,10 @@ module ntps_top #(
     );
 */
 
-endmodule // ntps_top
+endmodule // ntps_vcu118_top
 
 `default_nettype wire
 
 //======================================================================
-// EOF ntps_top.v
+// EOF ntps_vcu118_top.v
 //======================================================================

@@ -1,6 +1,6 @@
 # Project settings
 PROJ_NAME := ntps_vcu118
-FPGA_TOP := ntps_top
+FPGA_TOP := ntps_vcu118_top
 FPGA_PART := xcvu9p-flga2104-2L-e
 FPGA_BOARD := xilinx.com:vcu118:part0:2.3
 
@@ -84,7 +84,7 @@ SYN_FILES += hdl/clk50_gen.v
 SYN_FILES += hdl/ntps_clocks.v
 SYN_FILES += hdl/ntps_interfaces.v
 SYN_FILES += hdl/ntps_phys.v
-SYN_FILES += hdl/ntps_top.v
+SYN_FILES += hdl/ntps_vcu118_top.v
 SYN_FILES += hdl/pcie_axi.v
 
 SYN_FILES += pvtmon/pvtmon_axi_slave.v
