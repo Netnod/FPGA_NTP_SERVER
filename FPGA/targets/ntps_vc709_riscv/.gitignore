@@ -6,3 +6,5 @@
 *.runs
 *.sim
 neorv32.tcl
+*.srcs
+usage_statistics_webtalk.*

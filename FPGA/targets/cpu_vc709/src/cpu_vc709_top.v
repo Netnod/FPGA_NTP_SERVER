@@ -53,7 +53,6 @@ module cpu_vc709_top
      .axi_aclk			(axi_aclk),
      .axi_aresetn		(axi_aresetn),
 
-     .led_8bits_tri_o		(),
      .gpio_rtl_tri_i		(gpio_tri_i),
      .gpio_rtl_tri_o		(gpio_tri_o),
      .gpio_rtl_tri_t		(gpio_tri_t),

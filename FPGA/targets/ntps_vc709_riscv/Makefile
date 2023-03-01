@@ -173,7 +173,7 @@ NEORV32_FILES += ../../cores/neorv32/rtl/core/mem/neorv32_imem.default.vhd
 
 SYN_FILES += $(NEORV32_FILES)
 
-TCL_FILES += bd.tcl
+TCL_FILES += bd_vc709.tcl
 TCL_FILES += neorv32.tcl
 
 # Tcl file to run before starting synthesis

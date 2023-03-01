@@ -1,8 +1,8 @@
 # Project settings
-PROJ_NAME := cpu_vc709
-FPGA_TOP := cpu_vc709_top
-FPGA_PART := xc7vx690tffg1761-2
-FPGA_BOARD := xilinx.com:vc709:part0:1.8
+PROJ_NAME := cpu_vcu118
+FPGA_TOP := cpu_vcu118_top
+FPGA_PART := xcvu9p-flga2104-2L-e
+FPGA_BOARD := xilinx.com:vcu118:part0:2.3
 
 # Files for synthesis and simulation
 SYN_FILES :=
@@ -20,7 +20,7 @@ TCL_FILES :=
 # NEORV32_FILES are added to the library "neorv32" at the end, not the default library "work"
 NEORV32_FILES :=
 
-SYN_FILES += src/cpu_vc709_top.v
+SYN_FILES += src/cpu_vcu118_top.v
 SYN_FILES += ../../cores/processor/rtl/neorv32_wrapper.vhd
 
 SYN_FILES += ../../cores/verilog-i2c/rtl/i2c_slave_wbm.v
@@ -78,7 +78,7 @@ NEORV32_FILES += ../../cores/neorv32/rtl/core/mem/neorv32_imem.default.vhd
 
 SYN_FILES += $(NEORV32_FILES)
 
-TCL_FILES += bd_vc709.tcl
+TCL_FILES += bd_vcu118.tcl
 TCL_FILES += neorv32.tcl
 
 .PHONY: fpga vivado clean

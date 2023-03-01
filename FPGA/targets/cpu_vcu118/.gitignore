@@ -8,3 +8,4 @@
 *.srcs
 log
 neorv32.tcl
+usage_statistics_webtalk.*

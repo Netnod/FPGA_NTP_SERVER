@@ -202,8 +202,8 @@ static int xi2c_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 		goto out;
 	}
 
-	pdata->reg_io = pdata->iomem + 0x08;
-	pdata->reg_tristate = pdata->iomem + 0x0c;
+	pdata->reg_io = pdata->iomem + 0x00;
+	pdata->reg_tristate = pdata->iomem + 0x04;
 
 	writel(0x00000003, pdata->reg_tristate);
 	writel(0x80000000, pdata->reg_io);
@@ -255,6 +255,7 @@ out:
 
 static const struct pci_device_id xi2c_pci_id_table[] = {
 	{ PCI_DEVICE(0x10ee, 0x7011) },
+	{ PCI_DEVICE(0x10ee, 0x9011) },
 	{ 0, }
 };
 
