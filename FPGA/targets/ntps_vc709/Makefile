@@ -1,6 +1,6 @@
 # Project settings
-PROJ_NAME := ntps_vc709_riscv
-FPGA_TOP := riscv_top
+PROJ_NAME := ntps_vc709
+FPGA_TOP := ntps_vc709_top
 FPGA_PART := xc7vx690tffg1761-2
 FPGA_BOARD := xilinx.com:vc709:part0:1.8
 
@@ -93,7 +93,7 @@ SYN_FILES += ../../ntp_clock/hdl/pps_gen.v
 SYN_FILES += ../../ntp_clock/hdl/pps_test.v
 SYN_FILES += ../../ntp_clock/hdl/time_sel_sync.v
 
-SYN_FILES += src/riscv_top.v
+SYN_FILES += src/ntps_vc709_top.v
 SYN_FILES += src/clk50_gen.v
 SYN_FILES += src/ntps_clocks.v
 SYN_FILES += src/ntps_phys.v

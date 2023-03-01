@@ -1,6 +1,6 @@
 //======================================================================
 //
-// riscv_top.v
+// ntps_vc709_top.v
 // -----------
 // Top level module for the NTP, NTS FPGA design.
 //
@@ -44,7 +44,7 @@
 
 `default_nettype none
 
-module riscv_top
+module ntps_vc709_top
   (
    input  wire       SYS_CLK_N,
    input  wire       SYS_CLK_P,
