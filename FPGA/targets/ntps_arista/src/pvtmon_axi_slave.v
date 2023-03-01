@@ -38,19 +38,17 @@ module user_registers_axi_slave #(
   input wire                              S_AXI_RREADY
 );
 
-// Defaults for defines that are normally set by the pre_synth.tcl script
-`ifndef BUILD_TIME
- `define BUILD_TIME 0
-`endif
+  wire [31:0] build_time;
+  wire [31:0] build_info;
+  wire [31:0] git_hash;
 
-`ifndef BUILD_INFO
- `define BUILD_INFO 0
-`endif
-
-`ifndef GIT_HASH
- `define GIT_HASH 32'hdeadbeef
-`endif
-
+  buildinfo buildinfo_inst
+    (
+     .build_time(build_time),
+     .build_info(build_info),
+     .git_hash(git_hash)
+     );
+                         
   // AXI4LITE signals
   reg [C_S_AXI_ADDR_WIDTH-1:0]  axi_awaddr;
   reg                           axi_awready;
@@ -261,13 +259,13 @@ module user_registers_axi_slave #(
     if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] < NUM_POWER_REG) begin
       reg_data_out    <= power_status[axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]*32+:32];
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG) begin
-      reg_data_out    <= `BUILD_TIME;  // Build Time
+      reg_data_out    <= build_time;  // Build Time
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+1) begin
       reg_data_out[0] <= pcie_link_up;  // Is it possible to read this
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+2) begin
-      reg_data_out    <= `BUILD_INFO;
+      reg_data_out    <= build_info;
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+3) begin
-      reg_data_out    <= `GIT_HASH;
+      reg_data_out    <= git_hash;
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+4) begin
       reg_data_out    <= 32'h11a6ebf8; // magic
     end else if (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == NUM_POWER_REG+8) begin

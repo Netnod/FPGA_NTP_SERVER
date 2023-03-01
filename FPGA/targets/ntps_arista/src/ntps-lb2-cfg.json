@@ -65,6 +65,8 @@
         "${PROJECT_DIR}/../../cores/verilog-i2c/rtl/i2c_slave_wbm.v",
         "${PROJECT_DIR}/../../cores/verilog-i2c/rtl/i2c_slave.v",
 
+        "${PROJECT_DIR}/build/buildinfo.v",
+
         "${PROJECT_DIR}/build/processor/rtl/neorv32_wrapper.vhd",
         "${PROJECT_DIR}/build/processor/rtl/mirror_wb_slave.v",
         "${PROJECT_DIR}/build/processor/rtl/cfs_twi_slave.v",
