@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// cpu_vc709_top.v
+// cpu_vcu118_top.v
 //
 // Test implementation of a RISC-V (NEORV32) cpu which has an I2C
 // slave and a AXI Lite (AXIL) master with a test device on it.
@@ -8,7 +8,7 @@
 
 `default_nettype none
 
-module cpu_vc709_top
+module cpu_vcu118_top
   (
    // PCIe interface
    input  wire       pci_express_x1_rxn,
@@ -20,7 +20,7 @@ module cpu_vc709_top
    input  wire       pcie_refclk_clk_p
    );
 
-  localparam INT_BOOTLOADER_EN = 1'b0;
+  localparam INT_BOOTLOADER_EN = 1'b1;
 
   //////////////////////////////////////////////////////////////////////
   // PCIe to GPIO(I2C)/UART bridge

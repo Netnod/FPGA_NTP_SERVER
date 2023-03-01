@@ -8,3 +8,5 @@
 neorv32.tcl
 *.srcs
 usage_statistics_webtalk.*
+log
+BUILDINFO.txt

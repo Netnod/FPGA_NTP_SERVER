@@ -20,7 +20,7 @@ module cpu_vc709_top
    input  wire       pcie_refclk_clk_p
    );
 
-  localparam INT_BOOTLOADER_EN = 1'b0;
+  localparam INT_BOOTLOADER_EN = 1'b1;
 
   //////////////////////////////////////////////////////////////////////
   // PCIe to GPIO(I2C)/UART bridge

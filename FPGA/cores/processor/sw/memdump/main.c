@@ -105,12 +105,16 @@ int main() {
 
   unsigned base = 0x43000000;
 
-  if (0) {
+  base = NEORV32_CFS_BASE;
+
+  if (1) {
       base = NEORV32_CFS_BASE;
       *(volatile uint32_t *)(base+12) = 0xdeadbeef;
   }
-  
-  for (addr = base; addr < base + 0x100; addr += 4) {
+
+  neorv32_uart0_printf("\nBase %x\n", base);
+
+  for (addr = base; addr < base + 0x80; addr += 4) {
     if ((addr & 0x0f) == 00) {
       neorv32_uart0_printf("\n");
       hex32(s, addr);
