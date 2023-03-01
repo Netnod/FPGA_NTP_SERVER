@@ -1,7 +1,0 @@
-# Ignore all files, but not directories
-*
-!*/
-
-# Exceptions
-!.gitignore
-!**/*.xci
