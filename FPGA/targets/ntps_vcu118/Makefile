@@ -80,12 +80,12 @@ SYN_FILES += ../../ntp_clock/hdl/pps_gen.v
 SYN_FILES += ../../ntp_clock/hdl/pps_test.v
 SYN_FILES += ../../ntp_clock/hdl/time_sel_sync.v
 
-SYN_FILES += hdl/clk50_gen.v
-SYN_FILES += hdl/ntps_clocks.v
-SYN_FILES += hdl/ntps_interfaces.v
-SYN_FILES += hdl/ntps_phys.v
-SYN_FILES += hdl/ntps_vcu118_top.v
-SYN_FILES += hdl/pcie_axi.v
+SYN_FILES += src/clk50_gen.v
+SYN_FILES += src/ntps_clocks.v
+SYN_FILES += src/ntps_interfaces.v
+SYN_FILES += src/ntps_phys.v
+SYN_FILES += src/ntps_vcu118_top.v
+SYN_FILES += src/pcie_axi.v
 
 SYN_FILES += pvtmon/pvtmon_axi_slave.v
 SYN_FILES += pvtmon/pvtmon_top.v
