@@ -136,9 +136,10 @@ SYN_FILES += ../../cores/processor/rtl/cfs_twi_slave.v
 SYN_FILES += ../../cores/processor/rtl/wb_axil_bridge.vhd
 
 NEORV32_FILES += ../../cores/processor/rtl/neorv32_application_image.vhd
+NEORV32_FILES += ../../cores/processor/rtl/neorv32_bootloader_image.vhd
 
 NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_boot_rom.vhd
-NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_bootloader_image.vhd
+# NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_bootloader_image.vhd
 NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_bus_keeper.vhd
 NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_busswitch.vhd
 # NEORV32_FILES += ../../cores/neorv32/rtl/core/neorv32_cfs.vhd
