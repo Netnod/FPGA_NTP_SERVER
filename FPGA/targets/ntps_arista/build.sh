@@ -1,7 +1,7 @@
 #! /bin/bash
 set -euxo pipefail
 
-ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../../arista_fdk-2.0.0beta1}
+ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../../arista_fdk-2.2.0}
 echo "Building using Arista FDK in $ARISTA_FDK_DIR"
 
 (cd ../../cores && ./download-and-unpack.sh || exit 1)
