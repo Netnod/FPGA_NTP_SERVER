@@ -8,7 +8,7 @@
 //
 // Author: Joachim Strombergson
 //
-// Copyright 2020-2021 Netnod Internet Exchange i Sverige AB
+// Copyright 2020-2022 Netnod AB
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -43,135 +43,70 @@
 
 `default_nettype none
 
-module ntps_interfaces #(
-			 parameter NUM_PCIE_LANES = 16,
-                         parameter NUM_SLAVES = 8,
-                         parameter BUILD_INFO = 0,
-                         parameter GIT_HASH   = 0
-                         )
-  (
-   input wire                       reset,
+module ntps_interfaces
+  #(
+    parameter NUM_PATHS = 1,
+    parameter NUM_SLAVES = 8
+    )
+   (
+    input wire            refclk,
+    input wire            reset,
 
-   input wire                       clk50,
-   output wire                      clk156,
-   output wire                      areset_clk156,
-   input wire                       clk_125mhz,
+    input wire            clk156,
+    input wire            areset_clk156,
 
-   input wire 		            pcie_perst,
-   input wire 		            pcie_clk,
-   input wire 		            pcie_clk_gt,
-   output wire [NUM_PCIE_LANES-1:0] pci_exp_txp,
-   output wire [NUM_PCIE_LANES-1:0] pci_exp_txn,
-   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxp,
-   input  wire [NUM_PCIE_LANES-1:0] pci_exp_rxn,
+    input wire [31:0] phy_debug,
 
-   output wire                      user_link_up,
+    // AXI interface
+    input wire         axi_aresetn,
+    input wire         axi_aclk,
+    input  wire [NUM_SLAVES*32-1:0]   axil_awaddr,
+    input  wire [NUM_SLAVES*3-1:0]    axil_awprot,
+    input  wire [NUM_SLAVES-1:0]      axil_awvalid,
+    output wire [NUM_SLAVES-1:0]      axil_awready,
+    input  wire [NUM_SLAVES*32-1:0]   axil_wdata,
+    input  wire [NUM_SLAVES*4-1:0]    axil_wstrb,
+    input  wire [NUM_SLAVES-1:0]      axil_wvalid,
+    output wire [NUM_SLAVES-1:0]      axil_wready,
+    output wire [NUM_SLAVES*2-1:0]    axil_bresp,
+    output wire [NUM_SLAVES-1:0]      axil_bvalid,
+    input  wire [NUM_SLAVES-1:0]      axil_bready,
+    input  wire [NUM_SLAVES*32-1:0]   axil_araddr,
+    input  wire [NUM_SLAVES*3-1:0]    axil_arprot,
+    input  wire [NUM_SLAVES-1:0]      axil_arvalid,
+    output wire [NUM_SLAVES-1:0]      axil_arready,
+    output wire [NUM_SLAVES*32-1:0]   axil_rdata,
+    output wire [NUM_SLAVES*2-1:0]    axil_rresp,
+    output wire [NUM_SLAVES-1:0]      axil_rvalid,
+    input  wire [NUM_SLAVES-1:0]      axil_rready,
 
-   input wire                       pmbus_alert,
-   inout wire                       pmbus_clk,
-   inout wire                       pmbus_data,
+    input wire            user_link_up,
 
-   inout  wire                      i2c_scl,
-   inout  wire                      i2c_sda,
+    // 10Gbit ports
+    output wire [32*NUM_PATHS-1 : 0] gen_config,
+    input  wire [ 5*NUM_PATHS-1 : 0] xphy_status,
 
-   input  wire                      qsfp1_mgt_refclk_0_p,
-   input  wire                      qsfp1_mgt_refclk_0_n,
-
-   output wire                      qsfp1_tx1_p,
-   output wire                      qsfp1_tx1_n,
-   input  wire                      qsfp1_rx1_p,
-   input  wire                      qsfp1_rx1_n,
-   output wire                      qsfp1_tx2_p,
-   output wire                      qsfp1_tx2_n,
-   input  wire                      qsfp1_rx2_p,
-   input  wire                      qsfp1_rx2_n,
-   output wire                      qsfp1_tx3_p,
-   output wire                      qsfp1_tx3_n,
-   input  wire                      qsfp1_rx3_p,
-   input  wire                      qsfp1_rx3_n,
-   output wire                      qsfp1_tx4_p,
-   output wire                      qsfp1_tx4_n,
-   input  wire                      qsfp1_rx4_p,
-   input  wire                      qsfp1_rx4_n,
-   output wire                      qsfp1_modsell,
-   output wire                      qsfp1_resetl,
-   input  wire                      qsfp1_modprsl,
-   input  wire                      qsfp1_intl,
-   output wire                      qsfp1_lpmode,
-
-   // Port 0.
-   input wire [63  : 0]             xgmii_txd_0,
-   input wire [7   : 0]             xgmii_txc_0,
-   output wire [63 : 0]             xgmii_rxd_0,
-   output wire [7  : 0]             xgmii_rxc_0,
-   output wire [1 : 0]              api_ext_command_0,
-   output wire [31 : 0]             api_ext_address_0,
-   output wire [31 : 0]             api_ext_write_data_0,
-   input wire [1 : 0]               api_ext_status_0,
-   input wire [31 : 0]              api_ext_read_data_0,
-
-   // Port 1.
-   input wire [63  : 0]             xgmii_txd_1,
-   input wire [7   : 0]             xgmii_txc_1,
-   output wire [63 : 0]             xgmii_rxd_1,
-   output wire [7  : 0]             xgmii_rxc_1,
-   output wire [1 : 0]              api_ext_command_1,
-   output wire [31 : 0]             api_ext_address_1,
-   output wire [31 : 0]             api_ext_write_data_1,
-   input wire [1 : 0]               api_ext_status_1,
-   input wire [31 : 0]              api_ext_read_data_1,
-
-   // Port 2.
-   input wire [63  : 0]             xgmii_txd_2,
-   input wire [7   : 0]             xgmii_txc_2,
-   output wire [63 : 0]             xgmii_rxd_2,
-   output wire [7  : 0]             xgmii_rxc_2,
-   output wire [1 : 0]              api_ext_command_2,
-   output wire [31 : 0]             api_ext_address_2,
-   output wire [31 : 0]             api_ext_write_data_2,
-   input wire [1 : 0]               api_ext_status_2,
-   input wire [31 : 0]              api_ext_read_data_2,
-
-   // Port 3.
-   input wire [63  : 0]             xgmii_txd_3,
-   input wire [7   : 0]             xgmii_txc_3,
-   output wire [63 : 0]             xgmii_rxd_3,
-   output wire [7  : 0]             xgmii_rxc_3,
-   output wire [1 : 0]              api_ext_command_3,
-   output wire [31 : 0]             api_ext_address_3,
-   output wire [31 : 0]             api_ext_write_data_3,
-   input wire [1 : 0]               api_ext_status_3,
-   input wire [31 : 0]              api_ext_read_data_3,
-
-   // Port 4.
-   input wire [63  : 0]             xgmii_txd_4,
-   input wire [7   : 0]             xgmii_txc_4,
-   output wire [63 : 0]             xgmii_rxd_4,
-   output wire [7  : 0]             xgmii_rxc_4,
-   output wire [1 : 0]              api_ext_command_4,
-   output wire [31 : 0]             api_ext_address_4,
-   output wire [31 : 0]             api_ext_write_data_4,
-   input wire [1 : 0]               api_ext_status_4,
-   input wire [31 : 0]              api_ext_read_data_4,
+    output wire [64*NUM_PATHS-1 : 0] xgmii_txd,
+    output wire [ 8*NUM_PATHS-1 : 0] xgmii_txc,
+    input  wire [64*NUM_PATHS-1 : 0] xgmii_rxd,
+    input  wire [ 8*NUM_PATHS-1 : 0] xgmii_rxc,
 
     // NTP clocks.
-   output wire [63 : 0]             ntp_time,
+    input wire            PPS_INA,
+    output wire           PPS_OUTA,
+    input wire            TEN_MHZ_INA,
+    output wire           TEN_MHZ_OUTA,
+    output wire           NTP_LED1A,
+    output wire           NTP_LED2A,
+    output wire           PLL_LOCKEDA,
 
-   input wire                       PPS_INA,
-   output wire                      PPS_OUTA,
-   input wire                       TEN_MHZ_INA,
-   output wire                      TEN_MHZ_OUTA,
-   output wire                      NTP_LED1A,
-   output wire                      NTP_LED2A,
-   output wire                      PLL_LOCKEDA,
-
-   input wire                       PPS_INB,
-   output wire                      PPS_OUTB,
-   input wire                       TEN_MHZ_INB,
-   output wire                      TEN_MHZ_OUTB,
-   output wire                      NTP_LED1B,
-   output wire                      NTP_LED2B,
-   output wire                      PLL_LOCKEDB
+    input wire            PPS_INB,
+    output wire           PPS_OUTB,
+    input wire            TEN_MHZ_INB,
+    output wire           TEN_MHZ_OUTB,
+    output wire           NTP_LED1B,
+    output wire           NTP_LED2B,
+    output wire           PLL_LOCKEDB
    );
 
 
@@ -181,113 +116,41 @@ module ntps_interfaces #(
   localparam AXI_NTPA    = 0;
   localparam AXI_NTPB    = 1;
   localparam AXI_ETHLITE = 2;
-  localparam AXI_NP0     = 3;
-  localparam AXI_NP1     = 4;
-  localparam AXI_NP2     = 5;
-  localparam AXI_NP3     = 6;
-  localparam AXI_PVT     = 7;
+  localparam AXI_PVT     = 3;
+  localparam AXI_NP0     = 4;
+  localparam AXI_NP1     = 5;
+  localparam AXI_NP2     = 6;
+  localparam AXI_NP3     = 7;
 
-  // Keeping these around to be able to assign AXI busses.
-  localparam AXI_KEY0    = 8;
-  localparam AXI_KEY1    = 9;
-  localparam AXI_KEY2    = 10;
-  localparam AXI_KEY3    = 11;
-
+  genvar ii;
 
   //----------------------------------------------------------------
   // Internal wires.
   //----------------------------------------------------------------
-  wire             axi_aresetn;
-  wire             axi_aclk;
-  wire [NUM_SLAVES*32-1:0]   m_axi_awaddr;
-  wire [NUM_SLAVES*3-1:0]    m_axi_awprot;
-  wire [NUM_SLAVES-1:0]      m_axi_awvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_awready;
-  wire [NUM_SLAVES*32-1:0]   m_axi_wdata;
-  wire [NUM_SLAVES*32/8-1:0] m_axi_wstrb;
-  wire [NUM_SLAVES-1:0]      m_axi_wvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_wready;
-  wire [NUM_SLAVES*2-1:0]    m_axi_bresp;
-  wire [NUM_SLAVES-1:0]      m_axi_bvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_bready;
-  wire [NUM_SLAVES*32-1:0]   m_axi_araddr;
-  wire [NUM_SLAVES*3-1:0]    m_axi_arprot;
-  wire [NUM_SLAVES-1:0]      m_axi_arvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_arready;
-  wire [NUM_SLAVES*32-1:0]   m_axi_rdata;
-  wire [NUM_SLAVES*2-1:0]    m_axi_rresp;
-  wire [NUM_SLAVES-1:0]      m_axi_rvalid;
-  wire [NUM_SLAVES-1:0]      m_axi_rready;
 
-  wire             mdc;
-  wire             mdio_in;
-  wire             mdio_out;
-
-  wire [31 : 0]    gen_config_0;
-  wire [31 : 0]    gen_config_1;
-  wire [31 : 0]    gen_config_2;
-  wire [31 : 0]    gen_config_3;
-
-  wire [4 : 0]     xphy_status_0;
-  wire [4 : 0]     xphy_status_1;
-  wire [4 : 0]     xphy_status_2;
-  wire [4 : 0]     xphy_status_3;
-
+  // Time from clock input A
   wire [63 : 0]    ntp_time_a;
   wire             ntp_time_upd_a;
   wire             ntp_sync_ok_a;
+
+  // Time from clock input B
   wire [63 : 0]    ntp_time_b;
   wire             ntp_time_upd_b;
   wire             ntp_sync_ok_b;
+
+  // Time used for timestamping
+  wire [63 : 0]    ntp_time;
   wire             ntp_sync_ok;
 
+  // API extension bus
+  wire [ 2*NUM_PATHS-1 : 0] api_ext_command;
+  wire [32*NUM_PATHS-1 : 0] api_ext_address;
+  wire [32*NUM_PATHS-1 : 0] api_ext_write_data;
+  wire [ 2*NUM_PATHS-1 : 0] api_ext_status;
+  wire [32*NUM_PATHS-1 : 0] api_ext_read_data;
+
 
   //----------------------------------------------------------------
-  // PCI-AXI instantiation.
-  //----------------------------------------------------------------
-  pcie_axi #(
-	     .NUM_PCIE_LANES(NUM_PCIE_LANES),
-	     .NUM_SLAVES(NUM_SLAVES)
-	     )
-  pcie_axi_0 (
-    .reset                 (reset),
-
-    // PCIe signals
-    .pcie_perst            (pcie_perst),
-    .pcie_clk              (pcie_clk),
-    .pcie_clk_gt           (pcie_clk_gt),
-    .pci_exp_rxn           (pci_exp_rxn),
-    .pci_exp_rxp           (pci_exp_rxp),
-    .pci_exp_txn           (pci_exp_txn),
-    .pci_exp_txp           (pci_exp_txp),
-
-    // AXI bus
-    .axi_aresetn   (axi_aresetn),
-    .axi_aclk      (axi_aclk),
-    .m_axi_awaddr  (m_axi_awaddr),
-    .m_axi_awprot  (m_axi_awprot),
-    .m_axi_awvalid (m_axi_awvalid),
-    .m_axi_awready (m_axi_awready),
-    .m_axi_wdata   (m_axi_wdata),
-    .m_axi_wstrb   (m_axi_wstrb),
-    .m_axi_wvalid  (m_axi_wvalid),
-    .m_axi_wready  (m_axi_wready),
-    .m_axi_bresp   (m_axi_bresp),
-    .m_axi_bvalid  (m_axi_bvalid),
-    .m_axi_bready  (m_axi_bready),
-    .m_axi_araddr  (m_axi_araddr),
-    .m_axi_arprot  (m_axi_arprot),
-    .m_axi_arvalid (m_axi_arvalid),
-    .m_axi_arready (m_axi_arready),
-    .m_axi_rdata   (m_axi_rdata),
-    .m_axi_rresp   (m_axi_rresp),
-    .m_axi_rvalid  (m_axi_rvalid),
-    .m_axi_rready  (m_axi_rready),
-    .user_link_up  (user_link_up)
-   );
-
-
-   //----------------------------------------------------------------
   // NTP clocks.
   //----------------------------------------------------------------
   ntp_clock_top ntp_clock_topA (
@@ -298,25 +161,25 @@ module ntps_interfaces #(
     .PPS_OUT      (PPS_OUTA),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
-    .axi_araddr   (m_axi_araddr [(AXI_NTPA * 32) +: 5]),
-    .axi_arprot   (m_axi_arprot [(AXI_NTPA * 3) +: 3]),
-    .axi_arready  (m_axi_arready[(AXI_NTPA * 1) +: 1]),
-    .axi_arvalid  (m_axi_arvalid[(AXI_NTPA * 1) +: 1]),
-    .axi_awaddr   (m_axi_awaddr [(AXI_NTPA * 32) +: 5]),
-    .axi_awprot   (m_axi_awprot [(AXI_NTPA * 3) +: 3]),
-    .axi_awready  (m_axi_awready[(AXI_NTPA * 1) +: 1]),
-    .axi_awvalid  (m_axi_awvalid[(AXI_NTPA * 1) +: 1]),
-    .axi_bready   (m_axi_bready [(AXI_NTPA * 1) +: 1]),
-    .axi_bresp    (m_axi_bresp  [(AXI_NTPA * 2) +: 2]),
-    .axi_bvalid   (m_axi_bvalid [(AXI_NTPA * 1) +: 1]),
-    .axi_rdata    (m_axi_rdata  [(AXI_NTPA * 32) +: 32]),
-    .axi_rready   (m_axi_rready [(AXI_NTPA * 1) +: 1]),
-    .axi_rresp    (m_axi_rresp  [(AXI_NTPA * 2) +: 2]),
-    .axi_rvalid   (m_axi_rvalid [(AXI_NTPA * 1) +: 1]),
-    .axi_wdata    (m_axi_wdata  [(AXI_NTPA * 32) +: 32]),
-    .axi_wready   (m_axi_wready [(AXI_NTPA * 1) +: 1]),
-    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPA * 32/8) +: 32/8]),
-    .axi_wvalid   (m_axi_wvalid [(AXI_NTPA * 1) +: 1]),
+    .axi_araddr   (axil_araddr [(AXI_NTPA * 32) +: 5]),
+    .axi_arprot   (axil_arprot [(AXI_NTPA * 3) +: 3]),
+    .axi_arready  (axil_arready[(AXI_NTPA * 1) +: 1]),
+    .axi_arvalid  (axil_arvalid[(AXI_NTPA * 1) +: 1]),
+    .axi_awaddr   (axil_awaddr [(AXI_NTPA * 32) +: 5]),
+    .axi_awprot   (axil_awprot [(AXI_NTPA * 3) +: 3]),
+    .axi_awready  (axil_awready[(AXI_NTPA * 1) +: 1]),
+    .axi_awvalid  (axil_awvalid[(AXI_NTPA * 1) +: 1]),
+    .axi_bready   (axil_bready [(AXI_NTPA * 1) +: 1]),
+    .axi_bresp    (axil_bresp  [(AXI_NTPA * 2) +: 2]),
+    .axi_bvalid   (axil_bvalid [(AXI_NTPA * 1) +: 1]),
+    .axi_rdata    (axil_rdata  [(AXI_NTPA * 32) +: 32]),
+    .axi_rready   (axil_rready [(AXI_NTPA * 1) +: 1]),
+    .axi_rresp    (axil_rresp  [(AXI_NTPA * 2) +: 2]),
+    .axi_rvalid   (axil_rvalid [(AXI_NTPA * 1) +: 1]),
+    .axi_wdata    (axil_wdata  [(AXI_NTPA * 32) +: 32]),
+    .axi_wready   (axil_wready [(AXI_NTPA * 1) +: 1]),
+    .axi_wstrb    (axil_wstrb  [(AXI_NTPA * 32/8) +: 32/8]),
+    .axi_wvalid   (axil_wvalid [(AXI_NTPA * 1) +: 1]),
     .NTP_TIME     (ntp_time_a),
     .NTP_TIME_UPD (ntp_time_upd_a),
     .PLL_locked   (PLL_LOCKEDA),
@@ -332,6 +195,7 @@ module ntps_interfaces #(
     .test         ()
     );
 
+
   ntp_clock_top ntp_clock_topB (
     .reset        (reset),
     .TEN_MHZ_IN   (TEN_MHZ_INB),
@@ -340,25 +204,25 @@ module ntps_interfaces #(
     .PPS_OUT      (PPS_OUTB),
     .axi_aclk     (axi_aclk),
     .axi_aresetn  (axi_aresetn),
-    .axi_araddr   (m_axi_araddr [(AXI_NTPB * 32) +: 5]),
-    .axi_arprot   (m_axi_arprot [(AXI_NTPB * 3) +: 3]),
-    .axi_arready  (m_axi_arready[(AXI_NTPB * 1) +: 1]),
-    .axi_arvalid  (m_axi_arvalid[(AXI_NTPB * 1) +: 1]),
-    .axi_awaddr   (m_axi_awaddr [(AXI_NTPB * 32) +: 5]),
-    .axi_awprot   (m_axi_awprot [(AXI_NTPB * 3) +: 3]),
-    .axi_awready  (m_axi_awready[(AXI_NTPB * 1) +: 1]),
-    .axi_awvalid  (m_axi_awvalid[(AXI_NTPB * 1) +: 1]),
-    .axi_bready   (m_axi_bready [(AXI_NTPB * 1) +: 1]),
-    .axi_bresp    (m_axi_bresp  [(AXI_NTPB * 2) +: 2]),
-    .axi_bvalid   (m_axi_bvalid [(AXI_NTPB * 1) +: 1]),
-    .axi_rdata    (m_axi_rdata  [(AXI_NTPB * 32) +: 32]),
-    .axi_rready   (m_axi_rready [(AXI_NTPB * 1) +: 1]),
-    .axi_rresp    (m_axi_rresp  [(AXI_NTPB * 2) +: 2]),
-    .axi_rvalid   (m_axi_rvalid [(AXI_NTPB * 1) +: 1]),
-    .axi_wdata    (m_axi_wdata  [(AXI_NTPB * 32) +: 32]),
-    .axi_wready   (m_axi_wready [(AXI_NTPB * 1) +: 1]),
-    .axi_wstrb    (m_axi_wstrb  [(AXI_NTPB * 32/8) +: 32/8]),
-    .axi_wvalid   (m_axi_wvalid [(AXI_NTPB * 1) +: 1]),
+    .axi_araddr   (axil_araddr [(AXI_NTPB * 32) +: 5]),
+    .axi_arprot   (axil_arprot [(AXI_NTPB * 3) +: 3]),
+    .axi_arready  (axil_arready[(AXI_NTPB * 1) +: 1]),
+    .axi_arvalid  (axil_arvalid[(AXI_NTPB * 1) +: 1]),
+    .axi_awaddr   (axil_awaddr [(AXI_NTPB * 32) +: 5]),
+    .axi_awprot   (axil_awprot [(AXI_NTPB * 3) +: 3]),
+    .axi_awready  (axil_awready[(AXI_NTPB * 1) +: 1]),
+    .axi_awvalid  (axil_awvalid[(AXI_NTPB * 1) +: 1]),
+    .axi_bready   (axil_bready [(AXI_NTPB * 1) +: 1]),
+    .axi_bresp    (axil_bresp  [(AXI_NTPB * 2) +: 2]),
+    .axi_bvalid   (axil_bvalid [(AXI_NTPB * 1) +: 1]),
+    .axi_rdata    (axil_rdata  [(AXI_NTPB * 32) +: 32]),
+    .axi_rready   (axil_rready [(AXI_NTPB * 1) +: 1]),
+    .axi_rresp    (axil_rresp  [(AXI_NTPB * 2) +: 2]),
+    .axi_rvalid   (axil_rvalid [(AXI_NTPB * 1) +: 1]),
+    .axi_wdata    (axil_wdata  [(AXI_NTPB * 32) +: 32]),
+    .axi_wready   (axil_wready [(AXI_NTPB * 1) +: 1]),
+    .axi_wstrb    (axil_wstrb  [(AXI_NTPB * 32/8) +: 32/8]),
+    .axi_wvalid   (axil_wvalid [(AXI_NTPB * 1) +: 1]),
     .NTP_TIME     (ntp_time_b),
     .NTP_TIME_UPD (ntp_time_upd_b),
     .PLL_locked   (PLL_LOCKEDB),
@@ -374,11 +238,12 @@ module ntps_interfaces #(
     .test         ()
     );
 
+
   //----------------------------------------------------------------
   // Common NTP clock select. Controlled by Port 0 config.
   //----------------------------------------------------------------
   ntp_clock_select ntp_clock_select_inst (
-    .select         (gen_config_0[24]),
+    .select         (gen_config[24]),
     .ntp_time_a     (ntp_time_a),
     .ntp_time_upd_a (ntp_time_upd_a),
     .ntp_time_b     (ntp_time_b),
@@ -388,6 +253,7 @@ module ntps_interfaces #(
     .ntp_time       (ntp_time),
     .ntp_sync_ok    (ntp_sync_ok),
     .clk156         (clk156),
+
     .reset          (reset)
     );
 
@@ -399,9 +265,9 @@ module ntps_interfaces #(
     .phy_col       (1'b0),
     .phy_crs       (1'b0),
     .phy_dv        (1'b0),
-    .phy_mdc       (mdc),
-    .phy_mdio_i    (mdio_out),
-    .phy_mdio_o    (mdio_in),
+    .phy_mdc       (),
+    .phy_mdio_i    (),
+    .phy_mdio_o    (),
     .phy_rx_clk    (1'b0),
     .phy_rx_data   (4'b0),
     .phy_rx_er     (1'b0),
@@ -413,25 +279,24 @@ module ntps_interfaces #(
     .ip2intc_irpt  (),
     .s_axi_aclk    (axi_aclk),
     .s_axi_aresetn (axi_aresetn),
-    .s_axi_araddr  (m_axi_araddr [(AXI_ETHLITE * 32) +: 13]),
-    .s_axi_arready (m_axi_arready[(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_arvalid (m_axi_arvalid[(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_awaddr  (m_axi_awaddr [(AXI_ETHLITE * 32) +: 13]),
-    .s_axi_awready (m_axi_awready[(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_awvalid (m_axi_awvalid[(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_bready  (m_axi_bready [(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_bresp   (m_axi_bresp  [(AXI_ETHLITE * 2) +: 2]),
-    .s_axi_bvalid  (m_axi_bvalid [(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_rdata   (m_axi_rdata  [(AXI_ETHLITE * 32) +: 32]),
-    .s_axi_rready  (m_axi_rready [(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_rresp   (m_axi_rresp  [(AXI_ETHLITE * 2) +: 2]),
-    .s_axi_rvalid  (m_axi_rvalid [(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_wdata   (m_axi_wdata  [(AXI_ETHLITE * 32) +: 32]),
-    .s_axi_wready  (m_axi_wready [(AXI_ETHLITE * 1) +: 1]),
-    .s_axi_wstrb   (m_axi_wstrb  [(AXI_ETHLITE * 32/8) +: 32/8]),
-    .s_axi_wvalid  (m_axi_wvalid [(AXI_ETHLITE * 1) +: 1])
+    .s_axi_araddr  (axil_araddr [(AXI_ETHLITE * 32) +: 13]),
+    .s_axi_arready (axil_arready[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_arvalid (axil_arvalid[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_awaddr  (axil_awaddr [(AXI_ETHLITE * 32) +: 13]),
+    .s_axi_awready (axil_awready[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_awvalid (axil_awvalid[(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_bready  (axil_bready [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_bresp   (axil_bresp  [(AXI_ETHLITE * 2) +: 2]),
+    .s_axi_bvalid  (axil_bvalid [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_rdata   (axil_rdata  [(AXI_ETHLITE * 32) +: 32]),
+    .s_axi_rready  (axil_rready [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_rresp   (axil_rresp  [(AXI_ETHLITE * 2) +: 2]),
+    .s_axi_rvalid  (axil_rvalid [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_wdata   (axil_wdata  [(AXI_ETHLITE * 32) +: 32]),
+    .s_axi_wready  (axil_wready [(AXI_ETHLITE * 1) +: 1]),
+    .s_axi_wstrb   (axil_wstrb  [(AXI_ETHLITE * 32/8) +: 32/8]),
+    .s_axi_wvalid  (axil_wvalid [(AXI_ETHLITE * 1) +: 1])
   );
-
 
   //----------------------------------------------------------------
   // pvtmon
@@ -439,287 +304,155 @@ module ntps_interfaces #(
   // Also includes registers for build info to ID the FPGA design.
   //----------------------------------------------------------------
   pvtmon_top pvtmon_top_0 (
-    .clk50          (clk50),
+    .clk50          (refclk),
     .rst            (reset),
 
     .pcie_link_up   (user_link_up),
-    .pmbus_clk      (pmbus_clk),
-    .pmbus_data     (pmbus_data),
+    .pmbus_clk      (),
+    .pmbus_data     (),
     .pmbus_control  (),
-    .pmbus_alert    (pmbus_alert),
+    .pmbus_alert    (),
 
     .s_axi_clk      (axi_aclk),
     .s_axi_aresetn  (axi_aresetn),
-    .s_axi_araddr   (m_axi_araddr [(AXI_PVT * 32) +: 7]),
-    .s_axi_arready  (m_axi_arready[(AXI_PVT * 1) +: 1]),
-    .s_axi_arvalid  (m_axi_arvalid[(AXI_PVT * 1) +: 1]),
-    .s_axi_awaddr   (m_axi_awaddr [(AXI_PVT * 32) +: 7]),
-    .s_axi_awready  (m_axi_awready[(AXI_PVT * 1) +: 1]),
-    .s_axi_awvalid  (m_axi_awvalid[(AXI_PVT * 1) +: 1]),
-    .s_axi_bready   (m_axi_bready [(AXI_PVT * 1) +: 1]),
-    .s_axi_bresp    (m_axi_bresp  [(AXI_PVT * 2) +: 2]),
-    .s_axi_bvalid   (m_axi_bvalid [(AXI_PVT * 1) +: 1]),
-    .s_axi_rdata    (m_axi_rdata  [(AXI_PVT * 32) +: 32]),
-    .s_axi_rready   (m_axi_rready [(AXI_PVT * 1) +: 1]),
-    .s_axi_rresp    (m_axi_rresp  [(AXI_PVT * 2) +: 2]),
-    .s_axi_rvalid   (m_axi_rvalid [(AXI_PVT * 1) +: 1]),
-    .s_axi_wdata    (m_axi_wdata  [(AXI_PVT * 32) +: 32]),
-    .s_axi_wready   (m_axi_wready [(AXI_PVT * 1) +: 1]),
-    .s_axi_wstrb    (m_axi_wstrb  [(AXI_PVT * 32/8) +: 32/8]),
-    .s_axi_wvalid   (m_axi_wvalid [(AXI_PVT * 1) +: 1])
+    .s_axi_araddr   (axil_araddr [(AXI_PVT * 32) +: 7]),
+    .s_axi_arready  (axil_arready[(AXI_PVT * 1) +: 1]),
+    .s_axi_arvalid  (axil_arvalid[(AXI_PVT * 1) +: 1]),
+    .s_axi_awaddr   (axil_awaddr [(AXI_PVT * 32) +: 7]),
+    .s_axi_awready  (axil_awready[(AXI_PVT * 1) +: 1]),
+    .s_axi_awvalid  (axil_awvalid[(AXI_PVT * 1) +: 1]),
+    .s_axi_bready   (axil_bready [(AXI_PVT * 1) +: 1]),
+    .s_axi_bresp    (axil_bresp  [(AXI_PVT * 2) +: 2]),
+    .s_axi_bvalid   (axil_bvalid [(AXI_PVT * 1) +: 1]),
+    .s_axi_rdata    (axil_rdata  [(AXI_PVT * 32) +: 32]),
+    .s_axi_rready   (axil_rready [(AXI_PVT * 1) +: 1]),
+    .s_axi_rresp    (axil_rresp  [(AXI_PVT * 2) +: 2]),
+    .s_axi_rvalid   (axil_rvalid [(AXI_PVT * 1) +: 1]),
+    .s_axi_wdata    (axil_wdata  [(AXI_PVT * 32) +: 32]),
+    .s_axi_wready   (axil_wready [(AXI_PVT * 1) +: 1]),
+    .s_axi_wstrb    (axil_wstrb  [(AXI_PVT * 32/8) +: 32/8]),
+    .s_axi_wvalid   (axil_wvalid [(AXI_PVT * 1) +: 1])
     );
 
 
   //----------------------------------------------------------------
-  // Ethernet PHYs.
+  // network_path_axi_slaves
   //----------------------------------------------------------------
-  ntps_phys phys(
-                 .reset(),
-                 .clk_125mhz(clk_125mhz),
-                 .areset_clk156(areset_clk156),
-                 .clk156(clk156),
+  generate
+    for (ii = 0; ii < NUM_PATHS; ii = ii + 1) begin : generate_network_path_axi_slave
+      network_path_axi_slave network_path_axi_slave (
+	.pp_clk         (clk156),
+	.gen_config     (gen_config[32*ii +: 32]),
+	.ntp_config     (),
+	.ntp_root_delay (),
+	.ntp_root_disp  (),
+	.ntp_ref_id     (),
+	.ntp_ref_ts     (),
+	.ntp_rx_ofs     (),
+	.ntp_tx_ofs     (),
+	.pp_status      (32'h0),
+	.xphy_status    ({3'h0, xphy_status[5*ii +: 5]}),
+	.ntp_sync_ok    (ntp_sync_ok),
 
-                 // i2c for board management
-                 .i2c_scl(i2c_scl),
-                 .i2c_sda(i2c_sda),
+	// Ports for API extension.
+	.api_ext_command    (api_ext_command   [ 2*ii +:  2]),
+	.api_ext_address    (api_ext_address   [32*ii +: 32]),
+	.api_ext_write_data (api_ext_write_data[32*ii +: 32]),
+	.api_ext_status     (api_ext_status    [ 2*ii +:  2]),
+	.api_ext_read_data  (api_ext_read_data [32*ii +: 32]),
 
-                 // Blinkenlights.
-                 .led(),
-
-                 .xphy_config_0         (gen_config_0[31 : 29]),
-                 .xphy_config_1         (gen_config_1[31 : 29]),
-                 .xphy_config_2         (gen_config_2[31 : 29]),
-                 .xphy_config_3         (gen_config_3[31 : 29]),
-
-                 .qsfp1_mgt_refclk_0_p(qsfp1_mgt_refclk_0_p),
-                 .qsfp1_mgt_refclk_0_n(qsfp1_mgt_refclk_0_n),
-
-                 // External ports for QSFP interface 1.
-                 .qsfp1_tx1_p(qsfp1_tx1_p),
-                 .qsfp1_tx1_n(qsfp1_tx1_n),
-                 .qsfp1_rx1_p(qsfp1_rx1_p),
-                 .qsfp1_rx1_n(qsfp1_rx1_n),
-                 .qsfp1_tx2_p(qsfp1_tx2_p),
-                 .qsfp1_tx2_n(qsfp1_tx2_n),
-                 .qsfp1_rx2_p(qsfp1_rx2_p),
-                 .qsfp1_rx2_n(qsfp1_rx2_n),
-                 .qsfp1_tx3_p(qsfp1_tx3_p),
-                 .qsfp1_tx3_n(qsfp1_tx3_n),
-                 .qsfp1_rx3_p(qsfp1_rx3_p),
-                 .qsfp1_rx3_n(qsfp1_rx3_n),
-                 .qsfp1_tx4_p(qsfp1_tx4_p),
-                 .qsfp1_tx4_n(qsfp1_tx4_n),
-                 .qsfp1_rx4_p(qsfp1_rx4_p),
-                 .qsfp1_rx4_n(qsfp1_rx4_n),
-                 .qsfp1_modsell(qsfp1_modsell),
-                 .qsfp1_resetl(qsfp1_resetl),
-                 .qsfp1_modprsl(qsfp1_modprsl),
-                 .qsfp1_intl(qsfp1_intl),
-                 .qsfp1_lpmode(qsfp1_lpmode),
-
-                 // XGMII ports for QSFP interface 1.
-                 .qsfp1_xgmii_txd_1(xgmii_txd_0),
-                 .qsfp1_xgmii_txc_1(xgmii_txc_0),
-                 .qsfp1_xgmii_rxd_1(xgmii_rxd_0),
-                 .qsfp1_xgmii_rxc_1(xgmii_rxc_0),
-                 .qsfp1_xgmii_txd_2(xgmii_txd_1),
-                 .qsfp1_xgmii_txc_2(xgmii_txc_1),
-                 .qsfp1_xgmii_rxd_2(xgmii_rxd_1),
-                 .qsfp1_xgmii_rxc_2(xgmii_rxc_1),
-                 .qsfp1_xgmii_txd_3(xgmii_txd_2),
-                 .qsfp1_xgmii_txc_3(xgmii_txc_2),
-                 .qsfp1_xgmii_rxd_3(xgmii_rxd_2),
-                 .qsfp1_xgmii_rxc_3(xgmii_rxc_2),
-                 .qsfp1_xgmii_txd_4(xgmii_txd_3),
-                 .qsfp1_xgmii_txc_4(xgmii_txc_3),
-                 .qsfp1_xgmii_rxd_4(xgmii_rxd_3),
-                 .qsfp1_xgmii_rxc_4(xgmii_rxc_3)
-
-                 );
-
+	.S_AXI_ACLK    (axi_aclk),
+	.S_AXI_ARESETN (axi_aresetn),
+	.S_AXI_AWADDR  (axil_awaddr [((AXI_NP0+ii) * 32) +: 9]),
+	.S_AXI_AWVALID (axil_awvalid[((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_AWREADY (axil_awready[((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_WDATA   (axil_wdata  [((AXI_NP0+ii) * 32) +: 32]),
+	.S_AXI_WSTRB   (axil_wstrb  [((AXI_NP0+ii) * 32/8) +: 32/8]),
+	.S_AXI_WVALID  (axil_wvalid [((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_WREADY  (axil_wready [((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_BRESP   (axil_bresp  [((AXI_NP0+ii) * 2) +: 2]),
+	.S_AXI_BVALID  (axil_bvalid [((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_BREADY  (axil_bready [((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_ARADDR  (axil_araddr [((AXI_NP0+ii) * 32) +: 9]),
+	.S_AXI_ARVALID (axil_arvalid[((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_ARREADY (axil_arready[((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_RDATA   (axil_rdata  [((AXI_NP0+ii) * 32) +: 32]),
+	.S_AXI_RRESP   (axil_rresp  [((AXI_NP0+ii) * 2) +: 2]),
+	.S_AXI_RVALID  (axil_rvalid [((AXI_NP0+ii) * 1) +: 1]),
+	.S_AXI_RREADY  (axil_rready [((AXI_NP0+ii) * 1) +: 1])
+      );
+    end
+  endgenerate
 
   //----------------------------------------------------------------
-  // network_path_axi_slave_0
+  // network_path_shared_0.
   //----------------------------------------------------------------
-  network_path_axi_slave network_path_axi_slave_0 (
-    .pp_clk         (clk156),
-    .gen_config     (gen_config_0),
-    .ntp_config     (),
-    .ntp_root_delay (),
-    .ntp_root_disp  (),
-    .ntp_ref_id     (),
-    .ntp_ref_ts     (),
-    .ntp_rx_ofs     (),
-    .ntp_tx_ofs     (),
-    .pp_status      (32'h0),
-    .xphy_status    ({3'h0, xphy_status_0}),
-    .ntp_sync_ok    (ntp_sync_ok),
+   if (1)
+  network_path_shared
+  #(
+    .ENGINES_NTS(2),
+    .ENGINES_MINI(2),
+    .INSTANTIATE_ROSC(1)
+    )
+  network_path_inst_0
+   (
+    .api_ext_command    (api_ext_command   [ 2*0 +:  2]),
+    .api_ext_address    (api_ext_address   [32*0 +: 32]),
+    .api_ext_write_data (api_ext_write_data[32*0 +: 32]),
+    .api_ext_status     (api_ext_status    [ 2*0 +:  2]),
+    .api_ext_read_data  (api_ext_read_data [32*0 +: 32]),
 
-    // Ports for API extension.
-    .api_ext_command    (api_ext_command_0),
-    .api_ext_address    (api_ext_address_0),
-    .api_ext_write_data (api_ext_write_data_0),
-    .api_ext_status     (api_ext_status_0),
-    .api_ext_read_data  (api_ext_read_data_0),
+    .ntp_time           (ntp_time),
 
-    .S_AXI_ACLK    (axi_aclk),
-    .S_AXI_ARESETN (axi_aresetn),
-    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP0 * 32) +: 9]),
-    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP0 * 1) +: 1]),
-    .S_AXI_AWREADY (m_axi_awready[(AXI_NP0 * 1) +: 1]),
-    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP0 * 32) +: 32]),
-    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP0 * 32/8) +: 32/8]),
-    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP0 * 1) +: 1]),
-    .S_AXI_WREADY  (m_axi_wready [(AXI_NP0 * 1) +: 1]),
-    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP0 * 2) +: 2]),
-    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP0 * 1) +: 1]),
-    .S_AXI_BREADY  (m_axi_bready [(AXI_NP0 * 1) +: 1]),
-    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP0 * 32) +: 9]),
-    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP0 * 1) +: 1]),
-    .S_AXI_ARREADY (m_axi_arready[(AXI_NP0 * 1) +: 1]),
-    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP0 * 32) +: 32]),
-    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP0 * 2) +: 2]),
-    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP0 * 1) +: 1]),
-    .S_AXI_RREADY  (m_axi_rready [(AXI_NP0 * 1) +: 1])
+    .xgmii_rxd          (xgmii_rxd[64*0 +: 64]),
+    .xgmii_rxc          (xgmii_rxc[ 8*0 +:  8]),
+    .xgmii_txd          (xgmii_txd[64*0 +: 64]),
+    .xgmii_txc          (xgmii_txc[ 8*0 +:  8]),
+
+    .clk156             (clk156),
+    .areset_clk156      (areset_clk156),
+
+    .sys_reset          (reset)
   );
 
-
   //----------------------------------------------------------------
-  // network_path_axi_slave_1
+  // network_path_n
   //----------------------------------------------------------------
-  network_path_axi_slave network_path_axi_slave_1 (
-    .pp_clk         (clk156),
-    .gen_config     (gen_config_1),
-    .ntp_config     (),
-    .ntp_root_delay (),
-    .ntp_root_disp  (),
-    .ntp_ref_id     (),
-    .ntp_ref_ts     (),
-    .ntp_rx_ofs     (),
-    .ntp_tx_ofs     (),
-    .pp_status      (32'h0),
-    .xphy_status    ({3'h0, xphy_status_1}),
-    .ntp_sync_ok    (ntp_sync_ok),
+  generate
+    for (ii = 1; ii < NUM_PATHS; ii = ii + 1) begin : generate_network_path_n
+      if (0)
+      network_path_shared
+       #(
+         .ENGINES_NTS(2),
+         .ENGINES_MINI(2),
+         .INSTANTIATE_ROSC(0)
+         )
+      network_path_inst_n
+         (
+	  .api_ext_command    (api_ext_command   [ 2*ii +:  2]),
+	  .api_ext_address    (api_ext_address   [32*ii +: 32]),
+	  .api_ext_write_data (api_ext_write_data[32*ii +: 32]),
+	  .api_ext_status     (api_ext_status    [ 2*ii +:  2]),
+	  .api_ext_read_data  (api_ext_read_data [32*ii +: 32]),
 
-    // Ports for API extension.
-    .api_ext_command    (api_ext_command_1),
-    .api_ext_address    (api_ext_address_1),
-    .api_ext_write_data (api_ext_write_data_1),
-    .api_ext_status     (api_ext_status_1),
-    .api_ext_read_data  (api_ext_read_data_1),
+	  .ntp_time           (ntp_time),
 
-    .S_AXI_ACLK    (axi_aclk),
-    .S_AXI_ARESETN (axi_aresetn),
-    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP1 * 32) +: 9]),
-    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP1 * 1) +: 1]),
-    .S_AXI_AWREADY (m_axi_awready[(AXI_NP1 * 1) +: 1]),
-    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP1 * 32) +: 32]),
-    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP1 * 32/8) +: 32/8]),
-    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP1 * 1) +: 1]),
-    .S_AXI_WREADY  (m_axi_wready [(AXI_NP1 * 1) +: 1]),
-    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP1 * 2) +: 2]),
-    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP1 * 1) +: 1]),
-    .S_AXI_BREADY  (m_axi_bready [(AXI_NP1 * 1) +: 1]),
-    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP1 * 32) +: 9]),
-    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP1 * 1) +: 1]),
-    .S_AXI_ARREADY (m_axi_arready[(AXI_NP1 * 1) +: 1]),
-    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP1 * 32) +: 32]),
-    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP1 * 2) +: 2]),
-    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP1 * 1) +: 1]),
-    .S_AXI_RREADY  (m_axi_rready [(AXI_NP1 * 1) +: 1])
-  );
+	  .xgmii_rxd          (xgmii_rxd[64*ii +: 64]),
+	  .xgmii_rxc          (xgmii_rxc[ 8*ii +:  8]),
+	  .xgmii_txd          (xgmii_txd[64*ii +: 64]),
+	  .xgmii_txc          (xgmii_txc[ 8*ii +:  8]),
 
+	  .clk156             (clk156),
+	  .areset_clk156      (areset_clk156),
 
-  //----------------------------------------------------------------
-  // network_path_axi_slave_2
-  //----------------------------------------------------------------
-  network_path_axi_slave network_path_axi_slave_2 (
-    .pp_clk         (clk156),
-    .gen_config     (gen_config_2),
-    .ntp_config     (),
-    .ntp_root_delay (),
-    .ntp_root_disp  (),
-    .ntp_ref_id     (),
-    .ntp_ref_ts     (),
-    .ntp_rx_ofs     (),
-    .ntp_tx_ofs     (),
-    .pp_status      (32'h0),
-    .xphy_status    ({3'h0, xphy_status_2}),
-    .ntp_sync_ok    (ntp_sync_ok),
-
-    // Ports for API extension.
-    .api_ext_command    (api_ext_command_2),
-    .api_ext_address    (api_ext_address_2),
-    .api_ext_write_data (api_ext_write_data_2),
-    .api_ext_status     (api_ext_status_2),
-    .api_ext_read_data  (api_ext_read_data_2),
-
-    .S_AXI_ACLK    (axi_aclk),
-    .S_AXI_ARESETN (axi_aresetn),
-    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP2 * 32) +: 9]),
-    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP2 * 1) +: 1]),
-    .S_AXI_AWREADY (m_axi_awready[(AXI_NP2 * 1) +: 1]),
-    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP2 * 32) +: 32]),
-    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP2 * 32/8) +: 32/8]),
-    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP2 * 1) +: 1]),
-    .S_AXI_WREADY  (m_axi_wready [(AXI_NP2 * 1) +: 1]),
-    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP2 * 2) +: 2]),
-    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP2 * 1) +: 1]),
-    .S_AXI_BREADY  (m_axi_bready [(AXI_NP2 * 1) +: 1]),
-    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP2 * 32) +: 9]),
-    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP2 * 1) +: 1]),
-    .S_AXI_ARREADY (m_axi_arready[(AXI_NP2 * 1) +: 1]),
-    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP2 * 32) +: 32]),
-    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP2 * 2) +: 2]),
-    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP2 * 1) +: 1]),
-    .S_AXI_RREADY  (m_axi_rready [(AXI_NP2 * 1) +: 1])
-  );
-
-
-  //----------------------------------------------------------------
-  // network_path_axi_slave_3
-  //----------------------------------------------------------------
-  network_path_axi_slave network_path_axi_slave_3 (
-    .pp_clk         (clk156),
-    .gen_config     (gen_config_3),
-    .ntp_config     (),
-    .ntp_root_delay (),
-    .ntp_root_disp  (),
-    .ntp_ref_id     (),
-    .ntp_ref_ts     (),
-    .ntp_rx_ofs     (),
-    .ntp_tx_ofs     (),
-    .pp_status      (32'h0),
-    .xphy_status    ({3'h0, xphy_status_3}),
-    .ntp_sync_ok    (ntp_sync_ok),
-
-    // Ports for API extension.
-    .api_ext_command    (api_ext_command_3),
-    .api_ext_address    (api_ext_address_3),
-    .api_ext_write_data (api_ext_write_data_3),
-    .api_ext_status     (api_ext_status_3),
-    .api_ext_read_data  (api_ext_read_data_3),
-
-    .S_AXI_ACLK    (axi_aclk),
-    .S_AXI_ARESETN (axi_aresetn),
-    .S_AXI_AWADDR  (m_axi_awaddr [(AXI_NP3 * 32) +: 9]),
-    .S_AXI_AWVALID (m_axi_awvalid[(AXI_NP3 * 1) +: 1]),
-    .S_AXI_AWREADY (m_axi_awready[(AXI_NP3 * 1) +: 1]),
-    .S_AXI_WDATA   (m_axi_wdata  [(AXI_NP3 * 32) +: 32]),
-    .S_AXI_WSTRB   (m_axi_wstrb  [(AXI_NP3 * 32/8) +: 32/8]),
-    .S_AXI_WVALID  (m_axi_wvalid [(AXI_NP3 * 1) +: 1]),
-    .S_AXI_WREADY  (m_axi_wready [(AXI_NP3 * 1) +: 1]),
-    .S_AXI_BRESP   (m_axi_bresp  [(AXI_NP3 * 2) +: 2]),
-    .S_AXI_BVALID  (m_axi_bvalid [(AXI_NP3 * 1) +: 1]),
-    .S_AXI_BREADY  (m_axi_bready [(AXI_NP3 * 1) +: 1]),
-    .S_AXI_ARADDR  (m_axi_araddr [(AXI_NP3 * 32) +: 9]),
-    .S_AXI_ARVALID (m_axi_arvalid[(AXI_NP3 * 1) +: 1]),
-    .S_AXI_ARREADY (m_axi_arready[(AXI_NP3 * 1) +: 1]),
-    .S_AXI_RDATA   (m_axi_rdata  [(AXI_NP3 * 32) +: 32]),
-    .S_AXI_RRESP   (m_axi_rresp  [(AXI_NP3 * 2) +: 2]),
-    .S_AXI_RVALID  (m_axi_rvalid [(AXI_NP3 * 1) +: 1]),
-    .S_AXI_RREADY  (m_axi_rready [(AXI_NP3 * 1) +: 1])
-  );
+	  .sys_reset          (reset)
+          );
+      else begin
+	assign xgmii_txd[64*ii +: 64] = 64'h0707070707070707;
+	assign xgmii_txc[ 8*ii +:  8] = 8'hff;
+      end
+    end
+  endgenerate
 
 endmodule // ntps_interfaces
 

@@ -6,3 +6,7 @@
 *.runs
 *.sim
 *.srcs
+log
+neorv32.tcl
+usage_statistics_webtalk.*
+*.ip_user_files
