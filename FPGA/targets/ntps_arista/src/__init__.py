@@ -23,7 +23,7 @@ import mosapi
 __version__ = "UNVERSIONED"
 __buildid__ = 0
 
-app_name = "tscore"
+app_name = "ntps"
 
 # If we are not running on EOS, import the CLI example.
 if not mosapi.IS_EOS:

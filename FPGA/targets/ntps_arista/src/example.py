@@ -1,7 +1,9 @@
 # -------------------------------------------------------------------------------
+# - Copyright (c) 2022 Netnod AB
 # - Copyright (c) 2021-2022 Arista Networks, Inc. All rights reserved.
 # -------------------------------------------------------------------------------
 # - Author:
+# -   Christer Weinigel <wingel@netnod.se>
 # -   fdk-support@arista.com
 # -
 # - Description:
@@ -182,8 +184,8 @@ class Example(mosapi.App):
 def zap_daemon(ctx=None):
     """zap daemon - restart the synchronisation daemon
     Usage: zap daemon
-    Group: Application TSCore
-    Mode: config-app-tscore
+    Group: Application Ntps
+    Mode: config-app-ntps
     Hidden: hidden - debug
     """
     app = ctx.mode_ctx["app"]
@@ -196,8 +198,8 @@ def zap_daemon(ctx=None):
 def read_timestamp(ctx=None):
     """read timestamp - read the timestamp from the tyme sync module
     Usage: read timestamp
-    Group: Application TSCore
-    Mode: config-app-tscore
+    Group: Application Ntps
+    Mode: config-app-ntps
     """
     app = ctx.mode_ctx["app"]
     if app.is_shutdown():
@@ -218,8 +220,8 @@ def read_timestamp(ctx=None):
 def read_packet_timestamp(ctx=None):
     """read packet timestamp - read the packet timestamps for all AXI Interfaces
     Usage: read packet timestamp
-    Group: Application TSCore
-    Mode: config-app-tscore
+    Group: Application Ntps
+    Mode: config-app-ntps
     """
     app = ctx.mode_ctx["app"]
     if app.is_shutdown():
@@ -234,8 +236,8 @@ def read_packet_timestamp(ctx=None):
 def show_registers(ctx):
     """show registers - Show all registers
     Usage: show registers
-    Group: Application TScore
-    Mode: config-app-tscore
+    Group: Application Ntps
+    Mode: config-app-ntps
     """
     app = ctx.mode_ctx["app"]
     if not app.is_shutdown():
@@ -247,8 +249,8 @@ def show_registers(ctx):
 def read_register(ctx, name=""):
     """read register - read from register by name
     Usage: read register NAME
-    Group: Application TScore
-    Mode: config-app-tscore
+    Group: Application Ntps
+    Mode: config-app-ntps
     """
     app = ctx.mode_ctx["app"]
     if not app.is_shutdown():
@@ -260,8 +262,8 @@ def read_register(ctx, name=""):
 def write_register(ctx, name="", value=""):
     """write register - write to register by name
     Usage: write register NAME HEXNUMBER
-    Group: Application TScore
-    Mode: config-app-tscore
+    Group: Application Ntps
+    Mode: config-app-ntps
     """
     app = ctx.mode_ctx["app"]
     val = int(value, 0)

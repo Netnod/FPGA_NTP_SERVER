@@ -1,11 +1,11 @@
 #-------------------------------------------------------------------------------
 #- Netnod AB
 #- Copyright (c) 2022 Netnod AB
-#- Arista Networks, Inc.
+#- Arista Networks, Inc. Confidential and Proprietary.
 #- Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
 #-------------------------------------------------------------------------------
 #- Author:
-#-   wingel@netnod.se
+#-   Christer Weinigel <wingel@netnod.se>
 #-   fdk-support@arista.com
 #-
 #- Description:
@@ -30,10 +30,10 @@ PROJECT    ?= ntps
 VERSION_ID ?= 4.0.0
 BUILD_ID   ?= 1
 
-PROJECT_DIR     = $(CURDIR)
+PROJECT_DIR         = $(CURDIR)
 ARISTA_FDK_VERSION ?= 2.2.0
-ARISTA_FDK_DIR ?= $(PROJECT_DIR)/../../../arista_fdk-$(ARISTA_FDK_VERSION)
-ARISTA_SRC_DIR  = $(ARISTA_FDK_DIR)/src
+ARISTA_FDK_DIR     ?= $(PROJECT_DIR)/../../../arista_fdk-$(ARISTA_FDK_VERSION)
+ARISTA_SRC_DIR      = $(ARISTA_FDK_DIR)/src
 
 SOURCE_FILES = $(PROJECT_DIR)/src_files.json
 
@@ -43,18 +43,18 @@ VARIANTS ?= $(sort $(foreach var, $(wildcard src/*-cfg.json), $(wordlist 1,1, $(
 define parse_app_cfg
     $(foreach src, $(1),\
       $(if $(findstring json,$(src)),\
-        $(shell cat $(src) | \
-                sed -E '/app_sources/d' | \
-                sed -E 's/\"/ /g' | sed -E 's/,/ /g' | sed -E 's/]/ /g' | \
-                sed -E '/^\}/d' | sed -E '/^\{/d' | \
-                sed -E 's/\$$\{PROJECT_DIR\}/$(subst /,\/,$(PROJECT_DIR))/g' | \
-                sed -E 's/\$$\{ARISTA_FDK_DIR\}/$(subst /,\/,$(ARISTA_FDK_DIR))/g'), \
+        $(shell sed -re '/app_sources/d; \
+                         s/\"/ /g; s/,/ /g; s/]/ /g; \
+                         /^\}/d; /^\{/d; \
+                         s/\$$\{PROJECT_DIR\}/$(subst /,\/,$(PROJECT_DIR))/g; \
+                         s/\$$\{ARISTA_FDK_DIR\}/$(subst /,\/,$(ARISTA_FDK_DIR))/g' $(src)), \
         $(src)))
 endef
 
 #-------------------------------------------------------------------------------
 # Default Target
 #-------------------------------------------------------------------------------
+
 # List of application files to be built into the RPM
 APPFILES = $(call parse_app_cfg,$(PROJECT_DIR)/src/app-cfg.json)
 
@@ -65,50 +65,56 @@ REGFILES = $(wildcard $(PROJECT_DIR)/src/*.csv)
 # Check that VARIANTS-BOARDSTD-cfg.json exists first...
 PROJ_FILES = $(wildcard $(PROJECT_DIR)/src/*-cfg.json)
 BITSTREAMS = $(foreach brd, $(BOARDSTD), \
-               $(foreach var, $(VARIANTS), \
-                 $(if $(findstring $(var)-$(brd)-cfg.json, $(PROJ_FILES)), $(var)-$(brd))))
+                 $(foreach var, $(VARIANTS), \
+                     $(if $(findstring $(var)-$(brd)-cfg.json, $(PROJ_FILES)), $(var)-$(brd))))
 
-APP_RPM = $(PROJECT)-$(VERSION_ID).x86_64.rpm
-APP_SWIX = $(PROJECT)-$(VERSION_ID).swix
+# build RPM and SWIX by default but no squashfs
+APP_RPM            = $(PROJECT)-$(VERSION_ID).x86_64.rpm
+APP_SWIX           = $(PROJECT)-$(VERSION_ID).swix
 APP_BUILD_SQUASHFS =
 
 .PHONY : all
-all : $(APP_SWIX) $(APP_RPM)
-
+all : $(APP_RPM) $(APP_SWIX)
 
 #-------------------------------------------------------------------------------
-# Target description
+# Additional targets
 #-------------------------------------------------------------------------------
-.PHONY : targets
+
+.PHONY: targets
 targets::
-	@echo
-	@echo '#-------------------------------------------------------------------------------'
-	@echo 'Helper Targets:'
-	@echo
-	@echo '    targets:'
-	@echo '        Display this help message'
-	@echo '    clean:'
-	@echo '        Clean all generated files'
-	@echo
-	@echo
-	@echo '#-------------------------------------------------------------------------------'
-	@echo 'Customised Project Makefile:'
-	@echo '    Dependencies : Unix Shell'
-	@echo
-	@echo '    all:'
-	@echo '        Description  : Calls Application RPM generation with customized variables'
-	@echo '        Requirements : Refer to Application Project Generation helper'
-	@echo '        Artifacts    : Refer to Application Project Generation helper'
-	@echo
-	@echo '    Eg. "make"'
-	@echo '        "make BOARDSTD=$(lastword $(BOARDSTD))"'
-	@echo
+	@printf "%s\n" \
+	'' \
+	'#-------------------------------------------------------------------------------' \
+	'Helper Targets:' \
+	'' \
+	'    targets:' \
+	'        Display this help message' \
+	'    clean:' \
+	'        Clean all generated files' \
+	'' \
+	'' \
+	'#-------------------------------------------------------------------------------' \
+	'Customised Project Makefile:' \
+	'    Dependencies : Unix Shell' \
+	'' \
+	'    all:' \
+	'        Description  : Calls Application RPM generation with customized variables' \
+	'        Requirements : Refer to Application Project Generation helper' \
+	'        Artifacts    : Refer to Application Project Generation helper' \
+	'' \
+	'    Eg. "make"' \
+	'        "make BOARDSTD=$(lastword $(BOARDSTD))"' \
+	''
 
-#-------------------------------------------------------------------------------
-# Clean
-#-------------------------------------------------------------------------------
 .PHONY : clean
 clean::
+
+#-------------------------------------------------------------------------------
+# Include rules
+#-------------------------------------------------------------------------------
+
+include $(ARISTA_FDK_DIR)/resources/app.mk
+include $(ARISTA_FDK_DIR)/resources/vivado.mk
 
 .PHONY : rpm
 rpm::
