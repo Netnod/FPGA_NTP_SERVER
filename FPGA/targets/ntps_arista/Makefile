@@ -118,6 +118,7 @@ include $(ARISTA_FDK_DIR)/resources/vivado.mk
 
 .PHONY : rpm
 rpm::
+	rm -fv ./build/*.tar.gz
 	find . -name "*.rpm" | xargs rm -rfv ./build/rpmbuild || true
 	/bin/time nice make BOARDSTD=lb2 2>&1 | tee log
 
