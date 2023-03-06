@@ -4,10 +4,6 @@ set -euxo pipefail
 ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../../arista_fdk-2.2.0}
 echo "Building using Arista FDK in $ARISTA_FDK_DIR"
 
-(cd ../../cores && ./download-and-unpack.sh || exit 1)
-rm -rf build
-git clean -fdxq xilinx_ip
-
 # I can't figure out how to put vhdl files in a library using the
 # Arista build system so just edit all the source files for the
 # neorv32 core so that they use work/xil_defaultlib instead.
