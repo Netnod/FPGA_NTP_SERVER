@@ -47,7 +47,7 @@ cd FPGA_NTP_SERVER/FPGA/targets/ntps_arista
 Copy the RPM to the Arista switch (if using the default admin account):
 
 ```
-scp ntps-3.0.0.x86_64.rpm admin@arista:
+scp ntps-4.0.0.swix admin@arista:
 ```
 
 Shut down and uninstall the any old applications that might collide,
@@ -63,7 +63,7 @@ shutdown
 config
 remove app ntps
 remove app tscore
-install app ntps-3.0.0.x86_64.rpm
+install app ntps-4.0.0.swix
 exit
 exit
 ```

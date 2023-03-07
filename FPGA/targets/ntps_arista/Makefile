@@ -116,11 +116,11 @@ clean::
 include $(ARISTA_FDK_DIR)/resources/app.mk
 include $(ARISTA_FDK_DIR)/resources/vivado.mk
 
-.PHONY : rpm
-rpm::
+.PHONY : app
+app::
 	rm -fv ./build/*.tar.gz
-	find . -name "*.rpm" | xargs rm -rfv ./build/rpmbuild || true
-	/bin/time nice make BOARDSTD=lb2 2>&1 | tee log
+	find . -name "*.rpm" -o -name "*.swix" | xargs rm -rfv ./build/rpmbuild || true
+	/bin/time nice make BOARDSTD="$(BOARDSTD)" 2>&1 | tee log
 
 #-------------------------------------------------------------------------------
 # Include Arista Build Scripts
