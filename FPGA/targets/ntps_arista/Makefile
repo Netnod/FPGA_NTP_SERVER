@@ -69,9 +69,12 @@ BITSTREAMS = $(foreach brd, $(BOARDSTD), \
                  $(if $(findstring $(var)-$(brd)-cfg.json, $(PROJ_FILES)), $(var)-$(brd))))
 
 APP_RPM = $(PROJECT)-$(VERSION_ID).x86_64.rpm
+APP_SWIX = $(PROJECT)-$(VERSION_ID).swix
+APP_BUILD_SQUASHFS =
 
 .PHONY : all
-all : $(APP_RPM)
+all : $(APP_SWIX) $(APP_RPM)
+
 
 #-------------------------------------------------------------------------------
 # Target description
@@ -107,8 +110,22 @@ targets::
 .PHONY : clean
 clean::
 
+
 #-------------------------------------------------------------------------------
 # Include Arista Build Scripts
 #-------------------------------------------------------------------------------
 include $(ARISTA_FDK_DIR)/resources/app.mk
 include $(ARISTA_FDK_DIR)/resources/vivado.mk
+
+#-------------------------------------------------------------------------------
+# Rules to copy user files from the FDK. 
+# FIXME: These should be migrated to the IP core instead. 
+#-------------------------------------------------------------------------------
+
+$(APP_STAGING_DIR)/clockappdaemon.py $(APP_STAGING_DIR)/format_docstring.py: $(ARISTA_FDK_DIR)/examples/tscore/src/$$(@F)
+	mkdir -p $(@D) && cp $< $@
+	echo $(APP_STAGING_DIR)
+
+$(APP_STAGING_DIR)/daemon/%:$(ARISTA_FDK_DIR)/examples/tscore/src/daemon/%
+	mkdir -p $(@D) && cp $< $@
+	echo $(APP_STAGING_DIR)

@@ -3,7 +3,7 @@
         "${ARISTA_FDK_DIR}/src/boards/lb2/board_constraints.xdc", 
         "${ARISTA_FDK_DIR}/src/ts_ipcore/tscore.xdc", 
         "${PROJECT_DIR}/src/ntps-lb2-top.xdc",
-        "${PROJECT_DIR}/../../cores/verilog-ethernet/lib/axis/syn/sync_reset.tcl",
+        "${PROJECT_DIR}/../../cores/verilog-ethernet/lib/axis/syn/sync_reset.tcl"
     ], 
     "sources_1": [
         "${ARISTA_FDK_DIR}/src/seu/ip/xcvu9p-flgb2104-3-e/sem_mit_78M125/sem_mit_78M125.xci", 
