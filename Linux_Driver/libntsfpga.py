@@ -1009,14 +1009,20 @@ if __name__=="__main__":
     opt_test_entropy = 0
     install_keys = []
     activate_key = None
-    mac = [ 0x525a2c182ef0, 0x525a2c182ef1, 0x525a2c182ef2, 0x525a2c182ef3 ]
+    if socket.gethostname() in [ 'ticktock' ]:
+        ip_offset = 30
+    elif socket.gethostname() in [ 'vcu118' ]:
+        ip_offset = 40
+    else:
+        ip_offset = 20
+    mac = [ 0x525a2c182ef0 + ip_offset, 0x525a2c182ef1 + ip_offset, 0x525a2c182ef2 + ip_offset, 0x525a2c182ef3 + ip_offset ]
     ipv4 = []
     for i in range(8):
-        ipv4.append(("192.168.%d.%d" % (40, (30 + i))))
+        ipv4.append(("192.168.%d.%d" % (40, (ip_offset + i))))
 
     ipv6 = []
     for i in range(8):
-        ipv6.append(( 0xfd75, 0x502f, 0xe221, 0xddcf, 0x0000, 0x0000, 0x0000, i + 16 ))
+        ipv6.append(( 0xfd75, 0x502f, 0xe221, 0xddcf, 0x0000, 0x0000, ip_offset, i + 16 ))
 
     options, remainder = getopt.getopt(sys.argv[1:], '', [
         'dump',
