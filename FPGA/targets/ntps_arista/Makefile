@@ -123,12 +123,6 @@ app::
 	/bin/time nice make BOARDSTD="$(BOARDSTD)" 2>&1 | tee log
 
 #-------------------------------------------------------------------------------
-# Include Arista Build Scripts
-#-------------------------------------------------------------------------------
-include $(ARISTA_FDK_DIR)/resources/app.mk
-include $(ARISTA_FDK_DIR)/resources/vivado.mk
-
-#-------------------------------------------------------------------------------
 # Rules to copy user files from the FDK. 
 # FIXME: These should be migrated to the IP core instead. 
 #-------------------------------------------------------------------------------
@@ -140,3 +134,14 @@ $(APP_STAGING_DIR)/clockappdaemon.py $(APP_STAGING_DIR)/format_docstring.py: $(A
 $(APP_STAGING_DIR)/daemon/%:$(ARISTA_FDK_DIR)/examples/tscore/src/daemon/%
 	mkdir -p $(@D) && cp $< $@
 	echo $(APP_STAGING_DIR)
+
+
+#-------------------------------------------------------------------------------
+# Download the Xilinx sources if they don't exist
+#-------------------------------------------------------------------------------
+
+$(PROJECT_DIR)/../../cores/v7_xt_conn_trd/%: |$(PROJECT_DIR)/../../cores/v7_xt_conn_trd/readme.txt
+	@
+
+$(PROJECT_DIR)/../../cores/v7_xt_conn_trd: ../../cores/download-and-unpack.sh
+	cd $(<D) && bash $(<F)
