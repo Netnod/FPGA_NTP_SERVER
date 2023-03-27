@@ -58,6 +58,7 @@
         "${ARISTA_FDK_DIR}/src/ts_ipcore/time_sync.vhd",
         "${ARISTA_FDK_DIR}/src/ts_ipcore/timing_controller.vhd",
         "${ARISTA_FDK_DIR}/src/ts_ipcore/timestamper.vhd",
+        "${ARISTA_FDK_DIR}/src/ts_ipcore/tscore.vhd",
         "${ARISTA_FDK_DIR}/src/ts_ipcore/tscore_wrapper.vhd",
         "${PROJECT_DIR}/src/ntps_registers.vhd",
         "${ARISTA_FDK_DIR}/src/regfile/reg_hs_counter.vhd",
