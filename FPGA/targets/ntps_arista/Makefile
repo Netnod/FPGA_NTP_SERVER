@@ -140,8 +140,8 @@ $(APP_STAGING_DIR)/daemon/%:$(ARISTA_FDK_DIR)/examples/tscore/src/daemon/%
 # Download the Xilinx sources if they don't exist
 #-------------------------------------------------------------------------------
 
-$(PROJECT_DIR)/../../cores/v7_xt_conn_trd/%: |$(PROJECT_DIR)/../../cores/v7_xt_conn_trd/readme.txt
+$(PROJECT_DIR)/../../cores/v7_xt_conn_trd/%: |$(PROJECT_DIR)/../../cores/v7_xt_conn_trd
 	@
 
-$(PROJECT_DIR)/../../cores/v7_xt_conn_trd: ../../cores/download-and-unpack.sh
+$(PROJECT_DIR)/../../cores/v7_xt_conn_trd: $(PROJECT_DIR)/../../cores/download-and-unpack.sh
 	cd $(<D) && bash $(<F)
