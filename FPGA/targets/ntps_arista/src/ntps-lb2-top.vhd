@@ -71,8 +71,6 @@ entity top is
     fpga_id          : in    std_logic_vector(2 downto 0);
     bitstream_id     : in    std_logic_vector(31 downto 0);
 
-    mac_addr         : in    slv48_array_t(NUM_GT_PORTS_C downto 1);
-
     gt_cfg           : in    gt_cfg_t(NUM_GT_PORTS_C downto 1);
     gt_refclk        : in    diffpair_vector_t(NUM_GT_REFCLKS_C-1 downto 0);
     gt_tx            : out   diffpair_vector_t(NUM_GT_PORTS_C downto 1);
@@ -85,7 +83,16 @@ entity top is
     ddr4_data_strobe : inout ddr4_inout_array_t(NUM_DIMMS_C-1 downto 0);
     ddr4_ctrl        : out   ddr4_host2mem_array_t(NUM_DIMMS_C-1 downto 0);
 
-    crc_error        : out   std_logic := '0'
+    crc_error        : out   std_logic := '0';
+
+    -- Signals below are deprecated and disabled,
+    -- and will be removed in a future version of the FDK.
+    fpga_dna         : in    std_logic_vector(95 downto 0);
+    mac_addr         : in    slv48_array_t(NUM_GT_PORTS_C downto 1);
+
+    -- Signals below are reserved and subject to change.
+    reserved_in      : in    top_reserved_in_t;
+    reserved_out     : out   top_reserved_out_t := TOP_RESERVED_OUT_DFLT_C
     );
 end entity top;
 
