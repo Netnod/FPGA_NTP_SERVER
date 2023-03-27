@@ -57,9 +57,9 @@
         "${PROJECT_DIR}/src/daemon/clockapp/references.py",
         "${PROJECT_DIR}/src/daemon/clockapp/scc.py",
         "${PROJECT_DIR}/src/example.py",
-        "${PROJECT_DIR}/src/format_docstring.py"
+        "${PROJECT_DIR}/src/format_docstring.py",
         "${PROJECT_DIR}/src/Linux_Driver/__init__.py",
         "${PROJECT_DIR}/src/Linux_Driver/libntsfpga.py",
-        "${PROJECT_DIR}/src/Linux_Driver/xpcie.py",
+        "${PROJECT_DIR}/src/Linux_Driver/xpcie.py"
     ]
 }
