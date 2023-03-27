@@ -1,42 +1,42 @@
 [submodule "FPGA/cores/aes"]
 	path = FPGA/cores/aes
-	url = ../aes.git
+	url = ../../Netnod/aes.git
 [submodule "FPGA/cores/aes-siv"]
 	path = FPGA/cores/aes-siv
-	url = ../aes-siv.git
+	url = ../../Netnod/aes-siv.git
 [submodule "FPGA/cores/cmac"]
 	path = FPGA/cores/cmac
-	url = ../cmac.git
+	url = ../../Netnod/cmac.git
 [submodule "FPGA/cores/md5"]
 	path = FPGA/cores/md5
-	url = ../md5.git
+	url = ../../Netnod/md5.git
 [submodule "FPGA/cores/sha1"]
 	path = FPGA/cores/sha1
-	url = ../sha1.git
+	url = ../../Netnod/sha1.git
 [submodule "FPGA/cores/siphash"]
 	path = FPGA/cores/siphash
-	url = ../siphash.git
+	url = ../../Netnod/siphash.git
 [submodule "FPGA/cores/api_extension"]
 	path = FPGA/network_path/api_extension
-	url = ../api_extension.git
+	url = ../../Netnod/api_extension.git
 [submodule "FPGA/cores/keymem"]
 	path = FPGA/network_path/keymem
-	url = ../keymem.git
+	url = ../../Netnod/keymem.git
 [submodule "FPGA/cores/nts"]
 	path = FPGA/network_path/nts
-	url = ../nts.git
+	url = ../../Netnod/nts.git
 [submodule "FPGA/cores/nts_noncegen"]
 	path = FPGA/network_path/nts_noncegen
-	url = ../nts_noncegen.git
+	url = ../../Netnod/nts_noncegen.git
 [submodule "FPGA/cores/rosc_entropy"]
 	path = FPGA/cores/rosc_entropy
-	url = ../rosc_entropy
+	url = ../../Netnod/rosc_entropy
 [submodule "FPGA/cores/verilog-ethernet"]
 	path = FPGA/cores/verilog-ethernet
-	url = ../verilog-ethernet
+	url = ../../Netnod/verilog-ethernet
 [submodule "FPGA/cores/verilog-i2c"]
 	path = FPGA/cores/verilog-i2c
-	url = ../verilog-i2c
+	url = ../../Netnod/verilog-i2c
 [submodule "FPGA/cores/neorv32"]
 	path = FPGA/cores/neorv32
-	url = ../neorv32
+	url = ../../Netnod/neorv32
