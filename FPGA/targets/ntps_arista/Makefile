@@ -41,14 +41,22 @@ BOARDSTD ?= $(sort $(foreach brd, $(wildcard src/*-cfg.json), $(wordlist 2,2, $(
 VARIANTS ?= $(sort $(foreach var, $(wildcard src/*-cfg.json), $(wordlist 1,1, $(subst -, ,$(basename $(notdir $(var)))))))
 
 define parse_app_cfg
-    $(foreach src, $(1),\
-      $(if $(findstring json,$(src)),\
-        $(shell sed -re '/app_sources/d; \
-                         s/\"/ /g; s/,/ /g; s/]/ /g; \
-                         /^\}/d; /^\{/d; \
-                         s/\$$\{PROJECT_DIR\}/$(subst /,\/,$(PROJECT_DIR))/g; \
-                         s/\$$\{ARISTA_FDK_DIR\}/$(subst /,\/,$(ARISTA_FDK_DIR))/g' $(src)), \
-        $(src)))
+$(foreach src, $1, \
+  $(if $(findstring json,$(src)), \
+    $(shell cat $(src) | \
+      jq -r '. \
+        | with_entries( \
+          select( \
+            .key|contains("sources") or contains("constrs") \
+          ) \
+        ) \
+        | flatten \
+        | .[] \
+        | sub("\\$${PROJECT_DIR}";"$(subst /,\/,$(PROJECT_DIR))") \
+        | sub("\\$${ARISTA_FDK_DIR}";"$(subst /,\/,$(ARISTA_FDK_DIR))")'), \
+    $(src) \
+  ) \
+)
 endef
 
 #-------------------------------------------------------------------------------

@@ -17,7 +17,7 @@ find build/neorv32 build/processor -type f | xargs sed -i 's/neorv32\./work./g'
 vivado -nojournal -nolog -notrace -mode batch -source create_buildinfo.tcl
 
 /bin/time nice make ARISTA_FDK_DIR=$ARISTA_FDK_DIR BOARDSTD=lb2 2>&1 | tee log
-if ! test -f ntps-4.0.0.x86_64.swix; then
+if ! test -f ntps-4.0.0.swix; then
     echo "Build failed" 1>&2
     exit 1
 fi
