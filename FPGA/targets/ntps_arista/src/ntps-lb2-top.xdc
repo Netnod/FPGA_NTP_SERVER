@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 #- Copyright (c) 2022 Netnod AB
-#- Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
+#- Copyright (c) 2021-2023 Arista Networks, Inc. All rights reserved.
 #-------------------------------------------------------------------------------
 #- Author:
 #-   wingel@netnod.se

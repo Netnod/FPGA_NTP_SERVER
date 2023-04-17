@@ -1,8 +1,6 @@
 #-------------------------------------------------------------------------------
-#- Netnod AB
 #- Copyright (c) 2022 Netnod AB
-#- Arista Networks, Inc. Confidential and Proprietary.
-#- Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
+#- Copyright (c) 2021-2023 Arista Networks, Inc. All rights reserved.
 #-------------------------------------------------------------------------------
 #- Author:
 #-   Christer Weinigel <wingel@netnod.se>
@@ -31,7 +29,7 @@ VERSION_ID ?= 4.0.0
 BUILD_ID   ?= 1
 
 PROJECT_DIR         = $(CURDIR)
-ARISTA_FDK_VERSION ?= 2.2.0
+ARISTA_FDK_VERSION ?= 2.5.0
 ARISTA_FDK_DIR     ?= $(PROJECT_DIR)/../../../arista_fdk-$(ARISTA_FDK_VERSION)
 ARISTA_SRC_DIR      = $(ARISTA_FDK_DIR)/src
 
@@ -40,15 +38,25 @@ SOURCE_FILES = $(PROJECT_DIR)/src_files.json
 BOARDSTD ?= $(sort $(foreach brd, $(wildcard src/*-cfg.json), $(wordlist 2,2, $(subst -, ,$(basename $(notdir $(brd)))))))
 VARIANTS ?= $(sort $(foreach var, $(wildcard src/*-cfg.json), $(wordlist 1,1, $(subst -, ,$(basename $(notdir $(var)))))))
 
+# Extract source files from config files
+#   $1: Paths to config files
 define parse_app_cfg
-    $(foreach src, $(1),\
-      $(if $(findstring json,$(src)),\
-        $(shell sed -re '/app_sources/d; \
-                         s/\"/ /g; s/,/ /g; s/]/ /g; \
-                         /^\}/d; /^\{/d; \
-                         s/\$$\{PROJECT_DIR\}/$(subst /,\/,$(PROJECT_DIR))/g; \
-                         s/\$$\{ARISTA_FDK_DIR\}/$(subst /,\/,$(ARISTA_FDK_DIR))/g' $(src)), \
-        $(src)))
+$(foreach src, $1, \
+  $(if $(findstring json,$(src)), \
+    $(shell cat $(src) | \
+      jq -r '. \
+        | with_entries( \
+          select( \
+            .key|contains("sources") or contains("constrs") \
+          ) \
+        ) \
+        | flatten \
+        | .[] \
+        | sub("\\$${PROJECT_DIR}";"$(subst /,\/,$(PROJECT_DIR))") \
+        | sub("\\$${ARISTA_FDK_DIR}";"$(subst /,\/,$(ARISTA_FDK_DIR))")'), \
+    $(src) \
+  ) \
+)
 endef
 
 #-------------------------------------------------------------------------------
