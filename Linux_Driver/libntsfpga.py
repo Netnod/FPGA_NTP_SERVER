@@ -1014,7 +1014,7 @@ if __name__=="__main__":
     elif socket.gethostname() in [ 'vcu118' ]:
         ip_offset = 40
     else:
-        ip_offset = 20
+        ip_offset = 50
     mac = [ 0x525a2c182ef0 + ip_offset, 0x525a2c182ef1 + ip_offset, 0x525a2c182ef2 + ip_offset, 0x525a2c182ef3 + ip_offset ]
     ipv4 = []
     for i in range(8):
