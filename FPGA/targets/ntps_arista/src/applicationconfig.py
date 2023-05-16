@@ -1,19 +1,17 @@
-# -------------------------------------------------------------------------------
-# - Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
-# -------------------------------------------------------------------------------
-# - Author:
-# -   fdk-support@arista.com
-# -
-# - Description:
-# -
-# -
-# -   Licensed under BSD 3-clause license:
-# -     https://opensource.org/licenses/BSD-3-Clause
-# -
-# - Tags:
-# -   license-bsd-3-clause
-# -
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+#  Copyright (c) 2021-2023 Arista Networks, Inc. All rights reserved.
+# ------------------------------------------------------------------------------
+#  Author:
+#    fdk-support@arista.com
+#
+#  Description:
+#    Licensed under BSD 3-clause license:
+#      https://opensource.org/licenses/BSD-3-Clause
+#
+#  Tags:
+#    license-bsd-3-clause
+#
+# ------------------------------------------------------------------------------
 
 from __future__ import absolute_import, print_function
 
@@ -59,9 +57,7 @@ class ApplicationConfig(object):
             return
         if self.__conf_filename != value:
             raise Exception(
-                "Cannot set conf_filename twice! Currently: {}, New Value: {}".format(
-                    self.__conf_filename, value
-                )
+                "Cannot set conf_filename twice! Currently: {}, New Value: {}".format(self.__conf_filename, value)
             )
 
     def write_default_config(self):
@@ -137,15 +133,9 @@ class ApplicationConfig(object):
                 print("%", msg)
                 config_raised_exceptions = True
             if self.__debug:
-                logger.info(
-                    "Updated {} to {}, took {}s".format(
-                        k, conf[k], time.time() - start_time
-                    )
-                )
+                logger.info("Updated {} to {}, took {}s".format(k, conf[k], time.time() - start_time))
         if config_raised_exceptions:
-            raise RuntimeError(
-                "{} config caused errors when applied to the FPGA".format(name)
-            )
+            raise RuntimeError("{} config caused errors when applied to the FPGA".format(name))
 
     @property
     def app(self):
@@ -188,9 +178,7 @@ def get_generic_cli_function(key, ftype="", _format_dict=None, hidden=False):
         ]:
             if value not in format_dict["allowed_values"]:
                 raise ValueError(
-                    'Invalid argument "{}", valid arguments are: {}'.format(
-                        value, format_dict["set_allowed_args"]
-                    )
+                    'Invalid argument "{}", valid arguments are: {}'.format(value, format_dict["set_allowed_args"])
                 )
         app = ctx.mode_ctx["app"]
         app.set_config(key, value)
@@ -257,40 +245,26 @@ class ApplicationConfigItem(object):
         appconfig.register(self)
 
         if gen_cli is not None:
-            if (
-                "synopsis_key" not in gen_cli or "usage_key" not in gen_cli
-            ) and not self.match(self.__key_regex):
-                raise Exception(
-                    "Cant auto generate CLI, key is not self consistant ({})".format(
-                        self.__key_regex
-                    )
-                )
+            if ("synopsis_key" not in gen_cli or "usage_key" not in gen_cli) and not self.match(self.__key_regex):
+                raise Exception("Cant auto generate CLI, key is not self consistant ({})".format(self.__key_regex))
             if debug:
                 print("Creating CLI commands for key: {}..".format(self.__key_regex))
             for ftype in ["set", "show", "no", "default"]:
                 if debug:
                     print("Creating {} CLI command for key {}".format(ftype, key_regex))
-                cli_func = get_generic_cli_function(
-                    key_regex, ftype, gen_cli, gen_hidden
-                )
+                cli_func = get_generic_cli_function(key_regex, ftype, gen_cli, gen_hidden)
                 mosapi.cli_command(cli_func)
 
     def __update(self, key, value, ignore_is_shutdown):
         if self.__debug:
-            print(
-                "{}.__update: Updating {} to {}".format(
-                    self.__class__.__name__, key, value
-                )
-            )
+            print("{}.__update: Updating {} to {}".format(self.__class__.__name__, key, value))
         if self.__func is not None:
             self.__func(appconfig.app, key, value, ignore_is_shutdown)
 
     def match(self, key):
         m = re.match(self.__key_regex, key)
         if self.__debug:
-            print(
-                "Checking if {} matches {} : {}".format(key, self.__key_regex, bool(m))
-            )
+            print("Checking if {} matches {} : {}".format(key, self.__key_regex, bool(m)))
         if m:
             return True
         return False
@@ -298,11 +272,7 @@ class ApplicationConfigItem(object):
     def update(self, key, value, ignore_is_shutdown=False):
         if key is not None and self.match(key):
             if self.__debug:
-                print(
-                    "{}.update: Updating {} to {}".format(
-                        self.__class__.__name__, key, value
-                    )
-                )
+                print("{}.update: Updating {} to {}".format(self.__class__.__name__, key, value))
             value = self.default if value is None else value
             self.__update(key, value, ignore_is_shutdown)
 
@@ -322,11 +292,7 @@ class ApplicationConfigItem(object):
 
     def __call__(self, func):
         if self.__debug:
-            print(
-                "{}.__call__: key: {}, func={}".format(
-                    self.__class__.__name__, self.__key_regex, func.__name__
-                )
-            )
+            print("{}.__call__: key: {}, func={}".format(self.__class__.__name__, self.__key_regex, func.__name__))
         if self.__func is not None:
             raise RuntimeError(
                 "Call-back function for key {} has alread been registered: {}".format(

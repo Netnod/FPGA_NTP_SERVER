@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Copyright (c) 2022 Netnod AB
--- Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
+-- Copyright (c) 2021-2023 Arista Networks, Inc. All rights reserved.
 --------------------------------------------------------------------------------
 -- Author:
 --   wingel@netnod.se
@@ -28,8 +28,8 @@ use UNISIM.VCOMPONENTS.all;
 use work.metamako_pkg.all;
 use work.fpga_spec_pkg.all;
 use work.board_pkg.all;
-use work.phy_pkg.all;
 use work.pcie_pkg.all;
+use work.phy_pkg.all;
 use work.amba_pkg.all;
 
 --------------------------------------------------------------------------------
@@ -61,14 +61,12 @@ entity top is
     sync_out         : out   diffpair_t;
 
     i2c_scl_in       : in    std_logic_vector(NUM_I2C_C-1 downto 1);
-    i2c_scl_out      : out   std_logic_vector(NUM_I2C_C-1 downto 1) := (others => '1');
+    i2c_scl_out      : out   std_logic_vector(NUM_I2C_C-1 downto 1)  := (others => '1');
     i2c_sda_in       : in    std_logic_vector(NUM_I2C_C-1 downto 1);
-    i2c_sda_out      : out   std_logic_vector(NUM_I2C_C-1 downto 1) := (others => '1');
+    i2c_sda_out      : out   std_logic_vector(NUM_I2C_C-1 downto 1)  := (others => '1');
     gpio_in          : in    std_logic_vector(NUM_GPIO_C-1 downto 0);
     gpio_out         : out   std_logic_vector(NUM_GPIO_C-1 downto 0) := (others => '0');
     gpio_tri         : out   std_logic_vector(NUM_GPIO_C-1 downto 0) := (others => '1');
-    sysmon_alm       : in    std_logic_vector(15 downto 0);
-    fpga_id          : in    std_logic_vector(2 downto 0);
 
     gt_cfg           : in    gt_cfg_t(NUM_GT_PORTS_C downto 1);
     gt_refclk        : in    diffpair_vector_t(NUM_GT_REFCLKS_C-1 downto 0);
@@ -82,6 +80,9 @@ entity top is
     ddr4_data_strobe : inout ddr4_inout_array_t(NUM_DIMMS_C-1 downto 0);
     ddr4_ctrl        : out   ddr4_host2mem_array_t(NUM_DIMMS_C-1 downto 0);
 
+    fpga_id          : in    std_logic_vector(2 downto 0);
+
+    sysmon_alm       : in    std_logic_vector(15 downto 0);
     crc_error        : out   std_logic := '0';
 
     -- Signals below are deprecated and disabled,

@@ -1,21 +1,21 @@
-# -------------------------------------------------------------------------------
-# - Copyright (c) 2022 Netnod AB
-# - Copyright (c) 2021-2022 Arista Networks, Inc. All rights reserved.
-# -------------------------------------------------------------------------------
-# - Author:
-# -   Christer Weinigel <wingel@netnod.se>
-# -   fdk-support@arista.com
-# -
-# - Description:
-# -   Example application for tscore.
-# -
-# -   Licensed under BSD 3-clause license:
-# -     https://opensource.org/licenses/BSD-3-Clause
-# -
-# - Tags:
-# -   license-bsd-3-clause
-# -
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+#  Copyright (c) 2022 Netnod AB
+#  Copyright (c) 2021-2023 Arista Networks, Inc. All rights reserved.
+# ------------------------------------------------------------------------------
+#  Author:
+#    Christer Weinigel <wingel@netnod.se>
+#    fdk-support@arista.com
+# 
+#  Description:
+#    Example application for tscore.
+# 
+#    Licensed under BSD 3-clause license:
+#      https://opensource.org/licenses/BSD-3-Clause
+# 
+#  Tags:
+#    license-bsd-3-clause
+# 
+# ------------------------------------------------------------------------------
 
 from __future__ import absolute_import, print_function
 
@@ -67,13 +67,9 @@ class Example(mosapi.App):
         # Quick check to make sure the application is supported on this board standard...
         self.csvfile = self.appdir + "/fpga/%s_registers.csv" % (self.name)
         if self.fpga.board_standard in ("eh_central", "l", "lb2"):
-            self.fpgaRegisters = libapp_register_file.RegisterFile(
-                self.csvfile, self.fpga.communicator
-            )
+            self.fpgaRegisters = libapp_register_file.RegisterFile(self.csvfile, self.fpga.communicator)
         else:
-            raise RuntimeError(
-                "This Application is not compatible with the current Device Board Standard."
-            )
+            raise RuntimeError("This Application is not compatible with the current Device Board Standard.")
 
         try:
             module = mosapi.device_info.get_device_by_label("clock_module")
@@ -122,9 +118,7 @@ class Example(mosapi.App):
     @property
     def daemon(self):
         if self._daemon is None:
-            self._daemon = clockappdaemon.ClockAppDaemon(
-                self.name, os.path.join(self.appdir, "daemon", "clockapp")
-            )
+            self._daemon = clockappdaemon.ClockAppDaemon(self.name, os.path.join(self.appdir, "daemon", "clockapp"))
         return self._daemon
 
     def zap_daemon(self):
@@ -161,17 +155,13 @@ class Example(mosapi.App):
     def read_timestamp_pps(self):
         timestamp_high = self.reg.ts.spartan_pps.timestamp_high
         timestamp_low = self.reg.ts.spartan_pps.timestamp_low
-        r = "The timestamp time is {}.{:09d}".format(
-            datetime.utcfromtimestamp(timestamp_high), timestamp_low
-        )
+        r = "The timestamp time is {}.{:09d}".format(datetime.utcfromtimestamp(timestamp_high), timestamp_low)
         return r
 
     def read_timestamp_ptp(self):
         timestamp_high = self.reg.ts.host_gpio.timestamp_high
         timestamp_low = self.reg.ts.host_gpio.timestamp_low
-        r = "The timestamp time is {}.{:09d}".format(
-            datetime.utcfromtimestamp(timestamp_high), timestamp_low
-        )
+        r = "The timestamp time is {}.{:09d}".format(datetime.utcfromtimestamp(timestamp_high), timestamp_low)
         return r
 
     def read_timestamp_macphy(self):
@@ -474,9 +464,7 @@ def read_timestamp(ctx=None):
         raise Exception("Application {} is not running.".format(app.name))
 
     if app.get_config("timesource") == "freerun":
-        raise Exception(
-            "Application {} is freerunning, timestamp is not in sync.".format(app.name)
-        )
+        raise Exception("Application {} is freerunning, timestamp is not in sync.".format(app.name))
 
     if app.get_config("timesource") == "pps":
         return app.read_timestamp_pps()
