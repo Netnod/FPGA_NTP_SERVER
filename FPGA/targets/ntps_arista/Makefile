@@ -30,7 +30,7 @@ BUILD_ID   ?= 1
 
 PROJECT_DIR         = $(CURDIR)
 ARISTA_FDK_VERSION ?= 2.5.0
-ARISTA_FDK_DIR     ?= $(PROJECT_DIR)/../../../arista_fdk-$(ARISTA_FDK_VERSION)
+ARISTA_FDK_DIR     ?= $(PROJECT_DIR)/../../openfdk
 ARISTA_SRC_DIR      = $(ARISTA_FDK_DIR)/src
 
 SOURCE_FILES = $(PROJECT_DIR)/src_files.json
@@ -131,8 +131,8 @@ app::
 	/bin/time nice make BOARDSTD="$(BOARDSTD)" 2>&1 | tee log
 
 #-------------------------------------------------------------------------------
-# Rules to copy user files from the FDK. 
-# FIXME: These should be migrated to the IP core instead. 
+# Rules to copy user files from the FDK.
+# FIXME: These should be migrated to the IP core instead.
 #-------------------------------------------------------------------------------
 
 $(APP_STAGING_DIR)/clockappdaemon.py $(APP_STAGING_DIR)/format_docstring.py: $(ARISTA_FDK_DIR)/examples/tscore/src/$$(@F)

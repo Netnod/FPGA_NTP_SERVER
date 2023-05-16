@@ -40,3 +40,6 @@
 [submodule "FPGA/cores/neorv32"]
 	path = FPGA/cores/neorv32
 	url = ../../Netnod/neorv32
+[submodule "FPGA/cores/openfdk"]
+	path = FPGA/cores/openfdk
+	url = https://github.com/aristanetworks/openfdk.git
