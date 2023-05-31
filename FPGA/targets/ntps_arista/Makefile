@@ -135,11 +135,11 @@ app::
 # FIXME: These should be migrated to the IP core instead.
 #-------------------------------------------------------------------------------
 
-$(APP_STAGING_DIR)/clockappdaemon.py $(APP_STAGING_DIR)/format_docstring.py: $(ARISTA_FDK_DIR)/examples/tscore/src/$$(@F)
+$(APP_STAGING_DIR)/clockappdaemon.py $(APP_STAGING_DIR)/format_docstring.py: $(ARISTA_FDK_DIR)/examples/tscore_nomac/src/$$(@F)
 	mkdir -p $(@D) && cp $< $@
 	echo $(APP_STAGING_DIR)
 
-$(APP_STAGING_DIR)/daemon/%:$(ARISTA_FDK_DIR)/examples/tscore/src/daemon/%
+$(APP_STAGING_DIR)/daemon/%:$(ARISTA_FDK_DIR)/examples/tscore_nomac/src/daemon/%
 	mkdir -p $(@D) && cp $< $@
 	echo $(APP_STAGING_DIR)
 

@@ -49,7 +49,6 @@
         "${ARISTA_FDK_DIR}/src/ts_ipcore/timing_controller.vhd",
         "${ARISTA_FDK_DIR}/src/ts_ipcore/tscore.vhd",
         "${ARISTA_FDK_DIR}/src/ts_ipcore/tscore_wrapper.vhd",
-        "${ARISTA_FDK_DIR}/src/yart/drp_pkg.vhd",
         "${ARISTA_FDK_DIR}/src/yart/yart_i2c.vhd",
         "${ARISTA_FDK_DIR}/src/yart/yart_leaf_decode_v2.vhd",
         "${ARISTA_FDK_DIR}/src/yart/yart_pkg.vhd",

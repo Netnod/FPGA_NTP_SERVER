@@ -1,7 +1,7 @@
 #! /bin/bash
 set -euxo pipefail
 
-ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../../arista_fdk-2.5.0}
+ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../cores/openfdk}
 echo "Building using Arista FDK in $ARISTA_FDK_DIR"
 
 # I can't figure out how to put vhdl files in a library using the
