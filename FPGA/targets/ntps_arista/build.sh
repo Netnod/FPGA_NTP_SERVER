@@ -1,7 +1,7 @@
 #! /bin/bash
 set -euxo pipefail
 
-ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../../arista_fdk-2.5.0}
+ARISTA_FDK_DIR=${ARISTA_FDK_DIR:-$(pwd)/../../cores/openfdk}
 echo "Building using Arista FDK in $ARISTA_FDK_DIR"
 
 # I can't figure out how to put vhdl files in a library using the
@@ -17,7 +17,7 @@ find build/neorv32 build/processor -type f | xargs sed -i 's/neorv32\./work./g'
 vivado -nojournal -nolog -notrace -mode batch -source create_buildinfo.tcl
 
 /bin/time nice make ARISTA_FDK_DIR=$ARISTA_FDK_DIR BOARDSTD=lb2 2>&1 | tee log
-if ! test -f ntps-4.0.0.x86_64.rpm; then
+if ! test -f ntps-4.0.0.swix; then
     echo "Build failed" 1>&2
     exit 1
 fi
